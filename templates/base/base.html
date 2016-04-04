@@ -1,0 +1,36 @@
+{% load staticfiles %}
+
+<!DOCTYPE html>
+<html>
+    <head>
+        <script src="{% static 'scripts/lib/jquery.2.1.4.js' %}"></script>
+        {% block head %}
+        {% endblock %}
+        <link rel="stylesheet" href="{% static 'base/base_style.css' %}">
+        {% block style %}
+        {% endblock %}
+    </head>
+    <body>
+        <div id="container">
+        <h1> Unfold Studio</h1>
+        <ul id="menu">
+            <li><a href="{% url 'home' %}">Home</a></li>
+            <li><a href="{% url 'new_story' %}">New Story</a></li>
+            <li><a href="{% url 'documentation' %}">Documentation</a></li>
+            <li><a href="{% url 'about' %}">About</a></li>
+
+        </ul>
+        {% block content %}
+        {% endblock %}
+        </div>
+        <script>
+            $('#delete_prompt').hide()
+            $('#delete_confirm').hide()
+            $('#delete').click(function() {
+                $('#delete').hide()
+                $('#delete_prompt').show()
+                $('#delete_confirm').show()
+            })
+        </script>
+    </body>
+</html>

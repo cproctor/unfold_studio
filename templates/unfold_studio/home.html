@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+    {% if stories %}
+        <h2>Recent Stories</h2>
+        <ul>
+        {% for story in stories %}
+            <li><a href="{% url 'show_story' story.id %}">{{story.title}}</a></li>
+        {% endfor %}
+        </ul>
+    {% else %}
+        <h2>There are no stories yet</h2>
+    {% endif %}
+
+
+{% endblock %}

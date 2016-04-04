@@ -1,0 +1,50 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <script src="{% static 'scripts/lib/d3.3.5.9.js' %}"></script>
+    <script src="{% static 'scripts/lib/underscore.1.8.3.js' %}"></script>
+    <script src="{% static 'scripts/lib/jsgame/jsgame.js' %}"></script>
+    <script src="{% static 'scripts/ink_interface.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'scripts/lib/jsgame/jsgame.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>{{story.title}}</h1>
+<ul>
+    <li><a href="{% url 'edit_story' story.id %}">Edit</a></li>
+</ul>
+<p> by {{story.author}}</p>
+<div id="game"></div>
+<script>
+var game = new JSGame('#game');
+game.max_messages = 1000
+
+d3.json("{% url 'show_json' story.id %}", function(data) {
+    console.log(data)
+    ink = new InkInterface(data)
+    prints = []
+    ink.onAsk(function(choices) {
+        game
+            .wait_for_text(_.map(choices, function(choice, i) {
+                return ["" + (i + 1), choice.text]
+            }))
+            .then(function(choiceIndex) {
+                $('#input').hide()
+                $('#options').hide()
+                choices[parseInt(choiceIndex) - 1].fn()
+            })
+    })
+    ink.onPrint(function(message) {
+        prints.push(message)
+        game.print(message)
+    })
+    ink.run()
+})
+
+</script>
+
+
+{% endblock %}

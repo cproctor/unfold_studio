@@ -1,0 +1,25 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <script src="{% static 'scripts/lib/d3.3.5.9.js' %}"></script>
+    <script src="{% static 'scripts/lib/jquery.2.1.4.js' %}"></script>
+    <script src="{% static 'scripts/lib/underscore.1.8.3.js' %}"></script>
+    <script src="{% static 'scripts/lib/jsgame/jsgame.js' %}"></script>
+    <script src="{% static 'scripts/ink_interface.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'scripts/lib/jsgame/jsgame.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>{{story.title}}</h1>
+<ul>
+    <li><a href="{% url 'home' %}">Home</a></li>
+</ul>
+<p> by {{story.author}}</p>
+<h2>Trouble!</h2>
+<p>There is a problem with this story which needs to be fixed before it can run:</p>
+<p>{{story.message}}</p>
+<p>Would you like to <a href="{% url 'edit_story' story.id %}">edit</a> it?
+{% endblock %}

@@ -1,0 +1,49 @@
+html {
+    font-family: Garamond;
+}
+
+#game {
+    background-color: #ECF0F1;
+    border: 5px solid #BDC3C7;
+    border-radius: 10px;
+    width: 800px;
+    margin: 0 auto;
+}
+
+#messages {
+    width: 640px;
+    border-radius: 10px;
+    border: 5px solid #BDC3C7;
+    background-color: white;
+    margin: 20px auto;
+}
+
+#messages p {
+    margin: 10px;
+}
+
+#input {
+    width: 640px;
+    height: 40px;
+    display: block;
+    border: 5px solid #BDC3C7;
+    border-radius: 10px;
+    font-size: 2em;
+    margin: 10px auto;
+}
+
+#options {
+    width: 640px;
+    margin: 10px auto;
+    color: #7F8C8D;
+}
+
+#input.valid {
+    color: #27AE60;
+    border: 5px solid #27AE60;
+}
+#input.not-valid {
+    color: #C0392B;
+    border: 5px solid #C0392B;
+}
+

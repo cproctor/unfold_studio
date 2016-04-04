@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <script src="{% static 'scripts/lib/jquery-linedtextarea/jquery-linedtextarea.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'scripts/lib/jquery-linedtextarea/jquery-linedtextarea.css' %}">
+{% endblock %}
+
+{% block content %}
+    <h2>Add a new story</h2>
+    <form action="{% url 'new_story' %}" method="POST">
+        {% csrf_token %}
+        <table>
+        {{form.as_table}}
+        </table>
+        <input type="submit" value="Submit">
+    </form>
+    <script>
+        $('textarea').linedtextarea()
+    </script>
+{% endblock %}

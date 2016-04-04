@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <!--
+            This is a comment; it has no effect on the page. 
+            We need to load some scripts:
+                - jQuery is a very common library for using javascript to control a webpage. Look it up!
+                - Backbone gives us a Model and a View. Models are useful for keeping track of what's 
+                  happening in a game; views are useful for showing the information the model is storing.
+                  This is a really common pattern; it will help keep things organized.
+                - Underscore is a collection of a bunch of really useful functions. I use it in most 
+                  of my projects.
+                - jsGame is the game object I wrote. 
+                - At the bottom of the page, we load demo.js, which creates a new game object and starts
+                  it. (Need to load it at the bottom so that the page already exists when it starts.)
+        -->
+        <script src="http://code.jquery.com/jquery-2.1.3.min.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.7.0/underscore-min.js"></script>
+        <script src="jsgame.js"></script>
+        <link rel="stylesheet" href="jsgame.css">
+    </head>
+    <body>
+        <div id="game">
+        </div>
+        <script src="demo.js"></script>
+    </body>
+
+</html>

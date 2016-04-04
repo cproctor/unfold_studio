@@ -1,0 +1,26 @@
+/* base_style.css */
+
+body, pre, textarea, input {
+    font-family: Courier, monospace;
+    font-size: 1em;
+}
+
+table, textarea, input {
+    width: 100%;
+}
+
+textarea {
+    height: 600px;
+}
+
+#container {
+    width: 800px;
+    margin: 0 auto;
+}
+
+pre {
+    padding: 3px;
+    font-size: 1em;
+    background-color: #ddd;
+    border: 1px solid #444;
+}

@@ -1,0 +1,36 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+    <meta http-equiv="content-type" content="text/html; charset=UTF8">
+    <script src="{% static 'scripts/lib/d3.3.5.9.js' %}"></script>
+    <script src="{% static 'scripts/lib/underscore.1.8.3.js' %}"></script>
+    <script src="{% static 'scripts/lib/jsgame/jsgame.js' %}"></script>
+    <script src="{% static 'scripts/ink_interface.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'scripts/lib/jsgame/jsgame.css' %}">
+{% endblock %}
+
+{% block content %}
+<h1>About</h1>
+<div id="game"></div>
+<script>
+var game = new JSGame('#game');
+    data = {"inkVersion":9,"root":{"c":[{"div":"about"},{"cmd":"Done"}],"namedOnly":{"about":{"name":"about","c":[["Unfold Studio is a web application written by Chris Proctor. It was used for the first time in an Intersession at the Girls' Middle School in April 2016.","\n","Unfold Studio is released under the MIT license. Check out the code at github.com.","\n",{"div":"choices"}]]},"choices":{"name":"choices","c":[[{"c":[{"cmd":"EvalStart"},{"cmd":"BeginString"},{"div":".^.s","push":"func"},{"cmd":"EndString"},{"cmd":"EvalEnd"},{"path":".^.c","_[":true,"%t":"Choice"}],"namedOnly":{"s":{"name":"s","c":["Why did Chris build this?"]},"c":{"name":"c","c":[{"div":".^.^.s","push":"func"},"\n",{"div":"why"}],"cntFlags":5}}},{"c":[{"cmd":"EvalStart"},{"cmd":"BeginString"},{"div":".^.s","push":"func"},{"cmd":"EndString"},{"cmd":"EvalEnd"},{"path":".^.c","_[":true,"%t":"Choice"}],"namedOnly":{"s":{"name":"s","c":["Did you do it all by yourself?"]},"c":{"name":"c","c":[{"div":".^.^.s","push":"func"},"\n",{"div":"credits"}],"cntFlags":5}}},{"c":[{"cmd":"EvalStart"},{"cmd":"BeginString"},{"div":".^.s","push":"func"},{"cmd":"EndString"},{"cmd":"EvalEnd"},{"path":".^.c","_[":true,"%t":"Choice"}],"namedOnly":{"s":{"name":"s","c":["Does this site track me?"]},"c":{"name":"c","c":[{"div":".^.^.s","push":"func"},"\n",{"div":"privacy"}],"cntFlags":5}}}]]},"why":{"name":"why","c":[["Mostly, it seemed like it would be fun. Chris is a researcher interested in computational literacy, or the ways we use computation as a tool for thinking and a way to participate in culture. As a former English and Computer Science teacher, he has seen students learn to use print and code in powerful ways. Unfold Studio is a space to explore how these two media can interact to create something rich and strange.","\n",{"div":"choices"}]]},"credits":{"name":"credits","c":[["Definitely not! Unfold Studio is a web application built using Django (www.djangoproject.com), a Python framework for creating web applications. The Ink language, compiler, and documentation (github.com/inkle/ink) were written and released as open-source by Inkle. I also rely on a number of other open-source Javascript components such as d3 (d3js.org), underscore (underscorejs.org), jQuery (jquery.com), and the jQuery Lined Textarea plugin (alan.blog-city.com/jquerylinedtextarea.htm)","\n",{"div":"choices"}]]},"privacy":{"name":"privacy","c":[[{"<>":0}," Not much. You may have noticed there no user accounts on this site, and you are encouraged to write under a pseudonym. Unfold Studio does log story activity, a feature which may be used for research in the future. But nothing about your use of this site will ever be released to the public or used for any purpose other than doing research and making the site better. It's all open-source, so feel free to check out exactly how the code works yourself!","\n",{"div":"choices"}]]}}}}
+    ink = new InkInterface(data)
+    ink.onAsk(function(choices) {
+        game
+            .wait_for_text(_.map(choices, function(choice, i) {
+                return ["" + (i + 1), choice.text]
+            }))
+            .then(function(choiceIndex) {
+                $('#input').hide()
+                $('#options').hide()
+                choices[parseInt(choiceIndex) - 1].fn()
+            })
+    })
+    ink.onPrint(_.bind(game.print))
+    ink.run()
+</script>
+
+{% endblock %}
