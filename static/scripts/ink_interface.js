@@ -1,7 +1,5 @@
 // TODO: Check for "once" flag on choice
-// TODO: Check subprocess "string" status to see whether to concatenate result
-// TODO: Explicitly handle relative/absolute traverses using leading dot.
-// TODO: Never push booleans; use 0 and 1 instead.
+// TODO: Allow counting how many turns have elapsed.
 
 var InkInterface = function(ink) {
     this.init(ink)
@@ -345,6 +343,9 @@ InkProcess.prototype = {
             var value = this.pop()
             this.stack.push(value)
             this.stack.push(value)
+        }
+        else if (statement.cmd == "SequenceShuffleIndex") {
+            this.stack.push(_.random(this.pop() - 1))
         }
         else if (typeof statement == "object" && statement['<>'] != undefined) { // glue concat
             this.stack.push(statement)
