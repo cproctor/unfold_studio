@@ -9,6 +9,7 @@
 
 {% block content %}
     <h1>Edit Story</h1>
+    {% if false %}
     <ul>
         <li>
             <span id="delete"><a href="#">Delete</a></span>
@@ -18,6 +19,7 @@
             </span>
         </li>
     </ul>
+    {% endif %}
     {% if story.status != "ok" %}
         <p class="error">{{story.message}}</p>
         </h2>

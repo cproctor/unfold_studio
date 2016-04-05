@@ -27,5 +27,5 @@ urlpatterns = [
     url(r'stories/(?P<story_id>\d+)/json/?$', views.show_json, name="show_json"), 
     url(r'stories/(?P<story_id>\d+)/ink/?$', views.show_ink, name="show_ink"), 
     url(r'stories/(?P<story_id>\d+)/edit/?$', views.edit_story, name="edit_story"), 
-    url(r'stories/(?P<story_id>\d+)/delete/?$', views.delete_story, name="delete_story"), 
+    #url(r'stories/(?P<story_id>\d+)/delete/?$', views.delete_story, name="delete_story"), 
 ]
