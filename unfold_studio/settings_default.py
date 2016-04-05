@@ -117,8 +117,11 @@ USE_TZ = True
 
 # Ink Directory
 # Inklecate reads and write to files. INK_DIR specifies a directory which 
-# should exist and have appropriate permissions.
+# should exist and have appropriate permissions. INKLECATE names the executable;
+# INK_VERSION specifies the JSON protocol version to use
 INK_DIR = "/Users/chris/temp/inkspace"
+INKLECATE = "inklecate"
+INK_VERSION = 9
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/

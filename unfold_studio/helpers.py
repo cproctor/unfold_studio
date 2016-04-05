@@ -24,6 +24,9 @@ def compile_ink(inkcode):
         message = subprocess.check_output(["inklecate", fqn]).decode("utf-8")
         with open(fqn + ".json", encoding="utf-8-sig") as outfile:
             result = outfile.read()
+        if result.get("inkVersion") != settings.INK_VERSION:
+            raise IOError("Inklecate generated version {} of INK JSON; this app supports version {}".format(
+                    result.get("inkVersion"), settings.INK_VERSION)) 
         if message:
             return {
                 "status": "warning", 
