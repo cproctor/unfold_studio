@@ -9,11 +9,12 @@ import re
 
 log = logging.getLogger('django')    
 
+
 def compile_ink(inkcode):
     """ Writes inkcode to a file, calls to external program inklecate
     to process file, and returns a dict with status, result, and message."""
 
-    fn = "{:%Y_%m_%d_%H_%M_%S_}".format(datetime.now()) + str(random.random())[2:] + '.ink'
+    fn = "ink_{:%Y_%m_%d_%H_%M_%S_}".format(datetime.now()) + str(random.random())[2:] + '.ink'
     fqn = os.path.join(settings.INK_DIR, fn)
     try: 
         with open(fqn, 'w') as inkfile:
@@ -21,7 +22,8 @@ def compile_ink(inkcode):
     except IOError as e:
         return {"status": "error", "message": e}
     try:
-        message = subprocess.check_output(["inklecate", fqn]).decode("utf-8")
+        # log.debug("CALLING INKLECATE ON {}".format(fqn))
+        message = subprocess.check_output([settings.INKLECATE, fqn]).decode("utf-8")
         with open(fqn + ".json", encoding="utf-8-sig") as outfile:
             result = outfile.read()
         if result.get("inkVersion") != settings.INK_VERSION:
