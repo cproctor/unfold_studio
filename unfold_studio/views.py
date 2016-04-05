@@ -50,6 +50,16 @@ def edit_story(request, story_id):
             story = form.save()
             story.compile_ink()
             story.save()
+            log.info({
+                "id": story.id,
+                "status": story.status,
+                "message": story.message,
+                "ink": story.ink,
+                "json": story.json,
+                "title": story.title,
+                "author": story.author,
+                "timestamp": datetime.now()
+            })
             if story.status == "ok":
                 return redirect('show_story', story.id)
     else:
