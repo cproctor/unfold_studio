@@ -5,6 +5,33 @@ body, pre, textarea, input {
     font-size: 1em;
 }
 
+#menu {
+    background-color: #444;
+    list-style: none;
+    width: 110%;
+    float:left;
+    padding: 0;
+    position: relative;
+    left: -5%;
+}
+
+#menu a {
+    color: white !important;
+    text-decoration: none;
+}
+
+.clear {
+    
+}
+
+#menu li {
+    float: left;
+    float:left;
+    padding: 10px 30px;
+    text-align: center;
+    list-style-type: none;
+}
+
 table, textarea, input {
     width: 100%;
 }

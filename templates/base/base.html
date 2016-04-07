@@ -12,14 +12,13 @@
     </head>
     <body>
         <div id="container">
-        <h1> Unfold Studio</h1>
         <ul id="menu">
             <li><a href="{% url 'home' %}">Home</a></li>
             <li><a href="{% url 'new_story' %}">New Story</a></li>
             <li><a href="{% url 'documentation' %}">Documentation</a></li>
             <li><a href="{% url 'about' %}">About</a></li>
-
         </ul>
+        <h1> Unfold Studio</h1>
         {% block content %}
         {% endblock %}
         </div>

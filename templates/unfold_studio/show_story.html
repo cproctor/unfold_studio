@@ -12,11 +12,8 @@
 {% endblock %}
 
 {% block content %}
-<h1>{{story.title}}</h1>
-<ul>
-    <li><a href="{% url 'edit_story' story.id %}">Edit</a></li>
-</ul>
-<p> by {{story.author}}</p>
+<h2>{{story.title}}</h2>
+<p> by {{story.author}} [<a href="{% url 'edit_story' story.id %}">Edit</a>]</p>
 <div id="game"></div>
 <script>
 var game = new JSGame('#game');

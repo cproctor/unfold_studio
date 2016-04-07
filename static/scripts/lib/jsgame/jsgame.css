@@ -3,23 +3,13 @@ html {
 }
 
 #game {
-    background-color: #ECF0F1;
-    border: 5px solid #BDC3C7;
-    border-radius: 10px;
-    width: 800px;
-    margin: 0 auto;
 }
 
 #messages {
-    width: 640px;
-    border-radius: 10px;
-    border: 5px solid #BDC3C7;
-    background-color: white;
-    margin: 20px auto;
 }
 
 #messages p {
-    margin: 10px;
+    margin: 10px 0;
 }
 
 #input {
