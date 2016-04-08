@@ -5,7 +5,7 @@
         <h2>Recent Stories</h2>
         <ul>
         {% for story in stories %}
-            <li><a href="{% url 'show_story' story.id %}">{{story.title}}</a></li>
+            <li><a href="{% url 'show_story' story.id %}">{{story.title}}</a> by {{story.author}}</li>
         {% endfor %}
         </ul>
     {% else %}
