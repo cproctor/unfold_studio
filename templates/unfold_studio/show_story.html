@@ -35,8 +35,10 @@ d3.json("{% url 'show_json' story.id %}", function(data) {
             })
     })
     ink.onPrint(function(message) {
+        message = message.replace(/\[object Object\]/g, "")
         prints.push(message)
         game.print(message)
+        $("#messages").animate({ scrollTop: $('#messages').prop("scrollHeight")}, 200);
     })
     ink.run()
 })

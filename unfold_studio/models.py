@@ -17,6 +17,9 @@ class Story(models.Model):
     message = models.CharField(max_length=400, blank=True)
     err_line = models.IntegerField(blank=True, null=True)
 
+    def __str__(self):
+        return "{} by {}".format(self.title, self.author)
+
     def compile_ink(self):
         compiled_ink = compile_ink(self.ink)
         self.status = compiled_ink['status']

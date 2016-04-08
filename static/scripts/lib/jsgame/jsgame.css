@@ -6,7 +6,7 @@ html {
 }
 
 #messages {
-    height: 400px;
+    height: 320px;
     overflow: scroll;
 }
 

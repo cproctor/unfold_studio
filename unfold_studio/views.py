@@ -20,7 +20,7 @@ from .models import Story
 log = logging.getLogger('django')    
 
 def home(request):
-    stories = Story.objects.all()
+    stories = Story.objects.order_by('title').all()
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def new_story(request):
