@@ -1,5 +1,6 @@
 from django.db import models 
 from .helpers import compile_ink
+from django.contrib import admin
 
 class Story(models.Model):
     """
@@ -30,3 +31,4 @@ class Story(models.Model):
         
         
         
+admin.site.register(Story)
