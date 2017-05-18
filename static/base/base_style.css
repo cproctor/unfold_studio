@@ -44,10 +44,19 @@ textarea {
     width: 800px;
     margin: 0 auto;
 }
+ h1 {
+    text-align: left;
+    font-weight: 700;
+}
 
 pre {
     padding: 3px;
     font-size: 1em;
     background-color: #ddd;
     border: 1px solid #444;
+}
+
+p.description {
+    color: black;
+    opacity: 1;
 }

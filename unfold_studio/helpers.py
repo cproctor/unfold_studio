@@ -23,7 +23,7 @@ def compile_ink(inkcode):
         return {"status": "error", "message": e}
     try:
         # log.debug("CALLING INKLECATE ON {}".format(fqn))
-        message = subprocess.check_output([settings.INKLECATE, fqn]).decode("utf-8")
+        message = subprocess.check_output([settings.INKLECATE, fqn]).decode("utf-8").replace(u'\ufeff', '')
         with open(fqn + ".json", encoding="utf-8-sig") as outfile:
             result = outfile.read()
         #if result.get("inkVersion") != settings.INK_VERSION:
