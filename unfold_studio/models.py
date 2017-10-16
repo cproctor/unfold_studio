@@ -31,7 +31,10 @@ class Story(models.Model):
         self.err_line = compiled_ink.get('line')
         if compiled_ink.get('result'):
             self.json = compiled_ink['result']
-        
-        
+
+class Book(models.Model):
+    title = models.CharField(max_length=400)
+    owner = models.ForeignKey(User)
+    stories = models.ManyToManyField(Story)
         
 admin.site.register(Story)
