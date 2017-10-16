@@ -3,7 +3,9 @@ from .helpers import compile_ink
 from django.contrib import admin
 from django.contrib.auth.models import User
 from profiles.models import Profile
+import reversion
 
+@reversion.register()
 class Story(models.Model):
     """
     Stories can be saved even if invalid.
