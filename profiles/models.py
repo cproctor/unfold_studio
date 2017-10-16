@@ -1,10 +1,11 @@
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 class Profile(models.Model):    
     user = models.OneToOneField('auth.User', related_name='profile')
-    birth_month = models.DateField()
-    gender = models.CharField(max_length=100)
+    birth_month = models.DateField(null=True, blank=True)
+    gender = models.CharField(max_length=100, null=True, blank=True)
     following = models.ManyToManyField('profiles.Profile', related_name='followers')
 
 class Event(models.Model):
@@ -12,22 +13,26 @@ class Event(models.Model):
 
     LOVED_STORY = '0'
     COMMENTED_ON_STORY = '1'
-    PUBLISHED_STORY = '2'
-    PUBLISHED_BOOK = '3'
-    ADDED_STORY_TO_BOOK = '4'
-    FOLLOWED = '5'
+    FORKED_STORY = '2'
+    PUBLISHED_STORY = '3'
+    PUBLISHED_BOOK = '4'
+    ADDED_STORY_TO_BOOK = '5'
+    FOLLOWED = '6'
+    YOU_FOLLOWED = '7'
 
     EVENT_TYPES = (
         (LOVED_STORY, "loved story"),
         (COMMENTED_ON_STORY, "commented on story"),
+        (FORKED_STORY, "forked a story"),
         (PUBLISHED_STORY, "published story"),
         (PUBLISHED_BOOK, "published book"),
         (ADDED_STORY_TO_BOOK, "added story to book"),
-        (FOLLOWED, "followed")
+        (FOLLOWED, "followed"),
+        (YOU_FOLLOWED, "you followed")
     )
     
     user = models.ForeignKey('auth.User', related_name='events')
-    timestamp = models.DateTimeField()
+    timestamp = models.DateTimeField(default=timezone.now)
     event_type = models.CharField(max_length=1, choices=EVENT_TYPES)
     subject = models.ForeignKey('auth.User')
     book = models.ForeignKey('unfold_studio.Book', null=True)
@@ -36,4 +41,5 @@ class Event(models.Model):
     class Meta:
         # Ensures no duplication of events
         unique_together = (('user', 'event_type', 'subject', 'book', 'story'),)
+        ordering = ('timestamp',)
 
