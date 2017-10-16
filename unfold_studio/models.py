@@ -2,6 +2,7 @@ from django.db import models
 from .helpers import compile_ink
 from django.contrib import admin
 from django.contrib.auth.models import User
+from profiles.models import Profile
 
 class Story(models.Model):
     """
@@ -20,6 +21,7 @@ class Story(models.Model):
     err_line = models.IntegerField(blank=True, null=True)
     shared=models.BooleanField(default=False)
     featured=models.BooleanField(default=False)
+    loves = models.ManyToManyField(Profile, related_name="loved_stories")
 
     def __str__(self):
         return "{} by {}".format(self.title, self.author)
