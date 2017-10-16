@@ -10,7 +10,7 @@ class Story(models.Model):
 
     """
     title = models.CharField(max_length=400)
-    author = models.ForeignKey(User)
+    author = models.ForeignKey(User, related_name='stories')
     #creation_date = models.DateTimeField('date created')
     #edit_date = models.DateTimeField('date changed')
     #view_count = models.IntegerField(default=0)
@@ -34,7 +34,7 @@ class Story(models.Model):
         self.err_line = compiled_ink.get('line')
         if compiled_ink.get('result'):
             self.json = compiled_ink['result']
-
+    
 class Book(models.Model):
     title = models.CharField(max_length=400)
     owner = models.ForeignKey(User)
