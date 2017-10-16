@@ -19,6 +19,7 @@ class Story(models.Model):
     message = models.CharField(max_length=400, blank=True)
     err_line = models.IntegerField(blank=True, null=True)
     shared=models.BooleanField(default=False)
+    featured=models.BooleanField(default=False)
 
     def __str__(self):
         return "{} by {}".format(self.title, self.author)
