@@ -1,6 +1,7 @@
 from django.db import models 
 from .helpers import compile_ink
 from django.contrib import admin
+from django.contrib.auth.models import User
 
 class Story(models.Model):
     """
@@ -8,7 +9,7 @@ class Story(models.Model):
 
     """
     title = models.CharField(max_length=400)
-    author = models.CharField(max_length=400)
+    author = models.ForeignKey(User)
     #creation_date = models.DateTimeField('date created')
     #edit_date = models.DateTimeField('date changed')
     #view_count = models.IntegerField(default=0)
