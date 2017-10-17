@@ -3,6 +3,13 @@
 
 {% block content %}
     <h1>{{user.username}}</h1>
+    {% if request.user %}
+        {% if user.profile in request.user.profile.following %}
+            You follow {{user.username}}. (<a href="{% url 'unfollow_user' user %}">Stop following</a>)
+        {% else %}
+            <a href="{% url 'follow_user' user %}">Follow {{user.username}}</a>
+        {% endif %}
+    {% endif %}
     This is not you.
 {% endblock %}
 

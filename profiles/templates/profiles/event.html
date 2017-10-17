@@ -2,26 +2,27 @@
 <li class="event">
     {% if event.event_type == Event.LOVED_STORY %}
         <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> loved 
-        <a href="{% url 'show_story' event.story %}">{{event.story.title}}</a>.
+        <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
     {% elif event.event_type == Event.COMMENTED_ON_STORY %}
         <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> commented on 
-        <a href="{% url 'show_story' event.story %}">{{event.story.title}}</a>.
+        <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
     {% elif event.event_type == Event.FORKED_STORY %}
         <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> forked
-        <a href="{% url 'show_story' event.story %}">{{event.story.title}}</a>.
+        <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
     {% elif event.event_type == Event.PUBLISHED_STORY %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> published a new story called 
-        <a href="{% url 'show_story' event.story %}">{{event.story.title}}</a>.
+        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> published
+        "<a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>"
     {% elif event.event_type == Event.PUBLISHED_BOOK %}
         <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> published a book called 
-        <a href="{% url 'show_story' event.book %}">{{event.book.title}}</a>.
+        <a href="{% url 'show_story' event.book.id %}">{{event.book.title}}</a>
     {% elif event.event_type == Event.ADDED_STORY_TO_BOOK %}
         <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> added
-        <a href="{% url 'show_story' event.story %}">{{event.story.title}}</a> to the book
-        <a href="{% url 'show_story' event.book %}">{{event.book.title}}</a>.
+        <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a> to the book
+        <a href="{% url 'show_story' event.book %}">{{event.book.title}}</a>
     {% elif event.event_type == Event.FOLLOWED %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> now follows you.
+        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> now follows you
     {% elif event.event_type == Event.YOU_FOLLOWED %}
-        You followed <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> {{event.timestamp|humanize}}.
+        You followed <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a>
     {% endif %}
+    {{event.timestamp|humanize}}.
 </li>

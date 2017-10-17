@@ -39,8 +39,8 @@ class Event(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     event_type = models.CharField(max_length=1, choices=EVENT_TYPES)
     subject = models.ForeignKey('auth.User')
-    book = models.ForeignKey('unfold_studio.Book', null=True)
-    story = models.ForeignKey('unfold_studio.Story', null=True)
+    book = models.ForeignKey('unfold_studio.Book', null=True, blank=True)
+    story = models.ForeignKey('unfold_studio.Story', null=True, blank=True)
 
     def __str__(self):
         prefix = "[{}] ".format(self.user)
@@ -65,7 +65,7 @@ class Event(models.Model):
 
     class Meta:
         # Ensures no duplication of events
-        unique_together = ('user', 'event_type', 'subject', 'book', 'story')
+        unique_together = (('user', 'event_type', 'subject', 'book', 'story'), )
         indexes = [models.Index(fields=['user', 'timestamp'])]
         ordering = ('timestamp',)
 
