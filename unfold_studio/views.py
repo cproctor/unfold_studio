@@ -17,21 +17,32 @@ from datetime import datetime
 from random import choice
 import re
 from .forms import StoryForm
-from .models import Story
+from .models import Story, Book
 # TODO Do I need all this crap?
+
+from django.views.generic.detail import SingleObjectMixin, DetailView
+from django.views.generic.list import ListView
+from django.views.generic.edit import CreateView
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib import messages
+from django.views import View
+from django.http import HttpResponseRedirect
 
 log = logging.getLogger('django')    
 
 def home(request):
-    stories = Story.objects.order_by('title').all()
+    stories = Story.objects.filter(featured=True).order_by('title').all()
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
+def browse(request):
+    stories = Story.objects.order_by('title').all()
+    return render(request, 'unfold_studio/list_stories.html', {'stories': stories})
+
+@login_required
 def new_story(request):
     if request.method == "POST":
-        form = StoryForm(request.POST)
-        form.creation_date = datetime.now()
-        form.edit_date = datetime.now()
-        log.info(form)
+        story = Story(author=request.user, creation_date=datetime.now(), edit_date=datetime.now())
+        form = StoryForm(request.POST, instance=story)
         if form.is_valid():
             story = form.save()
             story.compile_ink()
@@ -45,6 +56,7 @@ def new_story(request):
 
     return render(request, 'unfold_studio/new_story.html', {'form': form})
 
+@login_required
 def edit_story(request, story_id):
     story = get_object_or_404(Story, id=story_id)
     if request.method == "POST":
@@ -113,6 +125,67 @@ def signup(request):
         form = UserCreationForm()
 
     return render(request, 'registration/signup.html', {'form': form})
+
+class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
+    model = Story
+    slug_field = 'id'
+
+class LoveStoryView(StoryMethodView):
+    def get(self, request, *args, **kwargs):
+        story = self.get_object()
+        if self.request.user.profile in story.loves.all():
+            messages.warning(self.request, "You already love '{}'".format(story.title))
+        elif self.request.user == story.author:
+            messages.warning(self.request, "You can't love your own stories.".format(story.title))
+        else:
+            story.loves.add(self.request.user.profile)
+            messages.success(self.request, "You loved '{}'".format(story.title))
+        return redirect('show_story', story.id)
+        
+class ForkStoryView(StoryMethodView):
+    def get(self, request, *args, **kwargs):
+        parent = self.get_object()
+        story = Story(author=request.user, parent=parent)
+        # TODO How do we init a story without saving it? Hidden field on the form? Render new story view
+        messages.success(self.request, "ONCE FORKS ARE IMPLEMENTED, you will have forked '{}'".format(story.title))
+        return redirect('show_story', parent.id)
+
+class CreateBookView(LoginRequiredMixin, CreateView):
+    model = Book
+    fields = ['title']
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['header'] = "Create a new book"
+        return context
+
+    def post(self, request, *args, **kwargs):
+        _book = Book(owner=request.user)
+        form = self.get_form_class()(request.POST, instance=_book)
+        if form.is_valid():
+            book = form.save()
+            return redirect('show_book', book.id)
+        else:
+            context = self.get_context_data(form=form)
+            return render('book_form', context)
+
+class BookListView(ListView):
+    model = Book
+
+class BookDetailView(DetailView):
+    model = Book
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -1,0 +1,6 @@
+{% if request.user.profile in story.loves.all %}
+    <span class="love">&lt;3</span>
+{% endif %}
+<a href="{% url 'show_story' story.id %}">{{story.title}}</a> 
+by <a href="{% url 'show_user' story.author %}">{{story.author}}</a>
+            

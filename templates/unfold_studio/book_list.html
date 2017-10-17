@@ -1,0 +1,14 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<h1>All books</h1>
+<ul>
+{% for book in object_list %}
+    <li><a href="{% url 'show_book' book.id %}">{{book.title}}</a> 
+    (<a href="{% url 'show_user' book.owner %}">{{book.owner}}</a>)
+{% endfor %}
+<ul>
+{% endblock %}
+
+

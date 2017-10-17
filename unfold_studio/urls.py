@@ -28,10 +28,17 @@ urlpatterns = [
     url(r'users/(?P<slug>\w+)/?$', profile_views.UserDetailView.as_view(), name="show_user"),
     url(r'users/(?P<slug>\w+)/follow/?$', profile_views.FollowUserView.as_view(), name="follow_user"),
     url(r'users/(?P<slug>\w+)/unfollow/?$', profile_views.UnfollowUserView.as_view(), name="unfollow_user"),
-    url(r'stories/new/?', views.new_story, name="new_story"),
+    url(r'stories/?$', views.browse, name="list_stories"),
+    url(r'stories/new/?$', views.new_story, name="new_story"),
     url(r'stories/(?P<story_id>\d+)/?$', views.show_story, name="show_story"), 
     url(r'stories/(?P<story_id>\d+)/json/?$', views.show_json, name="show_json"), 
     url(r'stories/(?P<story_id>\d+)/ink/?$', views.show_ink, name="show_ink"), 
     url(r'stories/(?P<story_id>\d+)/edit/?$', views.edit_story, name="edit_story"), 
+
+    url(r'stories/(?P<slug>\d+)/love/?$', views.LoveStoryView.as_view(), name="love_story"), 
+    url(r'stories/(?P<slug>\d+)/fork/?$', views.ForkStoryView.as_view(), name="fork_story"), 
+    url(r'books/?$', views.BookListView.as_view(), name='list_books'),
+    url(r'books/new/?$', views.CreateBookView.as_view(), name='create_book'),
+    url(r'books/(?P<pk>\d+)/?$', views.BookDetailView.as_view(), name="show_book"), 
     #url(r'stories/(?P<story_id>\d+)/delete/?$', views.delete_story, name="delete_story"), 
 ]

@@ -74,3 +74,29 @@ p.description {
     color: black;
     opacity: 1;
 }
+
+.love {
+    color: #c0392b;
+}
+
+.love:hover {
+    color: #e74c3c;
+}
+
+a {
+    color: #3498db;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #2980b9;
+}
+
+a:hover {
+
+}
+
+#story {
+    height: 600px; 
+    overflow: scroll;
+}

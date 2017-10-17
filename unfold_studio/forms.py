@@ -8,7 +8,6 @@ class StoryForm(ModelForm):
         model = Story
         fields = [
             'title',
-            'author',
             'ink'
         ]
 

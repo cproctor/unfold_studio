@@ -12,7 +12,11 @@
 
 {% block content %}
 <h2>{{story.title}}</h2>
-<p class="description"> by {{story.author}} [<a href="{% url 'edit_story' story.id %}">Edit</a>]</p>
+<p class="description"> by {{story.author}} 
+[<a href="">Again!</a>]
+{% if request.user.is_authenticated %}
+    [<a href="{% url 'edit_story' story.id %}">Edit</a>]</p>
+{% endif %}
 <div id="story"></div>
 
 <script src="{% static 'scripts/ink.js' %}"></script>

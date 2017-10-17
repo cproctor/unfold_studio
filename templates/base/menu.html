@@ -8,8 +8,13 @@
         <a href="{% url 'home' %}">Unfold Studio</a>
     </div>
     <div class="menu-item">
+        <a href="{% url 'list_stories' %}">Browse</a>
+    </div>
+    {% if request.user.is_authenticated %}
+    <div class="menu-item">
         <a href="{% url 'new_story' %}">New Story</a>
     </div>
+    {% endif %}
     <div class="menu-item menu-fill"></div>
     {% if request.user.is_authenticated %}
         <div class="menu-item">

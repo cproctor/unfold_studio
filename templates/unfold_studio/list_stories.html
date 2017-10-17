@@ -2,14 +2,14 @@
 
 {% block content %}
     {% if stories %}
-        <h2>Featured stories</h2>
+        <h2>All stories</h2>
         <ul>
         {% for story in stories %}
             <li>{% include 'unfold_studio/story.html'%}</li>
         {% endfor %}
         </ul>
     {% else %}
-        <h2>Sorry, there are no featured stories right now.</h2>
+        <h2>Sorry, there are no stories right now.</h2>
     {% endif %}
 
 
