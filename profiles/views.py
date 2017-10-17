@@ -21,10 +21,14 @@ class UserDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['stories'] = Story.objects.filter(author=self.object).all()
+        context['books'] = Book.objects.filter(owner=self.object).all()
         if self.request.user == self.object:
+            context['stories'] = Story.objects.filter(author=self.object).all()
             context['feed'] = Event.objects.filter(user=self.request.user)[:10]
             context['Event'] = Event
+        else:
+            context['stories'] = Story.objects.filter(author=self.object, shared=True).all()
+            
         return context
 
 class FollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
