@@ -22,8 +22,8 @@ class Story(models.Model):
     err_line = models.IntegerField(blank=True, null=True)
     shared=models.BooleanField(default=False)
     featured=models.BooleanField(default=False)
-    loves = models.ManyToManyField(Profile, related_name="loved_stories")
-    parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True)
+    loves = models.ManyToManyField(Profile, related_name="loved_stories", null=True, blank=True)
+    parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True, blank=True)
 
     def __str__(self):
         return "{} by {}".format(self.title, self.author)
