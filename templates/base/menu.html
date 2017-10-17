@@ -1,0 +1,30 @@
+{% load staticfiles %}
+
+<div id="menu">
+    <div class="menu-item menu-item-logo">
+        <a href="{% url 'home' %}"><img class="logo" src="{% static 'favicon.png' %}" /></a>
+    </div>
+    <div class="menu-item menu-item-title">
+        <a href="{% url 'home' %}">Unfold Studio</a>
+    </div>
+    <div class="menu-item">
+        <a href="{% url 'new_story' %}">New Story</a>
+    </div>
+    <div class="menu-item menu-fill"></div>
+    {% if request.user.is_authenticated %}
+        <div class="menu-item">
+            <a href="{% url 'show_user' request.user %}">{{request.user}}</a>
+        </div>
+        <div class="menu-item">
+            <a href="{% url 'logout' %}">[Log out]</a>
+        </div>
+    {% else %}
+        <div class="menu-item menu-item-right">
+            <a href="{% url 'login' %}">Log in</a>
+        </div>
+        <div class="menu-item menu-item-right">
+            <a href="{% url 'signup' %}">Sign up</a>
+        </div>
+    {% endif %}
+</div>
+

@@ -12,20 +12,8 @@
         {% endblock %}
     </head>
     <body>
+        {% include 'base/menu.html' %}
         <div id="container">
-        <ul id="menu">
-            <li><a href="{% url 'home' %}">Home</a></li>
-            <li><a href="{% url 'new_story' %}">New Story</a></li>
-            <li><a href="{% url 'documentation' %}">Documentation</a></li>
-            <li><a href="{% url 'about' %}">About</a></li>
-            {% if request.user.is_authenticated %}
-                <li><a href="{% url 'show_user' request.user %}">{{request.user}}</a></li>
-                <li><a href="{% url 'logout' %}">[Log out]</a></li>
-            {% else %}
-                <li><a href="{% url 'login' %}">Log in</a></li>
-                <li><a href="{% url 'signup' %}">Sign up</a></li>
-            {% endif %}
-        </ul>
         {% if messages %}
         <ul class="messages">
             {% for message in messages %}
@@ -36,6 +24,7 @@
         {% block content %}
         {% endblock %}
         </div>
+        {% include 'base/footer.html' %}
         <script>
             $('#delete_prompt').hide()
             $('#delete_confirm').hide()
