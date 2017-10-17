@@ -6,7 +6,7 @@ class Profile(models.Model):
     user = models.OneToOneField('auth.User', related_name='profile')
     birth_month = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=100, null=True, blank=True)
-    following = models.ManyToManyField('profiles.Profile', related_name='followers')
+    following = models.ManyToManyField('profiles.Profile', related_name='followers', null=True)
 
 class Event(models.Model):
     "Things that show up in a user's feed"
