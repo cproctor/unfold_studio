@@ -1,6 +1,5 @@
 from django.db import models 
 from .helpers import compile_ink
-from django.contrib import admin
 from django.contrib.auth.models import User
 from profiles.models import Profile
 import reversion
@@ -41,5 +40,3 @@ class Book(models.Model):
     title = models.CharField(max_length=400)
     owner = models.ForeignKey(User)
     stories = models.ManyToManyField(Story)
-        
-admin.site.register(Story)

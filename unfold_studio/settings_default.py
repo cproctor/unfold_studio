@@ -117,6 +117,10 @@ USE_L10N = True
 
 USE_TZ = True
 
+# Authentication
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
 # Ink Directory
 # Inklecate reads and write to files. INK_DIR specifies a directory which 
 # should exist and have appropriate permissions. INKLECATE names the executable;

@@ -7,6 +7,8 @@ from django.views import generic
 from django.http import JsonResponse                                  
 from django.forms.models import model_to_dict                         
 from django.contrib.auth.decorators import login_required             
+from django.contrib.auth import login
+from django.contrib.auth.forms import UserCreationForm
 import json
 from django.core.serializers import serialize                         
 from django.core.exceptions import ValidationError, PermissionDenied  
@@ -16,6 +18,7 @@ from random import choice
 import re
 from .forms import StoryForm
 from .models import Story
+# TODO Do I need all this crap?
 
 log = logging.getLogger('django')    
 
@@ -98,3 +101,19 @@ def about(request):
 
 def documentation(request):
     return render(request, 'unfold_studio/documentation.html')
+
+def signup(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('home')
+    else:
+        form = UserCreationForm()
+
+    return render(request, 'registration/signup.html', {'form': form})
+
+
+
+

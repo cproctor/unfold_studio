@@ -13,15 +13,21 @@ Including another URLconf
     1. Import the include() function: from django.conf.urls import url, include
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
-from django.conf.urls import url
+from django.conf.urls import url, include
 from django.contrib import admin
 from unfold_studio import views
+from profiles import views as profile_views
 
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
+    url(r'signup', views.signup, name='signup'),
     url(r'^$', views.home, name="home"),
+    url('^', include('django.contrib.auth.urls')),
     url(r'about', views.about, name="about"),
     url(r'documentation', views.documentation, name="documentation"),
+    url(r'users/(?P<slug>\w+)/?$', profile_views.UserDetailView.as_view(), name="show_user"),
+    url(r'users/(?P<slug>\w+)/follow/?$', profile_views.FollowUserView.as_view(), name="follow_user"),
+    url(r'users/(?P<slug>\w+)/unfollow/?$', profile_views.UnfollowUserView.as_view(), name="unfollow_user"),
     url(r'stories/new/?', views.new_story, name="new_story"),
     url(r'stories/(?P<story_id>\d+)/?$', views.show_story, name="show_story"), 
     url(r'stories/(?P<story_id>\d+)/json/?$', views.show_json, name="show_json"), 

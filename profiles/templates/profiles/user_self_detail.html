@@ -1,0 +1,24 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    <h1>{{user.username}}</h1>
+    <div class="feed">
+        <h2>Feed</h2>
+        <ul>
+        {% for event in feed %}
+            {% include 'profiles/event.html' %}
+        {% endfor %}
+        </ul>
+    </div>
+    <div>
+        <h2>Stories</h2>
+        <ul>
+        {% for story in stories %}
+            <li>
+                <a href="{% url 'show_story' story.id %}">{{story.title}}</a>
+            </li>
+        {% endfor %} 
+        </ul>
+    </div>
+{% endblock %}

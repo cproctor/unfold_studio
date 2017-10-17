@@ -4,6 +4,7 @@
 <html>
     <head>
         <script src="{% static 'scripts/lib/jquery.2.1.4.js' %}"></script>
+        <link rel="shortcut icon" href="{%  static 'favicon.png' %}">
         {% block head %}
         {% endblock %}
         <link rel="stylesheet" href="{% static 'base/base_style.css' %}">
@@ -17,7 +18,21 @@
             <li><a href="{% url 'new_story' %}">New Story</a></li>
             <li><a href="{% url 'documentation' %}">Documentation</a></li>
             <li><a href="{% url 'about' %}">About</a></li>
+            {% if request.user.is_authenticated %}
+                <li><a href="{% url 'show_user' request.user %}">{{request.user}}</a></li>
+                <li><a href="{% url 'logout' %}">[Log out]</a></li>
+            {% else %}
+                <li><a href="{% url 'login' %}">Log in</a></li>
+                <li><a href="{% url 'signup' %}">Sign up</a></li>
+            {% endif %}
         </ul>
+        {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+        {% endif %}
         {% block content %}
         {% endblock %}
         </div>
