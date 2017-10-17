@@ -22,7 +22,7 @@ class Story(models.Model):
     err_line = models.IntegerField(blank=True, null=True)
     shared=models.BooleanField(default=False)
     featured=models.BooleanField(default=False)
-    loves = models.ManyToManyField(Profile, related_name="loved_stories", null=True, blank=True)
+    loves = models.ManyToManyField(Profile, related_name="loved_stories", blank=True)
     parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True, blank=True)
 
     def __str__(self):
