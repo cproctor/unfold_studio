@@ -100,3 +100,23 @@ a:hover {
     height: 600px; 
     overflow: scroll;
 }
+
+.messages {
+    background-color: #ecf0f1;
+    margin: 0;
+    padding: 8px 16px 16px 16px;
+}
+
+.messages p {
+    padding-top: 8px;
+    margin: 0;
+}
+
+.messages p.success {
+    color: #27ae60;
+}
+
+.messages p.warning {
+    color: #c0392b;
+}
+.

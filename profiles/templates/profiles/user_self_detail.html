@@ -17,6 +17,9 @@
         {% for story in stories %}
             <li>
                 <a href="{% url 'show_story' story.id %}">{{story.title}}</a> 
+                {% if not story.shared %}
+                    [Private]
+                {% endif %}
             </li>
         {% endfor %} 
         </ul>

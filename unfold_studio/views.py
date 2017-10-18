@@ -32,11 +32,11 @@ from django.urls import reverse
 log = logging.getLogger('django')    
 
 def home(request):
-    stories = Story.objects.filter(featured=True).order_by('title').all()
+    stories = Story.objects.filter(featured=True, shared=True).order_by('title').all()
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
-    stories = Story.objects.order_by('title').all()
+    stories = Story.objects.filter(shared=True).order_by('title').all()
     return render(request, 'unfold_studio/list_stories.html', {'stories': stories})
 
 @login_required
@@ -60,6 +60,7 @@ def new_story(request):
 @login_required
 def edit_story(request, story_id):
     story = get_object_or_404(Story, id=story_id)
+    story.edit_date = datetime.now()
     if request.method == "POST":
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():

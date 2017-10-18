@@ -4,7 +4,7 @@
 {% block content %}
     <h1>{{user.username}}</h1>
     {% if request.user %}
-        {% if user.profile in request.user.profile.following %}
+        {% if user.profile in request.user.profile.following.all %}
             You follow {{user.username}}. (<a href="{% url 'unfollow_user' user %}">Stop following</a>)
         {% else %}
             {% if request.user.is_authenticated %}

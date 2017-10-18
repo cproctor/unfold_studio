@@ -44,7 +44,7 @@ class FollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
         else:
             self.request.user.profile.following.add(u.profile)
             messages.success(self.request, "You are now following {}".format(u.username))
-        return redirect('show_user', self.request.user)
+        return redirect('show_user', u)
         
 class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
     model = User
@@ -57,7 +57,7 @@ class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
         else:
             self.request.user.profile.following.remove(u.profile)
             messages.success(self.request, "You stopped following {}".format(u.username))
-        return redirect('show_user', self.request.user)
+        return redirect('show_user', u)
         
 
 

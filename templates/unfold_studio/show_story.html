@@ -13,13 +13,22 @@
 {% block content %}
 <h2>{{story.title}}</h2>
 <p class="description"> by {{story.author}} 
+{% if request.user.is_authenticated and request.user.profile in story.loves.all %}
+    <span class="love">&lt;3</span>
+{% endif %}
 [<a href="">Again!</a>]
-{% if story.author == request.user %}
-    [<a href="{% url 'edit_story' story.id %}">Edit</a>]
-    {% if story.shared %}
-        [Public. <a href="{% url 'unshare_story' story.id %}">Unshare?</a>]
+{% if request.user.is_authenticated %}
+    {% if story.author == request.user %}
+        [<a href="{% url 'edit_story' story.id %}">Edit</a>]
+        {% if story.shared %}
+            [Public. <a href="{% url 'unshare_story' story.id %}">Unshare?</a>]
+        {% else %}
+            [Private. <a href="{% url 'share_story' story.id %}">Share?</a>]
+        {% endif %}
     {% else %}
-        [Private. <a href="{% url 'share_story' story.id %}">Share?</a>]
+        {% if request.user.profile not in story.loves.all %}
+            [<a href="{% url 'love_story' story.id %}">&lt;3</a>]
+        {% endif %}
     {% endif %}
 {% endif %}
 </p>

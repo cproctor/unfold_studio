@@ -13,14 +13,14 @@
     </head>
     <body>
         {% include 'base/menu.html' %}
-        <div id="container">
         {% if messages %}
-        <ul class="messages">
+        <div class="messages">
             {% for message in messages %}
-            <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            <p {% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</p>
             {% endfor %}
-        </ul>
+        </div>
         {% endif %}
+        <div id="container">
         {% block content %}
         {% endblock %}
         </div>

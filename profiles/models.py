@@ -67,5 +67,5 @@ class Event(models.Model):
         # Ensures no duplication of events
         unique_together = (('user', 'event_type', 'subject', 'book', 'story'), )
         indexes = [models.Index(fields=['user', 'timestamp'])]
-        ordering = ('timestamp',)
+        ordering = ('-timestamp',)
 
