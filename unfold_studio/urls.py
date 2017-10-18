@@ -37,8 +37,11 @@ urlpatterns = [
 
     url(r'stories/(?P<slug>\d+)/love/?$', views.LoveStoryView.as_view(), name="love_story"), 
     url(r'stories/(?P<slug>\d+)/fork/?$', views.ForkStoryView.as_view(), name="fork_story"), 
+    url(r'stories/(?P<slug>\d+)/share/?$', views.ShareStoryView.as_view(), name="share_story"), 
+    url(r'stories/(?P<slug>\d+)/unshare/?$', views.UnshareStoryView.as_view(), name="unshare_story"), 
     url(r'books/?$', views.BookListView.as_view(), name='list_books'),
     url(r'books/new/?$', views.CreateBookView.as_view(), name='create_book'),
     url(r'books/(?P<pk>\d+)/?$', views.BookDetailView.as_view(), name="show_book"), 
+    url(r'books/(?P<pk>\d+)/edit/?$', views.UpdateBookView.as_view(), name="edit_book"), 
     #url(r'stories/(?P<story_id>\d+)/delete/?$', views.delete_story, name="delete_story"), 
 ]

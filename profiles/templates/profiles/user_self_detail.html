@@ -16,7 +16,7 @@
         <ul>
         {% for story in stories %}
             <li>
-                <a href="{% url 'show_story' story.id %}">{{story.title}}</a>
+                <a href="{% url 'show_story' story.id %}">{{story.title}}</a> 
             </li>
         {% endfor %} 
         </ul>
@@ -29,6 +29,7 @@
                 <a href="{% url 'show_book' book.id %}">{{book.title}}</a>
             </li>
         {% endfor %} 
+            <li>[<a href="{% url 'create_book'%}">Start a new book</a>]</li>
         </ul>
     </div>
 {% endblock %}

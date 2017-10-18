@@ -14,9 +14,15 @@
 <h2>{{story.title}}</h2>
 <p class="description"> by {{story.author}} 
 [<a href="">Again!</a>]
-{% if request.user.is_authenticated %}
-    [<a href="{% url 'edit_story' story.id %}">Edit</a>]</p>
+{% if story.author == request.user %}
+    [<a href="{% url 'edit_story' story.id %}">Edit</a>]
+    {% if story.shared %}
+        [Public. <a href="{% url 'unshare_story' story.id %}">Unshare?</a>]
+    {% else %}
+        [Private. <a href="{% url 'share_story' story.id %}">Share?</a>]
+    {% endif %}
 {% endif %}
+</p>
 <div id="story"></div>
 
 <script src="{% static 'scripts/ink.js' %}"></script>

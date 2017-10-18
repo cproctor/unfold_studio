@@ -3,5 +3,19 @@
 
 {% block content %}
 <h1>{{book.title}}</h1>
+{% if book.owner == request.user %} 
+    [<a href="{% url 'edit_book' book.id %}">Edit</a>]
+{% endif %}
+{% if book.stories.any %}
+<ul>
+    {% for story in book.stories.all %}
+        <li>{% include 'unfold_studio/story.html'%}</li>
+    {% endfor %}
+</ul>
+{% else %}
+    <p>No stories have been added to this book.</p>
+{% endif %}
+    
+
 {% endblock %}
 

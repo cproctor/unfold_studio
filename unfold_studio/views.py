@@ -22,11 +22,12 @@ from .models import Story, Book
 
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.list import ListView
-from django.views.generic.edit import CreateView
+from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.views import View
 from django.http import HttpResponseRedirect
+from django.urls import reverse
 
 log = logging.getLogger('django')    
 
@@ -80,7 +81,7 @@ def edit_story(request, story_id):
     else:
         form = StoryForm(instance=story)
     return render(request, 'unfold_studio/edit_story.html', {'form': form, 'story': story})
-    
+
 def show_story(request, story_id):
     story = get_object_or_404(Story, id=story_id)
     if story.status == 'ok':
@@ -147,8 +148,35 @@ class ForkStoryView(StoryMethodView):
         parent = self.get_object()
         story = Story(author=request.user, parent=parent)
         # TODO How do we init a story without saving it? Hidden field on the form? Render new story view
+        # We'll need a special form
         messages.success(self.request, "ONCE FORKS ARE IMPLEMENTED, you will have forked '{}'".format(story.title))
         return redirect('show_story', parent.id)
+
+class ShareStoryView(StoryMethodView):
+    def get(self, request, *args, **kwargs):
+        story = self.get_object()
+        if story.author != request.user:
+            messages.warning(request, "You can only share your own stories.")
+        elif story.shared:
+            messages.warning(request, "'{}' is already shared.".format(story.title))
+        else:
+            story.shared = True
+            story.save()
+            messages.success(request, "You shared '{}'".format(story.title))
+        return redirect('show_story', story.id)
+
+class UnshareStoryView(StoryMethodView):
+    def get(self, request, *args, **kwargs):
+        story = self.get_object()
+        if story.author != request.user:
+            messages.warning(request, "You can only unshare your own stories.")
+        elif not story.shared:
+            messages.warning(request, "'{}' is not shared.".format(story.title))
+        else:
+            story.shared = False
+            story.save()
+            messages.success(request, "You shared '{}'".format(story.title))
+        return redirect('show_story', story.id)
 
 class CreateBookView(LoginRequiredMixin, CreateView):
     model = Book
@@ -175,7 +203,16 @@ class BookListView(ListView):
 class BookDetailView(DetailView):
     model = Book
 
+class UpdateBookView(UpdateView):
+    model = Book
+    fields = ['title']
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['header'] = "Edit {}".format(self.object.title)
+        return context
+    def get_success_url(self):
+        return reverse('show_book', args=(self.object.id,))
 
 
 
