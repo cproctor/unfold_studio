@@ -1,18 +1,21 @@
 // inkjs global
 define(['jquery'], function($) {
 
-function InkPlayer(content) {
+function InkPlayer(containerSelector) {
+    this.container = document.querySelectorAll(containerSelector)[0];
+    this.timeouts = [];
 }
 
 InkPlayer.prototype = {
-    play: function(content, containerSelector) {
+    play: function(content) {
         this.content = content;
-        if (content.error) throw "ERROR: " + content.error;
-        this.story = new inkjs.Story(content.compiled);
-        this.container = document.querySelectorAll(containerSelector)[0];
         $(this.container).html('');
+        if (content.status != 'ok') {
+            this.events.reportError.bind(this)(content.error);
+            return 
+        } 
+        this.story = new inkjs.Story(content.compiled);
         this.running = true;
-        this.timeouts = [];
         this.continueStory();
     },
     continueStory: function() {
@@ -77,6 +80,13 @@ InkPlayer.prototype = {
                 if( t < 1 ) requestAnimationFrame(step);
             }
             requestAnimationFrame(step);
+        },
+        reportError: function(message) {
+            this.stop.bind(this)();
+            var p = document.createElement('p');
+            p.classList.add("error");
+            p.innerHTML = message;
+            this.container.appendChild(p);
         }
     }
 }

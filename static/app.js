@@ -30,7 +30,7 @@ define(
     return {
         init: function() {
             console.log("App is loaded.");
-            const player = new InkPlayer();
+            const player = new InkPlayer('.innerText');
 
             Story.setEvents({
                 newStory: function(story) {
@@ -39,12 +39,12 @@ define(
                 storyFetched: function(story) {
                     console.log("STORY FETCHED");
                     EditorView.showStory(story);
-                    player.play(story, '.innerText');
+                    player.play(story);
                 },
                 storySaved: function(story) {
                     console.log("STORY SAVED");
                     EditorView.showStory(story);
-                    player.play(story, '.innerText');
+                    player.play(story);
                 }
             });
 

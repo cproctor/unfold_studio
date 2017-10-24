@@ -36,3 +36,6 @@ p.choice {
 a:hover {
     color: black;
 }
+.error {
+    opacity: 1;
+}

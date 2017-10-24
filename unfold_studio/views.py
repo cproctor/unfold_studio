@@ -105,10 +105,7 @@ def compile_story(request, story_id):
 
 def show_story(request, story_id):
     story = get_story(request, story_id)
-    if story.status == 'ok':
-        return render(request, 'unfold_studio/show_story.html', {'story': story})
-    else:
-        return render(request, 'unfold_studio/show_story_error.html', {'story': story})
+    return render(request, 'unfold_studio/show_story.html', {'story': story})
 
 def story_json(story): 
     return {
@@ -116,7 +113,8 @@ def story_json(story):
         "compiled": json.loads(story.json),
         "ink": story.ink,
         "status": story.status,
-        "error": story.err_line,
+        "error": story.message,
+        "error_line": story.err_line,
         "author": story.author.username
     }
 

@@ -31,9 +31,12 @@ function(ace, InkMode, fetch_story, save_story) {
             var self = this;
             if (!this.id) throw "Cannot fetch stories without ids";
             return fetch_story(this.id).done(function(data) {
+                self.id = data.id;
+                self.status = data.status;
                 self.ink = data.ink;
                 self.compiled = data.compiled;
                 self.error = data.error;
+                self.error_line = data.error_line;
                 self.setAceValue(self.ink);
                 Story.events.storyFetched(self);
             })
@@ -43,9 +46,12 @@ function(ace, InkMode, fetch_story, save_story) {
             this.ink = this.getAceValue();
             return save_story(this).done(function(data) {
                 self.id = data.id;
+                self.status = data.status;
+                self.id = data.id;
                 self.ink = data.ink;
                 self.compiled = data.compiled;
                 self.error = data.error;
+                self.error_line = data.error_line;
                 Story.events.storySaved(self);
             })
         },
