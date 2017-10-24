@@ -21,6 +21,7 @@ class Story(models.Model):
     message = models.CharField(max_length=400, blank=True)
     err_line = models.IntegerField(blank=True, null=True)
     shared=models.BooleanField(default=False)
+    public=models.BooleanField(default=False)
     featured=models.BooleanField(default=False)
     loves = models.ManyToManyField(Profile, related_name="loved_stories", blank=True)
     parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True, blank=True)
