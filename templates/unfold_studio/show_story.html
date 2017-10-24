@@ -7,6 +7,8 @@
     <title>{{story.title}} | unfold.studio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'style/inkystyle.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/inky/main.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/inky/inkTheme.css' %}">
 
 {% endblock %}
 
@@ -16,10 +18,10 @@
 {% if request.user.is_authenticated and request.user.profile in story.loves.all %}
     <span class="love">&lt;3</span>
 {% endif %}
-[<a href="">Again!</a>]
+[<a id="replay_story" href="">Replay</a>]
 {% if request.user.is_authenticated %}
     {% if story.author == request.user %}
-        [<a href="{% url 'edit_story' story.id %}">Edit</a>]
+        [<a id="save_story" href="">Save</a>]
         {% if story.shared %}
             [Public. <a href="{% url 'unshare_story' story.id %}">Unshare?</a>]
         {% else %}
@@ -32,15 +34,41 @@
     {% endif %}
 {% endif %}
 </p>
-<div id="story"></div>
 
+{# FROM INKY #}
+<div id="main">
+  <div class="twopane">
+    <div id="editor"></div>
+    <div class="split"></div>
+    <div id="player">
+      <table class="expressionWatch">
+        <tbody>
+        </tbody>
+      </table>
+      <div class="scrollContainer">
+        <div class="innerText active"></div>
+        <div class="hiddenBuffer">
+          <div class="innerText"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{# END FROM INKY #}
+
+
+{# Inky imports Ace as a global, so I will follow #}
+<!--<script src="{% static 'lib/ace/ace.js'%}" type="text/javascript" charset="utf-8"></script>
+<script src="{% static 'lib/ace/ext-language_tools.js'%}"></script>-->
+
+{# Main JS entry point #}
 <script src="{% static 'scripts/ink.js' %}"></script>
 <script>
-{% autoescape off %}
-    storyContent = {{story.json}};
-{% endautoescape %}
+    STORY_ID = {{story.id}};
+    CSRF = "{{csrf_token}}";
 </script>
-<script src="{% static 'scripts/inkymain.js' %}"></script>
-
+<script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
 
 {% endblock %}

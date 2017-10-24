@@ -31,6 +31,15 @@ from django.urls import reverse
 
 log = logging.getLogger('django')    
 
+def get_story(request, story_id):
+    try: 
+        return Story.objects.filter(shared=True).get(pk=story_id)
+    except Story.DoesNotExist:
+        try: 
+            return Story.objects.filter(author=request.user).get(pk=story_id)
+        except Story.DoesNotExist:
+            raise Http404()
+
 def home(request):
     stories = Story.objects.filter(featured=True, shared=True).order_by('title').all()
     return render(request, 'unfold_studio/home.html', {'stories': stories})
@@ -59,7 +68,7 @@ def new_story(request):
 
 @login_required
 def edit_story(request, story_id):
-    story = get_object_or_404(Story, id=story_id)
+    story = get_story(request, story_id)
     story.edit_date = datetime.now()
     if request.method == "POST":
         form = StoryForm(request.POST, instance=story)
@@ -84,22 +93,22 @@ def edit_story(request, story_id):
     return render(request, 'unfold_studio/edit_story.html', {'form': form, 'story': story})
 
 def show_story(request, story_id):
-    story = get_object_or_404(Story, id=story_id)
+    story = get_story(request, story_id)
     if story.status == 'ok':
         return render(request, 'unfold_studio/show_story.html', {'story': story})
     else:
         return render(request, 'unfold_studio/show_story_error.html', {'story': story})
 
 def show_json(request, story_id):
-    story = get_object_or_404(Story, id=story_id)
-    if story.status == "ok":
-        log.info(story.json)
-        return JsonResponse(json.loads(story.json))
-    else:
-        return JsonResponse({
-            "status": story.status,
-            "message": story.message
-        })
+    story = get_story(request, story_id)
+    return JsonResponse({
+        "id": story.id,
+        "compiled": json.loads(story.json),
+        "ink": story.ink,
+        "status": story.status,
+        "error": story.err_line,
+        "author": story.author.username
+    })
 
 def show_ink(request, story_id):
     story = get_object_or_404(Story, id=story_id)
@@ -215,6 +224,8 @@ class UpdateBookView(UpdateView):
     def get_success_url(self):
         return reverse('show_book', args=(self.object.id,))
 
+def require_entry_point(request):
+    return render(request, 'unfold_studio/require_entry_point.js', content_type="application/javascript")
 
 
 
