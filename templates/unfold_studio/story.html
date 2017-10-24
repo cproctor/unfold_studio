@@ -2,7 +2,7 @@
     <span class="love">&lt;3</span>
 {% endif %}
 <a href="{% url 'show_story' story.id %}">{{story.title}}</a> 
-{% if story.author %}
+{% if story.author and not story.public %}
 by <a href="{% url 'show_user' story.author %}">{{story.author}}</a>
 {% endif %}
             
