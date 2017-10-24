@@ -19,7 +19,7 @@ define('fetch_story', ['jquery'], function($) {
 define('save_story', ['jquery'], function($) {
     return function(story) {
         if (story.id) {
-            var url = "{% url 'list_stories' %}/" + story.id + '/edit';
+            var url = "{% url 'list_stories' %}/" + story.id + '/compile';
         }
         else {
             var url = "{% url 'list_stories' %}/new" 

@@ -30,7 +30,7 @@ class Story(models.Model):
         return "{} by {}".format(self.title, self.author)
 
     def compile_ink(self):
-        compiled_ink = compile_ink(self.ink)
+        compiled_ink = compile_ink(self.ink, self.id)
         self.status = compiled_ink['status']
         self.message = compiled_ink['message']
         self.err_line = compiled_ink.get('line')

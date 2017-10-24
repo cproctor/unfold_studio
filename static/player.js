@@ -21,7 +21,9 @@ InkPlayer.prototype = {
         var text = [];
         while (this.story.canContinue) { text.push(this.story.Continue());}
         text.forEach(this.events.addText, this);
-        this.story.currentChoices.forEach(this.events.addChoice, this);
+        this.story.currentChoices.forEach(function(choice, i) {
+            this.events.addChoice.bind(this)(choice, i, text);
+        }, this);
         this.events.renderDidEnd.bind(this)();
     },
     stop: function() { 
@@ -35,22 +37,22 @@ InkPlayer.prototype = {
             this.container.appendChild(p);
             this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * i));
         },
-        addChoice: function(choice, i) {
+        addChoice: function(choice, i, text) {
             var self = this;
             var p = document.createElement('p');
             p.classList.add("choice");
             p.innerHTML = `<a href='#'>${choice.text}</a>`
-            this.container.appendChild(choiceParagraphElement);
-            this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * i));
+            this.container.appendChild(p);
+            this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * (i+text.length)));
             var a = p.querySelectorAll("a")[0];
-            choiceAnchorEl.addEventListener("click", function(event) {
+            a.addEventListener("click", function(event) {
                 event.preventDefault();
-                self.events.choose(choice.index);
+                self.events.choose.bind(self)(choice.index);
             })
         },
         choose: function(i) {
-            self.story.ChooseChoiceIndex(choice.index);
-            self.continueStory();
+            this.story.ChooseChoiceIndex(i);
+            this.continueStory();
         },
         renderWillStart: function() {
             var existingChoices = this.container.querySelectorAll('p.choice');

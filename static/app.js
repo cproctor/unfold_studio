@@ -43,6 +43,8 @@ define(
                 },
                 storySaved: function(story) {
                     console.log("STORY SAVED");
+                    EditorView.showStory(story);
+                    player.play(story, '.innerText');
                 }
             });
 

@@ -31,9 +31,12 @@ from django.urls import reverse
 
 log = logging.getLogger('django')    
 
-def get_story(request, story_id):
+def get_story(request, story_id, to_edit=False):
     try: 
-        return Story.objects.filter(shared=True).get(pk=story_id)
+        if to_edit:
+            return Story.objects.filter(public=True).get(pk=story_id)
+        else:
+            return Story.objects.filter(shared=True).get(pk=story_id)
     except Story.DoesNotExist:
         try: 
             return Story.objects.filter(author=request.user).get(pk=story_id)
@@ -92,6 +95,14 @@ def edit_story(request, story_id):
         form = StoryForm(instance=story)
     return render(request, 'unfold_studio/edit_story.html', {'form': form, 'story': story})
 
+def compile_story(request, story_id):
+    story = get_story(request, story_id, to_edit=True)
+    story.edit_date = datetime.now()
+    story.ink = request.POST['ink']
+    story.compile_ink()
+    story.save()
+    return JsonResponse(story_json(story))
+
 def show_story(request, story_id):
     story = get_story(request, story_id)
     if story.status == 'ok':
@@ -99,16 +110,19 @@ def show_story(request, story_id):
     else:
         return render(request, 'unfold_studio/show_story_error.html', {'story': story})
 
-def show_json(request, story_id):
-    story = get_story(request, story_id)
-    return JsonResponse({
+def story_json(story): 
+    return {
         "id": story.id,
         "compiled": json.loads(story.json),
         "ink": story.ink,
         "status": story.status,
         "error": story.err_line,
         "author": story.author.username
-    })
+    }
+
+def show_json(request, story_id):
+    story = get_story(request, story_id)
+    return JsonResponse(story_json(story))
 
 def show_ink(request, story_id):
     story = get_object_or_404(Story, id=story_id)
