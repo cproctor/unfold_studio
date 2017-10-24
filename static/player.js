@@ -8,8 +8,8 @@ function InkPlayer(containerSelector) {
 
 InkPlayer.prototype = {
     play: function(content) {
+        this.events.prepareToPlay.bind(this)();
         this.content = content;
-        $(this.container).html('');
         if (content.status != 'ok') {
             this.events.reportError.bind(this)(content.error);
             return 
@@ -34,6 +34,10 @@ InkPlayer.prototype = {
         this.running = false;
     },
     events: {
+        prepareToPlay: function() {
+            $(this.container).html('');
+            $('.scrollContainer').scrollTop(0);
+        },
         addText: function(text, i) {
             var p = document.createElement('p');
             p.innerHTML = text;
