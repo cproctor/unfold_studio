@@ -73,7 +73,8 @@ def new_story(request):
                 reversion.set_user(story.author)
                 reversion.set_comment("New story from fork")
             if not request.user.is_authenticated:
-                messages.success(request, "You're all set! This story is publicly editable. Sign up to write your own stories.")
+                #messages.success(request, "You're all set! This story is publicly editable. Sign up to write your own stories.")
+                pass
             return redirect('show_story', story.id)
     else:
         form = StoryForm()

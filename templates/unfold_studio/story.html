@@ -2,5 +2,7 @@
     <span class="love">&lt;3</span>
 {% endif %}
 <a href="{% url 'show_story' story.id %}">{{story.title}}</a> 
+{% if story.author %}
 by <a href="{% url 'show_user' story.author %}">{{story.author}}</a>
+{% endif %}
             
