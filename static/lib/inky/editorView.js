@@ -183,6 +183,7 @@ return {
             editor.moveCursorToPosition(savedCursorPos); 
             editor.scrollToRow(savedScrollRow);
         } 
-    }
+    },
+    setEnabled: (enabled) => { editor.setReadOnly(!enabled) }
 };
 });

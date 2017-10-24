@@ -6,14 +6,10 @@ from django.core.exceptions import ValidationError
 class StoryForm(ModelForm):
     class Meta:
         model = Story
-        fields = [
-            'title',
-            'ink'
-        ]
+        fields = ['title']
 
 class SharedStoryBookForm(ModelForm):
     class Meta:
         model = Book
         fields = ['title', 'stories']
     
-

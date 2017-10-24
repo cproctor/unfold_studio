@@ -32,19 +32,20 @@ def create_loved_story_events(sender, **kwargs):
     "When someone loves a story, creates event for the story's author"
     if kwargs['action'] == 'post_add':
         for story, profile in get_related(**kwargs):
-            Event.objects.create(
-                user = story.author,
-                subject = profile.user,
-                event_type = Event.LOVED_STORY,
-                story = story
-            )
+            if story.author:
+                Event.objects.create(
+                    user = story.author,
+                    subject = profile.user,
+                    event_type = Event.LOVED_STORY,
+                    story = story
+                )
 
 @receiver(post_save, sender=Story, dispatch_uid="create_story_forked_events")
 @catch_integrity_error
 def create_story_forked_events(sender, **kwargs):
     "When a story is forked, creates events for the story's author"
     story = kwargs['instance']
-    if story.parent is not None:
+    if story.parent and story.author and story.parent.author:
         Event.objects.create(
             user=story.parent.author,
             subject=story.author,
@@ -57,7 +58,7 @@ def create_story_forked_events(sender, **kwargs):
 def create_story_published_events(sender, **kwargs):
     "When a story is shared, creates events for all current followers of the author"
     story = kwargs['instance']
-    if story.shared:
+    if story.shared and story.author:
         for follower_profile in story.author.profile.followers.all():
             Event.objects.create(
                 user=follower_profile.user,

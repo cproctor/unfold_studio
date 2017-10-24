@@ -22,7 +22,15 @@ InkPlayer.prototype = {
         this.events.renderWillStart.bind(this)();
         if (!this.running) return;
         var text = [];
-        while (this.story.canContinue) { text.push(this.story.Continue());}
+        while (this.story.canContinue) { 
+            try {
+                text.push(this.story.Continue());
+            }
+            catch (err) {
+                this.events.reportError.bind(this)(err.message);
+            }
+        }
+        if (!this.running) return;
         text.forEach(this.events.addText, this);
         this.story.currentChoices.forEach(function(choice, i) {
             this.events.addChoice.bind(this)(choice, i, text);

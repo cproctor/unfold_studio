@@ -34,16 +34,18 @@ define(
 
             Story.setEvents({
                 newStory: function(story) {
-                    console.log("NEW STORY");
+                    //console.log("NEW STORY");
                 },
                 storyFetched: function(story) {
-                    console.log("STORY FETCHED");
+                    //console.log("STORY FETCHED");
                     EditorView.showStory(story);
+                    EditorView.setEnabled(EDITABLE);
                     player.play(story);
                 },
                 storySaved: function(story) {
-                    console.log("STORY SAVED");
+                    //console.log("STORY SAVED");
                     EditorView.showStory(story);
+                    EditorView.setEnabled(EDITABLE);
                     player.play(story);
                 }
             });

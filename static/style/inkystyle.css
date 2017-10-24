@@ -20,12 +20,12 @@ p, a {
     line-height: 1.7em;
 }
 
-p {
+#player p {
     opacity: 0.0;
     transition: opacity 1.0s;
 }
 
-p.show {
+#player p.show {
     opacity: 1.0;
 }
 
@@ -36,6 +36,6 @@ p.choice {
 a:hover {
     color: black;
 }
-.error {
+#player p.error {
     opacity: 1;
 }

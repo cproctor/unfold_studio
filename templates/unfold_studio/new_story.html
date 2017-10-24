@@ -8,7 +8,7 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Add a new story</h2>
+    <h2>Name your story</h2>
     <form action="{% url 'new_story' %}" method="POST">
         {% csrf_token %}
         <table>

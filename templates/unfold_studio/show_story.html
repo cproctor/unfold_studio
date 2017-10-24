@@ -14,14 +14,22 @@
 
 {% block content %}
 <h2>{{story.title}}</h2>
-<p class="description"> by {{story.author}} 
-{% if request.user.is_authenticated and request.user.profile in story.loves.all %}
-    <span class="love">&lt;3</span>
+<p class="description">
+{% if story.public %}
+    Public story
+{% else %}
+    by {{story.author}} 
+    {% if request.user.is_authenticated and request.user.profile in story.loves.all %}
+        <span class="love">&lt;3</span>
+    {% endif %}
 {% endif %}
 [<a id="replay_story" href="">Replay</a>]
+{% if story.author == request.user or story.public %}
+    [<a id="save_story" href="">Save</a>]
+    [<a href="{% url 'edit_story' story.id %}">Rename</a>]
+{% endif %}
 {% if request.user.is_authenticated %}
     {% if story.author == request.user %}
-        [<a id="save_story" href="">Save</a>]
         {% if story.shared %}
             [Public. <a href="{% url 'unshare_story' story.id %}">Unshare?</a>]
         {% else %}
@@ -31,6 +39,7 @@
         {% if request.user.profile not in story.loves.all %}
             [<a href="{% url 'love_story' story.id %}">&lt;3</a>]
         {% endif %}
+        [<a href="{% url 'fork_story' story.id %}">Fork</a>]
     {% endif %}
 {% endif %}
 </p>
@@ -68,6 +77,7 @@
 <script>
     STORY_ID = {{story.id}};
     CSRF = "{{csrf_token}}";
+    EDITABLE = {{editable}};
 </script>
 <script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
 

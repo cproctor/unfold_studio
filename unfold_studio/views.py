@@ -28,6 +28,7 @@ from django.contrib import messages
 from django.views import View
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+import reversion
 
 log = logging.getLogger('django')    
 
@@ -51,25 +52,34 @@ def browse(request):
     stories = Story.objects.filter(shared=True).order_by('title').all()
     return render(request, 'unfold_studio/list_stories.html', {'stories': stories})
 
-@login_required
 def new_story(request):
     if request.method == "POST":
-        story = Story(author=request.user, creation_date=datetime.now(), edit_date=datetime.now())
+        if request.user.is_authenticated:
+            story = Story(author=request.user, creation_date=datetime.now(), edit_date=datetime.now())
+        else: 
+            story = Story(
+                author=None, 
+                creation_date=datetime.now(), 
+                edit_date=datetime.now(), 
+                shared=True,
+                public=True
+            )
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():
             story = form.save()
             story.compile_ink()
-            story.save()
-            if story.status == "ok":
-                return redirect('show_story', story.id)
-            else:
-                return redirect('edit_story', story.id)
+            with reversion.create_revision():
+                story.save()
+                reversion.set_user(story.author)
+                reversion.set_comment("New story from fork")
+            if not request.user.is_authenticated:
+                messages.success(request, "You're all set! This story is publicly editable. Sign up to write your own stories.")
+            return redirect('show_story', story.id)
     else:
         form = StoryForm()
 
     return render(request, 'unfold_studio/new_story.html', {'form': form})
 
-@login_required
 def edit_story(request, story_id):
     story = get_story(request, story_id)
     story.edit_date = datetime.now()
@@ -77,20 +87,11 @@ def edit_story(request, story_id):
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():
             story = form.save()
-            story.compile_ink()
-            story.save()
-            log.info({
-                "id": story.id,
-                "status": story.status,
-                "message": story.message,
-                "ink": story.ink,
-                "json": story.json,
-                "title": story.title,
-                "author": story.author,
-                "timestamp": datetime.now()
-            })
-            if story.status == "ok":
-                return redirect('show_story', story.id)
+            with reversion.create_revision():
+                story.save()
+                reversion.set_user(story.author)
+                reversion.set_comment("Title changed to {}".format(story.title))
+            return redirect('show_story', story.id)
     else:
         form = StoryForm(instance=story)
     return render(request, 'unfold_studio/edit_story.html', {'form': form, 'story': story})
@@ -100,22 +101,29 @@ def compile_story(request, story_id):
     story.edit_date = datetime.now()
     story.ink = request.POST['ink']
     story.compile_ink()
-    story.save()
+    with reversion.create_revision():
+        story.save()
+        reversion.set_user(story.author)
+        if story.status == 'ok':
+            reversion.set_comment("Story edited and compiled.")
+        else:
+            reversion.set_comment("Story edited and compiled (has error)")
     return JsonResponse(story_json(story))
 
 def show_story(request, story_id):
     story = get_story(request, story_id)
-    return render(request, 'unfold_studio/show_story.html', {'story': story})
+    editable = int(story.author == request.user or story.public)
+    return render(request, 'unfold_studio/show_story.html', {'story': story, 'editable': editable})
 
 def story_json(story): 
     return {
         "id": story.id,
-        "compiled": json.loads(story.json),
+        "compiled": json.loads(story.json) if story.json else None,
         "ink": story.ink,
         "status": story.status,
         "error": story.message,
         "error_line": story.err_line,
-        "author": story.author.username
+        "author": story.author.username if story.author else None
     }
 
 def show_json(request, story_id):
@@ -168,11 +176,22 @@ class LoveStoryView(StoryMethodView):
 class ForkStoryView(StoryMethodView):
     def get(self, request, *args, **kwargs):
         parent = self.get_object()
-        story = Story(author=request.user, parent=parent)
-        # TODO How do we init a story without saving it? Hidden field on the form? Render new story view
-        # We'll need a special form
-        messages.success(self.request, "ONCE FORKS ARE IMPLEMENTED, you will have forked '{}'".format(story.title))
-        return redirect('show_story', parent.id)
+        if not request.user.is_authenticated:
+            messages.warning(request, "You must be logged in to fork stories")
+            return redirect('show_story', parent.id)
+        if parent.author == request.user:
+            messages.warning(request, "You can't fork your own stories")
+            return redirect('show_story', parent.id)
+        story = Story(
+            author=request.user, 
+            parent=parent,
+            title="{} (fork)".format(parent.title),
+            creation_date=datetime.now(), 
+            edit_date=datetime.now(), 
+        )
+        story.save()
+        #messages.success(self.request, "You have forked '{}'".format(story.title))
+        return redirect('show_story', story.id)
 
 class ShareStoryView(StoryMethodView):
     def get(self, request, *args, **kwargs):
