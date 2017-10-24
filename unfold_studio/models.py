@@ -11,7 +11,7 @@ class Story(models.Model):
 
     """
     title = models.CharField(max_length=400)
-    author = models.ForeignKey(User, related_name='stories')
+    author = models.ForeignKey(User, related_name='stories', blank=True, null=True)
     creation_date = models.DateTimeField('date created')
     edit_date = models.DateTimeField('date changed')
     #view_count = models.IntegerField(default=0)
