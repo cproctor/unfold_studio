@@ -1,5 +1,9 @@
 /* base_style.css */
 
+html {
+    height: 100%;
+}
+
 body, pre, textarea, input {
     font-family: Courier, monospace;
     font-size: 1em;
@@ -7,6 +11,9 @@ body, pre, textarea, input {
 
 body {
     margin: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .logo {
@@ -16,14 +23,14 @@ body {
 #menu {
     background-color: #444;
     display: flex;
+    flex-shrink: 0;
 }
 
 #footer {
-    position: absolute;
-    bottom: 0;
     background-color: #444;
     display: flex;
     width: 100%;
+    flex-shrink: 0;
 }
 
 .menu-item {
@@ -57,6 +64,7 @@ textarea {
     width: 800px;
     margin: 0 auto;
     padding: 10px;
+    flex: 1 0 auto;
 }
  h1 {
     text-align: left;
