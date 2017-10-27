@@ -15,7 +15,7 @@ def compile_ink(inkcode, story_id):
     to process file, and returns a dict with status, result, and message."""
 
     # strip non ascii
-    inkcode = inkcode.encode('ascii', 'replace').decode()
+    #inkcode = inkcode.encode('ascii', 'replace').decode()
 
     fn = "{}".format(story_id)
     fqn = os.path.join(settings.INK_DIR, fn)
