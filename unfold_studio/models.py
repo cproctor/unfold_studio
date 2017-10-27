@@ -38,7 +38,7 @@ class Story(models.Model):
             self.json = compiled_ink['result']
 
     class Meta:
-        ordering = ['-edit_date']
+        ordering = ['edit_date']
     
 class Book(models.Model):
     title = models.CharField(max_length=400)
