@@ -29,6 +29,7 @@ from django.views import View
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import reversion
+from profiles.forms import SignUpForm
 
 log = logging.getLogger('django')    
 
@@ -153,13 +154,15 @@ def documentation(request):
 
 def signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)
+        form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user)
+            messages.success(request, 
+                "Welcome to Unfold Studio! Have fun, and please be a good community member.")
             return redirect('home')
     else:
-        form = UserCreationForm()
+        form = SignUpForm()
 
     return render(request, 'registration/signup.html', {'form': form})
 
