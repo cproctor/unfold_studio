@@ -127,4 +127,14 @@ a:hover {
 .messages p.warning {
     color: #c0392b;
 }
-.
+
+.twopane.solo #editor {
+    display: none;
+}
+.twopane.solo .split {
+    display: none;
+}
+.twopane.solo #player {
+    position: inherit;
+    left: 0;
+}

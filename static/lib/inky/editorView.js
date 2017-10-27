@@ -184,6 +184,10 @@ return {
             editor.scrollToRow(savedScrollRow);
         } 
     },
-    setEnabled: (enabled) => { editor.setReadOnly(!enabled) }
+    setEnabled: (enabled) => { 
+        editor.setReadOnly(!enabled); 
+        if (enabled) editor.renderer.showCursor();
+        else editor.renderer.hideCursor();
+    }
 };
 });

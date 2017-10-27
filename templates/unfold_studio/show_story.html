@@ -27,6 +27,11 @@
 {% if story.author == request.user or story.public %}
     [<a id="save_story" href="">Save</a>]
     [<a href="{% url 'edit_story' story.id %}">Rename</a>]
+    <span id="show_code_opt" style="display: none;">[<a id="show_code" href="#">Show code</a>]</span>
+    <span id="hide_code_opt">[<a id="hide_code" href="#">Hide code</a>]</span>
+{% else %}
+    <span id="show_code_opt">[<a id="show_code" href="#">Show code</a>]</span>
+    <span id="hide_code_opt" style="display: none;">[<a id="hide_code" href="#">Hide code</a>]</span>
 {% endif %}
 {% if request.user.is_authenticated %}
     {% if story.author == request.user %}
@@ -46,7 +51,7 @@
 
 {# FROM INKY #}
 <div id="main">
-  <div class="twopane">
+  <div class="twopane{% if not story.author == request.user or story.public %} solo{%endif%}">
     <div id="editor"></div>
     <div class="split"></div>
     <div id="player">

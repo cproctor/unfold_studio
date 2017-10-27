@@ -133,3 +133,6 @@ INK_VERSION = 9
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_URL = '/static/'
+
+ABOUT_STORY_ID = 30
+TEACHERS_STORY_ID = 31

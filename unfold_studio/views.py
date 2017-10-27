@@ -141,7 +141,12 @@ def delete_story(request, story_id):
     return redirect('home')
 
 def about(request):
-    return render(request, 'unfold_studio/about.html')
+    story = get_object_or_404(Story, id=s.ABOUT_STORY_ID)
+    return render(request, 'unfold_studio/staticpage.html', {'story': story})
+
+def for_teachers(request):
+    story = get_object_or_404(Story, id=s.TEACHERS_STORY_ID)
+    return render(request, 'unfold_studio/staticpage.html', {'story': story})
 
 def documentation(request):
     return render(request, 'unfold_studio/documentation.html')

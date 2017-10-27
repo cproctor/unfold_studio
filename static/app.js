@@ -63,6 +63,18 @@ define(
                     player.play(story, '.innerText');
                     return false;
                 });
+                $('#show_code').click(function() {
+                    $('.twopane.solo').removeClass('solo');
+                    $('#show_code_opt').hide();
+                    $('#hide_code_opt').show();
+                    return false;
+                });
+                $('#hide_code').click(function() {
+                    $('.twopane').addClass('solo');
+                    $('#show_code_opt').show();
+                    $('#hide_code_opt').hide();
+                    return false;
+                });
             });
         },
         

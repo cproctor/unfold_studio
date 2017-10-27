@@ -1,0 +1,56 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block head %}
+
+    <meta charset="utf-8">
+    <title>{{story.title}} | unfold.studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'style/inkystyle.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/inky/main.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/inky/inkTheme.css' %}">
+
+{% endblock %}
+
+{% block content %}
+<h2>{{story.title}}</h2>
+
+{# FROM INKY #}
+<div id="main">
+  <div class="twopane solo">
+    <div id="editor"></div>
+    <div class="split"></div>
+    <div id="player">
+      <table class="expressionWatch">
+        <tbody>
+        </tbody>
+      </table>
+      <div class="scrollContainer">
+        <div class="innerText active"></div>
+        <div class="hiddenBuffer">
+          <div class="innerText"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{# END FROM INKY #}
+
+
+{# Inky imports Ace as a global, so I will follow #}
+<!--<script src="{% static 'lib/ace/ace.js'%}" type="text/javascript" charset="utf-8"></script>
+<script src="{% static 'lib/ace/ext-language_tools.js'%}"></script>-->
+
+{# Main JS entry point #}
+<script src="{% static 'scripts/ink.js' %}"></script>
+<script>
+    STORY_ID = {{story.id}};
+    CSRF = "{{csrf_token}}";
+    EDITABLE = false;
+</script>
+<script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
+
+{% endblock %}
+
