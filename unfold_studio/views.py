@@ -46,11 +46,11 @@ def get_story(request, story_id, to_edit=False):
             raise Http404()
 
 def home(request):
-    stories = Story.objects.filter(featured=True, shared=True).order_by('title').all()
+    stories = Story.objects.filter(featured=True, shared=True).all()
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
-    stories = Story.objects.filter(shared=True).order_by('title').all()
+    stories = Story.objects.filter(shared=True).all()
     return render(request, 'unfold_studio/list_stories.html', {'stories': stories})
 
 def new_story(request):
