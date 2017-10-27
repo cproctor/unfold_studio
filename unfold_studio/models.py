@@ -36,6 +36,9 @@ class Story(models.Model):
         self.err_line = compiled_ink.get('line')
         if compiled_ink.get('result'):
             self.json = compiled_ink['result']
+
+    class Meta:
+        ordering = ['-edit_date']
     
 class Book(models.Model):
     title = models.CharField(max_length=400)
