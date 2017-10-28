@@ -51,7 +51,7 @@
 
 {# FROM INKY #}
 <div id="main">
-  <div class="twopane{% if not story.author == request.user or story.public %} solo{%endif%}">
+  <div class="twopane{% if not story.author == request.user and not story.public %} solo{%endif%}">
     <div id="editor"></div>
     <div class="split"></div>
     <div id="player">
