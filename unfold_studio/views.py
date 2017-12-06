@@ -18,6 +18,7 @@ from random import choice
 import re
 from .forms import StoryForm
 from .models import Story, Book
+from profiles.models import Profile
 # TODO Do I need all this crap?
 
 from django.views.generic.detail import SingleObjectMixin, DetailView
@@ -157,6 +158,8 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
+            profile = Profile(user=user)
+            profile.save()
             login(request, user)
             messages.success(request, 
                 "Welcome to Unfold Studio! Have fun, and please be a good community member.")
