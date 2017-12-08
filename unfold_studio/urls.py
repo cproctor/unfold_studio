@@ -45,6 +45,6 @@ urlpatterns = [
     url(r'books/new/?$', views.CreateBookView.as_view(), name='create_book'),
     url(r'books/(?P<pk>\d+)/?$', views.BookDetailView.as_view(), name="show_book"), 
     url(r'books/(?P<pk>\d+)/edit/?$', views.UpdateBookView.as_view(), name="edit_book"), 
-    url(r'require_entry_point.js', views.require_entry_point, name="require_entry_point")
-    #url(r'stories/(?P<story_id>\d+)/delete/?$', views.delete_story, name="delete_story"), 
+    url(r'require_entry_point.js', views.require_entry_point, name="require_entry_point"),
+    url(r'stories/(?P<slug>\d+)/delete/?$', views.DeleteStoryView.as_view(), name="delete_story"), 
 ]

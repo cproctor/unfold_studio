@@ -25,6 +25,7 @@ class Story(models.Model):
     featured=models.BooleanField(default=False)
     loves = models.ManyToManyField(Profile, related_name="loved_stories", blank=True)
     parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True, blank=True)
+    deleted = models.BooleanField(default=False)
 
     def __str__(self):
         return "{} by {}".format(self.title, self.author)

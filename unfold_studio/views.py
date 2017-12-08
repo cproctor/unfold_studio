@@ -37,21 +37,21 @@ log = logging.getLogger('django')
 def get_story(request, story_id, to_edit=False):
     try: 
         if to_edit:
-            return Story.objects.filter(public=True).get(pk=story_id)
+            return Story.objects.filter(public=True, deleted=False).get(pk=story_id)
         else:
-            return Story.objects.filter(shared=True).get(pk=story_id)
+            return Story.objects.filter(shared=True, deleted=False).get(pk=story_id)
     except Story.DoesNotExist:
         try: 
-            return Story.objects.filter(author=request.user).get(pk=story_id)
+            return Story.objects.filter(author=request.user, deleted=False).get(pk=story_id)
         except Story.DoesNotExist:
             raise Http404()
 
 def home(request):
-    stories = Story.objects.filter(featured=True, shared=True).all()
+    stories = Story.objects.filter(featured=True, shared=True, deleted=False).all()
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
-    stories = Story.objects.filter(shared=True).all()
+    stories = Story.objects.filter(shared=True, deleted=False).all()
     return render(request, 'unfold_studio/list_stories.html', {'stories': stories})
 
 def new_story(request):
@@ -134,20 +134,15 @@ def show_json(request, story_id):
     return JsonResponse(story_json(story))
 
 def show_ink(request, story_id):
-    story = get_object_or_404(Story, id=story_id)
+    story = get_story(request, story_id)
     return render(request, 'unfold_studio/show_ink.html', {'story': story})
 
-def delete_story(request, story_id):
-    story = get_object_or_404(Story, id=story_id)
-    story.delete()
-    return redirect('home')
-
 def about(request):
-    story = get_object_or_404(Story, id=s.ABOUT_STORY_ID)
+    story = get_story(request, s.ABOUT_STORY_ID)
     return render(request, 'unfold_studio/staticpage.html', {'story': story})
 
 def for_teachers(request):
-    story = get_object_or_404(Story, id=s.TEACHERS_STORY_ID)
+    story = get_story(request, s.TEACHERS_STORY_ID)
     return render(request, 'unfold_studio/staticpage.html', {'story': story})
 
 def documentation(request):
@@ -172,6 +167,12 @@ def signup(request):
 class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
     model = Story
     slug_field = 'id'
+
+    def get_object(self, queryset=None):
+        story = super().get_object(queryset)
+        if story.deleted:
+            raise Http404()
+        return story
 
 class LoveStoryView(StoryMethodView):
     def get(self, request, *args, **kwargs):
@@ -210,6 +211,20 @@ class ForkStoryView(StoryMethodView):
         #messages.success(self.request, "You have forked '{}'".format(story.title))
         return redirect('show_story', story.id)
 
+class DeleteStoryView(StoryMethodView):
+    def get(self, request, *args, **kwargs):
+        story = self.get_object()
+        if not request.user.is_authenticated:
+            messages.warning(request, "You need to be logged in to delete stories")
+            return redirect('show_story', parent.id) 
+        if story.author != request.user:
+            messages.warning(request, "You can only delete your own stories")
+            return redirect('show_story', story.id)
+        messages.success(request, "Deleted '{}'".format(story.title))
+        story.deleted = True
+        story.save()
+        return redirect('home')
+        
 class ShareStoryView(StoryMethodView):
     def get(self, request, *args, **kwargs):
         story = self.get_object()

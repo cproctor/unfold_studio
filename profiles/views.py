@@ -7,6 +7,7 @@ from profiles.models import Profile, Event
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from unfold_studio.models import Story, Book
+from django.db.models import Q
 
 class UserDetailView(DetailView):
     model = User
@@ -23,11 +24,14 @@ class UserDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.filter(owner=self.object).all()
         if self.request.user == self.object:
-            context['stories'] = Story.objects.filter(author=self.object).all()
-            context['feed'] = Event.objects.filter(user=self.request.user)[:10]
+            context['stories'] = Story.objects.filter(author=self.object, deleted=False).all()
+            context['feed'] = Event.objects.filter(
+                Q(story__deleted=False) | Q(story__isnull=True),
+                user=self.request.user
+            )[:10]
             context['Event'] = Event
         else:
-            context['stories'] = Story.objects.filter(author=self.object, shared=True).all()
+            context['stories'] = Story.objects.filter(author=self.object, shared=True, deleted=False).all()
             
         return context
 
