@@ -141,3 +141,7 @@ a:hover {
 .helptext {
     display: none;
 }
+
+.danger{
+    color: #c0392b;
+}
