@@ -198,6 +198,11 @@ class ForkStoryView(StoryMethodView):
             author=request.user, 
             parent=parent,
             title="{} (fork)".format(parent.title),
+            ink=parent.ink,
+            json=parent.json,
+            status=parent.status,
+            message=parent.message,
+            err_line=parent.err_line,
             creation_date=datetime.now(), 
             edit_date=datetime.now(), 
         )
