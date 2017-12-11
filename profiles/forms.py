@@ -11,6 +11,7 @@ class SignUpForm(UserCreationForm):
     def clean_username(self):
         if not re.match(r'^[0-9a-zA-Z_]+$', self.cleaned_data['username']):
             raise ValidationError("Only letters, numbers, and _ are allowed in usernames")
+        return self.cleaned_data['username']
 
     class Meta:
         model = User
