@@ -18,13 +18,14 @@ class Story(models.Model):
     ink = models.TextField(blank=True)
     json = models.TextField(blank=True)
     status = models.CharField(max_length=100, blank=True)
-    message = models.CharField(max_length=400, blank=True)
+    message = models.TextField(blank=True)
     err_line = models.IntegerField(blank=True, null=True)
     shared=models.BooleanField(default=False)
     public=models.BooleanField(default=False)
     featured=models.BooleanField(default=False)
     loves = models.ManyToManyField(Profile, related_name="loved_stories", blank=True)
     parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True, blank=True)
+    includes = models.ForeignKey("unfold_studio.Story", related_name="included_by", null=True, blank=True)
     deleted = models.BooleanField(default=False)
 
     def __str__(self):
