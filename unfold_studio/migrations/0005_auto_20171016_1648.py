@@ -9,6 +9,10 @@ from django.contrib.auth.models import User
 
 def update_authors(apps, schema_editor):
     u = User.objects.first()
+    if not u:
+        u = User(username="default", first_name="Various", last_name="Authors")
+        u.save()
+        
     for story in apps.get_model("unfold_studio", "Story").objects.all():
         story.author_id = u.id
         story.save()
