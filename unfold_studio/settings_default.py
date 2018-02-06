@@ -142,6 +142,7 @@ FEATURED = {
     'FEATURED_SCORE': 10,
     'LOVE_SCORE': 1,
     'BOOK_SCORE': 1,
+    'FORK_SCORE': 1,
     'GRAVITY': 1.5,
     'STORIES_TO_SHOW': 12
 }
