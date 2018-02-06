@@ -41,6 +41,7 @@ class Event(models.Model):
     subject = models.ForeignKey('auth.User')
     book = models.ForeignKey('unfold_studio.Book', null=True, blank=True)
     story = models.ForeignKey('unfold_studio.Story', null=True, blank=True)
+    seen = models.BooleanField(default=False)
 
     def __str__(self):
         prefix = "[{}] ".format(self.user)

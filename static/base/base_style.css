@@ -145,3 +145,13 @@ a:hover {
 .danger{
     color: #c0392b;
 }
+
+.badge {
+   background-color: #c0392b;
+   padding: 4px;
+   border-radius: 4px;
+}
+
+.badge:hover {
+   background-color: #e74c3c;
+}

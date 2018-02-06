@@ -24,6 +24,9 @@ class UserDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.filter(owner=self.object).all()
         if self.request.user == self.object:
+            for e in self.request.user.events.filter(seen=False).all():
+                e.seen = True
+                e.save()
             context['stories'] = Story.objects.filter(author=self.object, deleted=False).all()
             context['feed'] = Event.objects.filter(
                 Q(story__deleted=False) | Q(story__isnull=True),
