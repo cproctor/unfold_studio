@@ -47,7 +47,7 @@ def get_story(request, story_id, to_edit=False):
             raise Http404()
 
 def home(request):
-    stories = Story.objects.filter(featured=True, shared=True, deleted=False).all()
+    stories = Story.objects.filter(shared=True, deleted=False)[:s.FEATURED['STORIES_TO_SHOW']]
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
