@@ -51,7 +51,7 @@ class Story(models.Model):
             self.children.count() * settings.FEATURED['FORK_SCORE'] + 
             int(self.featured) * settings.FEATURED['FEATURED_SCORE']
         )
-        age_in_hours = (datetime.now(timezone.utc) - self.edit_date).seconds / (60 * 60)
+        age_in_hours = (datetime.now(timezone.utc) - self.edit_date).total_seconds() / (60 * 60)
         self.priority = score / pow(age_in_hours + 2, settings.FEATURED['GRAVITY'])
 
     class Meta:
