@@ -42,7 +42,10 @@ def get_story(request, story_id, to_edit=False):
             return Story.objects.filter(shared=True, deleted=False).get(pk=story_id)
     except Story.DoesNotExist:
         try: 
-            return Story.objects.filter(author=request.user, deleted=False).get(pk=story_id)
+            if request.user:
+                return Story.objects.filter(author=request.user, deleted=False).get(pk=story_id)
+            else:
+                raise Http404()
         except Story.DoesNotExist:
             raise Http404()
 
