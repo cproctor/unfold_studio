@@ -16,6 +16,7 @@ SITE_ID = 1
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_URL = 'http://localhost:8000'
 
 
 # Quick-start development settings - unsuitable for production
@@ -23,12 +24,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'afg+8)$-yk((4fppx2a6@vb1$49)2)obmd6pz3ijg+r7)qy@z^'
+SALT = "femqSwDDWMN"
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
 ALLOWED_HOSTS = []
-
 
 # Application definition
 
@@ -55,6 +56,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
 ROOT_URLCONF = 'unfold_studio.urls'
@@ -128,16 +130,27 @@ LOGOUT_REDIRECT_URL = '/'
 
 # Ink Directory
 # Inklecate reads and write to files. INK_DIR specifies a directory which 
-# should exist and have appropriate permissions. INKLECATE names the executable;
-# INK_VERSION specifies the JSON protocol version to use
+# should exist and have appropriate permissions.
 INK_DIR = "/Users/chris/temp/inkspace"
-INKLECATE = "inklecate"
-INK_VERSION = 9
+INKLECATE = '/Users/chris/Documents/3-Software-Engineer/unfold_studio/unfold_studio/inklecate_0_6_4'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATIC_ROOT = "../static_assets"
 STATIC_URL = '/static/'
+
+
+AUTHENTICATION_BACKENDS = (
+    #'unfold_studio.auth.TokenBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
+
+LOGIN_URL = 'login'
+PASSWORD_TOKEN_MAX_AGE = 60 * 60 * 24
+EMAIL_SENDER = 'unfold@chrisproctor.net'
+EMAIL_SUBJECT_PREFIX = '[UNFOLD STUDIO] '
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 ABOUT_STORY_ID = 30
 TEACHERS_STORY_ID = 31
