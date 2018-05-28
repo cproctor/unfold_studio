@@ -3,3 +3,4 @@ db.sqlite3
 *.swp
 *.swo
 unfold_studio/settings.py
+documentation/_build/*
