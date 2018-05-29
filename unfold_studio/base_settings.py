@@ -21,7 +21,7 @@ SALT = "femqSwDDWMN"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['unfold.local']
 
 # Application definition
 INSTALLED_APPS = [
@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
-    'django.contrib.flatpages',
     'reversion',
     'unfold_studio',
     'profiles'
@@ -47,7 +46,6 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django.contrib.flatpages.middleware.FlatpageFallbackMiddleware',
 ]
 
 ROOT_URLCONF = 'unfold_studio.urls'
@@ -63,7 +61,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'profiles.context_processors.unseen_events'
+                'profiles.context_processors.unseen_events',
+                'unfold_studio.context_processors.documentation_urls'
             ],
         },
     },
@@ -143,3 +142,8 @@ FEATURED = {
     'GRAVITY': 1.5,
     'STORIES_TO_SHOW': 12
 }
+
+DOCUMENTATION_URL = 'http://docs.unfold.studio/'
+HELP_URL = DOCUMENTATION_URL + 'user_guide/'
+TEACHING_URL = DOCUMENTATION_URL + 'teaching/'
+
