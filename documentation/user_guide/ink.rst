@@ -23,10 +23,10 @@ where possible.
 It's also designed with redrafting in mind; so editing a flow should be
 fast.
 
-Part One: The Basics
+The Basics
 ====================
 
-1) Content
+Content
 ----------
 
 The simplest ink script
@@ -99,7 +99,9 @@ game and used as you see fit. See
 `RunningYourInk <https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#marking-up-your-ink-content-with-tags>`__
 for more information.
 
-2) Choices
+.. _ink_choices:
+
+Choices
 ----------
 
 Input is offered to the player via text choices. A text choice is
@@ -227,7 +229,7 @@ game, we'll want to move the flow from one point to another based on
 what the player chooses. To do that, we need to introduce a bit more
 structure.
 
-3) Knots
+Knots
 --------
 
 Pieces of content are called knots
@@ -304,7 +306,7 @@ The following plays and compiles without error:
 ``-> END`` is a marker for both the writer and the compiler; it means
 "the story flow should now stop".
 
-4) Diverts
+Diverts
 ----------
 
 Knots divert to knots
@@ -372,7 +374,9 @@ You can't use too much glue: multiple glues next to each other have no
 additional effect. (And there's no way to "negate" a glue; once a line
 is sticky, it'll stick.)
 
-5) Branching The Flow
+.. _branching: 
+
+Branching The Flow
 ---------------------
 
 Basic branching
@@ -461,7 +465,7 @@ Oh, and the following is legal and not a great idea:
     and
     -> round
 
-6) Includes and Stitches
+Includes and Stitches
 ------------------------
 
 Knots can be subdivided
@@ -586,7 +590,7 @@ There are no rules about what file a knot must be in to be diverted to.
 (In other words, separating files has no effect on the game's
 namespacing).
 
-5) Varying Choices
+Varying Choices
 ------------------
 
 Choices can only be used once
@@ -779,7 +783,7 @@ Advanced: more logic
 **ink** supports a lot more logic and conditionality than covered here -
 see the section on 'variables and logic'.
 
-6) Variable Text
+Variable Text
 ----------------
 
 Text can vary
@@ -991,7 +995,7 @@ or:
 
     "I missed him. Was he particularly evil?"
 
-7) Game Queries
+Game Queries
 ---------------
 
 **ink** provides a few useful 'game level' queries about game state, for
@@ -1043,7 +1047,7 @@ Advanced: more queries
 You can make your own external functions, though the syntax is a bit
 different: see the section on functions below.
 
-Part 2: Weave
+Weave
 =============
 
 So far, we've been building branched stories in the simplest way, with
@@ -1060,7 +1064,7 @@ This format is called "weave", and its built out of the basic
 content/option syntax with two new features: the gather mark, ``-``, and
 the nesting of choices and gathers.
 
-1) Gathers
+Gathers
 ----------
 
 Gather points gather the flow back together
@@ -1158,7 +1162,7 @@ Weaves also allow for easy redrafting of choice-points; in particular,
 it's easy to break a sentence up and insert additional choices for
 variety or pacing reasons, without having to re-engineer any flow.
 
-2) Nested Flow
+Nested Flow
 --------------
 
 The weaves shown above are quite simple, "flat" structures. Whatever the
@@ -1371,7 +1375,7 @@ Hopefully, this demonstrates the philosophy laid out above: that weaves
 offer a compact way to offer a lot of branching, a lot of choices, but
 with the guarantee of getting from beginning to end!
 
-3) Tracking a Weave
+Tracking a Weave
 -------------------
 
 Sometimes, the weave structure is sufficient. But when it's not, we need
@@ -1556,7 +1560,9 @@ Note the level 2 gather point directly below the first option: there's
 nothing to gather here, really, but it gives us a handy place to divert
 the second option to.
 
-Part 3: Variables and Logic
+.. _variables: 
+
+Variables and Logic
 ===========================
 
 So far we've made conditional text, and conditional choices, using tests
@@ -1568,7 +1574,7 @@ fully-featured in terms of logic, and contains a few additional
 structures to help keep the often complex logic of a branching story
 better organised.
 
-1) Global Variables
+Global Variables
 -------------------
 
 The most powerful kind of variable, and arguably the most useful for a
@@ -1690,7 +1696,7 @@ This is also why
 is explicitly disallowed; it would be evaluated on the construction of
 the story, which probably isn't what you want.
 
-2) Logic
+Logic
 --------
 
 Obviously, our global variables are not intended to be constants, so we
@@ -1762,7 +1768,7 @@ The following all return true:
     { "No, thank you." != "Yes, please." }
     { "Yes, please" ? "ease" }
 
-3) Conditional blocks (if/else)
+Conditional blocks (if/else)
 -------------------------------
 
 We've seen conditionals used to control options and story content;
@@ -1921,7 +1927,7 @@ what you might expect:
         - Could I win the hand?
     }
 
-4) Temporary Variables
+Temporary Variables
 ----------------------
 
 Temporary variables are for scratch calculations
@@ -2038,7 +2044,7 @@ too easy to otherwise accidentally do the following:
 ... which sends the read count of ``waking_in_the_hut`` into the
 sleeping knot, and then attempts to divert to it.
 
-5) Functions
+Functions
 ------------
 
 The use of parameters on knots means they are almost functions in the
@@ -2282,7 +2288,7 @@ inline for maximum compactness.
 Wrapping up simple operations in function can also provide a simple
 place to put debugging information, if required.
 
-6) Constants
+Constants
 ------------
 
 Global Constants
@@ -2342,7 +2348,7 @@ And sometimes the numbers are useful in other ways:
 Constants are simply a way to allow you to give story states
 easy-to-understand names.
 
-7) Advanced: Game-side logic
+Advanced: Game-side logic
 ----------------------------
 
 There are two core ways to provide game hooks in the **ink** engine.
@@ -2352,10 +2358,12 @@ fired in the game when ink variables are modified. Both of these are
 described in `Running your
 ink <https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md>`__.
 
-Part 4: Advanced Flow Control
+.. _advanced_flow_control:
+
+Advanced Flow Control
 =============================
 
-1) Tunnels
+Tunnels
 ----------
 
 The default structure for **ink** stories is a "flat" tree of choices,
@@ -2491,7 +2499,7 @@ Advanced: Tunnels use a call-stack
 
 Tunnels are on a call-stack, so can safely recurse.
 
-2) Threads
+Threads
 ----------
 
 So far, everything in ink has been entirely linear, despite all the
@@ -2742,7 +2750,9 @@ simply to divide up choices.
         // exits; doesn't need a "return point" as if you leave, you go elsewhere
         ...
 
-Part 5: Advanced State Tracking
+.. _advanced_state_tracking:
+
+Advanced State Tracking
 ===============================
 
 Games with lots of interaction can get very complex, very quickly and
@@ -2768,7 +2778,7 @@ This feature is very new to the language. That means we haven't begun to
 discover all the ways it might be used - but we're pretty sure it's
 going to be useful! So if you think of a clever usage we'd love to know!
 
-1) Basic Lists
+Basic Lists
 --------------
 
 The basic unit of state-tracking is a list of states, defined using the
@@ -2821,7 +2831,7 @@ bracket:
 ...and if the notation for that looks a bit redundant, there's a reason
 for that coming up in a few subsections time.
 
-2) Reusing Lists
+Reusing Lists
 ----------------
 
 The above example is fine for the kettle, but what if we have a pot on
@@ -2962,7 +2972,7 @@ is valid, if horribly confusing and a bad idea:
 
     ~ temp anotherStateOfGrace = statesOfGrace.saintly
 
-3) List Values
+List Values
 --------------
 
 When a list is defined, the values are listed in an order, and that
@@ -3030,7 +3040,7 @@ increment of 1. So the following is the same:
 
     LIST primeNumbers = two = 2, three, five = 5
 
-4) Multivalued Lists
+Multivalued Lists
 --------------------
 
 The following examples have all included one deliberate untruth, which
@@ -3449,7 +3459,7 @@ example, written so no one else has to write it.
         -> top 
         
 
-5) Advanced List Operations
+Advanced List Operations
 ---------------------------
 
 The above section covers basic comparisons. There are a few more
@@ -3564,7 +3574,7 @@ The result is a new list, so you can test it:
 
     {LIST_COUNT(desiredValues ^ actualValues) == 1: Correction, the new president has only one desirable quality. {desiredValues ^ actualValues == self_belief: It's the scary one.}}
 
-6) Multi-list Lists
+Multi-list Lists
 -------------------
 
 So far, all of our examples have included one large simplification,
@@ -3705,7 +3715,7 @@ The queries given above mostly generalise nicely to multi-valued lists
 
     { LIST_INVERT(mixedList) }            // one, b, two    
 
-7) Long example: crime scene
+Long example: crime scene
 ----------------------------
 
 Finally, here's a long example, demonstrating a lot of ideas from this
@@ -4033,7 +4043,7 @@ through to better understand the various moving parts.
         -> END
         
 
-8) Summary
+Summary
 ----------
 
 To summarise a difficult section, **ink**'s list construction provides:
@@ -4095,7 +4105,7 @@ Example:
     *   { PhoneState ? (on, charged) } [ Call my mother ]
         
 
-Part 6: International character support in identifiers
+International character support in identifiers
 ======================================================
 
 By default, ink has no limitations on the use of non-ASCII characters

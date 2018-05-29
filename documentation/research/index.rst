@@ -1,3 +1,5 @@
+.. _research:
+
 ############
 Research
 ############
@@ -14,3 +16,4 @@ in English/Language Arts, but are largely missing from the conversation in compu
    design
    learning
    partners
+   references
