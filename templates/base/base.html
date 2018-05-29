@@ -10,20 +10,7 @@
         <link rel="stylesheet" href="{% static 'base/base_style.css' %}">
         {% block style %}
         {% endblock %}
-        <script type="text/javascript">
-        var _paq = _paq || [];
-        /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-        _paq.push(['trackPageView']);
-        _paq.push(['enableLinkTracking']);
-        (function() {
-            var u="//chrisproctor.net/analytics/";
-            _paq.push(['setTrackerUrl', u+'piwik.php']);
-            _paq.push(['setSiteId', '5']);
-            var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
-            g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
-        })();
-        </script>
-        <noscript><p><img src="//chrisproctor.net/analytics/piwik.php?idsite=5&rec=1" style="border:0;" alt="" /></p></noscript>
+        {% include 'base/analytics.html' %}
     </head>
     <body>
         {% include 'base/menu.html' %}
