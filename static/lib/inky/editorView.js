@@ -14,7 +14,7 @@ const editor = ace.edit("editor");
 const Range = ace.require("ace/range").Range;
 const TokenIterator = ace.require("ace/token_iterator").TokenIterator;
 const language_tools = ace.require("ace/ext/language_tools");
-const inkCompleter = require("lib/inky/inkCompleter").inkCompleter; // Modified by CP
+const inkCompleter = require("lib/inky/inkCompleter"); // Modified by CP
 
 var editorMarkers = [];
 var editorAnnotations = [];
