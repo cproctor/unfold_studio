@@ -19,7 +19,8 @@ questions of identity, culture, and social justice. (We are currently doing rese
 which uses Unfold Studio for several months as part of its core CS curriculum.)
 
 This documentation is meant for several audiences. If you need help using Unfold Studio
-or writing interactive stories, see the :ref:`user_guide`. If you are interested in using 
+or writing interactive stories, see the :ref:`user_guide`. (If you're impatient, try the
+:ref:`quickstart`.) If you are interested in using 
 Unfold Studio with students, see :ref:`teaching`. And if you're interested in Unfold Studio's 
 back story or research on transliteracies, CS education, etc. please see :ref:`research`.
 We welcome questions, feedback, and random ideas. Please see :ref:`contact` to get in touch. 

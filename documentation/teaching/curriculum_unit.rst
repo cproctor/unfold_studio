@@ -34,8 +34,9 @@ Objectives
 
 - Use the concepts of *identity*, *model of personhood*, *register*, and 
   *literacy space* to analyze real-world social experiences. 
+- Write interactive stories which critically engage with real-world social experiences. 
 - Plan interactive stories using planning and prewriting strategies such as 
-  freewriting and using *graphs* to plan stories. 
+  freewriting and using *graphs* to plan story flow. 
 - Use *flow control* and *state* to write interactive stories. Specifically, make use of:
 
   - Branches (see :ref:`branching`)
@@ -46,13 +47,17 @@ Objectives
 Assessment
 ==========
 
-At the end of the unit, two assessments will allow students to demonstrate mastery of these objectives:
+Three assessments will allow students to demonstrate mastery of these objectives:
 
-- :ref:`fairy_assessment` assesses students' ability to use programming concepts. Students are given a 
+- The :ref:`prewriting_assessment` assesses students' prewriting and planning strategies. Students
+  submit prewriting documents, a story draft, and a reflection explaining the prewriting documents.
+- The :ref:`portfolio` assesses students' ability to analyze and critically engage with real-world
+  social experiences. Students submit several stories and a reflection explaining their intent. 
+- The :ref:`fairy_assessment` assesses students' ability to use programming concepts. Students are given a 
   broken story and asked to fix it. 
 
 The writer's workshop structure provides plenty of opportunities for informal formative assessment.
-There are also several structured opportunities to check how students are doing. 
+The unit also contains several structured opportunities to check how students are doing. 
 
 Daily Lesson Plans
 ==================
@@ -67,6 +72,8 @@ Daily Lesson Plans
    :ref:`day16` :ref:`day17` :ref:`day18` :ref:`day19` :ref:`day20`
    :ref:`day21` :ref:`day22` :ref:`day23` :ref:`day24` :ref:`day25`
    ============ ============ ============ ============ ============
+
+.. todo:: Write daily lesson plans
 
 .. _day1:
 

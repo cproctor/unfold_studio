@@ -2,5 +2,5 @@
 Learning with Unfold Studio
 ***************************
 
-What are the research questions?
+.. todo:: Summary of research questions and findings. Links to papers.
 

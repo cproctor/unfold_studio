@@ -1,3 +1,5 @@
+.. _ink:
+
 ****************
 The Ink language
 ****************
@@ -4181,3 +4183,8 @@ If a particular character range that you would like to use within
 identifiers isn't supported, feel free to open an
 `issue <https://github.com/inkle/ink/issues/new>`__ or `pull
 request <https://github.com/inkle/ink/pulls>`__ on the main ink repo.
+
+Unfold Studio extensions to Ink
+===============================
+
+.. todo:: INCLUDES, use of tags (once implemented)
