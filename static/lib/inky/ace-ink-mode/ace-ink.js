@@ -1,3 +1,4 @@
+// Begin require wrapper
 define([
     "require",
     "ace/ace",
@@ -8,6 +9,8 @@ define([
     "ace/mode/text_highlight_rules",
 ],
 function (require, ace) {
+// End require wrapper
+
 const oop = ace.require("ace/lib/oop");
 const TextMode = ace.require("ace/mode/text").Mode;
 const Tokenizer = ace.require("ace/tokenizer").Tokenizer;
@@ -410,6 +413,15 @@ var inkHighlightRules = function() {
             regex: /\s*~\s*.*$/
         }],
         "#tags": [{
+            // e.g. \\#tag should be highlighted
+            token: "doubleescape",
+            regex: /\\\\/
+        }, {
+            // e.g. \#tag should not be highlighted
+            token: "escape",
+            regex: /\\#/
+        }, {
+            // e.g. #tag should be highlighted
             token: "tag",
             regex: /#.*/
         }],
@@ -508,6 +520,9 @@ oop.inherits(InkMode, TextMode);
     }
 }).call(InkMode.prototype);
 
+// Changed to AMD by CP
 return InkMode;
 
+// Begin require wrapper
 });
+// End require wrapper

@@ -25,7 +25,6 @@ urlpatterns = [
     url('^', include('django.contrib.auth.urls')),
     url(r'about', views.about, name="about"),
     url(r'teachers', views.for_teachers, name="for_teachers"),
-    url(r'documentation', views.documentation, name="documentation"),
     url(r'users/(?P<slug>\w+)/?$', profile_views.UserDetailView.as_view(), name="show_user"),
     url(r'users/(?P<slug>\w+)/follow/?$', profile_views.FollowUserView.as_view(), name="follow_user"),
     url(r'users/(?P<slug>\w+)/unfollow/?$', profile_views.UnfollowUserView.as_view(), name="unfollow_user"),

@@ -1,4 +1,4 @@
-define(function (require, exports, module) {const path = require("path");
+const path = require("path");
 const fs = require("fs");
 const assert = require("assert");
 
@@ -18,7 +18,6 @@ var fileIdCounter = 0;
 // InkFile
 // -----------------------------------------------------------------
 
-// We need to rework InkFile.
 // anyPath can be relative or absolute
 function InkFile(anyPath, mainInkFile, events) {
     
@@ -228,6 +227,10 @@ InkFile.prototype.tryLoadFromDisk = function(loadCallback) {
                 return;
             }
 
+            // Strip any BOM
+            // https://en.wikipedia.org/wiki/Byte_order_mark
+            data = data.replace(/^\uFEFF/, '');
+
             // Success - fire this callback before other callbacks 
             // like document change get fired
             loadCallback(true);
@@ -272,5 +275,3 @@ InkFile.prototype.addIncludeLine = function(relativePath) {
 }
 
 exports.InkFile = InkFile;
-
-});

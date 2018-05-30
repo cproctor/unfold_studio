@@ -107,7 +107,7 @@ USE_TZ = True
 # Inklecate reads and write to files. INK_DIR specifies a directory which 
 # should exist and have appropriate permissions.
 INK_DIR = "/Users/chris/temp/inkspace"
-INKLECATE = '/Users/chris/Documents/3-Software-Engineer/unfold_studio/unfold_studio/inklecate_0_6_4'
+INKLECATE = '/Users/chris/Documents/3-Software-Engineer/unfold_studio/unfold_studio/inklecate_0_7_4'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/

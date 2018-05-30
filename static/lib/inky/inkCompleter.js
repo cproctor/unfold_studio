@@ -1,4 +1,8 @@
-define(function (require, exports, module) {function union(sets) {
+// Begin require wrapper
+define(function (require, exports, module) {
+// End require wrapper
+
+function union(sets) {
     const u = new Set();
     for (const set of sets) {
         for (const elem of set) {
@@ -65,7 +69,8 @@ function getAllVocabSuggestions(inkFiles) {
     return suggestions;
 }
 
-exports.inkCompleter = {
+// Changed to AMD by CP
+return {
     inkFiles: [],
 
     getCompletions(editor, session, pos, prefix, callback) {
@@ -103,5 +108,6 @@ exports.inkCompleter = {
         callback(null, suggestions);
     }
 };
-
+// Begin require wrapper
 });
+// End require wrapper

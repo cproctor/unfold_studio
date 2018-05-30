@@ -33,7 +33,6 @@
  * @param module a name for the payload
  * @param payload a function to call with (require, exports, module) params
  */
-define(function(require, exports, module) {
 
 (function() {
 
@@ -19068,4 +19067,3 @@ exports.version = "1.2.6";
                 });
             })();
         
-}); // end of AMD wrapper

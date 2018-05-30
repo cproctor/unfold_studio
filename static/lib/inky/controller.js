@@ -1,11 +1,7 @@
-define(['jQuery'], function ($) {
-
-var __filename = module.uri || "", __dirname = __filename.substring(0, __filename.lastIndexOf("/") + 1); 
-
-//const electron = require("electron");
-//const ipc = electron.ipcRenderer;
-//const remote = electron.remote;
-//const path = require("path");
+const electron = require("electron");
+const ipc = electron.ipcRenderer;
+const remote = electron.remote;
+const path = require("path");
 const $ = window.jQuery = require('./jquery-2.2.3.min.js');
 
 // Debug
@@ -18,7 +14,7 @@ require("./util.js");
 require("./split.js");
 
 // Set up context menu
-// NOT NEEDED; ELECTRON require("./contextmenu.js");
+require("./contextmenu.js");
 
 const EditorView = require("./editorView.js").EditorView;
 const PlayerView = require("./playerView.js").PlayerView;
@@ -66,7 +62,6 @@ $(document).ready(() => {
         InkProject.startNew();
 
         // Debug
-        // No, we need a different means of fetching content. A DRF endpoint.
         if( loadTestInk ) {
             var testInk = require("fs").readFileSync(path.join(__dirname, "test.ink"), "utf8");
             InkProject.currentProject.mainInk.setValue(testInk);
@@ -114,7 +109,7 @@ LiveCompiler.setEvents({
             if( error.filename == InkProject.currentProject.activeInkFile.relativePath() )
                 EditorView.addError(error);
 
-            if( error.type == "RUNTIME ERROR" )
+            if( error.type == "RUNTIME ERROR" || error.type == "RUNTIME WARNING" )
                 PlayerView.addLineError(error, () => gotoIssue(error));
         }
 
@@ -247,7 +242,15 @@ GotoAnything.setEvents({
         if( typeof row !== 'undefined' )
             EditorView.gotoLine(row+1);
         NavHistory.addStep();
+    },
+    lookupRuntimePath: (path, resultHandler) => {
+        LiveCompiler.getRuntimePathInSource(path, resultHandler);
     }
 });
 
+ipc.on("set-tags-visible", (event, visible) => {
+    if( visible )
+        $("#main").removeClass("hideTags");
+    else
+        $("#main").addClass("hideTags");
 });

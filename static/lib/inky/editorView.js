@@ -1,18 +1,20 @@
+// From inky/app/renderer/editorView.js v0.8.0
+// Begin require.js wrapper
 define([
     "require", 
     "ace/ace",
     "ace/range",
     "lib/inky/inkCompleter",
     "ace/ext/language_tools"
-
 ], function (require) {
+// End require.js wrapper
 
-const ace = require('ace/ace');
+const ace = require('ace/ace'); // Added by CP
 const editor = ace.edit("editor");
 const Range = ace.require("ace/range").Range;
 const TokenIterator = ace.require("ace/token_iterator").TokenIterator;
-const language_tools = ace.require("ace/ext/language_tools"); 
-const inkCompleter = require("lib/inky/inkCompleter").inkCompleter;
+const language_tools = ace.require("ace/ext/language_tools");
+const inkCompleter = require("lib/inky/inkCompleter").inkCompleter; // Modified by CP
 
 var editorMarkers = [];
 var editorAnnotations = [];
@@ -46,7 +48,7 @@ editor.completers.push(inkCompleter);
 // Ace turns pointer events off
 editor.on("click", function(e){
 
-    /*
+    /* Disabled by CP
     if( e.domEvent.altKey ) {
         tryClickCodeLink(e);
     } else {
@@ -152,13 +154,14 @@ function clearErrors() {
     editorMarkers = [];
 }
 
-// AMD
+// Changed to AMD by CP
 return {
+    // New function implemented by CP to support Story instead of InkProject
+    // (since we're working with server endpoint instead of file-based ink
     showStory: (story) => {
         editor.setSession(story.getAceSession());
         editor.focus();
     },
-
     clearErrors: clearErrors,
     setEvents: (e) => { events = e; },
     getValue: () => { return editor.getValue(); },
@@ -184,10 +187,13 @@ return {
             editor.scrollToRow(savedScrollRow);
         } 
     },
+    // New function implemented by CP
     setEnabled: (enabled) => { 
         editor.setReadOnly(!enabled); 
         if (enabled) editor.renderer.showCursor();
         else editor.renderer.hideCursor();
     }
 };
+// Begin require wrapper
 });
+// End require wrapper

@@ -47,3 +47,8 @@ Bumped to 10: Added overview guide for serialisation
 ssh root@unfold.studio
 
 Revision a5db240e83ad0e6c93f94ef86c4791f67105d5bb seems to work for version 9.
+
+## Dependencies
+
+[ink](https://github.com/inkle/ink) v0.7.4
+[inkjs](https://github.com/y-lohse/inkjs) v1.6.0

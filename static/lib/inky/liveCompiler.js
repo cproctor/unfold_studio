@@ -1,15 +1,6 @@
-
-// Look for live re-compile loop to find the error
-
-define([
-    "require",
-    "lib/lodash",
-    "scripts/randomstring"
-],
-function (require) {
-//const ipc = require("electron").ipcRenderer;
-const _ = require("lib/lodash");
-var randomstring = require("scripts/randomstring");
+const ipc = require("electron").ipcRenderer;
+const _ = require("lodash");
+var randomstring = require("randomstring");
 
 var namespace = null;
 var sessionIdx = 0;
@@ -95,17 +86,18 @@ function reloadInklecateSession() {
     currentPlaySessionId = instr.sessionId;
 
     console.log("This window sending session "+instr.sessionId);
-    // EVENT ipc.send("compile", instr);
+    ipc.send("compile", instr);
 }
 
-function exportJson(callback) {
+function exportJson(inkJsCompatible, callback) {
     exportCompleteCallback = callback;
 
     var instr = buildCompileInstruction();
     instr.export = true;
+    instr.inkJsCompatible = inkJsCompatible;
     currentExportSessionId = instr.sessionId;
 
-    // EVENT ipc.send("compile", instr);
+    ipc.send("compile", instr);
 }
 
 function completeExport(error, path) {
@@ -118,11 +110,11 @@ function completeExport(error, path) {
 }
 
 function stopInklecateSession(idToStop) {
-    // EVENT ipc.send("play-stop-ink", idToStop);
+    ipc.send("play-stop-ink", idToStop);
 }
 
 function choose(choice) {
-    // EVENT ipc.send("play-continue-with-choice-number", choice.number, choice.sourceSessionId);
+    ipc.send("play-continue-with-choice-number", choice.number, choice.sourceSessionId);
     choiceSequence.push(choice.number);
     currentTurnIdx++;
 }
@@ -140,12 +132,17 @@ function stepBack() {
 }
 
 function getLocationInSource(offset, callback) {
-    // EVENT ipc.send("get-location-in-source", offset, currentPlaySessionId);
+    ipc.send("get-location-in-source", offset, currentPlaySessionId);
+    locationInSourceCallbackObj = { callback: callback, sessionId: currentPlaySessionId };
+}
+
+function getRuntimePathInSource(runtimePath, callback) {
+    ipc.send("get-runtime-path-in-source", runtimePath, currentPlaySessionId);
     locationInSourceCallbackObj = { callback: callback, sessionId: currentPlaySessionId };
 }
 
 function evaluateExpression(expressionText, callback) {
-    // EVENT ipc.send("evaluate-expression", expressionText, currentPlaySessionId);
+    ipc.send("evaluate-expression", expressionText, currentPlaySessionId);
     expressionEvaluationObj = { callback: callback,  sessionId: currentPlaySessionId };
 }
 
@@ -171,7 +168,6 @@ setInterval(() => {
 // IPC event from the native menu option to cycle issues
 // --------------------------------------------------------
 
-/* EVENT
 ipc.on("next-issue", () => {
     if( issues.length > 0 ) {
         selectedIssueIdx++;
@@ -181,22 +177,18 @@ ipc.on("next-issue", () => {
         events.selectIssue(issues[selectedIssueIdx]);
     }
 });
-*/
 
 // --------------------------------------------------------
 // IPC Events from inklecate.js
 // --------------------------------------------------------
 
-/* EVENT
 ipc.on("play-generated-text", (event, result, fromSessionId) => {
 
     if( fromSessionId != currentPlaySessionId ) return;
 
     events.textAdded(result);
 });
-*/
 
-/* EVENT
 ipc.on("play-generated-errors", (event, errors, fromSessionId) => {
 
     if( !sessionIsCurrent(fromSessionId) ) return;
@@ -204,18 +196,14 @@ ipc.on("play-generated-errors", (event, errors, fromSessionId) => {
     issues = errors;
     events.errorsAdded(errors);
 });
-*/
 
-/* EVENT
 ipc.on("play-generated-tags", (event, tags, fromSessionId) => {
 
     if( fromSessionId != currentPlaySessionId ) return;
 
     events.tagsAdded(tags);
 });
-*/
 
-/* EVENT
 ipc.on("play-generated-choice", (event, choice, fromSessionId) => {
 
     if( fromSessionId != currentPlaySessionId ) return;
@@ -227,9 +215,7 @@ ipc.on("play-generated-choice", (event, choice, fromSessionId) => {
     var isLatestTurn = currentTurnIdx >= turnCount-1;
     events.choiceAdded(choice, isLatestTurn);
 });
-*/
 
-/* EVENT
 ipc.on("play-requires-input", (event, fromSessionId) => {
 
     if( fromSessionId != currentPlaySessionId )
@@ -252,9 +238,7 @@ ipc.on("play-requires-input", (event, fromSessionId) => {
             events.replayComplete(currentPlaySessionId);
     });
 });
-*/
 
-/* EVENT
 ipc.on("inklecate-complete", (event, fromSessionId, exportJsonPath) => {
 
     if( fromSessionId == currentPlaySessionId )
@@ -268,9 +252,7 @@ ipc.on("inklecate-complete", (event, fromSessionId, exportJsonPath) => {
         completeExport(null, exportJsonPath);
     }
 });
-*/
 
-/* EVENT
 ipc.on("play-exit-due-to-error", (event, exitCode, fromSessionId) => {
 
     if( !sessionIsCurrent(fromSessionId) ) return;
@@ -286,9 +268,7 @@ ipc.on("play-exit-due-to-error", (event, exitCode, fromSessionId) => {
         events.exitDueToError();
     }
 });
-*/
 
-/* EVENT
 ipc.on("play-story-unexpected-error", (event, error, fromSessionId) => {
 
     if( !sessionIsCurrent(fromSessionId) ) return;
@@ -304,15 +284,11 @@ ipc.on("play-story-unexpected-error", (event, error, fromSessionId) => {
         events.unexpectedError(error);
     }
 });
-*/
 
-/* EVENT
 ipc.on("play-story-stopped", (event, fromSessionId) => {
 
 });
-*/
 
-/* EVENT
 ipc.on("return-location-from-source", (event, fromSessionId, locationInfo) => {
     if( fromSessionId == locationInSourceCallbackObj.sessionId ) {
         var callback = locationInSourceCallbackObj.callback;
@@ -320,9 +296,7 @@ ipc.on("return-location-from-source", (event, fromSessionId, locationInfo) => {
         callback(locationInfo);
     }
 });
-*/
 
-/* EVENT
 ipc.on("play-evaluated-expression", (event, textResult, fromSessionId) => {
     if( fromSessionId == expressionEvaluationObj.sessionId && expressionEvaluationObj ) {
         var callback = expressionEvaluationObj.callback;
@@ -330,9 +304,7 @@ ipc.on("play-evaluated-expression", (event, textResult, fromSessionId) => {
         callback(textResult);
     }
 });
-*/
 
-/* EVENT
 ipc.on("play-evaluated-expression-error", (event, errorMessage, fromSessionId) => {
     if( fromSessionId == expressionEvaluationObj.sessionId && expressionEvaluationObj ) {
         var callback = expressionEvaluationObj.callback;
@@ -340,9 +312,8 @@ ipc.on("play-evaluated-expression-error", (event, errorMessage, fromSessionId) =
         callback(null, errorMessage);
     }
 });
-*/
 
-return {
+exports.LiveCompiler = {
     setProject: setProject,
     reload: reloadInklecateSession,
     exportJson: exportJson,
@@ -354,7 +325,6 @@ return {
     rewind: rewind,
     stepBack: stepBack,
     getLocationInSource: getLocationInSource,
+    getRuntimePathInSource: getRuntimePathInSource,
     evaluateExpression: evaluateExpression
 }
-
-});

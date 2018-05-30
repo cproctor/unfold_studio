@@ -17,7 +17,7 @@ $(document).ready(() => {
 
         var isDragging = false;
 
-        $grip.mousedown(function() {
+        $grip.mousedown(function(event) {
             isDragging = true;
             event.preventDefault();
         });
@@ -48,7 +48,7 @@ $(document).ready(() => {
                 event.preventDefault();
             }
         });
-        $(document).mouseup(function() {
+        $(document).mouseup(function(event) {
             isDragging = false;
             event.preventDefault();
         });

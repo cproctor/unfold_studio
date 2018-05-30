@@ -1,4 +1,4 @@
-define(function (require, exports, module) {const assert = require("assert");
+const assert = require("assert");
 const TokenIterator = ace.require("ace/token_iterator").TokenIterator;
 const _ = require("lodash");
 
@@ -260,5 +260,3 @@ InkFileSymbols.prototype.getCachedVocabWords = function() {
 }
 
 exports.InkFileSymbols = InkFileSymbols;
-
-});

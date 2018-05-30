@@ -1,4 +1,4 @@
-define(function (require, exports, module) {const {remote} = require('electron')
+const {remote} = require('electron')
 const {Menu, MenuItem} = remote
 
 const menu = new Menu()
@@ -11,4 +11,3 @@ window.addEventListener('contextmenu', (e) => {
     e.preventDefault()
     menu.popup(remote.getCurrentWindow())
 }, false);
-});

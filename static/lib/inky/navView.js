@@ -1,4 +1,4 @@
-define(function (require, exports, module) {const $ = window.jQuery = require('./jquery-2.2.3.min.js');
+const $ = window.jQuery = require('./jquery-2.2.3.min.js');
 const path = require("path");
 const _ = require("lodash");
 
@@ -243,4 +243,3 @@ exports.NavView = {
     toggle: () => { if( visible ) hide(); else show(); },
     showAddIncludeForm: () => setIncludeFormVisible(true)
 }
-});
