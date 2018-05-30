@@ -14,13 +14,13 @@
         <a href="{% url 'new_story' %}">New Story</a>
     </div>
     <div class="menu-item menu-fill"></div>
-    {% if request.user.is_authenticated %}
+    {% if user.is_authenticated %}
         <div class="menu-item">
-            <a href="{% url 'show_user' request.user %}">
+            <a href="{% url 'show_user' user %}">
                 {% if unseen_events > 0 %}
                     <span class="badge">{{unseen_events}}</span>
                 {% endif %}
-                {{request.user}}
+                {{user}}
             </a>
         </div>
         <div class="menu-item">

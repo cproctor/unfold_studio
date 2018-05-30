@@ -1,4 +1,4 @@
-{% if request.user.profile in story.loves.all %}
+{% if user.is_authenticated and user.profile in story.loves.all %}
     <span class="love">&lt;3</span>
 {% endif %}
 <a href="{% url 'show_story' story.id %}">{{story.title}}</a> 
