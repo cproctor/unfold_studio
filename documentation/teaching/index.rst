@@ -10,4 +10,5 @@ Teaching
    pedagogy
    curriculum_unit
    resources
+   workshops
    support
