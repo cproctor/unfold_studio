@@ -50,6 +50,7 @@ Rubric
    ======================= ======================================================================
    Skill                   Evidence
    ======================= ======================================================================
+   Syntax                  - Story compiles with no errors
    Choices match the graph - Add a choice to go from ``enter_peets`` to ``use_wifi``.
    Sticky choices          - Make choice from ``use_wifi`` to ``read_news`` sticky (``+``) 
                            - Make choice from ``use_wifi`` to ``minecraft`` sticky (``+``) 
