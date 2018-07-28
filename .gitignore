@@ -1,6 +1,7 @@
-db.sqlite3
+*.sqlite3
 *.pyc
 *.swp
 *.swo
 unfold_studio/settings.py
 documentation/_build/*
+inklecate*
