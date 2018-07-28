@@ -12,7 +12,7 @@ import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_URL = 'http://localhost:8000'
+BASE_URL = 'http://unfold.local:8000'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'afg+8)$-yk((4fppx2a6@vb1$49)2)obmd6pz3ijg+r7)qy@z^'
