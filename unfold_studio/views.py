@@ -1,26 +1,17 @@
 from django.shortcuts import render, redirect                         
-from django.core.paginator import Paginator, EmptyPage                
 from django.http import HttpResponse, Http404                         
 from django.conf import settings as s                                 
 from django.shortcuts import render, get_object_or_404                
 from django.views import generic                                      
 from django.http import JsonResponse                                  
-from django.forms.models import model_to_dict                         
-from django.contrib.auth.decorators import login_required             
 from django.contrib.auth import login
-from django.contrib.auth.forms import UserCreationForm
 import json
-from django.core.serializers import serialize                         
-from django.core.exceptions import ValidationError, PermissionDenied  
 import logging
 from datetime import datetime                                         
-from random import choice
 import re
 from .forms import StoryForm
 from .models import Story, Book
 from profiles.models import Profile
-# TODO Do I need all this crap?
-
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
