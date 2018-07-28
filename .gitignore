@@ -5,3 +5,4 @@
 unfold_studio/settings.py
 documentation/_build/*
 inklecate*
+log/*
