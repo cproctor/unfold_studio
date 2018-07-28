@@ -1,10 +1,12 @@
 from django.db import models 
 from .helpers import compile_ink
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
 from profiles.models import Profile
 import reversion
 from datetime import datetime, timezone
 from django.conf import settings
+import json
 
 @reversion.register()
 class Story(models.Model):
@@ -30,6 +32,7 @@ class Story(models.Model):
     includes = models.ForeignKey("unfold_studio.Story", related_name="included_by", null=True, blank=True)
     deleted = models.BooleanField(default=False)
     priority = models.FloatField(default=0)
+    sites = models.ManyToManyField(Site)
 
     def __str__(self):
         return "{} by {}".format(self.title, self.author)
@@ -54,6 +57,17 @@ class Story(models.Model):
         age_in_hours = (datetime.now(timezone.utc) - self.edit_date).total_seconds() / (60 * 60)
         self.priority = score / pow(age_in_hours + 2, settings.FEATURED['GRAVITY'])
 
+    def for_json(self):
+        return {
+            "id": self.id,
+            "compiled": json.loads(self.json) if self.json else None,
+            "ink": self.ink,
+            "status": self.status,
+            "error": self.message,
+            "error_line": self.err_line,
+            "author": self.author.username if self.author else None
+        }
+
     class Meta:
         ordering = ['-priority']
     
@@ -61,3 +75,4 @@ class Book(models.Model):
     title = models.CharField(max_length=400)
     owner = models.ForeignKey(User)
     stories = models.ManyToManyField(Story, related_name='books')
+    sites = models.ManyToManyField(Site)

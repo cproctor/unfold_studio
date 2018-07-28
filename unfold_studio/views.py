@@ -7,7 +7,6 @@ from django.http import JsonResponse
 from django.contrib.auth import login
 import json
 import logging
-from datetime import datetime                                         
 import re
 from .forms import StoryForm
 from .models import Story, Book
@@ -22,6 +21,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 import reversion
 from profiles.forms import SignUpForm
+from django.utils.timezone import now
 
 log = logging.getLogger('django')    
 
@@ -51,12 +51,12 @@ def browse(request):
 def new_story(request):
     if request.method == "POST":
         if request.user.is_authenticated:
-            story = Story(author=request.user, creation_date=datetime.now(), edit_date=datetime.now())
+            story = Story(author=request.user, creation_date=now(), edit_date=now())
         else: 
             story = Story(
                 author=None, 
-                creation_date=datetime.now(), 
-                edit_date=datetime.now(), 
+                creation_date=now(), 
+                edit_date=now(), 
                 shared=True,
                 public=True
             )
@@ -79,7 +79,7 @@ def new_story(request):
 
 def edit_story(request, story_id):
     story = get_story(request, story_id)
-    story.edit_date = datetime.now()
+    story.edit_date = now()
     if request.method == "POST":
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():
@@ -95,7 +95,7 @@ def edit_story(request, story_id):
 
 def compile_story(request, story_id):
     story = get_story(request, story_id, to_edit=True)
-    story.edit_date = datetime.now()
+    story.edit_date = now()
     story.ink = request.POST['ink']
     story.compile_ink()
     with reversion.create_revision():
@@ -105,27 +105,16 @@ def compile_story(request, story_id):
             reversion.set_comment("Story edited and compiled.")
         else:
             reversion.set_comment("Story edited and compiled (has error)")
-    return JsonResponse(story_json(story))
+    return JsonResponse(story.for_json())
 
 def show_story(request, story_id):
     story = get_story(request, story_id)
     editable = int(story.author == request.user or story.public)
     return render(request, 'unfold_studio/show_story.html', {'story': story, 'editable': editable})
 
-def story_json(story): 
-    return {
-        "id": story.id,
-        "compiled": json.loads(story.json) if story.json else None,
-        "ink": story.ink,
-        "status": story.status,
-        "error": story.message,
-        "error_line": story.err_line,
-        "author": story.author.username if story.author else None
-    }
-
 def show_json(request, story_id):
     story = get_story(request, story_id)
-    return JsonResponse(story_json(story))
+    return JsonResponse(story.for_json())
 
 def show_ink(request, story_id):
     story = get_story(request, story_id)
@@ -198,8 +187,8 @@ class ForkStoryView(StoryMethodView):
             status=parent.status,
             message=parent.message,
             err_line=parent.err_line,
-            creation_date=datetime.now(), 
-            edit_date=datetime.now(), 
+            creation_date=now(), 
+            edit_date=now(), 
         )
         story.save()
         #messages.success(self.request, "You have forked '{}'".format(story.title))
