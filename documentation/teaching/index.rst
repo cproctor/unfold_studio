@@ -1,8 +1,8 @@
 .. _teaching:
 
-############
-Teaching
-############
+##############
+Teaching Guide
+##############
 
 .. toctree::
    :maxdepth: 3

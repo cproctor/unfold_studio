@@ -4,6 +4,8 @@
 The Ink language
 ****************
 
+.. note:: This page was adapted from Inkle's original documentation for Ink.
+
 Introduction
 ============
 
@@ -4187,4 +4189,29 @@ request <https://github.com/inkle/ink/pulls>`__ on the main ink repo.
 Unfold Studio extensions to Ink
 ===============================
 
-.. todo:: INCLUDES, use of tags (once implemented)
+Include
+-------
+You can `INCLUDE` other stories on Unfold Studio by referring to their story IDs (visible in the 
+story's URL). Stories 
+must be public or shared to be included in other stories. This can be used to create 
+massive interconnected worlds. For example::
+
+    INCLUDE 190 # Desert scenes
+    INCLUDE 191 # Oasis scenes
+    -> blinding_sun # Should have been defined in one of the included stories
+
+.. warning:: Currently, the ink compiler rejects stories if a knot is defined more than once
+   across all included content. This makes it hard to test and reuse parts of stories, since 
+   you may want to link to knots in another file that have not yet been written. 
+   The behavior of INCLUDE will change in version 0.5 to safely
+   handle recursive includes and to allow knots to be redefined. This will allow new patterns of 
+   reusing stories. 
+
+.. note:: Including other authors' writing in your stories creates fascinating
+   collaborative possibilities, but it also means your story isn't fully under
+   your control. If you include a story from someone you don't know, be aware that
+   they could later change the included story. If you want to prevent this, you could
+   fork the other story and include your new copy. Changes to included stories are updated
+   every time you save your story.
+
+

@@ -24,7 +24,7 @@ copyright = '2018, Chris Proctor'
 author = 'Chris Proctor'
 
 # The short X.Y version
-version = ''
+version = '0.4'
 # The full version, including alpha/beta/rc tags
 release = '0.4'
 
