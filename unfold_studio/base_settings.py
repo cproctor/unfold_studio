@@ -143,6 +143,8 @@ FEATURED = {
     'STORIES_TO_SHOW': 12
 }
 
+STORIES_PER_PAGE = 20
+
 DOCUMENTATION_URL = 'http://docs.unfold.studio/'
 HELP_URL = DOCUMENTATION_URL + 'user_guide/'
 TEACHING_URL = DOCUMENTATION_URL + 'teaching/'

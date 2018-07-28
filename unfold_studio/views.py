@@ -22,31 +22,52 @@ from django.urls import reverse
 import reversion
 from profiles.forms import SignUpForm
 from django.utils.timezone import now
+from django.contrib.sites.shortcuts import get_current_site
+from django.db.models import Q
+from django.core.paginator import Paginator, PageNotAnInteger
 
 log = logging.getLogger('django')    
 
+
+def story_queryset(request):
+    "Returns a queryset for available stories in the current context"
+    return Story.objects
+
 def get_story(request, story_id, to_edit=False):
-    try: 
+    try:
         if to_edit:
-            return Story.objects.filter(public=True, deleted=False).get(pk=story_id)
+            return Story.objects.get(
+                Q(public=True) | Q(author=request.user),
+                id=story_id,
+                sites__id=get_current_site(request).id,
+                deleted=False
+            )
         else:
-            return Story.objects.filter(shared=True, deleted=False).get(pk=story_id)
+            return Story.objects.get(
+                Q(public=True) | Q(shared=True) | Q(author=request.user),
+                id=story_id,
+                sites__id=get_current_site(request).id,
+                deleted=False
+            )
     except Story.DoesNotExist:
-        try: 
-            if request.user.is_authenticated():
-                return Story.objects.filter(author=request.user, deleted=False).get(pk=story_id)
-            else:
-                raise Http404()
-        except Story.DoesNotExist:
-            raise Http404()
+        raise Http404()
 
 def home(request):
+    "The homepage shows a subset of stories with the highest priority."
     stories = Story.objects.filter(shared=True, deleted=False)[:s.FEATURED['STORIES_TO_SHOW']]
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
+    "Shows all stories, sorted by priority. Someday, I'll need to paginate this."
     stories = Story.objects.filter(shared=True, deleted=False).all()
-    return render(request, 'unfold_studio/list_stories.html', {'stories': stories})
+    paginator = Paginator(stories, s.STORIES_PER_PAGE)
+    page = request.GET.get('page')
+    try:
+        story_page = paginator.page(page)
+    except PageNotAnInteger:
+        story_page = paginator.page(1)
+    
+    return render(request, 'unfold_studio/list_stories.html', {'stories': story_page})
 
 def new_story(request):
     if request.method == "POST":

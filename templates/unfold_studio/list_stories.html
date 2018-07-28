@@ -3,6 +3,15 @@
 {% block content %}
     {% if stories %}
         <h2>All stories</h2>
+        <div class="description">
+            Page {{stories.number}} of {{stories.paginator.num_pages}}
+            {% if stories.has_previous %}
+                [<a href="?page={{stories.previous_page_number}}">Previous</a>]
+            {% endif %}
+            {% if stories.has_next %}
+                [<a href="?page={{stories.next_page_number}}">Next</a>]
+            {% endif %}
+        </div>
         <ul>
         {% for story in stories %}
             <li>{% include 'unfold_studio/story.html'%}</li>
