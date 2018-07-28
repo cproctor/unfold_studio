@@ -59,7 +59,11 @@ def home(request):
 
 def browse(request):
     "Shows all stories, sorted by priority. Someday, I'll need to paginate this."
-    stories = Story.objects.filter(shared=True, deleted=False).all()
+    stories = Story.objects.filter(
+        Q(shared=True) | Q(public=True), 
+        sites__id=get_current_site(request).id,
+        deleted=False
+    ).all()
     paginator = Paginator(stories, s.STORIES_PER_PAGE)
     page = request.GET.get('page')
     try:
