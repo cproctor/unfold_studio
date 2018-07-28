@@ -28,27 +28,24 @@ from django.core.paginator import Paginator, PageNotAnInteger
 
 log = logging.getLogger('django')    
 
-
-def story_queryset(request):
-    "Returns a queryset for available stories in the current context"
-    return Story.objects
-
 def get_story(request, story_id, to_edit=False):
+    """
+    Returns a story. 
+    If `to_edit`, requires that the story be public or owned by the current user.
+    Otherwise, requires that the story be public, shared, or owned by the current user.
+    """
+    access_allowed = Q(public=True)
+    if request.user.is_authenticated:
+        access_allowed |= Q(author=request.user)
+    if not to_edit:
+        access_allowed |= Q(shared=True)
     try:
-        if to_edit:
-            return Story.objects.get(
-                Q(public=True) | Q(author=request.user),
-                id=story_id,
-                sites__id=get_current_site(request).id,
-                deleted=False
-            )
-        else:
-            return Story.objects.get(
-                Q(public=True) | Q(shared=True) | Q(author=request.user),
-                id=story_id,
-                sites__id=get_current_site(request).id,
-                deleted=False
-            )
+        return Story.objects.get(
+            access_allowed, 
+            id=story_id,
+            sites__id=get_current_site(request).id,
+            deleted=False
+        )
     except Story.DoesNotExist:
         raise Http404()
 
@@ -76,26 +73,29 @@ def browse(request):
 def new_story(request):
     if request.method == "POST":
         if request.user.is_authenticated:
-            story = Story(author=request.user, creation_date=now(), edit_date=now())
+            story = Story(
+                author=request.user, 
+                creation_date=now(), 
+                edit_date=now()
+            )
         else: 
             story = Story(
                 author=None, 
                 creation_date=now(), 
                 edit_date=now(), 
-                shared=True,
                 public=True
             )
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():
             story = form.save()
             story.compile_ink()
+            story.sites.add(get_current_site(request))
             with reversion.create_revision():
                 story.save()
                 reversion.set_user(story.author)
-                reversion.set_comment("New story from fork")
+                reversion.set_comment("New story")
             if not request.user.is_authenticated:
-                #messages.success(request, "You're all set! This story is publicly editable. Sign up to write your own stories.")
-                pass
+                messages.success(request, "You're all set! This story is publicly editable. Sign up to write your own stories.")
             return redirect('show_story', story.id)
     else:
         form = StoryForm()
@@ -119,6 +119,7 @@ def edit_story(request, story_id):
     return render(request, 'unfold_studio/edit_story.html', {'form': form, 'story': story})
 
 def compile_story(request, story_id):
+    "This is the route used to update story "
     story = get_story(request, story_id, to_edit=True)
     story.edit_date = now()
     story.ink = request.POST['ink']
@@ -273,6 +274,7 @@ class CreateBookView(LoginRequiredMixin, CreateView):
         form = self.get_form_class()(request.POST, instance=_book)
         if form.is_valid():
             book = form.save()
+            book.sites.add(get_current_site(request))
             return redirect('show_book', book.id)
         else:
             context = self.get_context_data(form=form)
@@ -281,32 +283,32 @@ class CreateBookView(LoginRequiredMixin, CreateView):
 class BookListView(ListView):
     model = Book
 
+    def get_queryset(self):
+        return Book.objects.filter(sites__id=get_current_site(self.request).id)
+
 class BookDetailView(DetailView):
     model = Book
+
+    def get_queryset(self):
+        return Book.objects.filter(sites__id=get_current_site(self.request).id)
 
 class UpdateBookView(UpdateView):
     model = Book
     fields = ['title']
 
+    def get_queryset(self):
+        if self.request.user.is_authenticated:
+            return Book.objects.filter(owner=self.request.user)
+        else:
+            raise Http404()
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['header'] = "Edit {}".format(self.object.title)
         return context
+
     def get_success_url(self):
         return reverse('show_book', args=(self.object.id,))
 
 def require_entry_point(request):
     return render(request, 'unfold_studio/require_entry_point.js', content_type="application/javascript")
-
-
-
-
-
-
-
-
-
-
-
-
-
