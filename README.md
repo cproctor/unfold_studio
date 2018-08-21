@@ -1,54 +1,43 @@
+# Unfold Studio
 
-## Suggested Improvements 4/4
-- Only show line numbers when there's an error
-- How will we deal with long programs?
-- Allow typography (bold, italic)
-- Usernames, passwords, private stories
-- Organize, search, tag stories
-- Allow images, sound
-- remix stories
+[Unfold Studio](https://unfold.studio) is an online community for interactive storytelling powered by a programming language called Ink. Interactive storytelling brings together the power of programming with the ability of stories to represent and explore our lived realities. Unfold Studio is free and open-source.
 
-- BUG: Starting a knot with a list yields [object Object]
-- BUG: Whitespace control 
-- BUG: DONE doesn't actually stop--this is a result of using a call stack; they said there
-  was no call stack. 
- 
-## Installation
+Unfold Studio is used in schools, clubs, and by many individual writers. Interactive storytelling can be a way to integrate Computer Science into English, Social Studies, or other subjects. It can also be an excellent way to introduce Computer Science as a subject relevant to questions of identity, culture, and social justice. (We are currently doing research with a school which uses Unfold Studio for several months as part of its core CS curriculum.)
 
-0. Basics
--- set up box; ssh...
+Unfold Studio's main documentation is at [docs.unfold.studio](http://docs.unfold.studio).
 
-1. Mono (http://www.mono-project.com/docs/getting-started/install/linux/)
--- create and run script: 
-http://www.mono-project.com/docs/compiling-mono/linux/
--- then build inklecate
-xbuild /p:Configuration=Release ink.sln 
+## Development
 
-FOOL! Just get the release: https://github.com/inkle/ink/releases
+Development of Unfold Studio is currently migrating to this repository's issues page. New bug reports should be filed here. 
+There is additional code to support school and teacher features which is not currently open-source.
 
-2. Get Python deps
-rm /usr/bin/python
-ln -s python3 /usr/bin/python
-sudo apt-get install python3-pip
-sudo pip3 install --upgrade pip
-sudo pip3 install django
+### Setup
 
-3. Get source code
-cd /opt
-git clone https://github.com/cproctor/unfold_studio.git
-cd unfold_studio
-python manage.py migrate
+These steps should get a development instance running on linux or MacOS.
 
-4. Set up apache
+0. From bare-bones digital ocean droplet, running as root. Probably not necessary for other contexts.
 
+    apt-get update
+    apt-get install python3-venv
 
-Bumped to 10: Added overview guide for serialisation
+1. Basic setup
 
-ssh root@unfold.studio
+    cd /opt # (Or wherever you want to install)
+    python3 -m venv env
+    source env/bin/activate
+    git clone https://github.com/cproctor/unfold_studio.git
+    cd unfold_studio
+    pip install -r requirements.txt
+    cp unfold_studio/base_settings.py unfold_studio/settings.py
+    python manage.py migrate
+    python manage.py runserver
 
-Revision a5db240e83ad0e6c93f94ef86c4791f67105d5bb seems to work for version 9.
+This should be enough to get a local server running; you can test it by navigating to
+http://localhost:8000.
 
-## Dependencies
+2. Inklecate
 
-[ink](https://github.com/inkle/ink) v0.7.4
-[inkjs](https://github.com/y-lohse/inkjs) v1.6.0
+To save (and compile) stories, you'll also need an Inklecate executable, which you can get
+from https://github.com/inkle/ink/releases. You'll probably have to configure settings.py a
+bit to get it to work. 
+
