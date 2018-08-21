@@ -120,12 +120,15 @@ Argumentation
 ~~~~~~~~~~~~~
 Many disciplines have an essentially dialogic argumentation style (Elbow's You Say, I Say). You could implement this in stories. Particularly valuable for seeing how people argue through stories. 
 
-
 Literary analysis
 ~~~~~~~~~~~~~~~~~
-Multiple levels of meaning
+Multiple levels of meaning. I'm currently working on an example where the main character reads and re-reads a sonnet, layering in more possibilities each time. 
 
+Personalizing political, economic, and historical forces
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Write a first-person story in which the main character interacts with broad-scale political, economic, or historical forces. The consequences following a player's choices should illustrate how the forces work, and should be supported by evidence. As part of the research process, interview at least two people who have experienced similar situations. Part of each interview should include playing and discussing your draft of the story. 
 
+For example, you might read `this article about cash bail in America`_ and then write an interactive story playing out the various choices someone might make after being arrested and unable to make bail. You might then interview someone who has been arrested, someone whose family member has been arrested, a police officer, an employer, etc. 
 
 .. _mini_lessons:
 
@@ -141,4 +144,5 @@ Inventory
 
 .. _Unfold Studio: http://unfold.studio/
 .. _Here is an example: http://unfold.studio/stories/905
+.. _this article about cash bail in America: https://www.globalcitizen.org/en/content/its-a-crime-to-be-poor-in-america-bail-reform/
 
