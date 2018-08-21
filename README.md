@@ -17,27 +17,27 @@ These steps should get a development instance running on linux or MacOS.
 
 0. From bare-bones digital ocean droplet, running as root. Probably not necessary for other contexts.
 
-    apt-get update
-    apt-get install python3-venv
+        apt-get update
+        apt-get install python3-venv
 
 1. Basic setup
 
-    cd /opt # (Or wherever you want to install)
-    python3 -m venv env
-    source env/bin/activate
-    git clone https://github.com/cproctor/unfold_studio.git
-    cd unfold_studio
-    pip install -r requirements.txt
-    cp unfold_studio/base_settings.py unfold_studio/settings.py
-    python manage.py migrate
-    python manage.py runserver
+        cd /opt # (Or wherever you want to install)
+        python3 -m venv env
+        source env/bin/activate
+        git clone https://github.com/cproctor/unfold_studio.git
+        cd unfold_studio
+        pip install -r requirements.txt
+        cp unfold_studio/base_settings.py unfold_studio/settings.py
+        python manage.py migrate
+        python manage.py runserver
 
-This should be enough to get a local server running; you can test it by navigating to
-http://localhost:8000.
+  This should be enough to get a local server running; you can test it by navigating to
+  http://localhost:8000.
 
 2. Inklecate
 
-To save (and compile) stories, you'll also need an Inklecate executable, which you can get
-from https://github.com/inkle/ink/releases. You'll probably have to configure settings.py a
-bit to get it to work. 
+  To save (and compile) stories, you'll also need an Inklecate executable, which you can get
+  from https://github.com/inkle/ink/releases. You'll probably have to configure settings.py a
+  bit to get it to work. 
 
