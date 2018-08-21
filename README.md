@@ -32,12 +32,12 @@ These steps should get a development instance running on linux or MacOS.
         python manage.py migrate
         python manage.py runserver
 
-  This should be enough to get a local server running; you can test it by navigating to
-  http://localhost:8000.
+   This should be enough to get a local server running; you can test it by navigating to
+   http://localhost:8000.
 
 2. Inklecate
 
-  To save (and compile) stories, you'll also need an Inklecate executable, which you can get
-  from https://github.com/inkle/ink/releases. You'll probably have to configure settings.py a
-  bit to get it to work. 
+   To save (and compile) stories, you'll also need an Inklecate executable, which you can get
+   from https://github.com/inkle/ink/releases. You'll probably have to configure settings.py a
+   bit to get it to work. 
 
