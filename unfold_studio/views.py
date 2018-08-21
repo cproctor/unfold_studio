@@ -217,6 +217,7 @@ class ForkStoryView(StoryMethodView):
             edit_date=now(), 
         )
         story.save()
+        story.sites.add(get_current_site(self.request))
         #messages.success(self.request, "You have forked '{}'".format(story.title))
         return redirect('show_story', story.id)
 
@@ -244,7 +245,7 @@ class ShareStoryView(StoryMethodView):
         else:
             story.shared = True
             story.save()
-            messages.success(request, "You shared '{}'".format(story.title))
+            #messages.success(request, "You shared '{}'".format(story.title))
         return redirect('show_story', story.id)
 
 class UnshareStoryView(StoryMethodView):
@@ -257,7 +258,7 @@ class UnshareStoryView(StoryMethodView):
         else:
             story.shared = False
             story.save()
-            messages.success(request, "You shared '{}'".format(story.title))
+            #messages.success(request, "You unshared '{}'".format(story.title))
         return redirect('show_story', story.id)
 
 class CreateBookView(LoginRequiredMixin, CreateView):

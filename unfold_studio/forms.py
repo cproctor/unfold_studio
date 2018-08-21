@@ -3,6 +3,7 @@ from django import forms
 from .models import Story, Book
 from django.core.exceptions import ValidationError
 
+# TODO: Blurb should be here too.
 class StoryForm(ModelForm):
     class Meta:
         model = Story

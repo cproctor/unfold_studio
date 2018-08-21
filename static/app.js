@@ -52,12 +52,31 @@ define(
 
             $(function() {
                 story = new Story(STORY_ID);
-                story.fetch();
+                story.fetch().then(function() {
+                    console.log(story.status);
+                    if (story.status === "error") {
+                        console.log("ERROR");
+                        $('.twopane.solo').removeClass('solo');
+                        $('#show_code_opt').hide();
+                        $('#hide_code_opt').show();
+                    }
+                })
+
+                // A function which blocks until a story is saved. Useful to bind
+                // to actions like "share" which potentially fail to save the story.
+                async function presave_story() {
+                    await story.save();
+                }
 
                 $('#save_story').click(function() {
                     story.save();
                     return false;
                 });
+
+                $('#edit_story').click(presave_story);
+                $('#share_story').click(presave_story);
+                $('#unshare_story').click(presave_story);
+
                 $('#replay_story').click(function() {
                     player.stop();
                     player.play(story, '.innerText');

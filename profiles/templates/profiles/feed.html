@@ -1,0 +1,20 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+    <h1>My Feed</h1>
+    <div class="description">
+        Page {{feed.number}} of {{feed.paginator.num_pages}}
+        {% if feed.has_previous %}
+            [<a href="?page={{feed.previous_page_number}}">Previous</a>]
+        {% endif %}
+        {% if feed.has_next %}
+            [<a href="?page={{feed.next_page_number}}">Next</a>]
+        {% endif %}
+    </div>
+    <ul>
+    {% for event in feed.object_list %}
+        {% include 'profiles/event.html' %}
+    {% endfor %}
+    </ul>
+{% endblock %}

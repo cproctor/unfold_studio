@@ -10,6 +10,9 @@
             {% include 'profiles/event.html' %}
         {% endfor %}
         </ul>
+        {% if feed_continues %}
+            <p><a href="{% url 'show_feed' user.username %}">More...</a></p>
+        {% endif %}
     </div>
     <div>
         <h2>Stories</h2>

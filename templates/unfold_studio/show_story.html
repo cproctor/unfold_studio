@@ -23,22 +23,22 @@
         <span class="love">&lt;3</span>
     {% endif %}
 {% endif %}
-[<a id="replay_story" href="">Replay</a>]
 {% if story.author == request.user or story.public %}
     [<a id="save_story" href="">Save</a>]
-    [<a href="{% url 'edit_story' story.id %}">Rename</a>]
+    [<a id="edit_story" href="{% url 'edit_story' story.id %}">Rename</a>]
     <span id="show_code_opt" style="display: none;">[<a id="show_code" href="#">Show code</a>]</span>
     <span id="hide_code_opt">[<a id="hide_code" href="#">Hide code</a>]</span>
 {% else %}
+    [<a id="replay_story" href="">Replay</a>]
     <span id="show_code_opt">[<a id="show_code" href="#">Show code</a>]</span>
     <span id="hide_code_opt" style="display: none;">[<a id="hide_code" href="#">Hide code</a>]</span>
 {% endif %}
 {% if request.user.is_authenticated %}
     {% if story.author == request.user %}
         {% if story.shared %}
-            [Public. <a href="{% url 'unshare_story' story.id %}">Unshare?</a>]
+            [Public. <a id="share_story" href="{% url 'unshare_story' story.id %}">Unshare?</a>]
         {% else %}
-            [Private. <a href="{% url 'share_story' story.id %}">Share?</a>]
+            [Private. <a id="unshare_story" href="{% url 'share_story' story.id %}">Share?</a>]
         {% endif %}
     {% else %}
         {% if request.user.profile not in story.loves.all %}

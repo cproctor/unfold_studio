@@ -1,17 +1,28 @@
 {% load app_filters %}
 <li class="event">
     {% if event.event_type == Event.LOVED_STORY %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> loved 
+        {% include 'profiles/event_user.html' %}
+        loved 
         <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
     {% elif event.event_type == Event.COMMENTED_ON_STORY %}
         <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> commented on 
         <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
     {% elif event.event_type == Event.FORKED_STORY %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> forked
+        {% include 'profiles/event_user.html' %}
+        forked
         <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
+        from <a href="{% url 'show_story' event.story.parent.id%}">{{event.story.parent.title}}</a>
     {% elif event.event_type == Event.PUBLISHED_STORY %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> published
-        "<a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>"
+        {% include 'profiles/event_user.html' %}
+        published
+        {% if story.shared or story.author == user %}
+            <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
+        {% else %}
+            {{event.story.title}}
+        {% endif %}
+        {% if story.shared %}
+            (no longer shared)
+        {% endif %}
     {% elif event.event_type == Event.PUBLISHED_BOOK %}
         <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> published a book called 
         <a href="{% url 'show_story' event.book.id %}">{{event.book.title}}</a>
@@ -20,9 +31,13 @@
         <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a> to the book
         <a href="{% url 'show_story' event.book %}">{{event.book.title}}</a>
     {% elif event.event_type == Event.FOLLOWED %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> now follows you
+        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> started following you
     {% elif event.event_type == Event.YOU_FOLLOWED %}
         You followed <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a>
+    {% elif event.event_type == Event.SIGNED_UP %}
+        You joined Unfold Studio
+    {% else %}
+        {{event}}
     {% endif %}
     {{event.timestamp|humanize}}.
 </li>

@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'about', views.about, name="about"),
     url(r'teachers', views.for_teachers, name="for_teachers"),
     url(r'users/(?P<slug>\w+)/?$', profile_views.UserDetailView.as_view(), name="show_user"),
+    url(r'users/(?P<slug>\w+)/feed/?$', profile_views.FeedView.as_view(), name="show_feed"),
     url(r'users/(?P<slug>\w+)/follow/?$', profile_views.FollowUserView.as_view(), name="follow_user"),
     url(r'users/(?P<slug>\w+)/unfollow/?$', profile_views.UnfollowUserView.as_view(), name="unfollow_user"),
 

@@ -7,8 +7,9 @@ from django.conf import settings
 from django.utils.text import get_text_list
 from django.db import connection, IntegrityError
 from django.utils.translation import ugettext as _
+from django.contrib.auth.models import User
 
-# Currently, no events are generated for ADDED_STORY_TO_BOOK, COMMENTED_ON_STORY, FORKED_STORY
+# Currently, no events are generated for ADDED_STORY_TO_BOOK, COMMENTED_ON_STORY
 
 def catch_integrity_error(fn):
     def new_fn(*args, **kwargs):
@@ -33,8 +34,16 @@ def create_loved_story_events(sender, **kwargs):
     if kwargs['action'] == 'post_add':
         for story, profile in get_related(**kwargs):
             if story.author:
+                # The person whose story was loved
                 Event.objects.create(
                     user = story.author,
+                    subject = profile.user,
+                    event_type = Event.LOVED_STORY,
+                    story = story
+                )
+                # The person who did the loving
+                Event.objects.create(
+                    user = profile.user,
                     subject = profile.user,
                     event_type = Event.LOVED_STORY,
                     story = story
@@ -45,9 +54,18 @@ def create_loved_story_events(sender, **kwargs):
 def create_story_forked_events(sender, **kwargs):
     "When a story is forked, creates events for the story's author"
     story = kwargs['instance']
-    if story.parent and story.author and story.parent.author:
+    if story.parent and story.author:
+        if story.parent.author:
+            # The person whose story was forked
+            Event.objects.create(
+                user=story.parent.author,
+                subject=story.author,
+                event_type=Event.FORKED_STORY,
+                story=story
+            )
+        # The person forking
         Event.objects.create(
-            user=story.parent.author,
+            user=story.author,
             subject=story.author,
             event_type=Event.FORKED_STORY,
             story=story
@@ -59,6 +77,13 @@ def create_story_published_events(sender, **kwargs):
     "When a story is shared, creates events for all current followers of the author"
     story = kwargs['instance']
     if story.shared and story.author:
+        Event.objects.create(
+            user=story.author,
+            subject=story.author,
+            event_type=Event.PUBLISHED_STORY,
+            story=story
+        )
+        # Followers
         for follower_profile in story.author.profile.followers.all():
             Event.objects.create(
                 user=follower_profile.user,
@@ -80,6 +105,17 @@ def create_book_published_events(sender, **kwargs):
                 event_type=Event.PUBLISHED_BOOK,
                 book=book
             )
+
+@receiver(post_save, sender=User, dispatch_uid="create_user_event")
+@catch_integrity_error
+def user_signed_up_events(sender, **kwargs):
+    user = kwargs['instance']
+    if kwargs['created']:
+        Event.objects.create(
+            user=user,
+            subject=user, 
+            event_type=Event.SIGNED_UP
+        )
 
 @receiver(m2m_changed, sender=Profile.following.through, dispatch_uid="create_followed_events")
 @catch_integrity_error
@@ -130,6 +166,8 @@ def check_unique_together(sender, **kwargs):
                 'field_names': field_names
             }
             raise IntegrityError(msg)
+
+
 
 if connection.vendor == 'sqlite':
     signals.pre_save.connect(check_unique_together, sender=Event)

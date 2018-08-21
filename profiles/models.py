@@ -23,6 +23,7 @@ class Event(models.Model):
     ADDED_STORY_TO_BOOK = '5'
     FOLLOWED = '6'
     YOU_FOLLOWED = '7'
+    SIGNED_UP = '8'
 
     EVENT_TYPES = (
         (LOVED_STORY, "loved story"),
@@ -32,7 +33,8 @@ class Event(models.Model):
         (PUBLISHED_BOOK, "published book"),
         (ADDED_STORY_TO_BOOK, "added story to book"),
         (FOLLOWED, "followed"),
-        (YOU_FOLLOWED, "you followed")
+        (YOU_FOLLOWED, "you followed"),
+        (SIGNED_UP, "signed up")
     )
     
     user = models.ForeignKey('auth.User', related_name='events')
