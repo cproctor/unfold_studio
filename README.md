@@ -30,6 +30,7 @@ These steps should get a development instance running on linux or MacOS.
         pip install -r requirements.txt
         cp unfold_studio/base_settings.py unfold_studio/settings.py
         python manage.py migrate
+        python manage.py collectstatic
         python manage.py runserver
 
    This should be enough to get a local server running; you can test it by navigating to
