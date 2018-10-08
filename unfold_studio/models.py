@@ -15,7 +15,7 @@ class Story(models.Model):
 
     """
     title = models.CharField(max_length=400)
-    author = models.ForeignKey(User, related_name='stories', blank=True, null=True)
+    author = models.ForeignKey(User, related_name='stories', blank=True, null=True, on_delete=models.SET_NULL)
     creation_date = models.DateTimeField('date created')
     edit_date = models.DateTimeField('date changed')
     #view_count = models.IntegerField(default=0)
@@ -28,8 +28,10 @@ class Story(models.Model):
     public=models.BooleanField(default=False)
     featured=models.BooleanField(default=False)
     loves = models.ManyToManyField(Profile, related_name="loved_stories", blank=True)
-    parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True, blank=True)
-    includes = models.ForeignKey("unfold_studio.Story", related_name="included_by", null=True, blank=True)
+    parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True, blank=True, on_delete=models.SET_NULL)
+    
+    # This isn't going to work. Needs to be a many-to-many field... TODO Issue 16
+    includes = models.ForeignKey("unfold_studio.Story", related_name="included_by", null=True, blank=True, on_delete=models.SET_NULL)
     deleted = models.BooleanField(default=False)
     priority = models.FloatField(default=0)
     sites = models.ManyToManyField(Site)
@@ -73,6 +75,6 @@ class Story(models.Model):
     
 class Book(models.Model):
     title = models.CharField(max_length=400)
-    owner = models.ForeignKey(User)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE)
     stories = models.ManyToManyField(Story, related_name='books')
     sites = models.ManyToManyField(Site)

@@ -4,7 +4,7 @@ import arrow
 
 # Create your models here.
 class Profile(models.Model):    
-    user = models.OneToOneField('auth.User', related_name='profile')
+    user = models.OneToOneField('auth.User', related_name='profile', on_delete=models.CASCADE)
     birth_month = models.DateField(null=True, blank=True)
     gender = models.CharField(max_length=100, null=True, blank=True)
     following = models.ManyToManyField('profiles.Profile', related_name='followers', blank=True)
@@ -37,12 +37,12 @@ class Event(models.Model):
         (SIGNED_UP, "signed up")
     )
     
-    user = models.ForeignKey('auth.User', related_name='events')
+    user = models.ForeignKey('auth.User', related_name='events', on_delete=models.CASCADE)
     timestamp = models.DateTimeField(default=timezone.now)
     event_type = models.CharField(max_length=1, choices=EVENT_TYPES)
-    subject = models.ForeignKey('auth.User')
-    book = models.ForeignKey('unfold_studio.Book', null=True, blank=True)
-    story = models.ForeignKey('unfold_studio.Story', null=True, blank=True)
+    subject = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    book = models.ForeignKey('unfold_studio.Book', null=True, blank=True, on_delete=models.CASCADE)
+    story = models.ForeignKey('unfold_studio.Story', null=True, blank=True, on_delete=models.CASCADE)
     seen = models.BooleanField(default=False)
 
     def __str__(self):
