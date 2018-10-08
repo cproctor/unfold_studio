@@ -15,6 +15,9 @@ from django.http import HttpResponse, Http404
 class UserDetailView(DetailView):
     model = User
     slug_field = 'username'
+    # Otherwise, we shadow the default 'user' available in templates
+    # as the currently logged-in user
+    context_object_name = 'profile_user'
 
     def get_template_names(self):
         "Returns a special template if this is the user's own profile page"
@@ -49,6 +52,7 @@ class FeedView(DetailView):
     model=User
     slug_field = 'username'
     template_name = "profiles/feed.html"
+    context_object_name = 'profile_user'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

@@ -1,0 +1,15 @@
+{% if story.author == user %}
+    <a href="{% url 'show_story' story.id %}">
+        {{story.title}}
+    </a>
+    {% if not story.shared %}
+        (private)
+    {% endif %}
+{% elif story.shared or story.public %}
+    <a href="{% url 'show_story' story.id %}">
+        {{story.title}}
+    </a>
+{% else %}
+    a story which is no longer shared ({{event}})
+{% endif %}
+    

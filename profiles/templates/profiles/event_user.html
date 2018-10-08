@@ -1,4 +1,4 @@
-{% if event.subject == user %}
+{% if event_user == user %}
     You
 {% else %}
     <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a>

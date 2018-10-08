@@ -1,43 +1,53 @@
 {% load app_filters %}
 <li class="event">
+{% with story=event.story book=event.book event_user=event.user %}
     {% if event.event_type == Event.LOVED_STORY %}
         {% include 'profiles/event_user.html' %}
         loved 
-        <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
+        {% include 'profiles/event_story.html' %}
     {% elif event.event_type == Event.COMMENTED_ON_STORY %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> commented on 
-        <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
+        {% include 'profiles/event_user.html' %}
+        commented on 
+        {% include 'profiles/event_story.html' %}
     {% elif event.event_type == Event.FORKED_STORY %}
         {% include 'profiles/event_user.html' %}
         forked
-        <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
-        from <a href="{% url 'show_story' event.story.parent.id%}">{{event.story.parent.title}}</a>
+        {% with story=event.story %}
+            {% include 'profiles/event_story.html' %}
+        {% endwith %}
+        from 
+        {% with story=event.story.parent %}
+            {% include 'profiles/event_story.html' %}
+        {% endwith %}
     {% elif event.event_type == Event.PUBLISHED_STORY %}
         {% include 'profiles/event_user.html' %}
-        published
-        {% if story.shared or story.author == user %}
-            <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a>
-        {% else %}
-            {{event.story.title}}
-        {% endif %}
-        {% if story.shared %}
-            (no longer shared)
-        {% endif %}
+        published 
+        {% include 'profiles/event_story.html' %}
     {% elif event.event_type == Event.PUBLISHED_BOOK %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> published a book called 
-        <a href="{% url 'show_story' event.book.id %}">{{event.book.title}}</a>
+        {% include 'profiles/event_user.html' %}
+        published
+        {% include 'profiles/event_book.html' %}
     {% elif event.event_type == Event.ADDED_STORY_TO_BOOK %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> added
-        <a href="{% url 'show_story' event.story.id %}">{{event.story.title}}</a> to the book
-        <a href="{% url 'show_story' event.book %}">{{event.book.title}}</a>
+        {% include 'profiles/event_user.html' %}
+        added
+        {% include 'profiles/event_story.html' %}
+        to 
+        {% include 'profiles/event_book.html' %}
     {% elif event.event_type == Event.FOLLOWED %}
-        <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a> started following you
+        {% with event_user=event.subject %}
+            {% include 'profiles/event_user.html' %}
+        {% endwith %}
+        started following you
     {% elif event.event_type == Event.YOU_FOLLOWED %}
-        You followed <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a>
+        You followed 
+        {% with event_user=event.subject %}
+            {% include 'profiles/event_user.html' %}
+        {% endwith %}
     {% elif event.event_type == Event.SIGNED_UP %}
         You joined Unfold Studio
     {% else %}
         {{event}}
     {% endif %}
     {{event.timestamp|humanize}}.
+{% endwith %}
 </li>

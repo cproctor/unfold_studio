@@ -2,14 +2,15 @@
 {% load staticfiles %}
 
 {% block content %}
-    <h1>{{user.username}}</h1>
-    {% if request.user %}
-        {% if user.profile in request.user.profile.following.all %}
-            You follow {{user.username}}. (<a href="{% url 'unfollow_user' user %}">Stop following</a>)
+    <h1>{{profile_user.username}}</h1>
+    {% if user.is_authenticated %}
+        {% if profile_user.profile in user.profile.following.all %}
+            You follow {{profile_user.username}}. 
+            (<a href="{% url 'unfollow_user' profile_user %}">Stop following</a>)
         {% else %}
-            {% if request.user.is_authenticated %}
-                <a href="{% url 'follow_user' user %}">Follow {{user.username}}</a>
-            {% endif %}
+            <a href="{% url 'follow_user' profile_user %}">
+                Follow {{profile_user.username}}
+            </a>
         {% endif %}
     {% endif %}
     <div>
@@ -17,7 +18,7 @@
         <ul>
         {% for story in stories %}
             <li>
-                {% if request.user.profile in story.loves.all %}
+                {% if user.profile in story.loves.all %}
                     <span class="love">&lt;3</span>
                 {% endif %}
                 <a href="{% url 'show_story' story.id %}">{{story.title}}</a> 

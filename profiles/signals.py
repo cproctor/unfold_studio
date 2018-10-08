@@ -98,6 +98,14 @@ def create_book_published_events(sender, **kwargs):
     "When a book is created, creates events for all current followers of the author"
     book = kwargs['instance']
     if kwargs['created']:
+        # For the owner
+        Event.objects.create(
+            user=book.owner,
+            subject=book.owner,
+            event_type=Event.PUBLISHED_BOOK,
+            book=book
+        )
+        # For followers
         for follower_profile in book.owner.profile.followers.all():
             Event.objects.create(
                 user=follower_profile.user,
