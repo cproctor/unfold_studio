@@ -26,7 +26,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger
 
-log = logging.getLogger('django')    
+log = logging.getLogger(__name__)    
 
 def get_story(request, story_id, to_edit=False):
     """
@@ -49,9 +49,14 @@ def get_story(request, story_id, to_edit=False):
     except Story.DoesNotExist:
         raise Http404()
 
+def u(request):
+    "Helper to return username"
+    return request.user.username if request.user.is_authenticated else "<anonymous>"
+
 def home(request):
     "The homepage shows a subset of stories with the highest priority."
     stories = Story.objects.filter(shared=True, deleted=False)[:s.FEATURED['STORIES_TO_SHOW']]
+    log.info("{} visited homepage".format(u(request)))
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
@@ -68,6 +73,7 @@ def browse(request):
     except PageNotAnInteger:
         story_page = paginator.page(1)
     
+    log.info("{} browsed {}".format(u(request), story_page))
     return render(request, 'unfold_studio/list_stories.html', {'stories': story_page})
 
 def new_story(request):
@@ -96,6 +102,7 @@ def new_story(request):
                 reversion.set_comment("New story")
             if not request.user.is_authenticated:
                 messages.success(request, "You're all set! This story is publicly editable. Sign up to write your own stories.")
+            log.info("{} created story {}".format(u(request), story.id))
             return redirect('show_story', story.id)
     else:
         form = StoryForm()
@@ -128,14 +135,22 @@ def compile_story(request, story_id):
         story.save()
         reversion.set_user(story.author)
         if story.status == 'ok':
+            log.info("{} edited story {} (ok)".format(u(request), story.id))
             reversion.set_comment("Story edited and compiled.")
         else:
+            log.info("{} edited story {} (errors)".format(u(request), story.id))
             reversion.set_comment("Story edited and compiled (has error)")
     return JsonResponse(story.for_json())
 
 def show_story(request, story_id):
     story = get_story(request, story_id)
     editable = int(story.author == request.user or story.public)
+    if story.author == request.user:
+        log.info("{} viewed story {} (own story)".format(u(request), story.id))
+    elif story.public:
+        log.info("{} viewed story {} (public)".format(u(request), story.id))
+    else:
+        log.info("{} viewed story {} (owned by {})".format(u(request), story.id, story.author.username))
     return render(request, 'unfold_studio/show_story.html', {'story': story, 'editable': editable})
 
 def show_json(request, story_id):
@@ -167,6 +182,7 @@ def signup(request):
             login(request, user)
             messages.success(request, 
                 "Welcome to Unfold Studio! Have fun, and please be a good community member.")
+            log.info("{} signed up".format(u(request)))
             return redirect('home')
     else:
         form = SignUpForm()
@@ -176,6 +192,7 @@ def signup(request):
 class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
     model = Story
     slug_field = 'id'
+    verb = "<undefined verb>"
 
     def get_object(self, queryset=None):
         story = super().get_object(queryset)
@@ -183,7 +200,17 @@ class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
             raise Http404()
         return story
 
+    def log_action(self, request):
+        story = self.get_object()
+        if story.public:
+            log.info("{} loved story {} (id {}; public)".format(u(request), story.title, story.id))
+        elif story.author == request.user:
+            log.info("{} loved story {} (id {}; own story)".format(u(request), story.title, story.id))
+        else:
+            log.info("{} loved story {} (id {}; by {})".format(u(request), story.title, story.id, story.author.username))
+
 class LoveStoryView(StoryMethodView):
+    verb = "loved"
     def get(self, request, *args, **kwargs):
         story = self.get_object()
         if self.request.user.profile in story.loves.all():
@@ -193,16 +220,15 @@ class LoveStoryView(StoryMethodView):
         else:
             story.loves.add(self.request.user.profile)
             messages.success(self.request, "You loved '{}'".format(story.title))
+            self.log_action(request)
         return redirect('show_story', story.id)
         
 class ForkStoryView(StoryMethodView):
+    verb = "forked"
     def get(self, request, *args, **kwargs):
         parent = self.get_object()
         if not request.user.is_authenticated:
             messages.warning(request, "You must be logged in to fork stories")
-            return redirect('show_story', parent.id)
-        if parent.author == request.user:
-            messages.warning(request, "You can't fork your own stories")
             return redirect('show_story', parent.id)
         story = Story(
             author=request.user, 
@@ -219,11 +245,15 @@ class ForkStoryView(StoryMethodView):
         story.save()
         story.sites.add(get_current_site(self.request))
         #messages.success(self.request, "You have forked '{}'".format(story.title))
+        self.log_action(request)
         return redirect('show_story', story.id)
 
 class DeleteStoryView(StoryMethodView):
+    verb = "deleted"
     def get(self, request, *args, **kwargs):
+        log.debug("In delete")
         story = self.get_object()
+        log.debug("In delete!!!")
         if not request.user.is_authenticated:
             messages.warning(request, "You need to be logged in to delete stories")
             return redirect('show_story', parent.id) 
@@ -233,9 +263,11 @@ class DeleteStoryView(StoryMethodView):
         messages.success(request, "Deleted '{}'".format(story.title))
         story.deleted = True
         story.save()
+        self.log_action(request)
         return redirect('home')
         
 class ShareStoryView(StoryMethodView):
+    verb = "shared"
     def get(self, request, *args, **kwargs):
         story = self.get_object()
         if story.author != request.user:
@@ -245,10 +277,12 @@ class ShareStoryView(StoryMethodView):
         else:
             story.shared = True
             story.save()
+            self.log_action(request)
             #messages.success(request, "You shared '{}'".format(story.title))
         return redirect('show_story', story.id)
 
 class UnshareStoryView(StoryMethodView):
+    verb = "unshared"
     def get(self, request, *args, **kwargs):
         story = self.get_object()
         if story.author != request.user:
@@ -258,6 +292,7 @@ class UnshareStoryView(StoryMethodView):
         else:
             story.shared = False
             story.save()
+            self.log_action(request)
             #messages.success(request, "You unshared '{}'".format(story.title))
         return redirect('show_story', story.id)
 

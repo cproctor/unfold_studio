@@ -11,6 +11,13 @@ from django.conf import settings as s
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger
 from django.http import HttpResponse, Http404                         
+import logging
+
+log = logging.getLogger(__name__)    
+
+def un(request):
+    "Helper to return username"
+    return request.user.username if request.user.is_authenticated else "<anonymous>"
 
 class UserDetailView(DetailView):
     model = User
@@ -46,6 +53,7 @@ class UserDetailView(DetailView):
         else:
             context['stories'] = Story.objects.filter(author=self.object, shared=True, deleted=False).all()
             
+        log.info("{} viewed {}'s profile".format(un(self.request), self.object.username))
         return context
 
 class FeedView(DetailView):
@@ -86,6 +94,7 @@ class FollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
         else:
             self.request.user.profile.following.add(u.profile)
             messages.success(self.request, "You are now following {}".format(u.username))
+            log.info("{} followed {}".format(un(self.request), u.username))
         return redirect('show_user', u)
         
 class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
@@ -99,6 +108,7 @@ class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
         else:
             self.request.user.profile.following.remove(u.profile)
             messages.success(self.request, "You stopped following {}".format(u.username))
+            log.info("{} unfollowed {}".format(un(self.request), u.username))
         return redirect('show_user', u)
         
 
