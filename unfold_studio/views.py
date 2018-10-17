@@ -219,7 +219,7 @@ class LoveStoryView(StoryMethodView):
             messages.warning(self.request, "You can't love your own stories.".format(story.title))
         else:
             story.loves.add(self.request.user.profile)
-            messages.success(self.request, "You loved '{}'".format(story.title))
+            #messages.success(self.request, "You loved '{}'".format(story.title))
             self.log_action(request)
         return redirect('show_story', story.id)
         

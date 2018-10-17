@@ -19,9 +19,17 @@
     Public story
 {% else %}
     by {{story.author}} 
-    {% if request.user.is_authenticated and request.user.profile in story.loves.all %}
+{% endif %}
+{% if request.user.is_authenticated and request.user.profile in story.loves.all %}
+    {% if story.loves.count > 1 %}
+        <span class="love">&lt;3 {{story.loves.count}}</span>
+    {% else %}
         <span class="love">&lt;3</span>
     {% endif %}
+{% elif not request.user.is_authenticated and story.loves.count > 0 %}
+    <span class="love">&lt;3 {{story.loves.count}}</span>
+{% elif request.user == story.author and story.loves.count > 0 %}
+    <span class="love">&lt;3 {{story.loves.count}}</span>
 {% endif %}
 {% if story.author == request.user or story.public %}
     [<a id="save_story" href="">Save</a>]
@@ -42,7 +50,11 @@
         {% endif %}
     {% else %}
         {% if request.user.profile not in story.loves.all %}
-            [<a href="{% url 'love_story' story.id %}">&lt;3</a>]
+            {% if story.loves.count > 0 %}
+                [<a href="{% url 'love_story' story.id %}">&lt;3 (loved by {{story.loves.count}})</a>]
+            {% else %}
+                [<a href="{% url 'love_story' story.id %}">&lt;3</a>]
+            {% endif %}
         {% endif %}
         [<a href="{% url 'fork_story' story.id %}">Fork</a>]
     {% endif %}
