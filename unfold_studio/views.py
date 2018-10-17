@@ -74,6 +74,7 @@ def browse(request):
         story_page = paginator.page(1)
     
     log.info("{} browsed {}".format(u(request), story_page))
+    messages.success(request, "Tip: Stories get sorted by how many loves and forks they get, and by their freshness.")
     return render(request, 'unfold_studio/list_stories.html', {'stories': story_page})
 
 def new_story(request):

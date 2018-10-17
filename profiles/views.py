@@ -51,6 +51,8 @@ class UserDetailView(DetailView):
             ).count() > s.FEED_ITEMS_ON_PROFILE
             context['Event'] = Event
         else:
+            if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
+                messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
             context['stories'] = Story.objects.filter(author=self.object, shared=True, deleted=False).all()
             
         log.info("{} viewed {}'s profile".format(un(self.request), self.object.username))
