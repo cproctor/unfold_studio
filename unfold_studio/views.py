@@ -252,9 +252,7 @@ class ForkStoryView(StoryMethodView):
 class DeleteStoryView(StoryMethodView):
     verb = "deleted"
     def get(self, request, *args, **kwargs):
-        log.debug("In delete")
         story = self.get_object()
-        log.debug("In delete!!!")
         if not request.user.is_authenticated:
             messages.warning(request, "You need to be logged in to delete stories")
             return redirect('show_story', parent.id) 
@@ -262,9 +260,9 @@ class DeleteStoryView(StoryMethodView):
             messages.warning(request, "You can only delete your own stories")
             return redirect('show_story', story.id)
         messages.success(request, "Deleted '{}'".format(story.title))
+        self.log_action(request)
         story.deleted = True
         story.save()
-        self.log_action(request)
         return redirect('home')
         
 class ShareStoryView(StoryMethodView):
