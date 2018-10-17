@@ -16,7 +16,7 @@ def compile_ink(inkcode, story_id):
     fn = "{}".format(story_id)
     fqn = os.path.join(settings.INK_DIR, fn)
     try: 
-        with open(fqn, 'w') as inkfile:
+        with open(fqn, 'w', encoding='utf-8') as inkfile:
             inkfile.write(inkcode)
     except IOError as e:
         return {"status": "error", "message": e}
