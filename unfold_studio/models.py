@@ -170,10 +170,12 @@ class Story(models.Model):
     def create_inklecate_error(self, line, offset=0):
         try:
             errLevel, location, *description = line.split(":")
+            description = ":".join(description)
+            lineNum = StoryError.parse_line(location) + offset
         except ValueError:
-            raise ValueError("UNREADABLE ERROR:"+line)
-        description = ":".join(description)
-        lineNum = StoryError.parse_line(location) + offset
+            log.error("UNREADABLE ERROR:"+line)
+            description = "unknown error"
+            lineNum = None
         self.errors.create(
             story_version=self.latest_version(),
             error_type=StoryError.classify(description).value,
