@@ -1,5 +1,5 @@
 from django.db import models 
-from .helpers import compile_ink
+from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from profiles.models import Profile
@@ -7,6 +7,15 @@ import reversion
 from datetime import datetime, timezone
 from django.conf import settings
 import json
+import re
+import logging
+from collections import OrderedDict, deque
+from enum import Enum, auto
+import os
+import subprocess
+
+log = logging.getLogger(__name__)
+
 
 @reversion.register()
 class Story(models.Model):
@@ -18,35 +27,216 @@ class Story(models.Model):
     author = models.ForeignKey(User, related_name='stories', blank=True, null=True, on_delete=models.SET_NULL)
     creation_date = models.DateTimeField('date created')
     edit_date = models.DateTimeField('date changed')
-    #view_count = models.IntegerField(default=0)
     ink = models.TextField(blank=True)
-    json = models.TextField(blank=True)
-    status = models.CharField(max_length=100, blank=True)
-    message = models.TextField(blank=True)
-    err_line = models.IntegerField(blank=True, null=True)
+    json = models.TextField(null=True, blank=True)
     shared=models.BooleanField(default=False)
     public=models.BooleanField(default=False)
     featured=models.BooleanField(default=False)
     loves = models.ManyToManyField(Profile, related_name="loved_stories", blank=True)
-    parent = models.ForeignKey("unfold_studio.Story", related_name="children", null=True, blank=True, on_delete=models.SET_NULL)
-    
-    # This isn't going to work. Needs to be a many-to-many field... TODO Issue 16
-    includes = models.ForeignKey("unfold_studio.Story", related_name="included_by", null=True, blank=True, on_delete=models.SET_NULL)
+    parent = models.ForeignKey("unfold_studio.Story", related_name="children", 
+            null=True, blank=True, on_delete=models.SET_NULL)
+    includes = models.ManyToManyField("unfold_studio.Story", related_name="included_by", blank=True)
     deleted = models.BooleanField(default=False)
     priority = models.FloatField(default=0)
     sites = models.ManyToManyField(Site)
 
+    class PreprocessingError(Exception):
+        "Raised when something goes wrong during preprocessing."
+        def __init__(self, error_type, line=None, message=None):
+            self.error_type = error_type
+            self.line = line
+            self.message = message
+
+    class CompileError(Exception):
+        pass
+                
     def __str__(self):
         return "{} by {}".format(self.title, self.author)
 
-    def compile_ink(self):
-        compiled_ink = compile_ink(self.ink, self.id)
-        self.status = compiled_ink['status']
-        self.message = compiled_ink['message']
-        self.err_line = compiled_ink.get('line')
-        if compiled_ink.get('result'):
-            self.json = compiled_ink['result']
+    def latest_version(self):
+        return reversion.models.Version.objects.get_for_object(self).first()
 
+    def compile(self):
+        """
+        Completes a preprocessing step and then a compile step.
+        Sets relevant properties, including json and errors.
+        """
+        self.errors.clear()
+        try:
+            ink, i, v, k, offset = self.preprocess_ink()
+            self.preprocessed_ink = ink # TODO DEBUG
+            
+            self.ink_to_json(ink, offset=offset)
+            self.includes.set(Story.objects.get(pk=pk) for pk in i.keys())
+        except Story.PreprocessingError as e:
+            self.errors.create(
+                story_version=self.latest_version(),
+                error_type=e.error_type.value,
+                line=e.line,
+                message=e.message
+            )
+            self.json = None
+            self.includes.clear()
+        except Story.CompileError:
+            # One or more errors will already have been set
+            self.json = None
+            self.includes.clear()
+
+    @classmethod
+    def get_for_inclusion(cls, includeKey, line_number=None):
+        "Returns a story's inclusions, variables and knots, ready to include in another story"
+        try: 
+            pk=int(includeKey) 
+            story = Story.objects.get(Q(public=True) | Q(shared=True), pk=pk)
+        except ValueError:
+            raise Story.PreprocessingError(
+                StoryError.ErrorTypes.PREPROCESS_INCLUDE_BAD_KEY, line=line_number,
+                message="{} is not a valid story id".format(includeKey)
+            )
+        except Story.DoesNotExist:
+            raise Story.PreprocessingError(
+                StoryError.ErrorTypes.PREPROCESS_INCLUDE_STORY_NOT_FOUND, line=line_number,
+                message="Could not find story {}. Maybe it's not shared?".format(includeKey)
+            )
+        if story.errors.all().exists():
+            raise Story.PreprocessingError(
+                StoryError.ErrorTypes.PREPROCESS_INCLUDE_STORY_HAS_ERRORS, line=line_number,
+                message="Story {} cannot be included because it has errors".format(includeKey)
+            )
+            raise Story.IncludeError("Story {} is not compiled".format(pk))
+
+        text, i, v, k, offset = story.preprocess_ink()
+        return i, v, k
+        
+    # Note: /* */ style comments not supported.
+    def preprocess_ink(self):
+        """
+        Resolves INCLUDES of other stories, importing knots and variables 
+        initializations. However, does not re-define any knots or variables
+        already defined in the story, and does not import preamble behavior
+        (any instructions before the first knot).
+        """
+        directInclusions = self.get_inclusions()
+        inclusions = OrderedDict(directInclusions.items())
+        variables = self.get_variable_initializations()
+        initialVarLength = len(variables)
+        knots = self.get_knots()
+    
+        def include(base, new):
+            for key, (lineNum, value) in new.items():
+                if key not in base.keys():
+                    base[key] = (None, value)
+
+        for includeKey in directInclusions.keys():
+            iInclusions, iVars, iKnots = Story.get_for_inclusion(includeKey)
+            include(inclusions, iInclusions)
+            include(variables, iVars)
+            include(knots, iKnots)
+
+        inkText = "\n".join(
+            [l for i, l in variables.values()] +    # lifted variable initializations
+            self.get_ink_preamble().split('\n') +   # Any remaining preamble (stripped)
+            [k for i, k in knots.values()]          # The text of the story's knots
+        )
+        offset = (len(variables) - initialVarLength) + len(directInclusions)
+        return inkText, inclusions, variables, knots, offset
+
+    def ink_to_json(self, ink, offset=0):
+        """
+        Compiles ink code to JSON via an external call to inklecate. 
+        Story must be pre-saved so it has an id. Populates self.json; 
+        if there are errors, creates StoryErrors.
+        """
+        fn = "{}.ink".format(self.id)
+        fqn = os.path.join(settings.INK_DIR, fn)
+        with open(fqn, 'w', encoding='utf-8') as inkfile:
+            inkfile.write(ink)
+        try:
+            warnings = subprocess.check_output([settings.INKLECATE, fqn]).decode("utf-8-sig")
+            for warning in warnings.split('\n'):
+                if warning.strip():
+                    self.create_inklecate_error(warning, offset)
+            with open(fqn + ".json", encoding="utf-8-sig") as outfile:
+                self.json = outfile.read()
+        except subprocess.CalledProcessError as e:
+            errors = e.output.decode("utf-8")
+            for error in errors.split('\n'):
+                if error.strip():
+                    self.create_inklecate_error(error, offset)
+            self.json = None
+        if self.errors.all().exists():
+            raise Story.CompileError()
+
+    def create_inklecate_error(self, line, offset=0):
+        try:
+            errLevel, location, *description = line.split(":")
+        except ValueError:
+            raise ValueError("UNREADABLE ERROR:"+line)
+        description = ":".join(description)
+        lineNum = StoryError.parse_line(location) + offset
+        self.errors.create(
+            story_version=self.latest_version(),
+            error_type=StoryError.classify(description).value,
+            line=lineNum,
+            message=("line {}: ".format(lineNum) if line else "") + description
+        )
+
+    include_pattern = "^\s*INCLUDE\s+(\d+)\s*(\/\/.*)?(#.*)?$"
+    var_init_pattern = "^\s*VAR\s+(\w+)\s*="
+    knot_pattern = "^\s*===\s*([\w\d]+)\s*(===)?\s*(\/\/.*)?(#.*)?$"
+
+    def get_inclusions(self):
+        "Return an OrderedDict of include codes"
+        inclusions = OrderedDict()
+        for lineNum, line in enumerate(self.get_ink_preamble(stripped=False).split("\n")):
+            result = re.match(self.include_pattern, line)
+            if result: 
+                inclusions[result.group(1)] = (lineNum+1, line)
+        return inclusions
+
+    def get_variable_initializations(self):
+        "Returns an OrderedDict of variable name -> initialization line"
+        variableInits = OrderedDict()
+        for lineNum, line in enumerate(self.get_ink_preamble(stripped=False).split("\n")):
+            result = re.match(self.var_init_pattern, line)
+            if result:
+                variableInits[result.group(1)] = (lineNum+1, line)
+        return variableInits
+
+    def get_ink_preamble(self, stripped=True):
+        "Returns the content before the first knot"
+        try:
+            _, _, preamble = next(self.knot_reader(with_preamble=True))
+        except StopIteration:
+            return ""
+        if stripped:
+            strippable = [self.include_pattern, self.var_init_pattern]
+            condition = lambda l: not any(re.match(p, l) for p in strippable)
+            return "\n".join(filter(condition, preamble.split('\n')))
+        else:
+            return preamble
+
+    def knot_reader(self, with_preamble=False):
+        """A generator which iterates through the knots in a story. 
+        The preamble is anything before the first knot"""
+        currentKnotName = None
+        currentKnot = []
+        for lineNum, line in enumerate(self.ink.split("\n")):
+            newKnot = re.match(self.knot_pattern, line)
+            if newKnot:
+                if currentKnotName or with_preamble:
+                    yield(lineNum, currentKnotName, "\n".join(currentKnot))
+                currentKnotName = newKnot.group(1)
+                currentKnot = [line]
+            else:
+                currentKnot.append(line)
+        if any(currentKnot):
+             yield(lineNum, currentKnotName, "\n".join(currentKnot))
+
+    def get_knots(self, with_preamble=False):
+        return OrderedDict((name, (lineNum, knot)) for (lineNum, name, knot) 
+                in self.knot_reader(with_preamble=with_preamble))
+                
     # Using Hacker News gravity algorithm: 
     # https://medium.com/hacking-and-gonzo/how-hacker-news-ranking-algorithm-works-1d9b0cf2c08d
     def update_priority(self):
@@ -60,13 +250,14 @@ class Story(models.Model):
         self.priority = score / pow(age_in_hours + 2, settings.FEATURED['GRAVITY'])
 
     def for_json(self):
+        "Returns JSON for the story in old format. Needs to be updated once the "
         return {
             "id": self.id,
             "compiled": json.loads(self.json) if self.json else None,
             "ink": self.ink,
-            "status": self.status,
-            "error": self.message,
-            "error_line": self.err_line,
+            "status": "error" if self.errors.all().exists() else "ok",
+            "error": "; ".join(e.message for e in self.errors.all()),
+            "error_line": self.errors.first().line if self.errors.all().exists() else 0,
             "author": self.author.username if self.author else None
         }
 
@@ -78,3 +269,47 @@ class Book(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
     stories = models.ManyToManyField(Story, related_name='books')
     sites = models.ManyToManyField(Site)
+
+class StoryError(models.Model):
+
+    class ErrorTypes(Enum):
+        PREPROCESS_ERROR = 100
+        PREPROCESS_INCLUDE_BAD_KEY = 101
+        PREPROCESS_INCLUDE_STORY_NOT_FOUND = 102
+        PREPROCESS_INCLUDE_STORY_HAS_ERRORS = 103
+        COMPILE_ERROR = 200
+        COMPILE_SYNTAX_KNOT_NAME = 201
+        COMPILE_SYNTAX_VAR_INCREMENT = 220
+        COMPILE_MISSING_DIVERT_TARGET = 260
+        RUNTIME_WARNING = 400
+        RUNTIME_LOOSE_END = 401
+        OTHER = 0
+
+    story = models.ForeignKey(Story, null=True, blank=True, on_delete=models.SET_NULL, related_name='errors')
+    story_version = models.ForeignKey(reversion.models.Version, on_delete=models.CASCADE)
+    error_type = models.IntegerField(choices=[(t.value, t.name) for t in ErrorTypes], default=0)
+    line = models.IntegerField(blank=True, null=True)
+    message = models.CharField(max_length=400, null=True, blank=True)
+
+    patterns = {
+        "Divert target not found": ErrorTypes.COMPILE_MISSING_DIVERT_TARGET,
+        "variable for increment could not be found": ErrorTypes.COMPILE_SYNTAX_VAR_INCREMENT,
+        "Apparent loose end exists": ErrorTypes.RUNTIME_LOOSE_END
+    }
+
+    @classmethod
+    def classify(cls, error_description):
+        "Maps string -> Error Type"
+        for pattern, error in cls.patterns.items():
+            if re.search(pattern, error_description): return error
+        return StoryError.ErrorTypes.OTHER
+
+    @classmethod
+    def parse_line(cls, error_location):
+        result = re.search("line (\d+)", error_location)
+        if result: return int(result.group(1))
+
+    
+
+
+

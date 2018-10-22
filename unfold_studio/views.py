@@ -95,7 +95,7 @@ def new_story(request):
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():
             story = form.save()
-            story.compile_ink()
+            story.compile()
             story.sites.add(get_current_site(request))
             with reversion.create_revision():
                 story.save()
@@ -131,11 +131,11 @@ def compile_story(request, story_id):
     story = get_story(request, story_id, to_edit=True)
     story.edit_date = now()
     story.ink = request.POST['ink']
-    story.compile_ink()
+    story.compile()
     with reversion.create_revision():
         story.save()
         reversion.set_user(story.author)
-        if story.status == 'ok':
+        if not story.errors.all().exists():
             log.info("{} edited story {} (ok)".format(u(request), story.id))
             reversion.set_comment("Story edited and compiled.")
         else:
@@ -236,14 +236,11 @@ class ForkStoryView(StoryMethodView):
             parent=parent,
             title="{} (fork)".format(parent.title),
             ink=parent.ink,
-            json=parent.json,
-            status=parent.status,
-            message=parent.message,
-            err_line=parent.err_line,
             creation_date=now(), 
             edit_date=now(), 
         )
         story.save()
+        story.compile()
         story.sites.add(get_current_site(self.request))
         #messages.success(self.request, "You have forked '{}'".format(story.title))
         self.log_action(request)
