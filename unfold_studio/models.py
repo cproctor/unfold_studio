@@ -10,7 +10,7 @@ import json
 import re
 import logging
 from collections import OrderedDict, deque
-from enum import Enum, auto
+from enum import Enum
 import os
 import subprocess
 
