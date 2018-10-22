@@ -239,7 +239,10 @@ class ForkStoryView(StoryMethodView):
             creation_date=now(), 
             edit_date=now(), 
         )
-        story.save()
+        with reversion.create_revision():
+            story.save()
+            reversion.set_user(story.author)
+            reversion.set_comment("Story forked")
         story.compile()
         story.sites.add(get_current_site(self.request))
         #messages.success(self.request, "You have forked '{}'".format(story.title))
