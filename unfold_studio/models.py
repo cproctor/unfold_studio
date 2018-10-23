@@ -251,8 +251,10 @@ class Story(models.Model):
             int(self.errors.exists()) * settings.FEATURED['ERRORS_SCORE'] + 
             int(self.featured) * settings.FEATURED['FEATURED_SCORE']
         )
-        age_in_hours = (datetime.now(timezone.utc) - self.edit_date).total_seconds() / (60 * 60)
-        self.priority = score / pow(age_in_hours + 2, settings.FEATURED['GRAVITY'])
+        self.priority = score / pow(self.age_in_hours() + 2, settings.FEATURED['GRAVITY'])
+
+    def age_in_hours(self):
+        return (datetime.now(timezone.utc) - self.edit_date).total_seconds() / (60 * 60)
 
     def for_json(self):
         "Returns JSON for the story in old format. Needs to be updated once the "
