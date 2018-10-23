@@ -10,7 +10,9 @@
         commented on 
         {% include 'profiles/event_story.html' %}
     {% elif event.event_type == Event.FORKED_STORY %}
-        {% include 'profiles/event_user.html' %}
+        {% with event_user=event.subject %}
+            {% include 'profiles/event_user.html' %}
+        {% endwith %}
         forked
         {% with story=event.story %}
             {% include 'profiles/event_story.html' %}
