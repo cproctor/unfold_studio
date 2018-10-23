@@ -16,5 +16,6 @@ Version 0.5 will be the next major release. We are targeting the following featu
 
 - Private installations will give teachers and schools access to separate worlds, where content is only visible to logged-in members. Private installations will also come with some teacher-focused features. 
 - Single sign on integration
+- internationalization (Unfold Studio's interface will show up in users' preferred language). Writing stories in multiple languages (and emoji!) is already supported and heartily encouraged.
 
 .. _a bunch of new math functions: https://github.com/inkle/ink/releases/tag/0.8.2

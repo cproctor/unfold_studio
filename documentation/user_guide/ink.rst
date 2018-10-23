@@ -552,7 +552,10 @@ Stories can be combined
 You can `INCLUDE` other stories on Unfold Studio by referring to their story IDs (visible in the 
 story's URL). Stories 
 must be public or shared to be included in other stories. This can be used to create 
-massive interconnected worlds. Here's a small example::
+massive interconnected worlds. Here's a small example which uses a common pattern: the story 
+includes other stories which each describe a particular location, and then re-defines
+the transition knots (`forest_trail`, `hut_trail`, and `hut_door`) so that the 
+locations are linked up with each other::
 
    INCLUDE 1001
    INCLUDE 1002
