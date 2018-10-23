@@ -135,7 +135,7 @@ def compile_story(request, story_id):
     with reversion.create_revision():
         story.save()
         reversion.set_user(story.author)
-        if not story.errors.all().exists():
+        if not story.errors.exists():
             log.info("{} edited story {} (ok)".format(u(request), story.id))
             reversion.set_comment("Story edited and compiled.")
         else:

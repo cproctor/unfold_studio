@@ -98,7 +98,7 @@ class Story(models.Model):
                 StoryError.ErrorTypes.PREPROCESS_INCLUDE_STORY_NOT_FOUND, line=line_number,
                 message="Could not find story {}. Maybe it's not shared?".format(includeKey)
             )
-        if story.errors.all().exists():
+        if story.errors.exists():
             raise Story.PreprocessingError(
                 StoryError.ErrorTypes.PREPROCESS_INCLUDE_STORY_HAS_ERRORS, line=line_number,
                 message="Story {} cannot be included because it has errors".format(includeKey)
@@ -164,7 +164,7 @@ class Story(models.Model):
                 if error.strip():
                     self.create_inklecate_error(error, offset)
             self.json = None
-        if self.errors.all().exists():
+        if self.errors.exists():
             raise Story.CompileError()
 
     def create_inklecate_error(self, line, offset=0):
@@ -257,9 +257,9 @@ class Story(models.Model):
             "id": self.id,
             "compiled": json.loads(self.json) if self.json else None,
             "ink": self.ink,
-            "status": "error" if self.errors.all().exists() else "ok",
+            "status": "error" if self.errors.exists() else "ok",
             "error": "; ".join(e.message for e in self.errors.all()),
-            "error_line": self.errors.first().line if self.errors.all().exists() else 0,
+            "error_line": self.errors.first().line if self.errors.exists()  and self.errors.first() else 0,
             "author": self.author.username if self.author else None
         }
 
