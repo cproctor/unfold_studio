@@ -13,7 +13,8 @@ class Command(BaseCommand):
         parser.add_argument("-o", '--outfile')
 
     def handle(self, *args, **options):
-        props = lambda s: (s.id, s.title, s.priority, s.age_in_hours(), s.loves.count(),  
+        props = lambda s: (s.id, s.title, s.priority, s.score(), 
+            s.age_in_hours(), s.loves.count(),  
             s.books.count(), s.children.count(), s.includes.count(),
             s.included_by.count(), int(s.errors.exists()), int(s.featured))
         zerosToDots = lambda v: '.' if v == 0 else v
@@ -23,13 +24,14 @@ class Command(BaseCommand):
         stories = list(stories)
         if options['long_headers']:
             headers = [
-                "id", "title", "priority", "age_hours", "loves", "books", "children", "includes",
+                "id", "title", "priority", "score", "age_hours", 
+                "loves", "books", "children", "includes",
                 "included_by", "errors", "featured"
             ]
         else:
             headers = [
-                "id", "title", "pri", "age", "<3", "bks", "chld", "inc",
-                "inc_by", "err", "ftd"
+                "id", "title", "pri", "sco", "age", "<3", 
+                "bks", "chld", "inc", "inc_by", "err", "ftd"
             ]
         if options['outfile']:
             with open(options['outfile'], 'w') as o:
