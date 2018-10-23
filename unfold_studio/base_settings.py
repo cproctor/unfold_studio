@@ -135,11 +135,14 @@ TEACHERS_STORY_ID = 31
 # Featured stories
 FEATURED = {
     'FEATURED_SCORE': 10,
-    'LOVE_SCORE': 1,
+    'LOVE_SCORE': 5,
     'BOOK_SCORE': 1,
-    'FORK_SCORE': 1,
+    'FORK_SCORE': 3,
+    'INCLUDED_BY_SCORE': 1,
+    'INCLUDES_SCORE': 1,
+    'ERRORS_SCORE': -10,
     'GRAVITY': 1.5,
-    'STORIES_TO_SHOW': 12
+    'STORIES_TO_SHOW': 15
 }
 
 STORIES_PER_PAGE = 20

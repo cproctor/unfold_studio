@@ -246,6 +246,9 @@ class Story(models.Model):
             self.loves.count() * settings.FEATURED['LOVE_SCORE'] + 
             self.books.count() * settings.FEATURED['BOOK_SCORE'] + 
             self.children.count() * settings.FEATURED['FORK_SCORE'] + 
+            self.includes.count() * settings.FEATURED['INCLUDES_SCORE'] + 
+            self.included_by.count() * settings.FEATURED['INCLUDED_BY_SCORE'] + 
+            int(self.errors.exists()) * settings.FEATURED['ERRORS_SCORE'] + 
             int(self.featured) * settings.FEATURED['FEATURED_SCORE']
         )
         age_in_hours = (datetime.now(timezone.utc) - self.edit_date).total_seconds() / (60 * 60)
