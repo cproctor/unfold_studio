@@ -33,6 +33,7 @@ We welcome questions, feedback, and random ideas. Please see :ref:`contact` to g
    :maxdepth: 3
    :caption: Contents:
 
+   new
    user_guide/index
    teaching/index
    research/index

@@ -23,3 +23,7 @@ CSTA 2018
 =========
 In July 2018, Chris led a workshop on Unfold Studio at the Computer Science Teachers' Association 
 annual conference in Omaha, Nebraska. Here are the [slides](http://chrisproctor.net/slides/2018-csta-workshop-interactive-storytelling.html). 
+
+Philly Celebration of Writing and Literacy
+==========================================
+In October 2018, Chris led a workshop on Unfold Studio at the University of Pennsylvania with teachers from across Philadelphia.
