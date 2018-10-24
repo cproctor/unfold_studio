@@ -248,7 +248,7 @@ class Story(models.Model):
         return (1 + 
             self.loves.count() * settings.FEATURED['LOVE_SCORE'] + 
             self.books.count() * settings.FEATURED['BOOK_SCORE'] + 
-            self.children.count() * settings.FEATURED['FORK_SCORE'] + 
+            self.children.filter(~Q(author=self.author)).count() * settings.FEATURED['FORK_SCORE'] + 
             self.includes.count() * settings.FEATURED['INCLUDES_SCORE'] + 
             self.included_by.count() * settings.FEATURED['INCLUDED_BY_SCORE'] + 
             int(self.errors.exists()) * settings.FEATURED['ERRORS_SCORE'] + 

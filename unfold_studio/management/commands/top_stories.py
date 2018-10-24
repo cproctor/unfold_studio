@@ -1,4 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
+from django.db.models import Q
 from unfold_studio.models import Story
 from tabulate import tabulate
 import csv
@@ -14,8 +15,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         props = lambda s: (s.id, s.title, s.priority, s.score(), 
-            s.age_in_hours(), s.loves.count(),  
-            s.books.count(), s.children.count(), s.includes.count(),
+            s.age_in_hours(), s.loves.count(), s.books.count(), 
+            s.children.filter(~Q(author=s.author)).count(), s.includes.count(),
             s.included_by.count(), int(s.errors.exists()), int(s.featured))
         zerosToDots = lambda v: '.' if v == 0 else v
         stories = map(props, Story.objects.all()[:options['number_of_stories']])
