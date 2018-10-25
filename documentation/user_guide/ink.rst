@@ -69,18 +69,11 @@ The simplest mark-up is a comment. **ink** supports two kinds of comment. There'
        ... or an unlimited block of text
    */
 
-
-and there's the kind used for reminding the author what they need to do, that the compiler prints out during compilation:
-
-::
-
-   TODO: Write this section properly!
-
-
 Tags
 ^^^^
 
-Text content from the game will appear 'as is' when the engine runs. However, it can sometimes be useful to mark up a line of content with extra information to tell the game what to do with that content. 
+Tags don't appear in story flow; instead they can be used to change how the story is presented. Currently, Unfold Studio does not support any tags, but 
+in the future tags will allow you to style content to appear as text messages, Facebook posts, etc.
 
 **ink** provides a simple system for tagging lines of content, with hashtags. 
 
@@ -88,9 +81,6 @@ Text content from the game will appear 'as is' when the engine runs. However, it
 
    === content 
        A line of normal game-text. # colour it blue
-
-
-These don't show up in the main text flow, but can be read off by the game and used as you see fit. See `RunningYourInk <https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md#marking-up-your-ink-content-with-tags>`_ for more information.
 
 2) Choices
 ----------
@@ -2256,6 +2246,7 @@ Global Constants
 ^^^^^^^^^^^^^^^^
 
 Interactive stories often rely on state machines, tracking what stage some higher level process has reached. There are lots of ways to do this, but the most conveninent is to use constants.
+Like global variables, global constants should be placed at the top of your story. 
 
 Sometimes, it's convenient to define constants to be strings, so you can print them out, for gameplay or debugging purposes.
 
@@ -2307,11 +2298,6 @@ And sometimes the numbers are useful in other ways:
 
 
 Constants are simply a way to allow you to give story states easy-to-understand names.  
-
-7) Advanced: Game-side logic
-----------------------------
-
-There are two core ways to provide game hooks in the **ink** engine. External function declarations in ink allow you to directly call C# functions in the game, and variable observers are callbacks that are fired in the game when ink variables are modified. Both of these are described in `Running your ink <https://github.com/inkle/ink/blob/master/Documentation/RunningYourInk.md>`_.
 
 .. _advanced_flow_control:
 
