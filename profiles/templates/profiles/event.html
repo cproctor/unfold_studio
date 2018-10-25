@@ -2,7 +2,9 @@
 <li class="event">
 {% with story=event.story book=event.book event_user=event.user %}
     {% if event.event_type == Event.LOVED_STORY %}
-        {% include 'profiles/event_user.html' %}
+        {% with event_user=event.subject %}
+            {% include 'profiles/event_user.html' %}
+        {% endwith %}
         loved 
         {% include 'profiles/event_story.html' %}
     {% elif event.event_type == Event.COMMENTED_ON_STORY %}
@@ -22,7 +24,9 @@
             {% include 'profiles/event_story.html' %}
         {% endwith %}
     {% elif event.event_type == Event.PUBLISHED_STORY %}
-        {% include 'profiles/event_user.html' %}
+        {% with event_user=event.subject %}
+            {% include 'profiles/event_user.html' %}
+        {% endwith %}
         published 
         {% include 'profiles/event_story.html' %}
     {% elif event.event_type == Event.PUBLISHED_BOOK %}
