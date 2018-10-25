@@ -184,7 +184,7 @@ class Story(models.Model):
         )
 
     include_pattern = "^\s*INCLUDE\s+(\d+)\s*(\/\/.*)?(#.*)?$"
-    var_init_pattern = "^\s*VAR\s+(\w+)\s*="
+    var_init_pattern = "^\s*(VAR|CONST)\s+(\w+)\s*="
     knot_pattern = "^\s*===\s*([\w\d]+)\s*(===)?\s*(\/\/.*)?(#.*)?$"
 
     def get_inclusions(self):
@@ -202,7 +202,7 @@ class Story(models.Model):
         for lineNum, line in enumerate(self.get_ink_preamble(stripped=False).split("\n")):
             result = re.match(self.var_init_pattern, line)
             if result:
-                variableInits[result.group(1)] = (lineNum+1, line)
+                variableInits[result.group(2)] = (lineNum+1, line)
         return variableInits
 
     def get_ink_preamble(self, stripped=True):
