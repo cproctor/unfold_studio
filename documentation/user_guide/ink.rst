@@ -3428,7 +3428,7 @@ was not only functional, but actually caused list to invert itself, which seemed
 Intersecting lists
 ^^^^^^^^^^^^^^^^^^
 
-The ``has`` or ``?`` operator is, somewhat more formally, the "are you a subset of me" operator, ⊇, which includes the sets being equal, but which doesn't include if the larger set doesn't entirely contain the smaller set. 
+The ``has`` or ``?`` operator is, somewhat more formally, the superset operator. "A has B" is true when every item in B is also in A, including when they are the same set. 
 
 To test for "some overlap" between lists, we use the overlap operator, ``^``\ , to get the *intersection*. 
 

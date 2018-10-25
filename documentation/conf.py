@@ -109,6 +109,7 @@ htmlhelp_basename = 'UnfoldStudiodoc'
 
 
 # -- Options for LaTeX output ------------------------------------------------
+#latex_engine = 'xelatex'
 
 latex_elements = {
     # The paper size ('letterpaper' or 'a4paper').
@@ -117,7 +118,7 @@ latex_elements = {
 
     # The font size ('10pt', '11pt' or '12pt').
     #
-    # 'pointsize': '10pt',
+    'pointsize': '12pt',
 
     # Additional stuff for the LaTeX preamble.
     #

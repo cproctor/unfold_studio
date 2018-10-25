@@ -10,7 +10,8 @@ Welcome to Unfold Studio
 `Unfold Studio`_ is an online community for interactive storytelling powered by
 a programming language called Ink. Interactive storytelling brings together the 
 power of programming with the ability of stories to represent and explore our 
-lived realities. Unfold Studio is free and open-source. 
+lived realities. Free and open-source, Unfold Studio was developed as part of 
+my PhD research on youth computational literacy practices. 
 
 Unfold Studio is used in schools, clubs, and by many individual writers. Interactive 
 storytelling can be a way to integrate Computer Science into English, Social Studies, or other
@@ -24,6 +25,9 @@ or writing interactive stories, see the :ref:`user_guide`. (If you're impatient,
 Unfold Studio with students, see :ref:`teaching`. And if you're interested in Unfold Studio's 
 back story or research on transliteracies, CS education, etc. please see :ref:`research`.
 We welcome questions, feedback, and random ideas. Please see :ref:`contact` to get in touch. 
+
+The documentation is also available in `PDF`_ form in case you prefer to read it that way or want
+to print out any pages (such as the worksheets in the :ref:`teaching` section) for classroom use.
 
 | -Chris Proctor
 | PhD candidate, Stanford Graduate School of Education
@@ -40,3 +44,4 @@ We welcome questions, feedback, and random ideas. Please see :ref:`contact` to g
    contact
 
 .. _Unfold Studio: http://unfold.studio/
+.. _PDF: http://docs.unfold.studio/UnfoldStudio.pdf
