@@ -185,7 +185,7 @@ class Story(models.Model):
 
     include_pattern = "^\s*INCLUDE\s+(\d+)\s*(\/\/.*)?(#.*)?$"
     var_init_pattern = "^\s*(VAR|CONST)\s+(\w+)\s*="
-    knot_pattern = "^\s*===\s*([\w\d]+)\s*(===)?\s*(\/\/.*)?(#.*)?$"
+    knot_pattern = "^\s*===\s*([\w\d]+)\s*(\(.*\)\s*)?(===)?\s*(\/\/.*)?(#.*)?$"
 
     def get_inclusions(self):
         "Return an OrderedDict of include codes"
