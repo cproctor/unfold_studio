@@ -59,6 +59,29 @@ def create_loved_story_events(sender, **kwargs):
                     story = story
                 )
 
+@receiver(m2m_changed, sender=Book.stories.through, dispatch_uid="added_story_to_book_events")
+@check_for_disabled_signals
+@catch_integrity_error
+def create_added_story_to_book_events(sender, **kwargs):
+    """
+    When someone adds a story to a book, events to to the book owner, book owner's followers,
+    story author, and story author's followers.
+    """
+    if kwargs['action'] == 'post_add':
+        for book, story in get_related(**kwargs):
+            users = set(
+                [book.owner] + [p.user for p in book.owner.profile.followers.all()] + 
+                [story.author] + [p.user for p in story.author.profile.followers.all()]
+            )
+            for user in users:
+                Event.objects.create(
+                    user = user,
+                    subject = book.owner,
+                    event_type = Event.ADDED_STORY_TO_BOOK,
+                    book=book,
+                    story=story
+                )
+
 @receiver(post_save, sender=Story, dispatch_uid="create_story_forked_events")
 @check_for_disabled_signals
 @catch_integrity_error

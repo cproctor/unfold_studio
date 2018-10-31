@@ -25,6 +25,7 @@ from django.utils.timezone import now
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger
+from unfold_studio.mixins import StoryMixin
 
 log = logging.getLogger(__name__)    
 
@@ -146,13 +147,15 @@ def compile_story(request, story_id):
 def show_story(request, story_id):
     story = get_story(request, story_id)
     editable = int(story.author == request.user or story.public)
+    addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
     if story.author == request.user:
         log.info("{} viewed story {} (own story)".format(u(request), story.id))
     elif story.public:
         log.info("{} viewed story {} (public)".format(u(request), story.id))
     else:
         log.info("{} viewed story {} (owned by {})".format(u(request), story.id, story.author.username))
-    return render(request, 'unfold_studio/show_story.html', {'story': story, 'editable': editable})
+    return render(request, 'unfold_studio/show_story.html', {'story': story, 'editable': editable, 
+            'addableBooks': addableBooks})
 
 def show_json(request, story_id):
     story = get_story(request, story_id)
@@ -297,7 +300,7 @@ class UnshareStoryView(StoryMethodView):
 
 class CreateBookView(LoginRequiredMixin, CreateView):
     model = Book
-    fields = ['title']
+    fields = ['title', 'description']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -329,7 +332,7 @@ class BookDetailView(DetailView):
 
 class UpdateBookView(UpdateView):
     model = Book
-    fields = ['title']
+    fields = ['title', 'description']
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
@@ -344,6 +347,31 @@ class UpdateBookView(UpdateView):
 
     def get_success_url(self):
         return reverse('show_book', args=(self.object.id,))
+
+class AddStoryToBookView(LoginRequiredMixin, StoryMixin, DetailView):
+    def get(self, request, *args, **kwargs):
+        book = self.get_object(Book.objects.filter(owner=request.user))
+        story = self.get_story()    # Lookup defaults to using story_id URL kwarg
+        if story in book.stories.all():
+            messages.warning(self.request, "{} is already in {}".format(story.title, book.title))
+            log.warning("{} tried to re-add {} ({}) to book {} ({})".format(
+                    u(request), story.title, story.id, book.title, book.id))
+        else:
+            book.stories.add(story)
+            messages.success(self.request, "You added {}".format(story.title))
+            log.info("{} added {} ({}) to book {} ({})".format(
+                    u(request), story.title, story.id, book.title, book.id))
+        return redirect('show_book', book.id)
+            
+class RemoveStoryFromBookView(LoginRequiredMixin, StoryMixin, DetailView):
+    def get(self, request, *args, **kwargs):
+        book = self.get_object(Book.objects.filter(owner=request.user))
+        story = self.get_story(queryset=book.stories.all())    # Lookup defaults to using story_id URL kwarg
+        book.stories.remove(story)
+        messages.success(self.request, "You removed {}".format(story.title))
+        log.info("{} removed {} ({}) from book {} ({})".format(
+                u(request), story.title, story.id, book.title, book.id))
+        return redirect('show_book', book.id)
 
 def require_entry_point(request):
     return render(request, 'unfold_studio/require_entry_point.js', content_type="application/javascript")

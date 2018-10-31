@@ -57,11 +57,10 @@ body {
 }
     
 textarea {
-    height: 600px;
 }
 
 #container {
-    width: 800px;
+    width: 1000px;
     margin: 0 auto;
     padding: 10px;
     flex: 1 0 auto;

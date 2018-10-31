@@ -58,6 +58,23 @@
         {% endif %}
     {% endif %}
     [<a href="{% url 'fork_story' story.id %}">Fork</a>]
+    {% if addableBooks %}
+        [<a href="{% url 'add_story_to_book' addableBooks.0.id story.id %}" id="add-book-link">Add to book</a>
+         <select id="select-book" onchange="setBook(this)" autocomplete="off">
+            {% for book in addableBooks %}
+                <option value={{book.id}} {% if forloop.first %} selected="selected" {% endif %}>{{book.title}}</option>
+            {% endfor %}
+         </select>
+        ]
+        <script type="text/javascript">
+            function setBook(el) { 
+                let link = document.getElementById('add-book-link');
+                let linkParts = link.href.split('/');
+                linkParts[4] = el.value;
+                link.href = linkParts.join('/');
+            }
+        </script>
+    {% endif %}
 {% endif %}
 </p>
 

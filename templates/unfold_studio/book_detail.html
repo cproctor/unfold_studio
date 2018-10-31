@@ -3,13 +3,19 @@
 
 {% block content %}
 <h1>{{book.title}}</h1>
+{% if book.description %} <p>{{book.description}}</p>{% endif %}
 {% if book.owner == request.user %} 
-    [<a href="{% url 'edit_book' book.id %}">Edit</a>]
+    <p>[<a href="{% url 'edit_book' book.id %}">Edit</a>]</p>
 {% endif %}
-{% if book.stories.any %}
+{% if book.stories.exists %}
 <ul>
     {% for story in book.stories.all %}
-        <li>{% include 'unfold_studio/story.html'%}</li>
+        <li>
+            {% include 'unfold_studio/story.html'%}
+            {% if book.owner == request.user %}
+                [<a href="{% url 'remove_story_from_book' book.id story.id %}"><span class="danger">remove</span></a>]
+            {% endif %}
+        </li>
     {% endfor %}
 </ul>
 {% else %}

@@ -24,6 +24,7 @@ class Event(models.Model):
     FOLLOWED = '6'
     YOU_FOLLOWED = '7'
     SIGNED_UP = '8'
+    REMOVED_STORY_FROM_BOOK = '9'
 
     EVENT_TYPES = (
         (LOVED_STORY, "loved story"),
@@ -32,6 +33,7 @@ class Event(models.Model):
         (PUBLISHED_STORY, "published story"),
         (PUBLISHED_BOOK, "published book"),
         (ADDED_STORY_TO_BOOK, "added story to book"),
+        (REMOVED_STORY_FROM_BOOK, "removed story from book"),
         (FOLLOWED, "followed"),
         (YOU_FOLLOWED, "you followed"),
         (SIGNED_UP, "signed up")

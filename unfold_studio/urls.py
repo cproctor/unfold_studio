@@ -45,11 +45,14 @@ urlpatterns = [
     url(r'stories/(?P<slug>\d+)/fork/?$', views.ForkStoryView.as_view(), name="fork_story"), 
     url(r'stories/(?P<slug>\d+)/share/?$', views.ShareStoryView.as_view(), name="share_story"), 
     url(r'stories/(?P<slug>\d+)/unshare/?$', views.UnshareStoryView.as_view(), name="unshare_story"), 
+    url(r'stories/(?P<slug>\d+)/delete/?$', views.DeleteStoryView.as_view(), name="delete_story"), 
 
     url(r'books/?$', views.BookListView.as_view(), name='list_books'),
     url(r'books/new/?$', views.CreateBookView.as_view(), name='create_book'),
     url(r'books/(?P<pk>\d+)/?$', views.BookDetailView.as_view(), name="show_book"), 
     url(r'books/(?P<pk>\d+)/edit/?$', views.UpdateBookView.as_view(), name="edit_book"), 
+    url(r'books/(?P<pk>\d+)/add/(?P<story_id>\d+)/?$', views.AddStoryToBookView.as_view(), name="add_story_to_book"), 
+    url(r'books/(?P<pk>\d+)/remove/(?P<story_id>\d+)/?$', views.RemoveStoryFromBookView.as_view(), name="remove_story_from_book"), 
+
     url(r'require_entry_point.js', views.require_entry_point, name="require_entry_point"),
-    url(r'stories/(?P<slug>\d+)/delete/?$', views.DeleteStoryView.as_view(), name="delete_story"), 
 ]

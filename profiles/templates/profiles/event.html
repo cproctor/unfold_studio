@@ -36,7 +36,9 @@
         published
         {% include 'profiles/event_book.html' %}
     {% elif event.event_type == Event.ADDED_STORY_TO_BOOK %}
-        {% include 'profiles/event_user.html' %}
+        {% with event_user=event.subject %}
+            {% include 'profiles/event_user.html' %}
+        {% endwith %}
         added
         {% include 'profiles/event_story.html' %}
         to 

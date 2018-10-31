@@ -274,7 +274,8 @@ class Story(models.Model):
     
 class Book(models.Model):
     title = models.CharField(max_length=400)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    description = models.TextField(blank=True, null=True)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='books')
     stories = models.ManyToManyField(Story, related_name='books')
     sites = models.ManyToManyField(Site)
 
