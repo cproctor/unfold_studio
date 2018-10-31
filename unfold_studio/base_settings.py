@@ -21,6 +21,9 @@ SALT = "femqSwDDWMN"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+# Disables signals, for use during migration
+DISCONNECT_SIGNALS = False
+
 ALLOWED_HOSTS = ['unfold.local']
 
 # Application definition

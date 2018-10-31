@@ -8,6 +8,7 @@ from django.utils.text import get_text_list
 from django.db import connection, IntegrityError
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
+from django.conf import settings
 
 # Currently, no events are generated for ADDED_STORY_TO_BOOK, COMMENTED_ON_STORY
 
@@ -20,6 +21,14 @@ def catch_integrity_error(fn):
     new_fn.__name__ = fn.__name__
     return new_fn
 
+def check_for_disabled_signals(fn):
+    def new_fn(*args, **kwargs):
+        if not settings.DISCONNECT_SIGNALS:
+            fn(*args, **kwargs)
+    new_fn.__name__ = fn.__name__
+    return new_fn
+    
+
 def get_related(instance, pk_set, model, reverse, **kwargs):
     "Given kwargs for a m2m relation, returns a tuple of tuples of forward relations"
     if reverse:
@@ -28,6 +37,7 @@ def get_related(instance, pk_set, model, reverse, **kwargs):
         return ((instance, model.objects.get(pk=id)) for id in pk_set)
 
 @receiver(m2m_changed, sender=Story.loves.through, dispatch_uid="create_loved_story_events")
+@check_for_disabled_signals
 @catch_integrity_error
 def create_loved_story_events(sender, **kwargs):
     "When someone loves a story, creates event for the story's author"
@@ -50,6 +60,7 @@ def create_loved_story_events(sender, **kwargs):
                 )
 
 @receiver(post_save, sender=Story, dispatch_uid="create_story_forked_events")
+@check_for_disabled_signals
 @catch_integrity_error
 def create_story_forked_events(sender, **kwargs):
     "When a story is forked, creates events for the story's author"
@@ -72,6 +83,7 @@ def create_story_forked_events(sender, **kwargs):
         )
         
 @receiver(post_save, sender=Story, dispatch_uid="create_story_published_events")
+@check_for_disabled_signals
 @catch_integrity_error
 def create_story_published_events(sender, **kwargs):
     "When a story is shared, creates events for all current followers of the author"
@@ -93,6 +105,7 @@ def create_story_published_events(sender, **kwargs):
             )
                 
 @receiver(post_save, sender=Book, dispatch_uid="create_book_published_events")
+@check_for_disabled_signals
 @catch_integrity_error
 def create_book_published_events(sender, **kwargs):
     "When a book is created, creates events for all current followers of the author"
@@ -115,6 +128,7 @@ def create_book_published_events(sender, **kwargs):
             )
 
 @receiver(post_save, sender=User, dispatch_uid="create_user_event")
+@check_for_disabled_signals
 @catch_integrity_error
 def user_signed_up_events(sender, **kwargs):
     user = kwargs['instance']
@@ -126,6 +140,7 @@ def user_signed_up_events(sender, **kwargs):
         )
 
 @receiver(m2m_changed, sender=Profile.following.through, dispatch_uid="create_followed_events")
+@check_for_disabled_signals
 @catch_integrity_error
 def create_followed_events(sender, **kwargs):
     "When a new follower relation is added, creates an event for both parties"
