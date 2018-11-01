@@ -56,7 +56,7 @@ def u(request):
 
 def home(request):
     "The homepage shows a subset of stories with the highest priority."
-    stories = Story.objects.filter(shared=True, deleted=False)[:s.FEATURED['STORIES_TO_SHOW']]
+    stories = Story.objects.filter(shared=True, deleted=False)[:s.STORIES_ON_HOMEPAGE]
     log.info("{} visited homepage".format(u(request)))
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 

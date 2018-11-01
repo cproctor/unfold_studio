@@ -242,17 +242,17 @@ class Story(models.Model):
     # Using Hacker News gravity algorithm: 
     # https://medium.com/hacking-and-gonzo/how-hacker-news-ranking-algorithm-works-1d9b0cf2c08d
     def update_priority(self):
-        self.priority = self.score() / pow(self.age_in_hours() + 2, settings.FEATURED['GRAVITY'])
+        self.priority = self.score() / pow(self.age_in_hours() + 2, settings.STORY_PRIORITY['GRAVITY'])
 
     def score(self):
         return (1 + 
-            self.loves.count() * settings.FEATURED['LOVE_SCORE'] + 
-            self.books.count() * settings.FEATURED['BOOK_SCORE'] + 
-            self.children.filter(~Q(author=self.author)).count() * settings.FEATURED['FORK_SCORE'] + 
-            self.includes.count() * settings.FEATURED['INCLUDES_SCORE'] + 
-            self.included_by.count() * settings.FEATURED['INCLUDED_BY_SCORE'] + 
-            int(self.errors.exists()) * settings.FEATURED['ERRORS_SCORE'] + 
-            int(self.featured) * settings.FEATURED['FEATURED_SCORE'])
+            self.loves.count() * settings.STORY_PRIORITY['LOVE_SCORE'] + 
+            self.books.count() * settings.STORY_PRIORITY['BOOK_SCORE'] + 
+            self.children.filter(~Q(author=self.author)).count() * settings.STORY_PRIORITY['FORK_SCORE'] + 
+            self.includes.count() * settings.STORY_PRIORITY['INCLUDES_SCORE'] + 
+            self.included_by.count() * settings.STORY_PRIORITY['INCLUDED_BY_SCORE'] + 
+            int(self.errors.exists()) * settings.STORY_PRIORITY['ERRORS_SCORE'] + 
+            int(self.featured) * settings.STORY_PRIORITY['STORY_PRIORITY_SCORE'])
 
     def age_in_hours(self):
         return (datetime.now(timezone.utc) - self.edit_date).total_seconds() / (60 * 60)
