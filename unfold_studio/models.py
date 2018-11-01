@@ -13,6 +13,7 @@ from collections import OrderedDict, deque
 from enum import Enum
 import os
 import subprocess
+import math
 
 log = logging.getLogger(__name__)
 
@@ -278,6 +279,22 @@ class Book(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='books')
     stories = models.ManyToManyField(Story, related_name='books')
     sites = models.ManyToManyField(Site)
+    priority = models.FloatField(default=0)
+
+    def update_priority(self):
+        self.priority = self.score()
+
+    def score(self):
+        stories = self.stories.all()
+        return (1 + 
+            math.log(1 + len(stories)) * settings.BOOK_PRIORITY['LOG_NUM_STORIES'] + 
+            (stories[len(stories) // 2].priority if any(stories) else 0) * 
+                    settings.BOOK_PRIORITY['MEDIAN_STORY_PRIORITY']
+        )
+
+    class Meta:
+        ordering = ['-priority']
+    
 
 class StoryError(models.Model):
 
