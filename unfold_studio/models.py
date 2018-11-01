@@ -253,7 +253,7 @@ class Story(models.Model):
             self.includes.count() * settings.STORY_PRIORITY['INCLUDES_SCORE'] + 
             self.included_by.count() * settings.STORY_PRIORITY['INCLUDED_BY_SCORE'] + 
             int(self.errors.exists()) * settings.STORY_PRIORITY['ERRORS_SCORE'] + 
-            int(self.featured) * settings.STORY_PRIORITY['STORY_PRIORITY_SCORE'])
+            int(self.featured) * settings.STORY_PRIORITY['FEATURED_SCORE'])
 
     def age_in_hours(self):
         return (datetime.now(timezone.utc) - self.edit_date).total_seconds() / (60 * 60)
