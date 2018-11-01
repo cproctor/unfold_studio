@@ -256,7 +256,7 @@ class Story(models.Model):
             int(self.featured) * settings.STORY_PRIORITY['FEATURED_SCORE'])
 
     def age_in_hours(self):
-        return (datetime.now(timezone.utc) - self.edit_date).total_seconds() / (60 * 60)
+        return (datetime.now() - self.edit_date).total_seconds() / (60 * 60)
 
     def for_json(self):
         "Returns JSON for the story in old format. Needs to be updated once the "
