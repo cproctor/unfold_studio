@@ -3,6 +3,15 @@
 
 {% block content %}
 <h1>All books</h1>
+<p>
+    Books are collections of stories. 
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'create_book' %}">Create a new book</a>.
+    {% else %}
+        When you are logged in, you can create your own books. 
+    {% endif %}
+</p>
+
 <ul>
 {% for book in object_list %}
     <li><a href="{% url 'show_book' book.id %}">{{book.title}}</a> 
