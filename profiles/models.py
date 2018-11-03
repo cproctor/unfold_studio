@@ -62,10 +62,16 @@ class Event(models.Model):
             body = "{} published book '{}'".format(self.subject, self.book)
         elif self.event_type == Event.ADDED_STORY_TO_BOOK:
             body = "{} added '{}' to '{}'".format(self.subject, self.story.title, self.book)
+        elif self.event_type == Event.REMOVED_STORY_FROM_BOOK:
+            body = "{} removed '{}' from '{}'".format(self.subject, self.story.title, self.book)
         elif self.event_type == Event.FOLLOWED:
             body = "{} now follows you".format(self.subject)
         elif self.event_type == Event.YOU_FOLLOWED:
             body = "You now follow {}".format(self.subject)
+        elif self.event_type == Event.SIGNED_UP:
+            body = "{} signed up".format(self.subject)
+        else:
+            raise ValueError("Unhandled event type: {}".format(self.event_type))
         return prefix + body + ts
 
     class Meta:
