@@ -1,4 +1,5 @@
 from django.test import TestCase
+from django.utils.timezone import now
 from unfold_studio.models import Story, Book
 from profiles.models import Profile, Event
 from django.contrib.auth.models import User
@@ -10,7 +11,7 @@ class SignalsTestCase(TestCase):
         Profile.objects.create(user=chris)
         Profile.objects.create(user=zuz)
         chris.profile.following.add(zuz.profile)
-        s = Story.objects.create(title="My first story", author=zuz, shared=True)
+        s = Story.objects.create(title="My first story", author=zuz, shared=True, creation_date=now(), edit_date=now())
 
     def test_loved_event_created(self):
         chris = User.objects.get(username='chris')
@@ -24,7 +25,7 @@ class SignalsTestCase(TestCase):
         zuz = User.objects.get(username='zuz')
         original = Story.objects.first()
         self.assertEqual(Event.objects.filter(user=zuz, event_type=Event.FORKED_STORY).count(), 0)
-        Story.objects.create(title="Copy", author=chris, parent=original)
+        Story.objects.create(title="Copy", author=chris, parent=original, creation_date=now(), edit_date=now())
         self.assertEqual(Event.objects.filter(user=zuz, event_type=Event.FORKED_STORY).count(), 1)
 
     def test_story_published_event_created(self):

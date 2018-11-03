@@ -9,14 +9,15 @@ from django.db import connection, IntegrityError
 from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.conf import settings
+from django.db.utils import OperationalError
 
 # Currently, no events are generated for ADDED_STORY_TO_BOOK, COMMENTED_ON_STORY
 
-def catch_integrity_error(fn):
+def catch_database_errors(fn):
     def new_fn(*args, **kwargs):
         try:
             fn(*args, **kwargs)
-        except IntegrityError:
+        except (IntegrityError, OperationalError):
             pass
     new_fn.__name__ = fn.__name__
     return new_fn
@@ -27,7 +28,6 @@ def check_for_disabled_signals(fn):
             fn(*args, **kwargs)
     new_fn.__name__ = fn.__name__
     return new_fn
-    
 
 def get_related(instance, pk_set, model, reverse, **kwargs):
     "Given kwargs for a m2m relation, returns a tuple of tuples of forward relations"
@@ -38,7 +38,7 @@ def get_related(instance, pk_set, model, reverse, **kwargs):
 
 @receiver(m2m_changed, sender=Story.loves.through, dispatch_uid="create_loved_story_events")
 @check_for_disabled_signals
-@catch_integrity_error
+@catch_database_errors
 def create_loved_story_events(sender, **kwargs):
     "When someone loves a story, creates event for the story's author"
     if kwargs['action'] == 'post_add':
@@ -61,7 +61,7 @@ def create_loved_story_events(sender, **kwargs):
 
 @receiver(m2m_changed, sender=Book.stories.through, dispatch_uid="added_story_to_book_events")
 @check_for_disabled_signals
-@catch_integrity_error
+@catch_database_errors
 def create_added_story_to_book_events(sender, **kwargs):
     """
     When someone adds a story to a book, events to to the book owner, book owner's followers,
@@ -84,7 +84,7 @@ def create_added_story_to_book_events(sender, **kwargs):
 
 @receiver(post_save, sender=Story, dispatch_uid="create_story_forked_events")
 @check_for_disabled_signals
-@catch_integrity_error
+@catch_database_errors
 def create_story_forked_events(sender, **kwargs):
     "When a story is forked, creates events for the story's author"
     story = kwargs['instance']
@@ -107,7 +107,7 @@ def create_story_forked_events(sender, **kwargs):
         
 @receiver(post_save, sender=Story, dispatch_uid="create_story_published_events")
 @check_for_disabled_signals
-@catch_integrity_error
+@catch_database_errors
 def create_story_published_events(sender, **kwargs):
     "When a story is shared, creates events for all current followers of the author"
     story = kwargs['instance']
@@ -129,7 +129,7 @@ def create_story_published_events(sender, **kwargs):
                 
 @receiver(post_save, sender=Book, dispatch_uid="create_book_published_events")
 @check_for_disabled_signals
-@catch_integrity_error
+@catch_database_errors
 def create_book_published_events(sender, **kwargs):
     "When a book is created, creates events for all current followers of the author"
     book = kwargs['instance']
@@ -152,7 +152,7 @@ def create_book_published_events(sender, **kwargs):
 
 @receiver(post_save, sender=User, dispatch_uid="create_user_event")
 @check_for_disabled_signals
-@catch_integrity_error
+@catch_database_errors
 def user_signed_up_events(sender, **kwargs):
     user = kwargs['instance']
     if kwargs['created']:
@@ -164,7 +164,7 @@ def user_signed_up_events(sender, **kwargs):
 
 @receiver(m2m_changed, sender=Profile.following.through, dispatch_uid="create_followed_events")
 @check_for_disabled_signals
-@catch_integrity_error
+@catch_database_errors
 def create_followed_events(sender, **kwargs):
     "When a new follower relation is added, creates an event for both parties"
     if kwargs['action'] == 'post_add':
