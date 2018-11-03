@@ -233,8 +233,10 @@ class Story(models.Model):
                 currentKnot = [line]
             else:
                 currentKnot.append(line)
-        if any(currentKnot):
+        if currentKnotName and any(currentKnot):
              yield(lineNum, currentKnotName, "\n".join(currentKnot))
+        if with_preamble and currentKnotName is None:
+            yield(0, None, "\n".join(currentKnot))
 
     def get_knots(self, with_preamble=False):
         return OrderedDict((name, (lineNum, knot)) for (lineNum, name, knot) 
