@@ -4,7 +4,6 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from profiles.models import Profile
 import reversion
-from datetime import datetime, timezone
 from django.conf import settings
 import json
 import re
@@ -14,6 +13,7 @@ from enum import Enum
 import os
 import subprocess
 import math
+from django.utils import timezone
 
 log = logging.getLogger(__name__)
 
@@ -256,7 +256,7 @@ class Story(models.Model):
             int(self.featured) * settings.STORY_PRIORITY['FEATURED_SCORE'])
 
     def age_in_hours(self):
-        return (datetime.now() - self.edit_date).total_seconds() / (60 * 60)
+        return (timezone.now() - self.edit_date).total_seconds() / (60 * 60)
 
     def for_json(self):
         "Returns JSON for the story in old format. Needs to be updated once the "
