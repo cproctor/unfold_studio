@@ -53,7 +53,7 @@ class Event(models.Model):
         super().save(*args, **kwargs)
 
     def validate_unique(self, exclude=None):
-        if Event.objects.filter(
+        if Event.objects.exclude(pk=self.id).filter(
             event_type=self.event_type, 
             user_id=self.user_id, 
             subject_id=self.subject_id,
