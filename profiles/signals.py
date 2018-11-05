@@ -10,6 +10,7 @@ from django.utils.translation import ugettext as _
 from django.contrib.auth.models import User
 from django.conf import settings
 from django.db.utils import OperationalError
+from django.core.exceptions import ValidationError
 
 # Currently, no events are generated for ADDED_STORY_TO_BOOK, COMMENTED_ON_STORY
 
@@ -17,7 +18,7 @@ def catch_database_errors(fn):
     def new_fn(*args, **kwargs):
         try:
             fn(*args, **kwargs)
-        except (IntegrityError, OperationalError):
+        except (IntegrityError, OperationalError, ValidationError):
             pass
     new_fn.__name__ = fn.__name__
     return new_fn

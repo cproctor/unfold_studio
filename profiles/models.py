@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 import arrow
 
 # Create your models here.
@@ -46,6 +47,16 @@ class Event(models.Model):
     book = models.ForeignKey('unfold_studio.Book', null=True, blank=True, on_delete=models.CASCADE)
     story = models.ForeignKey('unfold_studio.Story', null=True, blank=True, on_delete=models.CASCADE)
     seen = models.BooleanField(default=False)
+
+    def validate_unique(self, exclude=None):
+        if Event.objects.filter(
+            event_type=self.event_type, 
+            user_id=self.user_id, 
+            subject_id=self.subject_id,
+            story_id=self.story_id,
+            book_id=self.book_id
+        ).exists():
+            raise ValidationError("Duplicate event: {}".format(self))
 
     def __str__(self):
         prefix = "[{}] ".format(self.user)
