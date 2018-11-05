@@ -48,6 +48,10 @@ class Event(models.Model):
     story = models.ForeignKey('unfold_studio.Story', null=True, blank=True, on_delete=models.CASCADE)
     seen = models.BooleanField(default=False)
 
+    def save(self, *args, **kwargs):
+        self.validate_unique()
+        super().save(*args, **kwargs)
+
     def validate_unique(self, exclude=None):
         if Event.objects.filter(
             event_type=self.event_type, 
