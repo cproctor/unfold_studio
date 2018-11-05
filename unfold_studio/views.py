@@ -181,9 +181,7 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            profile = Profile(user=user)
-            profile.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 
                 "Welcome to Unfold Studio! Have fun, and please be a good community member.")
             log.info("{} signed up".format(u(request)))

@@ -157,6 +157,7 @@ def create_book_published_events(sender, **kwargs):
 def user_signed_up_events(sender, **kwargs):
     user = kwargs['instance']
     if kwargs['created']:
+        Profile.objects.create(user=user)
         Event.objects.create(
             user=user,
             subject=user, 
@@ -182,6 +183,8 @@ def create_followed_events(sender, **kwargs):
             )
 
 
+# Note: Postgres doesn't support this either, when some of the unique values are null. 
+# Using a custom save method on Event instead.
 # https://djangosnippets.org/snippets/1628/
 def check_unique_together(sender, **kwargs):
     """
