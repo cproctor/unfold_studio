@@ -10,4 +10,5 @@ User Guide
    quickstart
    webapp
    ink
+   terms
 
