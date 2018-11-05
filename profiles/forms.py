@@ -13,6 +13,11 @@ class SignUpForm(UserCreationForm):
             raise ValidationError("Only letters, numbers, and _ are allowed in usernames")
         return self.cleaned_data['username']
 
+    def clean_email(self):
+        if User.objects.filter(email=self.cleaned_data['email']).exists():
+            raise ValidationError("An account with this email already exists. Please sign up with a different address or click 'log in' above to reset your password.")
+        return self.cleaned_data['email']
+
     class Meta:
         model = User
         fields = ('username', 'email', 'password1', 'password2', )
