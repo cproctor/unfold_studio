@@ -14,6 +14,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  url(r'^blog/', include('blog.urls'))
 """
 from django.conf.urls import url, include
+from django.conf import settings
 from django.contrib import admin
 from unfold_studio import views
 from profiles import views as profile_views
@@ -57,3 +58,10 @@ urlpatterns = [
 
     url(r'require_entry_point.js', views.require_entry_point, name="require_entry_point"),
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        #path('__debug__/', include(debug_toolbar.urls)),
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
