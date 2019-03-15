@@ -14,7 +14,6 @@ import os
 import subprocess
 import math
 from django.utils import timezone
-from unfold_studio.helpers import localize
 
 log = logging.getLogger(__name__)
 
@@ -259,7 +258,7 @@ class Story(models.Model):
             int(self.featured) * settings.STORY_PRIORITY['FEATURED_SCORE'])
 
     def age_in_hours(self):
-        return (timezone.now() - localize(self.edit_date)).total_seconds() / (60 * 60)
+        return (timezone.now() - self.edit_date).total_seconds() / (60 * 60)
 
     def for_json(self):
         "Returns JSON for the story in old format. Needs to be updated once the "
