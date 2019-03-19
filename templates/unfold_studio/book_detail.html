@@ -10,12 +10,16 @@
 {% if book.stories.exists %}
 <ul>
     {% for story in book.stories.all %}
-        <li>
-            {% include 'unfold_studio/story.html'%}
-            {% if book.owner == request.user %}
-                [<a href="{% url 'remove_story_from_book' book.id story.id %}"><span class="danger">remove</span></a>]
-            {% endif %}
-        </li>
+        {% if story.public or story.shared or story.author == request.user %}
+            <li>
+                {% include 'unfold_studio/story.html'%}
+                {% if book.owner == request.user %}
+                    [<a href="{% url 'remove_story_from_book' book.id story.id %}">
+                        <span class="danger">remove</span>
+                    </a>]
+                {% endif %}
+            </li>
+        {% endif %}
     {% endfor %}
 </ul>
 {% else %}
