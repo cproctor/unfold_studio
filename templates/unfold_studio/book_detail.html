@@ -7,7 +7,7 @@
 {% if book.owner == request.user %} 
     <p>[<a href="{% url 'edit_book' book.id %}">Edit</a>]</p>
 {% endif %}
-{% if book.stories.exists %}
+{% if stories %}
 <ul>
     {% for story in stories %}
         <li>
