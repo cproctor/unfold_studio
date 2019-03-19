@@ -17,6 +17,26 @@ from django.utils import timezone
 
 log = logging.getLogger(__name__)
 
+class StoryManager(models.Manager):
+
+    def valid(self):
+        "Returns non-deleted objects"
+        return self.get_queryset().filter(deleted=False)
+
+    def for_site(self, site):
+        """
+        Returns only stories in the current scope--that is, those associated with a site and 
+        not deleted.
+        """
+        return self.valid().filter(sites=site)
+
+    def for_user(self, site, user):
+        "Returns stories which are visible to the current request"
+        return self.for_site(site).filter(
+            Q(shared=True) | 
+            Q(public=True) |
+            Q(author=user)
+        )
 
 @reversion.register()
 class Story(models.Model):
@@ -40,6 +60,8 @@ class Story(models.Model):
     deleted = models.BooleanField(default=False)
     priority = models.FloatField(default=0)
     sites = models.ManyToManyField(Site)
+
+    objects = StoryManager()
 
     class PreprocessingError(Exception):
         "Raised when something goes wrong during preprocessing."

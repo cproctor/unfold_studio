@@ -9,21 +9,19 @@
 {% endif %}
 {% if book.stories.exists %}
 <ul>
-    {% for story in book.stories.all %}
-        {% if story.public or story.shared or story.author == request.user %}
-            <li>
-                {% include 'unfold_studio/story.html'%}
-                {% if book.owner == request.user %}
-                    [<a href="{% url 'remove_story_from_book' book.id story.id %}">
-                        <span class="danger">remove</span>
-                    </a>]
-                {% endif %}
-            </li>
-        {% endif %}
+    {% for story in stories %}
+        <li>
+            {% include 'unfold_studio/story.html'%}
+            {% if book.owner == request.user %}
+                [<a href="{% url 'remove_story_from_book' book.id story.id %}">
+                    <span class="danger">remove</span>
+                </a>]
+            {% endif %}
+        </li>
     {% endfor %}
 </ul>
 {% else %}
-    <p>No stories have been added to this book.</p>
+    <p>This book has no stories (or they are not shared).</p>
 {% endif %}
     
 

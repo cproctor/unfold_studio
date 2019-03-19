@@ -323,10 +323,18 @@ class BookListView(ListView):
         return Book.objects.filter(sites__id=get_current_site(self.request).id)
 
 class BookDetailView(DetailView):
+    # TODO: Use this as a model for using Mixins. get_context_data is needlessly verbose.
     model = Book
 
     def get_queryset(self):
         return Book.objects.filter(sites__id=get_current_site(self.request).id)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user if self.request.user.is_authenticated else None
+        context['stories'] =  self.get_object().stories.for_user(
+                get_current_site(self.request), user)
+        return context
 
 class UpdateBookView(UpdateView):
     model = Book
