@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'reversion',
     'social_django',
     'unfold_studio',
-    'profiles'
+    'profiles',
+    'literacy_events'
 ]
 
 MIDDLEWARE = [
