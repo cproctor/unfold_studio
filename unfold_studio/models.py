@@ -304,6 +304,7 @@ class Book(models.Model):
     stories = models.ManyToManyField(Story, related_name='books')
     sites = models.ManyToManyField(Site)
     priority = models.FloatField(default=0)
+    deleted = models.BooleanField(default=False)
 
     def update_priority(self):
         self.priority = self.score()
