@@ -6,6 +6,8 @@ class LiteracyEvent(models.Model):
     """
     Represents significant things that happen at the user level.
     """
+    # TODO: add new events: created_prompt, submitted_story_to_prompt, read_knot (will require session, ,storyVersion, knot)
+    # TODO: Created story, savedStoryVersion
 
     LOVED_STORY                     = '0'
     COMMENTED_ON_STORY              = '1'
@@ -34,9 +36,12 @@ class LiteracyEvent(models.Model):
     timestamp = models.DateTimeField(default=timezone.now)
     event_type = models.CharField(max_length=1, choices=EVENT_TYPES)
     subject = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='literacy_events')
-    book = models.ForeignKey('unfold_studio.Book', null=True, blank=True, on_delete=models.CASCADE, related_name='literacy_events')
-    story = models.ForeignKey('unfold_studio.Story', null=True, blank=True, on_delete=models.CASCADE, related_name='literacy_events')
-    object_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.CASCADE, related_name='literacy_events_as_object')
+    book = models.ForeignKey('unfold_studio.Book', null=True, blank=True, on_delete=models.CASCADE, 
+            related_name='literacy_events')
+    story = models.ForeignKey('unfold_studio.Story', null=True, blank=True, on_delete=models.CASCADE, 
+            related_name='literacy_events')
+    object_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.CASCADE, 
+            related_name='literacy_events_as_object')
 
     def save(self, *args, **kwargs):
         self.validate_unique()
