@@ -43,9 +43,11 @@ class UserDetailView(DetailView):
         context['stories'] = Story.objects.for_user(site, self.object).filter(author=self.object).all()
         if self.request.user == self.object:
             Notification.objects.mark_all_seen_for_user(self.request.user)
-            context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
-            context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
-                    s.FEED_ITEMS_ON_PROFILE)
+            #context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
+            context['feed'] = self.request.user.notifications.all()[:s.FEED_ITEMS_ON_PROFILE]
+            #context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
+                    #s.FEED_ITEMS_ON_PROFILE)
+            context['feed_continues'] = self.request.user.notifications.count() > s.FEED_ITEMS_ON_PROFILE
             context['LiteracyEvent'] = LiteracyEvent
         else:
             if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
@@ -66,7 +68,8 @@ class FeedView(DetailView):
             raise Http404()
         Notification.objects.mark_all_seen_for_user(self.request.user)
         context['LiteracyEvent'] = LiteracyEvent
-        notifications = Notification.objects.for_user(self.request.user)
+        #notifications = Notification.objects.for_user(self.request.user)
+        notifications = self.request.user.notifications.all()
         paginator = Paginator(notifications, s.FEED_ITEMS_PER_PAGE)
         try:
             context['feed'] = paginator.page(self.request.GET.get('page'))

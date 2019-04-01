@@ -109,3 +109,6 @@ class Notification(models.Model):
     seen = models.BooleanField(default=False)
 
     objects = NotificationManager()
+
+    class Meta:
+        ordering = ('-event__timestamp',)
