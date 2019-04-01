@@ -11,6 +11,7 @@ from django.conf import settings as s
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger
 from django.http import HttpResponse, Http404                         
+from django.contrib.sites.shortcuts import get_current_site
 import logging
 
 from literacy_events.models import Notification, LiteracyEvent
@@ -36,11 +37,12 @@ class UserDetailView(DetailView):
             return 'profiles/user_detail.html'
 
     def get_context_data(self, **kwargs):
+        site = get_current_site(self.request)
         context = super().get_context_data(**kwargs)
-        context['books'] = Book.objects.filter(owner=self.object).all()
+        context['books'] = Book.objects.for_site(site).filter(owner=self.object).all()
+        context['stories'] = Story.objects.for_user(site, self.object).filter(author=self.object).all()
         if self.request.user == self.object:
             Notification.objects.mark_all_seen_for_user(self.request.user)
-            context['stories'] = Story.objects.filter(author=self.object, deleted=False).all()
             context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
             context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
                     s.FEED_ITEMS_ON_PROFILE)
@@ -48,7 +50,7 @@ class UserDetailView(DetailView):
         else:
             if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
                 messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
-            context['stories'] = Story.objects.filter(author=self.object, shared=True, deleted=False).all()
+            context['stories'] = Story.objects.for_user(None).all()
             
         log.info("{} viewed {}'s profile".format(un(self.request), self.object.username))
         return context

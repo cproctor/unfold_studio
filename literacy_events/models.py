@@ -93,8 +93,7 @@ class NotificationManager(models.Manager):
 
     def for_user(self, user):
         "Returns notifications that ought to be in the user's feed."
-        #return self.valid_notifications().filter(recipient=user)
-        return self.get_queryset().filter(recipient=user)
+        return self.valid_notifications().filter(recipient=user)
 
     def mark_all_seen_for_user(self, user):
         for e in self.get_queryset().filter(seen=False).all():
@@ -105,14 +104,8 @@ class Notification(models.Model):
     """
     Represents notifications that appear in users' feeds. Each LiteracyEvent generates zero, one, or multiple notifications.
     """
-    # TODO: I want to be able to filter events at the model level.
-    # TODO Check for non-disabled users.
     recipient = models.ForeignKey('auth.User', related_name='notifications', on_delete=models.CASCADE)
     event = models.ForeignKey(LiteracyEvent, on_delete=models.CASCADE, related_name='notifications')
     seen = models.BooleanField(default=False)
 
     objects = NotificationManager()
-
-
-
-
