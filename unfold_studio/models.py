@@ -297,6 +297,17 @@ class Story(models.Model):
     class Meta:
         ordering = ['-priority']
     
+
+class BookManager(models.Manager):
+    def valid(self):
+        "Returns non-deleted objects"
+        return self.get_queryset().filter(deleted=False)
+    def for_site(self, site):
+        """
+        Returns only books in the current scope--that is, those associated with a site and not deleted.
+        """
+        return self.valid().filter(sites=site)
+
 class Book(models.Model):
     title = models.CharField(max_length=400)
     description = models.TextField(blank=True, null=True)
@@ -305,6 +316,8 @@ class Book(models.Model):
     sites = models.ManyToManyField(Site)
     priority = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
+
+    objects = BookManager()
 
     def update_priority(self):
         self.priority = self.score()
