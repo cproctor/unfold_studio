@@ -1,6 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.db.models import Q
+import arrow
 
 class LiteracyEvent(models.Model):
     """
@@ -48,8 +50,8 @@ class LiteracyEvent(models.Model):
         super().save(*args, **kwargs)
 
     def __str__(self):
-        prefix = "[{}] ".format(self.user)
-        ts = " ({})".format(self.timestamp.strftime('H:mm a, MMM DD, YYYY'))
+        prefix = "[{}] ".format(self.subject)
+        ts = " ({})".format(arrow.get(self.timestamp).format('H:mm a, MMM DD, YYYY'))
         if self.event_type == LiteracyEvent.LOVED_STORY:
             body = "{} loved story {}".format(self.subject, self.story.title)
         elif self.event_type == LiteracyEvent.COMMENTED_ON_STORY:
@@ -78,6 +80,27 @@ class LiteracyEvent(models.Model):
         indexes = [models.Index(fields=['subject', 'timestamp'])]
         ordering = ('-timestamp',)
 
+class NotificationManager(models.Manager):
+
+    def valid_notifications(self):
+        "Returns notifications for which no subject or object is disabled or deleted"
+        return self.get_queryset().filter(
+            (Q(event__story__deleted=False) & Q(event__story__author__is_active=True)) | Q(event__story__isnull=True),
+            (Q(event__book__deleted=False) & Q(event__book__owner__is_active=True)) | Q(event__story__isnull=True),
+            Q(event__subject__is_active=True) | Q(event__subject__isnull=True),
+            Q(event__object_user__is_active=True) | Q(event__object_user__isnull=True)
+        )
+
+    def for_user(self, user):
+        "Returns notifications that ought to be in the user's feed."
+        #return self.valid_notifications().filter(recipient=user)
+        return self.get_queryset().filter(recipient=user)
+
+    def mark_all_seen_for_user(self, user):
+        for e in self.get_queryset().filter(seen=False).all():
+            e.seen = True
+            e.save()
+
 class Notification(models.Model):
     """
     Represents notifications that appear in users' feeds. Each LiteracyEvent generates zero, one, or multiple notifications.
@@ -87,6 +110,8 @@ class Notification(models.Model):
     recipient = models.ForeignKey('auth.User', related_name='notifications', on_delete=models.CASCADE)
     event = models.ForeignKey(LiteracyEvent, on_delete=models.CASCADE, related_name='notifications')
     seen = models.BooleanField(default=False)
+
+    objects = NotificationManager()
 
 
 
