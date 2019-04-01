@@ -6,8 +6,8 @@
     <div class="feed">
         <h2>Feed</h2>
         <ul>
-        {% for event in feed %}
-            {% include 'profiles/event.html' %}
+        {% for notification in feed %}
+            {% include 'literacy_events/notification.html' %}
         {% endfor %}
         </ul>
         {% if feed_continues %}

@@ -1,0 +1,46 @@
+{% load app_filters %}
+<li class="event">
+{% with event=notification.event viewer=notification.recipient %}
+{% with subjectUser=event.subject story=event.story book=event.book objectUser=event.object_user %}
+    {% if event.event_type == LiteracyEvent.LOVED_STORY %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        loved 
+        {% include 'literacy_events/story.html' %}
+    {% elif event.event_type == LiteracyEvent.COMMENTED_ON_STORY %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        commented on 
+        {% include 'literacy_events/story.html' %}
+    {% elif event.event_type == LiteracyEvent.FORKED_STORY %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        forked 
+        {% include 'literacy_events/story.html' %} 
+        from 
+        {% include 'literacy_events/story.html' with story=story.parent %} 
+    {% elif event.event_type == LiteracyEvent.PUBLISHED_STORY %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        published 
+        {% include 'literacy_events/story.html' %}
+    {% elif event.event_type == LiteracyEvent.PUBLISHED_BOOK %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        published 
+        {% include 'literacy_events/book.html' %}
+    {% elif event.event_type == LiteracyEvent.ADDED_STORY_TO_BOOK %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        added 
+        {% include 'literacy_events/story.html' %} 
+        to 
+        {% include 'literacy_events/book.html' %}
+    {% elif event.event_type == LiteracyEvent.FOLLOWED %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        started following 
+        {% include 'literacy_events/user.html' with user=objectUser objectPosition=True%} 
+    {% elif event.event_type == LiteracyEvent.SIGNED_UP %}
+        {% include 'literacy_events/user.html' with user=subjectUser%} 
+        joined Unfold Studio
+    {% else %}
+        Error displaying [{{event}}]
+    {% endif %}
+    {{event.timestamp|humanize}}.
+{% endwith %}
+{% endwith %}
+</li>

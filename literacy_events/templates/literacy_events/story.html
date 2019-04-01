@@ -1,4 +1,4 @@
-{% if story.author == user %}
+{% if story.author == viewer %}
     <a href="{% url 'show_story' story.id %}">
         {{story.title}}
     </a>

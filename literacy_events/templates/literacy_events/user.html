@@ -1,0 +1,10 @@
+{% if user == viewer %}
+    {% if objectPosition == True %}
+        you
+    {% else %}
+        You
+    {% endif %}
+{% else %}
+    <a href="{% url 'show_user' event.subject %}">{{event.subject}}</a>
+{% endif %}
+

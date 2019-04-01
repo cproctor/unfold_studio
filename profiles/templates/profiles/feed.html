@@ -13,8 +13,8 @@
         {% endif %}
     </div>
     <ul>
-    {% for event in feed.object_list %}
-        {% include 'profiles/event.html' %}
+    {% for notification in feed %}
+        {% include 'literacy_events/notification.html' %}
     {% endfor %}
     </ul>
 {% endblock %}

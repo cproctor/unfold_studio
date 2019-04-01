@@ -13,6 +13,8 @@ from django.core.paginator import Paginator, PageNotAnInteger
 from django.http import HttpResponse, Http404                         
 import logging
 
+from literacy_events.models import Notification, LiteracyEvent
+
 log = logging.getLogger(__name__)    
 
 def un(request):
@@ -37,19 +39,12 @@ class UserDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.filter(owner=self.object).all()
         if self.request.user == self.object:
-            for e in self.request.user.events.filter(seen=False).all():
-                e.seen = True
-                e.save()
+            Notification.objects.mark_all_seen_for_user(self.request.user)
             context['stories'] = Story.objects.filter(author=self.object, deleted=False).all()
-            context['feed'] = Event.objects.filter(
-                Q(story__deleted=False) | Q(story__isnull=True),
-                user=self.request.user
-            )[:s.FEED_ITEMS_ON_PROFILE]
-            context['feed_continues'] = Event.objects.filter(
-                Q(story__deleted=False) | Q(story__isnull=True),
-                user=self.request.user
-            ).count() > s.FEED_ITEMS_ON_PROFILE
-            context['Event'] = Event
+            context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
+            context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
+                    s.FEED_ITEMS_ON_PROFILE)
+            context['LiteracyEvent'] = LiteracyEvent
         else:
             if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
                 messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
@@ -68,15 +63,10 @@ class FeedView(DetailView):
         context = super().get_context_data(**kwargs)
         if not self.request.user == self.object:
             raise Http404()
-        for e in self.request.user.events.filter(seen=False).all():
-            e.seen = True
-            e.save()
-        context['Event'] = Event
-        events = Event.objects.filter(
-            Q(story__deleted=False) | Q(story__isnull=True),
-            user=self.request.user
-        )
-        paginator = Paginator(events, s.FEED_ITEMS_PER_PAGE)
+        Notification.objects.mark_all_seen_for_user(self.request.user)
+        context['LiteracyEvent'] = LiteracyEvent
+        notifications = Notification.objects.for_user(self.request.user)
+        paginator = Paginator(notifications, s.FEED_ITEMS_PER_PAGE)
         try:
             context['feed'] = paginator.page(self.request.GET.get('page'))
         except PageNotAnInteger:
@@ -113,11 +103,3 @@ class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
             log.info("{} unfollowed {}".format(un(self.request), u.username))
         return redirect('show_user', u)
         
-
-
-
-
-
-
-
-
