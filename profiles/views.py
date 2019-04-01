@@ -50,7 +50,6 @@ class UserDetailView(DetailView):
         else:
             if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
                 messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
-            context['stories'] = Story.objects.for_user(None).all()
             
         log.info("{} viewed {}'s profile".format(un(self.request), self.object.username))
         return context
