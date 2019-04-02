@@ -26,6 +26,10 @@ body {
     flex-shrink: 0;
 }
 
+#menu.debug {
+    background-color: #c0392b;
+}
+
 #footer {
     background-color: #444;
     display: flex;

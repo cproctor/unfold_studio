@@ -1,6 +1,6 @@
 {% load staticfiles %}
 
-<div id="menu">
+<div id="menu" {% if DEBUG %} class="debug" {% endif %}>
     <div class="menu-item menu-item-logo">
         <a href="{% url 'home' %}"><img class="logo" src="{% static 'favicon.png' %}" /></a>
     </div>
