@@ -6,6 +6,13 @@ from prompts.models import Prompt, PromptStory
 from prompts.forms import PromptSubmissionForm
 from unfold_studio.models import Story
 from reversion.models import Version
+import logging
+
+log = logging.getLogger(__name__)    
+
+def u(request):
+    "Helper to return username"
+    return request.user.username if request.user.is_authenticated else "<anonymous>"
 
 class PromptsOwnedListView(ListView):
     model = Prompt
@@ -54,6 +61,7 @@ class PromptAssignedDetailView(DetailView):
             version = Version.objects.get_for_object(story).last()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
                     submitted_story_version=version)
+            log.info("{} submitted story {} to prompt {}".format(u(self.request), story, self.get_object()))
             return redirect('show_prompt_assigned', self.get_object().id)
         else:
             context = self.get_context_data()
@@ -64,10 +72,13 @@ class ClearPromptSubmissionView(SingleObjectMixin, View):
     http_method_names = ['post']
     def post(self, *args, **kwargs):
         prompt = self.get_object()
-        PromptStory.objects.filter(
+        ps = PromptStory.objects.get(
             prompt=prompt, 
             story__author=self.request.user
-        ).delete()
+        )
+        story = ps.story
+        ps.delete()
+        log.info("{} cleared submitted story {} from prompt {}".format(u(self.request), story, self.get_object()))
         return redirect('show_prompt_assigned', prompt.id)
 
     def get_queryset(self):
