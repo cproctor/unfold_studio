@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'social_django',
     'unfold_studio',
     'profiles',
-    'literacy_events'
+    'literacy_events',
+    'prompts'
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'profiles.context_processors.unseen_events',
+                'prompts.context_processors.user_prompts',
                 'unfold_studio.context_processors.documentation_urls',
                 'social_django.context_processors.backends', 
                 'social_django.context_processors.login_redirect',

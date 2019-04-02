@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<table>
+    <thead>
+        <tr>
+            <td>Prompt</td>
+            <td>Assignees</td>
+            <td>Submissions</td>
+        </tr>
+    </thead>
+{% for prompt in prompts %}
+    <tr>
+        <td><a href="{% url 'show_prompt_owned' prompt.id %}">{{prompt.name}}</a></td>
+        <td>{{prompt.assignees.count}}</td>
+        <td>{{prompt.submissions.count}}</td>
+    </tr>
+{% endfor %}
+</table>
+
+{% endblock %}

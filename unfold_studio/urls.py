@@ -18,6 +18,7 @@ from django.conf import settings
 from django.contrib import admin
 from unfold_studio import views
 from profiles import views as profile_views
+from prompts import views as prompt_views
 from django.views.generic.base import RedirectView
 
 favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
@@ -55,6 +56,13 @@ urlpatterns = [
     url(r'books/(?P<pk>\d+)/edit/?$', views.UpdateBookView.as_view(), name="edit_book"), 
     url(r'books/(?P<pk>\d+)/add/(?P<story_id>\d+)/?$', views.AddStoryToBookView.as_view(), name="add_story_to_book"), 
     url(r'books/(?P<pk>\d+)/remove/(?P<story_id>\d+)/?$', views.RemoveStoryFromBookView.as_view(), name="remove_story_from_book"), 
+
+    url(r'prompts/manage/?$', prompt_views.PromptsOwnedListView.as_view(), name="list_prompts_owned"),
+    url(r'prompts/?$', prompt_views.PromptsAssignedListView.as_view(), name="list_prompts_assigned"),
+    url(r'prompts/(?P<pk>\d+)/?$', prompt_views.PromptAssignedDetailView.as_view(), name="show_prompt_assigned"), 
+    url(r'prompts/(?P<pk>\d+)/clear/?$', prompt_views.ClearPromptSubmissionView.as_view(),  
+            name="clear_prompt_submission"), 
+    url(r'prompts/manage/(?P<pk>\d+)/?$', prompt_views.PromptOwnedDetailView.as_view(), name="show_prompt_owned"), 
 
     url(r'require_entry_point.js', views.require_entry_point, name="require_entry_point"),
 ]

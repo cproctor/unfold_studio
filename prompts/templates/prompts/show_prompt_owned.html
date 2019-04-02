@@ -1,0 +1,30 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<h1>{{prompt.name}}</h1>
+<table>
+    <thead>
+        <tr>
+            <td>Assignee</td>
+            <td>Submission</td>
+        </tr>
+        {% for user, story in submissions.items %}
+        <tr>
+            <td><a href="{% url 'show_user' user.username %}">{{user.username}}</a></td>
+            <td>
+                {% if story %}
+                        <a href="{% url 'show_story' story.id %}">{{story.title}}</a>
+                {% else %}
+                    .
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tr>
+    </thead>
+</table>
+
+{% endblock %}
+
+

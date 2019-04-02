@@ -1,0 +1,28 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+
+{% block content %}
+<h1>Prompts</h1>
+<p>When you are assigned a prompt, choose one of your stories to submit.</p>
+<table>
+    <thead>
+        <tr>
+            <td>Prompt</td>
+            <td>Submission</td>
+        </tr>
+    </thead>
+{% for prompt, submission in prompts_with_submissions %}
+    <tr>
+        <td>
+            <a href="{% url 'show_prompt_assigned' prompt.id %}">{{prompt.name}}</a>
+        </td>
+        <td>
+        {% if submission %}
+            <a href="{% url 'show_story' submission.id %}">{{submission.title}}</a>
+        {% else %}
+            No submission
+        {% endif %}
+    </tr>
+{% endfor %}
+</table>
+{% endblock %}

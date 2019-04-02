@@ -154,3 +154,23 @@ a:hover {
 .badge:hover {
    background-color: #e74c3c;
 }
+
+.menu-item a.new-feature {
+    color: #f1c40f !important;
+}
+
+form.link {
+    display: inline; 
+    padding: 0;
+    margin: 0;
+}
+
+form.link input[type=submit] { 
+    border: none; 
+    background: none; 
+    display: inline; 
+    color: #3498db;
+    cursor: pointer;
+    padding: 0;
+    margin: 0;
+}
