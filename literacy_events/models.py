@@ -49,7 +49,7 @@ class LiteracyEvent(models.Model):
         self.validate_unique()
         super().save(*args, **kwargs)
 
-    def __str__(self):
+    def __str__(self, with_prefix=True):
         prefix = "[{}] ".format(self.subject)
         ts = " ({})".format(arrow.get(self.timestamp).format('H:mm a, MMM DD, YYYY'))
         if self.event_type == LiteracyEvent.LOVED_STORY:
@@ -74,7 +74,7 @@ class LiteracyEvent(models.Model):
             body = "{} signed up".format(self.subject)
         else:
             raise ValueError("Unhandled event type: {}".format(self.event_type))
-        return prefix + body + ts
+        return (prefix if with_prefix else '') + body + ts
 
     class Meta:
         indexes = [models.Index(fields=['subject', 'timestamp'])]
@@ -109,6 +109,10 @@ class Notification(models.Model):
     seen = models.BooleanField(default=False)
 
     objects = NotificationManager()
+
+    def __str__(self):
+        return "{} notification for {}: {}".format("Seen" if self.seen else "Unseen", 
+                self.recipient, self.event.__str__(with_prefix=False))
 
     class Meta:
         ordering = ('-event__timestamp',)

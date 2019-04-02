@@ -13,6 +13,9 @@ class Prompt(models.Model):
     submissions = models.ManyToManyField('unfold_studio.Story', through='prompts.PromptStory', 
             related_name='prompts_submitted')
 
+    def __str__(self):
+        return self.name
+
     @property
     def assignees(self):
         return User.objects.filter(groups__prompts_assigned=self)
@@ -27,3 +30,4 @@ class PromptStory(models.Model):
 
     class Meta:
         unique_together = [('prompt', 'story')]
+        verbose_name_plural = "Prompt stories"

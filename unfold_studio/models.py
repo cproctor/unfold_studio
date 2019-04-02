@@ -296,6 +296,7 @@ class Story(models.Model):
 
     class Meta:
         ordering = ['-priority']
+        verbose_name_plural = "Stories"
     
 
 class BookManager(models.Manager):
