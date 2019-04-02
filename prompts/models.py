@@ -6,6 +6,7 @@ from reversion.models import Version
 class Prompt(models.Model):
     name = models.CharField(max_length=400)
     creation_date = models.DateTimeField(auto_now=True)
+    deleted = models.BooleanField(default=False)
     due_date = models.DateTimeField(auto_now=True)
     owners = models.ManyToManyField(User, related_name='prompts_owned')
     assignee_groups = models.ManyToManyField(Group, related_name='prompts_assigned', blank=True)
