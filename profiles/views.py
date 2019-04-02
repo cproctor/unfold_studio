@@ -41,17 +41,17 @@ class UserDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.for_site(site).filter(owner=self.object).all()
         context['stories'] = Story.objects.for_user(site, self.object).filter(author=self.object).all()
-        if self.request.user == self.object:
-            Notification.objects.mark_all_seen_for_user(self.request.user)
-            #context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
-            context['feed'] = self.request.user.notifications.all()[:s.FEED_ITEMS_ON_PROFILE]
-            #context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
-                    #s.FEED_ITEMS_ON_PROFILE)
-            context['feed_continues'] = self.request.user.notifications.count() > s.FEED_ITEMS_ON_PROFILE
-            context['LiteracyEvent'] = LiteracyEvent
-        else:
-            if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
-                messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
+#        if self.request.user == self.object:
+#            Notification.objects.mark_all_seen_for_user(self.request.user)
+#            #context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
+#            context['feed'] = self.request.user.notifications.all()[:s.FEED_ITEMS_ON_PROFILE]
+#            #context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
+#                    #s.FEED_ITEMS_ON_PROFILE)
+#            context['feed_continues'] = self.request.user.notifications.count() > s.FEED_ITEMS_ON_PROFILE
+#            context['LiteracyEvent'] = LiteracyEvent
+#        else:
+#            if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
+#                messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
             
         log.info("{} viewed {}'s profile".format(un(self.request), self.object.username))
         return context
