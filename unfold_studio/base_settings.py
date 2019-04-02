@@ -69,7 +69,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'profiles.context_processors.unseen_events',
+                #'profiles.context_processors.unseen_events',
                 'prompts.context_processors.user_prompts',
                 'unfold_studio.context_processors.documentation_urls',
                 'social_django.context_processors.backends', 
