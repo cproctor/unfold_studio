@@ -8,11 +8,13 @@
     <thead>
         <tr>
             <td>Assignee</td>
+            <td>Group</td>
             <td>Submission</td>
         </tr>
-        {% for user, story in submissions.items %}
+        {% for user, group, story in submissions %}
         <tr>
             <td><a href="{% url 'show_user' user.username %}">{{user.username}}</a></td>
+            <td>{{group}}</td>
             <td>
                 {% if story %}
                         <a href="{% url 'show_story' story.id %}">{{story.title}}</a>

@@ -111,6 +111,10 @@ class PromptOwnedDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         submissions = self.get_object().submissions.all()
         submissionsByUsername = {s.author.username : s for s in submissions}
-        context['submissions'] = {user : submissionsByUsername.get(user.username) 
-                for user in self.get_object().assignees.all()}
+        gn = lambda groups: ", ".join(g.name for g in groups)
+        submissionData = [
+            (user, gn(user.groups.all()), submissionsByUsername.get(user.username)) 
+            for user in self.get_object().assignees.prefetch_related('groups').all()
+        ]
+        context['submissions'] = sorted(submissionData, key=lambda s: (s[1], s[0].username))
         return context
