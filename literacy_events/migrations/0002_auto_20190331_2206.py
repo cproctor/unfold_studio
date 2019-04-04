@@ -61,9 +61,9 @@ def drop_literacy_events(apps, schema_editor):
     "Deletes all LitearcyEvents and Notifications"
     LiteracyEvent = apps.get_model('literacy_events', 'LiteracyEvent')
     Notification = apps.get_model('literacy_events', 'Notification')
-    for e in LiteracyEvent.objects.all():
+    for e in LiteracyEvent.objects.iterator():
         e.delete()
-    for n in Notification.objects.all():
+    for n in Notification.objects.iterator():
         n.delete()
 
 class Migration(migrations.Migration):
