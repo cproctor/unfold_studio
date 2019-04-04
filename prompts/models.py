@@ -1,11 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
 from reversion.models import Version
+from django.utils import timezone
 
 # Create your models here.
 class Prompt(models.Model):
     name = models.CharField(max_length=400)
-    creation_date = models.DateTimeField(auto_now=True)
+    creation_date = models.DateTimeField(default=timezone.now)
     deleted = models.BooleanField(default=False)
     due_date = models.DateTimeField(auto_now=True)
     owners = models.ManyToManyField(User, related_name='prompts_owned')
