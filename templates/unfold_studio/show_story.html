@@ -18,7 +18,7 @@
 {% if story.public %}
     Public story
 {% else %}
-    by {{story.author}} 
+    by <a href="{% url 'show_user' story.author.username %}">{{story.author}}</a>
 {% endif %}
 {% if request.user.is_authenticated and request.user.profile in story.loves.all %}
     {% if story.loves.count > 1 %}
