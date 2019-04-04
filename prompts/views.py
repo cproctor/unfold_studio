@@ -51,14 +51,14 @@ class PromptAssignedDetailView(DetailView):
         form = PromptSubmissionForm()
         form.fields['story'].choices = [(s.id, s.title) for s in self.request.user.stories.all()]
         context['form'] = form
-        context['submission'] = self.get_object().submissions.filter(author=self.request.user).first()
+        context['submission'] = self.get_object().submissions.for_request(self.request).filter(author=self.request.user).first()
         return context
 
     def post(self, *args, **kwargs):
         form = PromptSubmissionForm(self.request.POST)
         form.fields['story'].choices = [(s.id, s.title) for s in self.request.user.stories.all()]
         if form.is_valid():
-            story = Story.objects.get(pk=form.cleaned_data['story'])
+            story = Story.objects.get_editable_for_request_or_404(self.request, pk=form.cleaned_data['story'])
             version = Version.objects.get_for_object(story).last()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
                     submitted_story_version=version)
@@ -97,8 +97,6 @@ class ClearPromptSubmissionView(SingleObjectMixin, View):
     def get_queryset(self):
         return Prompt.objects.filter(assignee_groups__user=self.request.user)
 
-        
-        
 class PromptOwnedDetailView(DetailView):
     model = Prompt
     context_object_name = 'prompt'
@@ -109,7 +107,7 @@ class PromptOwnedDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        submissions = self.get_object().submissions.all()
+        submissions = self.get_object().submissions.for_request(self.request).all()
         submissionsByUsername = {s.author.username : s for s in submissions}
         gn = lambda groups: ", ".join(g.name for g in groups)
         submissionData = [

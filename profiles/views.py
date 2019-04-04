@@ -37,10 +37,9 @@ class UserDetailView(DetailView):
             return 'profiles/user_detail.html'
 
     def get_context_data(self, **kwargs):
-        site = get_current_site(self.request)
         context = super().get_context_data(**kwargs)
-        context['books'] = Book.objects.for_site(site).filter(owner=self.object).all()
-        context['stories'] = Story.objects.for_user(site, self.object).filter(author=self.object).all()
+        context['books'] = Book.objects.for_request(self.request).filter(owner=self.object).all()
+        context['stories'] = Story.objects.for_request(self.request).filter(author=self.object).all()
         if self.request.user == self.object:
             Notification.objects.mark_all_seen_for_user(self.request.user)
             context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]

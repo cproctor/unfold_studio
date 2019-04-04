@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
+from django.contrib.sites.shortcuts import get_current_site
 from profiles.models import Profile
 import reversion
 from django.conf import settings
@@ -14,6 +15,8 @@ import os
 import subprocess
 import math
 from django.utils import timezone
+from django.contrib.sites.shortcuts import get_current_site
+from django.http import Http404                         
 
 log = logging.getLogger(__name__)
 
@@ -30,13 +33,37 @@ class StoryManager(models.Manager):
         """
         return self.valid().filter(sites=site)
 
-    def for_user(self, site, user):
+    def for_request(self, request):
         "Returns stories which are visible to the current request"
+        user = request.user
+        site = get_current_site(request)
         return self.for_site(site).filter(
             Q(shared=True) | 
             Q(public=True) |
+            Q(prompts_submitted__owners=user) |
             Q(author=user)
         )
+
+    def editable_for_request(self, request):
+        "Returns stories which are visible to the current request"
+        user = request.user
+        site = get_current_site(request)
+        return self.for_site(site).filter(
+            Q(public=True) |
+            Q(author=user)
+        )
+
+    def get_for_request_or_404(self, request, **kwargs):
+        try:
+            return self.for_request(request).get(**kwargs)
+        except (Story.DoesNotExist, Story.MultipleObjectsReturned):
+            raise Http404
+
+    def get_editable_for_request_or_404(self, request, **kwargs):
+        try:
+            return self.editable_for_request(request).get(**kwargs)
+        except (Story.DoesNotExist, Story.MultipleObjectsReturned):
+            raise Http404
 
 @reversion.register()
 class Story(models.Model):
@@ -303,11 +330,17 @@ class BookManager(models.Manager):
     def valid(self):
         "Returns non-deleted objects"
         return self.get_queryset().filter(deleted=False)
+
     def for_site(self, site):
         """
         Returns only books in the current scope--that is, those associated with a site and not deleted.
         """
         return self.valid().filter(sites=site)
+
+    def for_request(self, request):
+        "Returns books which are visible to the current request"
+        site = get_current_site(request)
+        return self.for_site(site)
 
 class Book(models.Model):
     title = models.CharField(max_length=400)

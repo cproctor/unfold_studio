@@ -29,44 +29,19 @@ from literacy_events.models import LiteracyEvent
 
 log = logging.getLogger(__name__)    
 
-def get_story(request, story_id, to_edit=False):
-    """
-    Returns a story. 
-    If `to_edit`, requires that the story be public or owned by the current user.
-    Otherwise, requires that the story be public, shared, or owned by the current user.
-    """
-    access_allowed = Q(public=True)
-    if request.user.is_authenticated:
-        access_allowed |= Q(author=request.user)
-    if not to_edit:
-        access_allowed |= Q(shared=True)
-    try:
-        return Story.objects.get(
-            access_allowed, 
-            id=story_id,
-            sites__id=get_current_site(request).id,
-            deleted=False
-        )
-    except Story.DoesNotExist:
-        raise Http404()
-
 def u(request):
     "Helper to return username"
     return request.user.username if request.user.is_authenticated else "<anonymous>"
 
 def home(request):
     "The homepage shows a subset of stories with the highest priority."
-    stories = Story.objects.filter(shared=True, deleted=False)[:s.STORIES_ON_HOMEPAGE]
+    stories = Story.objects.for_request(request)[:s.STORIES_ON_HOMEPAGE]
     log.info("{} visited homepage".format(u(request)))
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
     "Shows all stories, sorted by priority. Someday, I'll need to paginate this."
-    stories = Story.objects.filter(
-        Q(shared=True) | Q(public=True), 
-        sites__id=get_current_site(request).id,
-        deleted=False
-    ).all()
+    stories = Story.objects.for_request(request).all()
     paginator = Paginator(stories, s.STORIES_PER_PAGE)
     page = request.GET.get('page')
     try:
@@ -112,7 +87,7 @@ def new_story(request):
     return render(request, 'unfold_studio/new_story.html', {'form': form})
 
 def edit_story(request, story_id):
-    story = get_story(request, story_id)
+    story = Story.objects.get_editable_for_request_or_404(request, pk=story_id)
     story.edit_date = now()
     if request.method == "POST":
         form = StoryForm(request.POST, instance=story)
@@ -129,7 +104,7 @@ def edit_story(request, story_id):
 
 def compile_story(request, story_id):
     "This is the route used to update story "
-    story = get_story(request, story_id, to_edit=True)
+    story = Story.objects.get_editable_for_request_or_404(request, pk=story_id)
     story.edit_date = now()
     story.ink = request.POST['ink']
     story.compile()
@@ -145,7 +120,8 @@ def compile_story(request, story_id):
     return JsonResponse(story.for_json())
 
 def show_story(request, story_id):
-    story = get_story(request, story_id)
+    "Shows a story, using the same view regardless of whether it can be edited by the user"
+    story = Story.objects.get_for_request_or_404(request, pk=story_id)
     editable = int(story.author == request.user or story.public)
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
     if story.author == request.user:
@@ -158,21 +134,24 @@ def show_story(request, story_id):
             'addableBooks': addableBooks})
 
 def show_json(request, story_id):
-    story = get_story(request, story_id)
+    story = Story.objects.get_for_request_or_404(request, pk=story_id)
     return JsonResponse(story.for_json())
 
 def show_ink(request, story_id):
-    story = get_story(request, story_id)
+    story = Story.objects.get_for_request_or_404(request, pk=story_id)
     return render(request, 'unfold_studio/show_ink.html', {'story': story})
 
+#DEPRECATED
 def about(request):
-    story = get_story(request, s.ABOUT_STORY_ID)
+    story = Story.objects.get_for_request_or_404(request, pk=s.ABOUT_STORY_ID)
     return render(request, 'unfold_studio/staticpage.html', {'story': story})
 
+#DEPRECATED
 def for_teachers(request):
-    story = get_story(request, s.TEACHERS_STORY_ID)
+    story = Story.objects.get_for_request_or_404(request, pk=s.TEACHERS_STORY_ID)
     return render(request, 'unfold_studio/staticpage.html', {'story': story})
 
+#DEPRECATED
 def documentation(request):
     return render(request, 'unfold_studio/documentation.html')
 
@@ -197,7 +176,7 @@ class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
     verb = "<undefined verb>"
 
     def get_queryset(self):
-        return Story.objects.for_site(get_current_site(self.request))
+        return Story.objects.for_request(self.request)
 
     def log_action(self, request):
         story = self.get_object()
@@ -354,8 +333,7 @@ class BookDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user if self.request.user.is_authenticated else None
-        context['stories'] =  self.get_object().stories.for_user(
-                get_current_site(self.request), user)
+        context['stories'] = self.get_object().stories.for_request(self.request)
         return context
 
 class UpdateBookView(UpdateView):
@@ -364,7 +342,7 @@ class UpdateBookView(UpdateView):
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
-            return Book.objects.filter(owner=self.request.user)
+            return Book.objects.for_request(self.request).filter(owner=self.request.user)
         else:
             raise Http404()
 
