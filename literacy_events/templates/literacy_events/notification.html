@@ -1,7 +1,7 @@
 {% load app_filters %}
 <li class="event">
 {% with event=notification.event viewer=notification.recipient %}
-{% with subjectUser=event.subject story=event.story book=event.book objectUser=event.object_user %}
+{% with subjectUser=event.subject story=event.story book=event.book objectUser=event.object_user prompt=event.prompt %}
     {% if event.event_type == LiteracyEvent.LOVED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         loved 
@@ -20,6 +20,10 @@
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         published 
         {% include 'literacy_events/story.html' %}
+    {% elif event.event_type == LiteracyEvent.UNPUBLISHED_STORY %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        stopped sharing 
+        {% include 'literacy_events/story.html' %}
     {% elif event.event_type == LiteracyEvent.PUBLISHED_BOOK %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         published 
@@ -30,13 +34,39 @@
         {% include 'literacy_events/story.html' %} 
         to 
         {% include 'literacy_events/book.html' %}
+    {% elif event.event_type == LiteracyEvent.REMOVED_STORY_FROM_BOOK %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        removed 
+        {% include 'literacy_events/story.html' %} 
+        from
+        {% include 'literacy_events/book.html' %}
     {% elif event.event_type == LiteracyEvent.FOLLOWED %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         started following 
-        {% include 'literacy_events/user.html' with user=objectUser objectPosition=True%} 
+        {% include 'literacy_events/user.html' with user=objectUser objectPosition=True %} 
+    {% elif event.event_type == LiteracyEvent.UNFOLLOWED %}
+        {% include 'literacy_events/user.html' with user=subjectUser %} 
+        stopped following 
+        {% include 'literacy_events/user.html' with user=objectUser objectPosition=True %} 
     {% elif event.event_type == LiteracyEvent.SIGNED_UP %}
         {% include 'literacy_events/user.html' with user=subjectUser%} 
         joined Unfold Studio
+    {% elif event.event_type == LiteracyEvent.CREATED_PROMPT %}
+        {% include 'literacy_events/user.html' with user=subjectUser%} 
+        created
+        {% include 'literacy_events/prompt.html' %}
+    {% elif event.event_type == LiteracyEvent.SUBMITTED_TO_PROMPT %}
+        {% include 'literacy_events/user.html' with user=subjectUser%} 
+        submitted 
+        {% include 'literacy_events/story.html' %}
+        to
+        {% include 'literacy_events/prompt.html' %}
+    {% elif event.event_type == LiteracyEvent.UNSUBMITTED_FROM_PROMPT %}
+        {% include 'literacy_events/user.html' with user=subjectUser%} 
+        removed 
+        {% include 'literacy_events/story.html' %}
+        from
+        {% include 'literacy_events/prompt.html' %}
     {% else %}
         Error displaying [{{event}}]
     {% endif %}

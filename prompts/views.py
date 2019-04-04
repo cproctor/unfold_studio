@@ -7,6 +7,7 @@ from prompts.forms import PromptSubmissionForm
 from unfold_studio.models import Story
 from reversion.models import Version
 import logging
+from literacy_events.models import LiteracyEvent
 
 log = logging.getLogger(__name__)    
 
@@ -62,6 +63,12 @@ class PromptAssignedDetailView(DetailView):
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
                     submitted_story_version=version)
             log.info("{} submitted story {} to prompt {}".format(u(self.request), story, self.get_object()))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.SUBMITTED_TO_PROMPT,
+                subject=self.request.user,
+                story=story,
+                prompt=self.get_object()
+            )
             return redirect('show_prompt_assigned', self.get_object().id)
         else:
             context = self.get_context_data()
@@ -79,6 +86,12 @@ class ClearPromptSubmissionView(SingleObjectMixin, View):
         story = ps.story
         ps.delete()
         log.info("{} cleared submitted story {} from prompt {}".format(u(self.request), story, self.get_object()))
+        LiteracyEvent.objects.create(
+            event_type=LiteracyEvent.UNSUBMITTED_FROM_PROMPT,
+            subject=self.request.user,
+            story=story,
+            prompt=self.get_object()
+        )
         return redirect('show_prompt_assigned', prompt.id)
 
     def get_queryset(self):

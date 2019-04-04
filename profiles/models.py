@@ -13,6 +13,7 @@ class Profile(models.Model):
     def __str__(self):
         return self.user.username
 
+# DEPRECATED! USE LITERACY EVENTS INSTEAD
 class Event(models.Model):
     "Things that show up in a user's feed"
 

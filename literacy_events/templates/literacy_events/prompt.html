@@ -1,0 +1,5 @@
+{% if viewer in prompt.owners.all %}
+prompt <a href="{% url 'show_prompt_owned' prompt.id %}">{{prompt.name}}</a>
+{% else %}
+prompt <a href="{% url 'show_prompt_assigned' prompt.id %}">{{prompt.name}}</a>
+{% endif %}

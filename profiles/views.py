@@ -41,17 +41,15 @@ class UserDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.for_site(site).filter(owner=self.object).all()
         context['stories'] = Story.objects.for_user(site, self.object).filter(author=self.object).all()
-#        if self.request.user == self.object:
-#            Notification.objects.mark_all_seen_for_user(self.request.user)
-#            #context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
-#            context['feed'] = self.request.user.notifications.all()[:s.FEED_ITEMS_ON_PROFILE]
-#            #context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
-#                    #s.FEED_ITEMS_ON_PROFILE)
-#            context['feed_continues'] = self.request.user.notifications.count() > s.FEED_ITEMS_ON_PROFILE
-#            context['LiteracyEvent'] = LiteracyEvent
-#        else:
-#            if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
-#                messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
+        if self.request.user == self.object:
+            Notification.objects.mark_all_seen_for_user(self.request.user)
+            context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
+            context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
+                    s.FEED_ITEMS_ON_PROFILE)
+            context['LiteracyEvent'] = LiteracyEvent
+        else:
+            if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
+                messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
             
         log.info("{} viewed {}'s profile".format(un(self.request), self.object.username))
         return context
@@ -68,8 +66,7 @@ class FeedView(DetailView):
             raise Http404()
         Notification.objects.mark_all_seen_for_user(self.request.user)
         context['LiteracyEvent'] = LiteracyEvent
-        #notifications = Notification.objects.for_user(self.request.user)
-        notifications = self.request.user.notifications.all()
+        notifications = Notification.objects.for_user(self.request.user)
         paginator = Paginator(notifications, s.FEED_ITEMS_PER_PAGE)
         try:
             context['feed'] = paginator.page(self.request.GET.get('page'))
@@ -90,6 +87,11 @@ class FollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
         else:
             self.request.user.profile.following.add(u.profile)
             messages.success(self.request, "You are now following {}".format(u.username))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.FOLLOWED,
+                subject=self.request.user,
+                object_user=u
+            )
             log.info("{} followed {}".format(un(self.request), u.username))
         return redirect('show_user', u)
         
@@ -104,6 +106,11 @@ class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
         else:
             self.request.user.profile.following.remove(u.profile)
             messages.success(self.request, "You stopped following {}".format(u.username))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.UNFOLLOWED,
+                subject=self.request.user,
+                object_user=u
+            )
             log.info("{} unfollowed {}".format(un(self.request), u.username))
         return redirect('show_user', u)
         

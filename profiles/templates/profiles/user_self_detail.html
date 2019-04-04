@@ -3,7 +3,6 @@
 
 {% block content %}
     <h1>{{user.username}}</h1>
-    {% comment %}
     <div class="feed">
         <h2>Feed</h2>
         <ul>
@@ -15,7 +14,6 @@
             <p><a href="{% url 'show_feed' user.username %}">More...</a></p>
         {% endif %}
     </div>
-    {% endcomment %}
     <div>
         <h2>Stories</h2>
         <ul>

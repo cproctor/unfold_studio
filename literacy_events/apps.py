@@ -6,4 +6,4 @@ class LiteracyEventsConfig(AppConfig):
 
     def ready(self):
         "Signal receivers with the @receiver decorator will be connected"
-        #import literacy_events.signals
+        import literacy_events.signals

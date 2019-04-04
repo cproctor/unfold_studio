@@ -4,6 +4,18 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q
 import arrow
 
+class LiteracyEventManager(models.Manager):
+    def similar(self, e):
+        "Returns all similar events"
+        return LiteracyEvent.objects.filter(
+            event_type=e.event_type, 
+            subject=e.subject,
+            story=e.story,
+            book=e.book,
+            prompt=e.prompt,
+            object_user=e.object_user
+        )
+
 class LiteracyEvent(models.Model):
     """
     Represents significant things that happen at the user level.
@@ -15,24 +27,32 @@ class LiteracyEvent(models.Model):
     COMMENTED_ON_STORY              = '1'
     FORKED_STORY                    = '2'
     PUBLISHED_STORY                 = '3'
+    UNPUBLISHED_STORY               = 'b'
     PUBLISHED_BOOK                  = '4'
     ADDED_STORY_TO_BOOK             = '5'
+    REMOVED_STORY_FROM_BOOK         = '9'
     FOLLOWED                        = '6'
     UNFOLLOWED                      = 'a'
     SIGNED_UP                       = '8'
-    REMOVED_STORY_FROM_BOOK         = '9'
+    CREATED_PROMPT                  = 'c'
+    SUBMITTED_TO_PROMPT             = 'd'
+    UNSUBMITTED_FROM_PROMPT         = 'e'
 
     EVENT_TYPES = (
         (LOVED_STORY, "loved story"),
         (COMMENTED_ON_STORY, "commented on story"),
         (FORKED_STORY, "forked a story"),
         (PUBLISHED_STORY, "published story"),
+        (PUBLISHED_STORY, "unpublished story"),
         (PUBLISHED_BOOK, "published book"),
         (ADDED_STORY_TO_BOOK, "added story to book"),
         (REMOVED_STORY_FROM_BOOK, "removed story from book"),
         (FOLLOWED, "followed"),
         (UNFOLLOWED, "unfollowed"),
-        (SIGNED_UP, "signed up")
+        (SIGNED_UP, "signed up"),
+        (CREATED_PROMPT, "created prompt"),
+        (SUBMITTED_TO_PROMPT, "submitted to prompt"),
+        (UNSUBMITTED_FROM_PROMPT, "unsubmitted from prompt")
     )
     
     timestamp = models.DateTimeField(default=timezone.now)
@@ -42,8 +62,12 @@ class LiteracyEvent(models.Model):
             related_name='literacy_events')
     story = models.ForeignKey('unfold_studio.Story', null=True, blank=True, on_delete=models.CASCADE, 
             related_name='literacy_events')
+    prompt = models.ForeignKey('prompts.Prompt', null=True, blank=True, on_delete=models.CASCADE,
+            related_name='literacy_events')
     object_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.CASCADE, 
             related_name='literacy_events_as_object')
+
+    objects = LiteracyEventManager()
 
     def save(self, *args, **kwargs):
         self.validate_unique()
@@ -60,6 +84,8 @@ class LiteracyEvent(models.Model):
             body = "{} forked '{}'".format(self.subject, self.story.title)
         elif self.event_type == LiteracyEvent.PUBLISHED_STORY:
             body = "{} published '{}'".format(self.subject, self.story.title)
+        elif self.event_type == LiteracyEvent.UNPUBLISHED_STORY:
+            body = "{} unpublished '{}'".format(self.subject, self.story.title)
         elif self.event_type == LiteracyEvent.PUBLISHED_BOOK:
             body = "{} published book '{}'".format(self.subject, self.book)
         elif self.event_type == LiteracyEvent.ADDED_STORY_TO_BOOK:
@@ -72,6 +98,12 @@ class LiteracyEvent(models.Model):
             body = "{} unfollowed {}".format(self.subject, self.object_user)
         elif self.event_type == LiteracyEvent.SIGNED_UP:
             body = "{} signed up".format(self.subject)
+        elif self.event_type == LiteracyEvent.CREATED_PROMPT:
+            body = "{} created prompt {}".format(self.subject, self.prompt)
+        elif self.event_type == LiteracyEvent.SUBMITTED_TO_PROMPT:
+            body = "{} submitted {} to prompt {}".format(self.subject, self.story, self.prompt)
+        elif self.event_type == LiteracyEvent.UNSUBMITTED_FROM_PROMPT:
+            body = "{} unsubmitted {} from prompt {}".format(self.subject, self.story, self.prompt)
         else:
             raise ValueError("Unhandled event type: {}".format(self.event_type))
         return (prefix if with_prefix else '') + body + ts
@@ -86,7 +118,7 @@ class NotificationManager(models.Manager):
         "Returns notifications for which no subject or object is disabled or deleted"
         return self.get_queryset().filter(
             (Q(event__story__deleted=False) & Q(event__story__author__is_active=True)) | Q(event__story__isnull=True),
-            (Q(event__book__deleted=False) & Q(event__book__owner__is_active=True)) | Q(event__story__isnull=True),
+            (Q(event__book__deleted=False) & Q(event__book__owner__is_active=True)) | Q(event__book__isnull=True),
             Q(event__subject__is_active=True) | Q(event__subject__isnull=True),
             Q(event__object_user__is_active=True) | Q(event__object_user__isnull=True)
         )

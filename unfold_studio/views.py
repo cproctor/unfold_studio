@@ -7,7 +7,6 @@ from django.http import JsonResponse
 from django.contrib.auth import login
 import json
 import logging
-import re
 from .forms import StoryForm
 from .models import Story, Book
 from profiles.models import Profile
@@ -26,6 +25,7 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger
 from unfold_studio.mixins import StoryMixin
+from literacy_events.models import LiteracyEvent
 
 log = logging.getLogger(__name__)    
 
@@ -196,20 +196,17 @@ class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
     slug_field = 'id'
     verb = "<undefined verb>"
 
-    def get_object(self, queryset=None):
-        story = super().get_object(queryset)
-        if story.deleted:
-            raise Http404()
-        return story
+    def get_queryset(self):
+        return Story.objects.for_site(get_current_site(self.request))
 
     def log_action(self, request):
         story = self.get_object()
         if story.public:
-            log.info("{} loved story {} (id {}; public)".format(u(request), story.title, story.id))
+            log.info("{} {} story {} (id {}; public)".format(u(request), self.verb, story.title, story.id))
         elif story.author == request.user:
-            log.info("{} loved story {} (id {}; own story)".format(u(request), story.title, story.id))
+            log.info("{} {} story {} (id {}; own story)".format(u(request), self.verb, story.title, story.id))
         else:
-            log.info("{} loved story {} (id {}; by {})".format(u(request), story.title, story.id, story.author.username))
+            log.info("{} {} story {} (id {}; by {})".format(u(request), self.verb, story.title, story.id, story.author.username))
 
 class LoveStoryView(StoryMethodView):
     verb = "loved"
@@ -221,7 +218,11 @@ class LoveStoryView(StoryMethodView):
             messages.warning(self.request, "You can't love your own stories.".format(story.title))
         else:
             story.loves.add(self.request.user.profile)
-            #messages.success(self.request, "You loved '{}'".format(story.title))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.LOVED_STORY, 
+                subject=self.request.user,
+                story=story
+            )
             self.log_action(request)
         return redirect('show_story', story.id)
         
@@ -248,6 +249,11 @@ class ForkStoryView(StoryMethodView):
         story.sites.add(get_current_site(self.request))
         #messages.success(self.request, "You have forked '{}'".format(story.title))
         self.log_action(request)
+        LiteracyEvent.objects.create(
+            event_type=LiteracyEvent.FORKED_STORY,
+            subject=request.user,
+            story=story
+        )
         return redirect('show_story', story.id)
 
 class DeleteStoryView(StoryMethodView):
@@ -279,6 +285,11 @@ class ShareStoryView(StoryMethodView):
             story.save()
             self.log_action(request)
             #messages.success(request, "You shared '{}'".format(story.title))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.PUBLISHED_STORY,
+                subject=request.user,
+                story=story
+            )
         return redirect('show_story', story.id)
 
 class UnshareStoryView(StoryMethodView):
@@ -293,6 +304,11 @@ class UnshareStoryView(StoryMethodView):
             story.shared = False
             story.save()
             self.log_action(request)
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.UNPUBLISHED_STORY,
+                subject=request.user,
+                story=story
+            )
             #messages.success(request, "You unshared '{}'".format(story.title))
         return redirect('show_story', story.id)
 
@@ -311,6 +327,12 @@ class CreateBookView(LoginRequiredMixin, CreateView):
         if form.is_valid():
             book = form.save()
             book.sites.add(get_current_site(request))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.PUBLISHED_BOOK,
+                subject=request.user,
+                book=book
+            )
+            log.info("{} created book {} (id {})".format(request.user, book.title, book.id))
             return redirect('show_book', book.id)
         else:
             context = self.get_context_data(form=form)
@@ -367,6 +389,12 @@ class AddStoryToBookView(LoginRequiredMixin, StoryMixin, DetailView):
             messages.success(self.request, "You added {}".format(story.title))
             log.info("{} added {} ({}) to book {} ({})".format(
                     u(request), story.title, story.id, book.title, book.id))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.ADDED_STORY_TO_BOOK,
+                subject=request.user,
+                story=story,
+                book=book
+            )
         return redirect('show_book', book.id)
             
 class RemoveStoryFromBookView(LoginRequiredMixin, StoryMixin, DetailView):
@@ -377,6 +405,12 @@ class RemoveStoryFromBookView(LoginRequiredMixin, StoryMixin, DetailView):
         messages.success(self.request, "You removed {}".format(story.title))
         log.info("{} removed {} ({}) from book {} ({})".format(
                 u(request), story.title, story.id, book.title, book.id))
+        LiteracyEvent.objects.create(
+            event_type=LiteracyEvent.REMOVED_STORY_FROM_BOOK,
+            subject=request.user,
+            story=story,
+            book=book
+        )
         return redirect('show_book', book.id)
 
 def require_entry_point(request):
