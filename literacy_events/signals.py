@@ -51,7 +51,7 @@ def get_recipients(e):
     elif e.event_type == LiteracyEvent.UNSUBMITTED_FROM_PROMPT:
         return set(subject(e) + prompt_owners(e))
     else:
-        log.warning("No notifications created for {}".format(e))
+        log.debug("No notifications created for {}".format(e))
         return []
 
 def subject(e):
