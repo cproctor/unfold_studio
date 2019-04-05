@@ -37,21 +37,30 @@ class StoryManager(models.Manager):
         "Returns stories which are visible to the current request"
         user = request.user
         site = get_current_site(request)
-        return self.for_site(site).filter(
-            Q(shared=True) | 
-            Q(public=True) |
-            Q(prompts_submitted__owners=user) |
-            Q(author=user)
-        )
+        if user.is_authenticated:
+            return self.for_site(site).filter(
+                Q(shared=True) | 
+                Q(public=True) |
+                Q(prompts_submitted__owners=user) |
+                Q(author=user)
+            )
+        else:
+            return self.for_site(site).filter(
+                Q(shared=True) | 
+                Q(public=True) 
+            )
 
     def editable_for_request(self, request):
         "Returns stories which are visible to the current request"
         user = request.user
         site = get_current_site(request)
-        return self.for_site(site).filter(
-            Q(public=True) |
-            Q(author=user)
-        )
+        if user.is_authenticated:
+            return self.for_site(site).filter(
+                Q(public=True) |
+                Q(author=user)
+            )
+        else:
+            return self.for_site(site).filter(public=True)
 
     def get_for_request_or_404(self, request, **kwargs):
         try:
