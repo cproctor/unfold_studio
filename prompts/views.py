@@ -107,7 +107,7 @@ class PromptOwnedDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        submissions = self.get_object().submissions.for_request(self.request).all()
+        submissions = self.get_object().submissions.for_request(self.request).distinct()
         submissionsByUsername = {s.author.username : s for s in submissions}
         gn = lambda groups: ", ".join(g.name for g in groups)
         submissionData = [
