@@ -43,12 +43,12 @@ class StoryManager(models.Manager):
                 Q(public=True) |
                 Q(prompts_submitted__owners=user) |
                 Q(author=user)
-            )
+            ).distinct()
         else:
             return self.for_site(site).filter(
                 Q(shared=True) | 
                 Q(public=True) 
-            )
+            ).distinct()
 
     def editable_for_request(self, request):
         "Returns stories which are visible to the current request"
