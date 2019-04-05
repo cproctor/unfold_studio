@@ -111,6 +111,7 @@
     STORY_ID = {{story.id}};
     CSRF = "{{csrf_token}}";
     EDITABLE = {{editable}};
+    LOG_READING_URL = "{% url 'log_reading_event' %}";
 </script>
 <script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
 

@@ -37,6 +37,7 @@ class LiteracyEvent(models.Model):
     CREATED_PROMPT                  = 'c'
     SUBMITTED_TO_PROMPT             = 'd'
     UNSUBMITTED_FROM_PROMPT         = 'e'
+    STORY_READING                   = 'f'
 
     EVENT_TYPES = (
         (LOVED_STORY, "loved story"),
@@ -52,7 +53,8 @@ class LiteracyEvent(models.Model):
         (SIGNED_UP, "signed up"),
         (CREATED_PROMPT, "created prompt"),
         (SUBMITTED_TO_PROMPT, "submitted to prompt"),
-        (UNSUBMITTED_FROM_PROMPT, "unsubmitted from prompt")
+        (UNSUBMITTED_FROM_PROMPT, "unsubmitted from prompt"),
+        (STORY_READING, "story knot read"),
     )
     
     timestamp = models.DateTimeField(default=timezone.now)
@@ -66,6 +68,7 @@ class LiteracyEvent(models.Model):
             related_name='literacy_events')
     object_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.CASCADE, 
             related_name='literacy_events_as_object')
+    extra = models.TextField(blank=True, null=True)
 
     objects = LiteracyEventManager()
 
@@ -104,6 +107,8 @@ class LiteracyEvent(models.Model):
             body = "{} submitted {} to prompt {}".format(self.subject, self.story, self.prompt)
         elif self.event_type == LiteracyEvent.UNSUBMITTED_FROM_PROMPT:
             body = "{} unsubmitted {} from prompt {}".format(self.subject, self.story, self.prompt)
+        elif self.event_type == LiteracyEvent.STORY_READING:
+            body = "{} read {} with path {}".format(self.subject, self.story, self.extra)
         else:
             raise ValueError("Unhandled event type: {}".format(self.event_type))
         return (prefix if with_prefix else '') + body + ts

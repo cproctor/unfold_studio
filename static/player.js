@@ -19,8 +19,11 @@ InkPlayer.prototype = {
         this.continueStory();
     },
     continueStory: function() {
+        const self = this;
         this.events.renderWillStart.bind(this)();
-        if (!this.running) return;
+        if (!this.running) {
+            return;
+        }
         var text = [];
         while (this.story.canContinue) { 
             try {
@@ -32,14 +35,33 @@ InkPlayer.prototype = {
         }
         if (!this.running) return;
         text.forEach(this.events.addText, this);
-        this.story.currentChoices.forEach(function(choice, i) {
-            this.events.addChoice.bind(this)(choice, i, text);
-        }, this);
-        this.events.renderDidEnd.bind(this)();
+        if (this.story.currentChoices.length > 0) {
+            this.story.currentChoices.forEach(function(choice, i) {
+                this.events.addChoice.bind(self)(choice, i, text);
+            }, this);
+            this.events.renderDidEnd.bind(this)();
+        }
+        else {
+            this.logPath();
+        }
     },
     stop: function() { 
         this.timeouts.forEach(clearTimeout);
         this.running = false;
+    },
+    logPath: function() {
+        const path = Array.from(this.story.state.turnIndices.keys()).join(';');
+        console.log(path);
+        return $.ajax(LOG_READING_URL, {
+            beforeSend: function(xhr) { 
+                xhr.setRequestHeader("X-CSRFToken", CSRF);
+            },
+            method: 'POST',
+            data: {
+                'story': parseInt(STORY_ID),
+                'path': path
+            }
+        })
     },
     events: {
         prepareToPlay: function() {

@@ -19,6 +19,7 @@ from django.contrib import admin
 from unfold_studio import views
 from profiles import views as profile_views
 from prompts import views as prompt_views
+from literacy_events import views as literacy_event_views
 from django.views.generic.base import RedirectView
 
 favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
@@ -63,6 +64,8 @@ urlpatterns = [
     url(r'prompts/(?P<pk>\d+)/clear/?$', prompt_views.ClearPromptSubmissionView.as_view(),  
             name="clear_prompt_submission"), 
     url(r'prompts/manage/(?P<pk>\d+)/?$', prompt_views.PromptOwnedDetailView.as_view(), name="show_prompt_owned"), 
+
+    url(r'reading/?', literacy_event_views.LogReadingEvent.as_view(), name="log_reading_event"),
 
     url(r'require_entry_point.js', views.require_entry_point, name="require_entry_point"),
 ]
