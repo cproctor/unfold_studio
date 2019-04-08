@@ -11,6 +11,8 @@ class SignUpForm(UserCreationForm):
     def clean_username(self):
         if not re.match(r'^[0-9a-zA-Z_]+$', self.cleaned_data['username']):
             raise ValidationError("Only letters, numbers, and _ are allowed in usernames")
+        if not re.match(r'^[a-zA-Z][0-9a-zA-Z_]+$', self.cleaned_data['username']):
+            raise ValidationError("Usernames must start with a letter")
         return self.cleaned_data['username']
 
     def clean_email(self):
