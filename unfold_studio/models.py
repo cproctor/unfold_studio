@@ -25,8 +25,8 @@ class StoryManager(models.Manager):
     def valid(self):
         "Returns non-deleted objects"
         return self.get_queryset().filter(
-            deleted=False, 
-            Q(public=True) | Q(author__active=True)
+            Q(public=True) | Q(author__active=True),
+            deleted=False
         )
 
     def for_site(self, site):
