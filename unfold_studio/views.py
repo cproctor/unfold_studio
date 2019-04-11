@@ -53,7 +53,6 @@ def browse(request):
         story_page = paginator.page(1)
     
     log.info("{} browsed {}".format(u(request), story_page))
-    messages.success(request, "Tip: Stories get sorted by how many loves and forks they get, and by their freshness.")
     return render(request, 'unfold_studio/list_stories.html', {'stories': story_page})
 
 def new_story(request):
@@ -80,8 +79,6 @@ def new_story(request):
                 story.save()
                 reversion.set_user(story.author)
                 reversion.set_comment("New story")
-            if not request.user.is_authenticated:
-                messages.success(request, "You're all set! This story is publicly editable. Sign up to write your own stories.")
             log.info("{} created story {}".format(u(request), story.id))
             return redirect('show_story', story.id)
     else:
