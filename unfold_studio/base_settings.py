@@ -143,6 +143,9 @@ EMAIL_SENDER = 'unfold@chrisproctor.net'
 EMAIL_SUBJECT_PREFIX = '[UNFOLD STUDIO] '
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+# Users in the given groups will be shown the following messages on the homepage
+GROUP_HOMEPAGE_MESSAGES = {}
+
 # Featured stories
 STORY_PRIORITY = {
     'FEATURED_SCORE': 10,

@@ -35,6 +35,9 @@ def u(request):
 
 def home(request):
     "The homepage shows a subset of stories with the highest priority."
+    if request.user.is_authenticated:
+        for g in request.user.groups.filter(id__in=s.GROUP_HOMEPAGE_MESSAGES.keys()).all():
+            messages.warning(request, s.GROUP_HOMEPAGE_MESSAGES[g.id])
     stories = Story.objects.for_request(request)[:s.STORIES_ON_HOMEPAGE]
     log.info("{} visited homepage".format(u(request)))
     return render(request, 'unfold_studio/home.html', {'stories': stories})
