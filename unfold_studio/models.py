@@ -407,6 +407,9 @@ class StoryError(models.Model):
         "Apparent loose end exists": ErrorTypes.RUNTIME_LOOSE_END
     }
 
+    class Meta:
+        ordering = ['line']
+
     @classmethod
     def classify(cls, error_description):
         "Maps string -> Error Type"
