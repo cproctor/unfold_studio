@@ -105,13 +105,18 @@ class PromptOwnedDetailView(DetailView):
     def get_queryset(self):
         return Prompt.objects.filter(owners=self.request.user)
 
+    # TODO slow
     def get_context_data(self, **kwargs):
+        prompt = self.get_object()
         context = super().get_context_data(**kwargs)
         submissions = self.get_object().submissions.for_request(self.request).distinct()
         submissionsByUsername = {s.author.username : s for s in submissions}
         gn = lambda groups: ", ".join(g.name for g in groups)
         submissionData = [
-            (user, gn(user.groups.all()), submissionsByUsername.get(user.username)) 
+            (
+                user, gn(user.groups.filter(id__in=prompt.assignee_groups.all()).all()), 
+                submissionsByUsername.get(user.username)
+            ) 
             for user in self.get_object().assignees.prefetch_related('groups').distinct()
         ]
         context['submissions'] = sorted(submissionData, key=lambda s: (s[1], s[0].username))
