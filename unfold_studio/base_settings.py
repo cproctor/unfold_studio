@@ -143,10 +143,6 @@ EMAIL_SENDER = 'unfold@chrisproctor.net'
 EMAIL_SUBJECT_PREFIX = '[UNFOLD STUDIO] '
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-# Documentation
-ABOUT_STORY_ID = 30
-TEACHERS_STORY_ID = 31
-
 # Featured stories
 STORY_PRIORITY = {
     'FEATURED_SCORE': 10,

@@ -141,20 +141,6 @@ def show_ink(request, story_id):
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
     return render(request, 'unfold_studio/show_ink.html', {'story': story})
 
-#DEPRECATED
-def about(request):
-    story = Story.objects.get_for_request_or_404(request, pk=s.ABOUT_STORY_ID)
-    return render(request, 'unfold_studio/staticpage.html', {'story': story})
-
-#DEPRECATED
-def for_teachers(request):
-    story = Story.objects.get_for_request_or_404(request, pk=s.TEACHERS_STORY_ID)
-    return render(request, 'unfold_studio/staticpage.html', {'story': story})
-
-#DEPRECATED
-def documentation(request):
-    return render(request, 'unfold_studio/documentation.html')
-
 def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
