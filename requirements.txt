@@ -11,7 +11,7 @@ funcsigs==1.0.2
 idna==2.6
 imagesize==1.1.0
 isbnlib==3.8.4
-Jinja2==2.10
+Jinja2>=2.10.1
 latexcodec==1.0.5
 MarkupSafe==1.0
 mock==2.0.0
