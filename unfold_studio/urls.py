@@ -57,6 +57,7 @@ urlpatterns = [
     url(r'books/(?P<pk>\d+)/remove/(?P<story_id>\d+)/?$', views.RemoveStoryFromBookView.as_view(), name="remove_story_from_book"), 
 
     url(r'prompts/manage/?$', prompt_views.PromptsOwnedListView.as_view(), name="list_prompts_owned"),
+    url(r'prompts/manage/csv/?$', prompt_views.PromptsOwnedCSVView.as_view(), name="prompts_owned_csv"),
     url(r'prompts/?$', prompt_views.PromptsAssignedListView.as_view(), name="list_prompts_assigned"),
     url(r'prompts/(?P<pk>\d+)/?$', prompt_views.PromptAssignedDetailView.as_view(), name="show_prompt_assigned"), 
     url(r'prompts/(?P<pk>\d+)/clear/?$', prompt_views.ClearPromptSubmissionView.as_view(),  

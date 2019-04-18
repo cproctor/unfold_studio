@@ -2,6 +2,11 @@
 {% load staticfiles %}
 
 {% block content %}
+<h1>Your prompts</h1>
+<div class="actions">
+[<a href="{% url 'prompts_owned_csv' %}">Download CSV</a>]
+</div>
+<br/>
 <table>
     <thead>
         <tr>

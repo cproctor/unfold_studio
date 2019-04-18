@@ -2,12 +2,17 @@ from django.shortcuts import render, redirect
 from django.views import View
 from django.views.generic import DetailView, ListView, FormView
 from django.views.generic.detail import SingleObjectMixin
+from django.utils import timezone
+from django.contrib.auth.models import User
+from django.db.models import Exists, OuterRef, Subquery
 from prompts.models import Prompt, PromptStory
 from prompts.forms import PromptSubmissionForm
+from prompts.mixins import CSVResponseMixin
 from unfold_studio.models import Story
 from reversion.models import Version
 import logging
 from literacy_events.models import LiteracyEvent
+from collections import defaultdict
 
 log = logging.getLogger(__name__)    
 
@@ -21,6 +26,27 @@ class PromptsOwnedListView(ListView):
     template_name = 'prompts/list_prompts_owned.html'
     def get_queryset(self):
         return Prompt.objects.filter(owners=self.request.user)
+
+class PromptsOwnedCSVView(CSVResponseMixin, View):
+
+    def get_csv_filename(self):
+        return timezone.now().strftime("unfold-studio-prompts-%Y-%m-%d.csv")
+
+    def get(self, request, *args, **kwargs):
+        users = User.objects.filter(groups__prompts_assigned__owners=request.user)
+        prompts = request.user.prompts_owned.all()
+        for p in prompts:
+            annotations = { 
+                "{} (assigned)".format(p): Exists(p.assignee_groups.filter(user=OuterRef('pk'))), 
+                "{} (submission)".format(p): Subquery(p.submissions.filter(author=OuterRef('pk')).values('id')[:1])
+            }
+            users = users.annotate(**annotations)
+
+        values = ['username', 'email', 'first_name', 'last_name']
+        for p in prompts:
+            values += ["{} (assigned)".format(p), "{} (submission)".format(p)]
+
+        return self.render_to_csv(users.values(*values), dicts=True)
 
 class PromptsAssignedListView(ListView):
     model = Prompt
