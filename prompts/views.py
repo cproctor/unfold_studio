@@ -46,7 +46,7 @@ class PromptsOwnedCSVView(CSVResponseMixin, View):
         for p in prompts:
             values += ["{} (assigned)".format(p), "{} (submission)".format(p)]
 
-        return self.render_to_csv(users.values(*values), dicts=True, values=values)
+        return self.render_to_csv(users.values(*values), dicts=True, fieldnames=values)
 
 class PromptsAssignedListView(ListView):
     model = Prompt
