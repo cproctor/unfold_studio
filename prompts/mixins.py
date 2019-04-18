@@ -8,13 +8,13 @@ class CSVResponseMixin(object):
     def get_csv_filename(self):
         return self.csv_filename
 
-    def render_to_csv(self, data, dicts=False):
+    def render_to_csv(self, data, dicts=False, fieldnames=None):
         response = HttpResponse(content_type='text/csv')
         cd = 'attachment; filename="{0}"'.format(self.get_csv_filename())
         response['Content-Disposition'] = cd
 
         if dicts:
-            writer = csv.DictWriter(response, data[0].keys())
+            writer = csv.DictWriter(response, fieldnames)
             writer.writeheader()
             writer.writerows(data)
         else:
