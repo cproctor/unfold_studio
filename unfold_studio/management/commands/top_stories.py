@@ -11,7 +11,8 @@ class Command(BaseCommand):
         parser.add_argument("-n", '--number_of_stories', type=int, default=20)
         parser.add_argument("-i", '--integers', action='store_true')
         parser.add_argument("-l", '--long_headers', action='store_true')
-        parser.add_argument("-p", '--parent', type=int, help="Show only stories forked from parent")
+        parser.add_argument("-r", '--parent', type=int, help="Show only stories forked from parent")
+        parser.add_argument("-p", '--prompt', type=int, help="Show only stories submitted to prompt")
         parser.add_argument("-o", '--outfile')
 
     def handle(self, *args, **options):
@@ -24,6 +25,8 @@ class Command(BaseCommand):
         stories = Story.objects.all()
         if options['parent']:
             stories = stories.filter(parent_id=options['parent'])
+        if options['prompt']:
+            stories = stories.filter(prompts_submitted=options['prompt'])
         stories = stories[:options['number_of_stories']]
         stories = map(props, stories)
         if not options['integers']:
