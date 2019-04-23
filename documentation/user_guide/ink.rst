@@ -72,15 +72,15 @@ The simplest mark-up is a comment. **ink** supports two kinds of comment. There'
 Tags
 ^^^^
 
-Tags don't appear in story flow; instead they can be used to change how the story is presented. Currently, Unfold Studio does not support any tags, but 
-in the future tags will allow you to style content to appear as text messages, Facebook posts, etc.
-
-**ink** provides a simple system for tagging lines of content, with hashtags. 
+Tags don't appear in story flow; instead they can be used to change how the story is presented. Unfold Studio supports tags to 
+style content as text messages. Student designers are currently developing tags for tweets, Facebook posts, etc. To style content, 
+use hashtags at the end of a line:
 
 ::
+   === texting ===
+   What's up? # text-them
+   nm. U? # text-me
 
-   === content 
-       A line of normal game-text. # colour it blue
 
 2) Choices
 ----------
@@ -3975,8 +3975,8 @@ Example:
    *   { PhoneState ? (on, charged) } [ Call my mother ]
 
 
-Unfold Studio extensions to Ink
-===============================
+Part 6: Unfold Studio extensions to Ink
+=========================================
 
 Unfold Studio currently runs on Ink 0.8.2, with a few customizations. 
 
@@ -3994,4 +3994,14 @@ one in the including story is kept and the other is ignored.
 
 Styling
 -------
-Coming soon, it will be possible to add images and styled text to stories. 
+Stories can use tags to style content. Currently, only text messages are supported:
+
+::
+
+   === texting ===
+   What's up? # text-them
+   nm. U? # text-me
+
+
+
+

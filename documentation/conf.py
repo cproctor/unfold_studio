@@ -20,13 +20,13 @@
 # -- Project information -----------------------------------------------------
 
 project = 'Unfold Studio'
-copyright = '2018, Chris Proctor'
+copyright = '2019, Chris Proctor'
 author = 'Chris Proctor'
 
 # The short X.Y version
-version = '0.4.1'
+version = '0.4.2'
 # The full version, including alpha/beta/rc tags
-release = '0.4.1'
+release = '0.4.2'
 
 
 # -- General configuration ---------------------------------------------------
