@@ -24,17 +24,22 @@ InkPlayer.prototype = {
         if (!this.running) {
             return;
         }
-        var text = [];
+        var content = [];
         while (this.story.canContinue) { 
             try {
-                text.push(this.story.Continue());
+                var text = this.story.Continue()
+                var tags = this.story.currentTags.slice()
+                content.push({
+                    tags: tags,
+                    text: text
+                });
             }
             catch (err) {
                 this.events.reportError.bind(this)(err.message);
             }
         }
         if (!this.running) return;
-        text.forEach(this.events.addText, this);
+        content.forEach(this.events.addContent, this);
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
                 this.events.addChoice.bind(self)(choice, i, text);
@@ -68,11 +73,38 @@ InkPlayer.prototype = {
             $(this.container).html('');
             $('.scrollContainer').scrollTop(0);
         },
-        addText: function(text, i) {
-            var p = document.createElement('p');
-            p.innerHTML = text;
-            this.container.appendChild(p);
-            this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * i));
+        addContent: function(content, i) {
+            if (content.tags.includes("text-me")) {
+                var wrapper = document.createElement('div')
+                wrapper.classList.add('sms')
+                wrapper.classList.add('text-me')
+                var p = document.createElement('p');
+                p.innerHTML = content.text;
+                wrapper.appendChild(p)
+                clear = document.createElement('div')
+                clear.classList.add('clear')
+                this.container.appendChild(wrapper);
+                this.container.appendChild(clear);
+                this.timeouts.push(setTimeout(function() { wrapper.classList.add("show") }, 200 * i));
+            } else if (content.tags.includes("text-them")) {
+                var wrapper = document.createElement('div')
+                wrapper.classList.add('sms')
+                wrapper.classList.add('text-them')
+                var p = document.createElement('p');
+                p.innerHTML = content.text;
+                wrapper.appendChild(p)
+                clear = document.createElement('div')
+                clear.classList.add('clear')
+                this.container.appendChild(wrapper);
+                this.container.appendChild(clear);
+                this.timeouts.push(setTimeout(function() { wrapper.classList.add("show") }, 200 * i));
+            } else {
+                var p = document.createElement('p');
+                p.classList.add('regular-text')
+                p.innerHTML = content.text;
+                this.container.appendChild(p);
+                this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * i));
+            }
         },
         addChoice: function(choice, i, text) {
             var self = this;

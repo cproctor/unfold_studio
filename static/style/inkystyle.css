@@ -15,12 +15,12 @@ h1 {
     padding: 20px;
 }
 
-p, a {
+p.regular-text, a {
     color: gray;
     line-height: 1.7em;
 }
 
-#player p {
+#player p.regular-text {
     opacity: 0.0;
     transition: opacity 1.0s;
 }
