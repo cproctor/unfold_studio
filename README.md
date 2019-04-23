@@ -42,3 +42,15 @@ These steps should get a development instance running on linux or MacOS.
    from https://github.com/inkle/ink/releases. You'll probably have to configure settings.py a
    bit to get it to work. 
 
+3. Cron jobs
+
+   Stories and books are weighted according to priority, which depends on factors defined in settings.
+   Content is subject to 'gravity,' causing older content to fall and make room for newer content.  
+   Therefore, stories need to be re-weighted from time to time. At the same time, when there's a lot of 
+   content, it becomes burdensome to re-weight it all every few minutes. The cron jobs below achieve a 
+   good compromise, updating the weights of top stories every ten minutes, and then updating all the content
+   once a day. 
+
+        0 3 * * * python3 /opt/unfold_studio/manage.py update_story_priority
+        */10 * * * * python3 /opt/unfold_studio/manage.py update_story_priority -n 100
+        0 * * * * python3 /opt/unfold_studio/manage.py update_book_priority
