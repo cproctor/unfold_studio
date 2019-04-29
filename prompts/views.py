@@ -8,11 +8,12 @@ from django.db.models import Exists, OuterRef, Subquery
 from prompts.models import Prompt, PromptStory
 from prompts.forms import PromptSubmissionForm
 from prompts.mixins import CSVResponseMixin
-from unfold_studio.models import Story
+from unfold_studio.models import Story, Book
 from reversion.models import Version
 import logging
 from literacy_events.models import LiteracyEvent
 from collections import defaultdict
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 log = logging.getLogger(__name__)    
 
@@ -84,6 +85,7 @@ class PromptAssignedDetailView(DetailView):
         form = PromptSubmissionForm(self.request.POST)
         form.fields['story'].choices = [(s.id, s.title) for s in self.request.user.stories.all()]
         if form.is_valid():
+            prompt = self.get_object()
             story = Story.objects.get_editable_for_request_or_404(self.request, pk=form.cleaned_data['story'])
             version = Version.objects.get_for_object(story).last()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
@@ -95,11 +97,14 @@ class PromptAssignedDetailView(DetailView):
                 story=story,
                 prompt=self.get_object()
             )
+            if prompt.book:
+                prompt.book.stories.add(story)
             return redirect('show_prompt_assigned', self.get_object().id)
         else:
             context = self.get_context_data()
             context['form'] = form
             return render(request, self.template_name, context)
+
 
 class ClearPromptSubmissionView(SingleObjectMixin, View):
     http_method_names = ['post']
@@ -118,6 +123,8 @@ class ClearPromptSubmissionView(SingleObjectMixin, View):
             story=story,
             prompt=self.get_object()
         )
+        if prompt.book:
+            prompt.book.stories.remove(story)
         return redirect('show_prompt_assigned', prompt.id)
 
     def get_queryset(self):
@@ -147,3 +154,24 @@ class PromptOwnedDetailView(DetailView):
         ]
         context['submissions'] = sorted(submissionData, key=lambda s: (s[1], s[0].username))
         return context
+
+class PublishAsBookView(LoginRequiredMixin, SingleObjectMixin, View):
+    http_method_names = ['post']
+    def post(self, request, *args, **kwargs):
+        prompt = self.get_object()
+        if prompt.book:
+            messages.warning(request, "{} is already published as a book".format(prompt.name))
+            log.warning("{} tried to re-publish {} as a book".format(request.user), prompt.name)
+            return redirect('show_prompt_owned', prompt.id)
+        book = Book.objects.create(owner=request.user, title="Submissions to {}".format(prompt.name),
+            description="This automatically-generated book contains stories submitted to the prompt '{}'".format(prompt.name))
+        for site in prompt.sites.all():
+            book.sites.add(site)
+        prompt.book = book
+        prompt.save()
+        for story in prompt.submissions.all():
+            book.stories.add(story)
+        return redirect('show_book', book.id)
+    
+    def get_queryset(self):
+        return Prompt.objects.filter(assignee_groups__user=self.request.user)

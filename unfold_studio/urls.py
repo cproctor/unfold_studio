@@ -63,6 +63,7 @@ urlpatterns = [
     url(r'prompts/(?P<pk>\d+)/clear/?$', prompt_views.ClearPromptSubmissionView.as_view(),  
             name="clear_prompt_submission"), 
     url(r'prompts/manage/(?P<pk>\d+)/?$', prompt_views.PromptOwnedDetailView.as_view(), name="show_prompt_owned"), 
+    url(r'prompts/manage/(?P<pk>\d+)/publish/?$', prompt_views.PublishAsBookView.as_view(), name="publish_prompt"), 
 
     url(r'reading/?', literacy_event_views.LogReadingEvent.as_view(), name="log_reading_event"),
 

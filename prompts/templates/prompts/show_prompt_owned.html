@@ -4,6 +4,12 @@
 {% block content %}
 <h1>{{prompt.name}}</h1>
 <p>{{prompt.description}}</p>
+{% if prompt.book %}
+[<a href="{% url 'show_book' prompt.book.id %}">Book</a>]
+{% else %}
+    [<form action="{% url 'publish_prompt' prompt.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Publish as book"></form>]
+{% endif %}
+
 <table>
     <thead>
         <tr>
