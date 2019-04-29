@@ -175,3 +175,18 @@ class PublishAsBookView(LoginRequiredMixin, SingleObjectMixin, View):
     
     def get_queryset(self):
         return Prompt.objects.filter(assignee_groups__user=self.request.user)
+
+class UnpublishBookView(LoginRequiredMixin, SingleObjectMixin, View):
+    http_method_names = ['post']
+    def post(self, request, *args, **kwargs):
+        prompt = self.get_object()
+        if not prompt.book:
+            messages.warning(request, "{} is not published as a book".format(prompt.name))
+            log.warning("{} tried to unpublish {} when it was not published".format(request.user), prompt.name)
+            return redirect('show_prompt_owned', prompt.id)
+        prompt.book.delete()
+        return redirect('show_prompt_owned', prompt.id)
+            
+    def get_queryset(self):
+        return Prompt.objects.filter(assignee_groups__user=self.request.user)
+
