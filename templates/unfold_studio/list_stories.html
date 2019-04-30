@@ -15,10 +15,10 @@
         <div class="description">
             Page {{stories.number}} of {{stories.paginator.num_pages}}
             {% if stories.has_previous %}
-                [<a href="?page={{stories.previous_page_number}}">Previous</a>]
+                [<a href="?page={{stories.previous_page_number}}{{form.querystring}}">Previous</a>]
             {% endif %}
             {% if stories.has_next %}
-                [<a href="?page={{stories.next_page_number}}">Next</a>]
+                [<a href="?page={{stories.next_page_number}}{{form.querystring}}">Next</a>]
             {% endif %}
         </div>
         <ul>

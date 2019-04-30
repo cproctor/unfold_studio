@@ -2,6 +2,7 @@ from django.forms import ModelForm, Form
 from django import forms
 from .models import Story, Book
 from django.core.exceptions import ValidationError
+from django.utils.http import urlencode
 
 # TODO: Blurb should be here too.
 class StoryForm(ModelForm):
@@ -16,3 +17,10 @@ class SharedStoryBookForm(ModelForm):
 
 class SearchForm(Form):
     query = forms.CharField(max_length=100, label="Query")
+
+    def querystring(self):
+        "Returns the query formatted for the querystring"
+        if self.is_valid():
+            return urlencode(self.cleaned_data)
+        else:
+            return ""
