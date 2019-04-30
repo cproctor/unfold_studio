@@ -55,7 +55,7 @@ def browse(request):
             stories = Story.objects.for_request(request).annotate(
                 rank=SearchRank(F('search'), query), 
                 score=F('rank') * F('priority') / (F('rank') + F('priority'))
-            ).order_by('-score')
+            ).filter(rank__gte=s.SEARCH_RANK_CUTOFF).order_by('-score')
         else:
             messages.warning(request, "Please enter a valid search query")
             return redirect('list_stories')
