@@ -50,10 +50,9 @@ def browse(request):
     if request.GET.get('query'):
         form = SearchForm(request.GET)
         if form.is_valid():
-            vector = SearchVector('title', 'ink')
             query = SearchQuery(form.cleaned_data['query'])
             stories = Story.objects.annotate(
-                rank=SearchRank(vector, query), 
+                rank=SearchRank(F('search'), query), 
                 score=F('rank') * F('priority') / (F('rank') + F('priority'))
             ).order_by('-score')
         else:

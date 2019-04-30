@@ -17,6 +17,8 @@ import math
 from django.utils import timezone
 from django.contrib.sites.shortcuts import get_current_site
 from django.http import Http404                         
+from django.contrib.postgres.search import SearchVectorField
+from django.contrib.postgres.indexes import GinIndex
 
 log = logging.getLogger(__name__)
 
@@ -99,6 +101,7 @@ class Story(models.Model):
     deleted = models.BooleanField(default=False)
     priority = models.FloatField(default=0)
     sites = models.ManyToManyField(Site)
+    search = SearchVectorField(null=True)
 
     objects = StoryManager()
 
@@ -336,6 +339,9 @@ class Story(models.Model):
     class Meta:
         ordering = ['-priority']
         verbose_name_plural = "Stories"
+        indexes = [
+            GinIndex(fields=['search']),
+        ]
     
 
 class BookManager(models.Manager):
