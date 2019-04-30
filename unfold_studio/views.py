@@ -51,7 +51,7 @@ def browse(request):
         form = SearchForm(request.GET)
         if form.is_valid():
             query = SearchQuery(form.cleaned_data['query'])
-            stories = Story.objects.annotate(
+            stories = Story.objects.for_request(request).annotate(
                 rank=SearchRank(F('search'), query), 
                 score=F('rank') * F('priority') / (F('rank') + F('priority'))
             ).order_by('-score')
@@ -94,6 +94,7 @@ def new_story(request):
         if form.is_valid():
             story = form.save()
             story.compile()
+            story.update_priority()
             story.sites.add(get_current_site(request))
             with reversion.create_revision():
                 story.save()
