@@ -48,6 +48,7 @@ def home(request):
 def browse(request):
     "Shows all stories, sorted by priority. Someday, I'll need to paginate this."
     if request.GET.get('query'):
+        searching = True
         form = SearchForm(request.GET)
         if form.is_valid():
             query = SearchQuery(form.cleaned_data['query'])
@@ -59,6 +60,7 @@ def browse(request):
             messages.warning(request, "Please enter a valid search query")
             return redirect('list_stories')
     else:
+        searching = False
         form = SearchForm()
         stories = Story.objects.for_request(request).all()
     stories = stories.select_related('author').prefetch_related('loves')
@@ -66,7 +68,10 @@ def browse(request):
     page = request.GET.get('page', 1)
     try:
         story_page = paginator.page(page)
-        log.info("{} browsed {}".format(u(request), story_page))
+        if searching:
+            log.info("{} searched for '{}', viewing {}".format(u(request), request.GET.get('query'), story_page))
+        else:
+            log.info("{} browsed {}".format(u(request), story_page))
         return render(request, 'unfold_studio/list_stories.html', {
             'stories': story_page, 
             'form': form
