@@ -67,6 +67,18 @@
         {% include 'literacy_events/story.html' %}
         from
         {% include 'literacy_events/prompt.html' %}
+    {% elif event.event_type == LiteracyEvent.STORY_READING %}
+        ERROR: STORY READING SHOULD NOT BE DISPLAYED
+    {% elif event.event_type == LiteracyEvent.PUBLISHED_PROMPT_AS_BOOK %}
+        {% include 'literacy_events/user.html' with user=subjectUser%} 
+        published 
+        {% include 'literacy_events/prompt.html' %}
+        as 
+        {% include 'literacy_events/book.html' %}
+    {% elif event.event_type == LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK %}
+        {% include 'literacy_events/user.html' with user=subjectUser%} 
+        unpublished the book of submissions from 
+        {% include 'literacy_events/prompt.html' %}
     {% else %}
         Error displaying [{{event}}]
     {% endif %}

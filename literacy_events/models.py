@@ -38,6 +38,8 @@ class LiteracyEvent(models.Model):
     SUBMITTED_TO_PROMPT             = 'd'
     UNSUBMITTED_FROM_PROMPT         = 'e'
     STORY_READING                   = 'f'
+    PUBLISHED_PROMPT_AS_BOOK        = 'g'
+    UNPUBLISHED_PROMPT_AS_BOOK      = 'h'
 
     EVENT_TYPES = (
         (LOVED_STORY, "loved story"),
@@ -55,6 +57,8 @@ class LiteracyEvent(models.Model):
         (SUBMITTED_TO_PROMPT, "submitted to prompt"),
         (UNSUBMITTED_FROM_PROMPT, "unsubmitted from prompt"),
         (STORY_READING, "story knot read"),
+        (PUBLISHED_PROMPT_AS_BOOK, "published prompt as book"),
+        (UNPUBLISHED_PROMPT_AS_BOOK, "unpublished prompt as book"),
     )
     
     timestamp = models.DateTimeField(default=timezone.now)
@@ -109,6 +113,10 @@ class LiteracyEvent(models.Model):
             body = "{} unsubmitted {} from prompt {}".format(self.subject, self.story, self.prompt)
         elif self.event_type == LiteracyEvent.STORY_READING:
             body = "{} read {} with path {}".format(self.subject, self.story, self.extra)
+        elif self.event_type == LiteracyEvent.PUBLISHED_PROMPT_AS_BOOK:
+            body = "{} published prompt {} as book {}".format(self.subject, self.prompt, self.book)
+        elif self.event_type == LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK:
+            body = "{} unpublished prompt {}".format(self.subject, self.prompt, self.book)
         else:
             raise ValueError("Unhandled event type: {}".format(self.event_type))
         return (prefix if with_prefix else '') + body + ts

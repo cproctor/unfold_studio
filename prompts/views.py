@@ -164,7 +164,6 @@ class PublishAsBookView(LoginRequiredMixin, SingleObjectMixin, View):
             messages.warning(request, "{} is already published as a book".format(prompt.name))
             log.warning("{} tried to re-publish {} as a book".format(request.user), prompt.name)
             return redirect('show_prompt_owned', prompt.id)
-        log.info("{} published {} as a book".format(request.user, prompt.name))
         book = Book.objects.create(owner=request.user, title="Submissions to {}".format(prompt.name),
             description="This automatically-generated book contains stories submitted to the prompt '{}'".format(prompt.name))
         for site in prompt.sites.all():
@@ -173,6 +172,13 @@ class PublishAsBookView(LoginRequiredMixin, SingleObjectMixin, View):
         prompt.save()
         for story in prompt.submissions.all():
             book.stories.add(story)
+        log.info("{} published {} as a book".format(request.user, prompt.name))
+        LiteracyEvent.objects.create(
+            event_type=LiteracyEvent.PUBLISHED_PROMPT_AS_BOOK,
+            subject=self.request.user,
+            prompt=prompt,
+            book=book
+        )
         return redirect('show_book', book.id)
     
     def get_queryset(self):
@@ -186,8 +192,16 @@ class UnpublishBookView(LoginRequiredMixin, SingleObjectMixin, View):
             messages.warning(request, "{} is not published as a book".format(prompt.name))
             log.warning("{} tried to unpublish {} when it was not published".format(request.user), prompt.name)
             return redirect('show_prompt_owned', prompt.id)
-        prompt.book.delete()
+        prompt.book.deleted = True
+        prompt.book.save()
+        prompt.book = None
+        prompt.save()
         log.info("{} unpublished {} as a book".format(request.user, prompt.name))
+        LiteracyEvent.objects.create(
+            event_type=LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK,
+            subject=self.request.user,
+            prompt=prompt,
+        )
         return redirect('show_prompt_owned', prompt.id)
             
     def get_queryset(self):

@@ -19,7 +19,7 @@ def literacy_event_notifications(sender, **kwargs):
     event = kwargs['instance']
     for user in get_recipients(event):
         n = Notification.objects.create(recipient=user, event=event)
-        log.info("Created n: {}".format(n))
+        log.debug("Created notification: {}".format(n))
     
 def get_recipients(e):
     if e.event_type == LiteracyEvent.LOVED_STORY:
@@ -50,6 +50,12 @@ def get_recipients(e):
         return set(subject(e) + prompt_owners(e))
     elif e.event_type == LiteracyEvent.UNSUBMITTED_FROM_PROMPT:
         return set(subject(e) + prompt_owners(e))
+    elif e.event_type == LiteracyEvent.STORY_READING:
+        return []
+    elif e.event_type == LiteracyEvent.PUBLISHED_PROMPT_AS_BOOK:
+        return subject(e)
+    elif e.event_type == LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK:
+        return subject(e)
     else:
         log.debug("No notifications created for {}".format(e))
         return []
