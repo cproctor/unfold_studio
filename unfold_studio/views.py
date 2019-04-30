@@ -22,10 +22,13 @@ import reversion
 from profiles.forms import SignUpForm
 from django.utils.timezone import now
 from django.contrib.sites.shortcuts import get_current_site
-from django.db.models import Q
+from django.db.models import Q, F
+from django.db import OperationalError
 from django.core.paginator import Paginator, PageNotAnInteger
 from unfold_studio.mixins import StoryMixin
+from unfold_studio.forms import SearchForm
 from literacy_events.models import LiteracyEvent
+from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 log = logging.getLogger(__name__)    
 
@@ -44,16 +47,33 @@ def home(request):
 
 def browse(request):
     "Shows all stories, sorted by priority. Someday, I'll need to paginate this."
-    stories = Story.objects.for_request(request).all()
+    if request.GET.get('query'):
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            vector = SearchVector('title', 'ink')
+            query = SearchQuery(form.cleaned_data['query'])
+            stories = Story.objects.annotate(
+                rank=SearchRank(vector, query), 
+                score=F('rank') * F('priority') / (F('rank') + F('priority'))
+            ).order_by('-score')
+        else:
+            messages.warning(request, "Please enter a valid search query")
+            return redirect('list_stories')
+    else:
+        form = SearchForm()
+        stories = Story.objects.for_request(request).all()
     paginator = Paginator(stories, s.STORIES_PER_PAGE)
-    page = request.GET.get('page')
+    page = request.GET.get('page', 1)
     try:
         story_page = paginator.page(page)
-    except PageNotAnInteger:
-        story_page = paginator.page(1)
-    
-    log.info("{} browsed {}".format(u(request), story_page))
-    return render(request, 'unfold_studio/list_stories.html', {'stories': story_page})
+        log.info("{} browsed {}".format(u(request), story_page))
+        return render(request, 'unfold_studio/list_stories.html', {
+            'stories': story_page, 
+            'form': form
+        })
+    except OperationalError:
+        messages.warning(request, "Search is not supported using the current database.")
+        return redirect('list_stories')
 
 def new_story(request):
     if request.method == "POST":

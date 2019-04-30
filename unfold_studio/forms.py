@@ -13,4 +13,6 @@ class SharedStoryBookForm(ModelForm):
     class Meta:
         model = Book
         fields = ['title', 'stories']
-    
+
+class SearchForm(Form):
+    query = forms.CharField(max_length=100, label="Query")

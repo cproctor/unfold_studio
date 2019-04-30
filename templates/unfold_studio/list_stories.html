@@ -2,7 +2,16 @@
 
 {% block content %}
     {% if stories %}
-        <h2>All stories</h2>
+        <form action="{% url 'list_stories' %}" method="get">
+            {{form}}
+            <input type="submit" value="Search">
+        </form>
+        {% if form.is_bound %}
+            <h2>Search results</h2>
+        {% else %}
+            <h2>All stories</h2>
+        {% endif %}
+
         <div class="description">
             Page {{stories.number}} of {{stories.paginator.num_pages}}
             {% if stories.has_previous %}
@@ -18,7 +27,7 @@
         {% endfor %}
         </ul>
     {% else %}
-        <h2>Sorry, there are no stories right now.</h2>
+        <h2>Sorry, no stories were found.</h2>
     {% endif %}
 
 
