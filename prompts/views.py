@@ -46,6 +46,7 @@ class PromptsOwnedCSVView(CSVResponseMixin, View):
         values = ['username', 'email', 'first_name', 'last_name']
         for p in prompts:
             values += ["{} (assigned)".format(p), "{} (submission)".format(p)]
+        log.info("{} downloaded prompts as CSV".format(request.user))
 
         return self.render_to_csv(users.values(*values), dicts=True, fieldnames=values)
 
@@ -163,6 +164,7 @@ class PublishAsBookView(LoginRequiredMixin, SingleObjectMixin, View):
             messages.warning(request, "{} is already published as a book".format(prompt.name))
             log.warning("{} tried to re-publish {} as a book".format(request.user), prompt.name)
             return redirect('show_prompt_owned', prompt.id)
+        log.info("{} published {} as a book".format(request.user, prompt.name))
         book = Book.objects.create(owner=request.user, title="Submissions to {}".format(prompt.name),
             description="This automatically-generated book contains stories submitted to the prompt '{}'".format(prompt.name))
         for site in prompt.sites.all():
@@ -185,6 +187,7 @@ class UnpublishBookView(LoginRequiredMixin, SingleObjectMixin, View):
             log.warning("{} tried to unpublish {} when it was not published".format(request.user), prompt.name)
             return redirect('show_prompt_owned', prompt.id)
         prompt.book.delete()
+        log.info("{} unpublished {} as a book".format(request.user, prompt.name))
         return redirect('show_prompt_owned', prompt.id)
             
     def get_queryset(self):
