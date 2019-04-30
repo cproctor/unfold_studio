@@ -74,7 +74,8 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('literacy_events', '0001_initial'),
-        ('profiles', '0013_auto_20181031_2124'),
+        #('profiles', '0013_auto_20181031_2124'),
+        ('profiles', '0003_auto_20171016_1804'),
     ]
 
     operations = [

@@ -27,6 +27,8 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ('unfold_studio', '0004_story_err_line'),
+        ('literacy_events', '0004_auto_20190404_1656'),
+        ('profiles', '0001_initial'),
     ]
 
     operations = [

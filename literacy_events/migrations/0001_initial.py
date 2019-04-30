@@ -11,7 +11,8 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('unfold_studio', '0032_auto_20181105_1655'),
+        ('unfold_studio', '0002_auto_20160401_2103'),
+        ('prompts', '0001_initial'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

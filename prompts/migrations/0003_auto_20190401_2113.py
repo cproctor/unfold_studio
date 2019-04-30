@@ -6,7 +6,8 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('unfold_studio', '0033_book_deleted'),
+        #('unfold_studio', '0033_book_deleted'),
+        ('unfold_studio', '0002_auto_20160401_2103'),
         ('prompts', '0002_auto_20190401_2020'),
     ]
 

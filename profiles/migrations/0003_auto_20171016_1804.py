@@ -11,7 +11,8 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('unfold_studio', '0010_story_parent'),
+        #('unfold_studio', '0010_story_parent'),
+        ('unfold_studio', '0002_auto_20160401_2103'),
         ('profiles', '0002_profile_following'),
     ]
 

@@ -12,14 +12,5 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.AlterField(
-            model_name='profile',
-            name='birth_month',
-            field=models.DateField(blank=True, null=True),
-        ),
-        migrations.AlterField(
-            model_name='profile',
-            name='gender',
-            field=models.CharField(blank=True, max_length=100, null=True),
-        ),
+        # Moved all ops to 0001
     ]

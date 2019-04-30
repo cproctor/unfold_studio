@@ -10,7 +10,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('unfold_studio', '0033_book_deleted'),
+        ('unfold_studio', '0002_auto_20160401_2103'),
         ('reversion', '0001_squashed_0004_auto_20160611_1202'),
         ('auth', '0009_alter_user_last_name_max_length'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
