@@ -41,7 +41,7 @@ def home(request):
     if request.user.is_authenticated:
         for g in request.user.groups.filter(id__in=s.GROUP_HOMEPAGE_MESSAGES.keys()).all():
             messages.warning(request, s.GROUP_HOMEPAGE_MESSAGES[g.id])
-    stories = Story.objects.for_request(request)[:s.STORIES_ON_HOMEPAGE]
+    stories = Story.objects.for_request(request).select_related('author').prefetch_related('loves')[:s.STORIES_ON_HOMEPAGE]
     log.info("{} visited homepage".format(u(request)))
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
@@ -62,6 +62,7 @@ def browse(request):
     else:
         form = SearchForm()
         stories = Story.objects.for_request(request).all()
+    stories = stories.select_related('author').prefetch_related('loves')
     paginator = Paginator(stories, s.STORIES_PER_PAGE)
     page = request.GET.get('page', 1)
     try:
@@ -327,7 +328,7 @@ class BookListView(ListView):
     model = Book
 
     def get_queryset(self):
-        return Book.objects.filter(sites__id=get_current_site(self.request).id)
+        return Book.objects.filter(sites__id=get_current_site(self.request).id).select_related('owner')
 
 class BookDetailView(DetailView):
     # TODO: Use this as a model for using Mixins. get_context_data is needlessly verbose.
@@ -339,7 +340,7 @@ class BookDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user if self.request.user.is_authenticated else None
-        context['stories'] = self.get_object().stories.for_request(self.request)
+        context['stories'] = self.get_object().stories.for_request(self.request).select_related('author').prefetch_related('loves')
         return context
 
 class UpdateBookView(UpdateView):
