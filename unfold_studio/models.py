@@ -376,9 +376,11 @@ class Book(models.Model):
                     settings.BOOK_PRIORITY['MEDIAN_STORY_PRIORITY']
         )
 
+    def __str__(self):
+        return self.title
+
     class Meta:
         ordering = ['-priority']
-    
 
 class StoryError(models.Model):
 
