@@ -13,16 +13,18 @@ def update_revision_comments(apps, schema_editor):
         r.save()
 
     for s in Story.objects.iterator():
-        r = Version.objects.get_for_object(s).last().revision
-        if s.parent:
-            if s.parent.author:
-                r.comment = "{} forked from @story:{} by @user:{}".format(s.title, s.parent.id, 
-                        s.parent.author.id)
+        versions = Version.objects.get_for_object(s)
+        if versions.exists():
+            r = versions.last().revision
+            if s.parent:
+                if s.parent.author:
+                    r.comment = "{} forked from @story:{} by @user:{}".format(s.title, s.parent.id, 
+                            s.parent.author.id)
+                else:
+                    r.comment = "{} forked from @story:{}".format(s.title, s.parent.id)
             else:
-                r.comment = "{} forked from @story:{}".format(s.title, s.parent.id)
-        else:
-            r.comment = "Initial version of @story:{}".format(s.id)
-        r.save()
+                r.comment = "Initial version of @story:{}".format(s.id)
+            r.save()
 
 def reverse_update(apps, schema_editor):
     pass
