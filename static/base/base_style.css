@@ -182,3 +182,11 @@ form.link input[type=submit] {
 h2.story-title {
     margin-bottom: 0;
 }
+
+table.story-history td {
+    vertical-align: top;
+}
+
+table.story-history td:nth-child(1) {
+    min-width: 10em;
+}

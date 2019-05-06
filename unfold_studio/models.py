@@ -108,8 +108,15 @@ class Story(models.Model):
     def visible_to_user(self, user):
         return (
             self.public or self.shared or user == self.author or 
-            user in self.prompts_submitted.prefetch_related('owner')
+            self.prompts_submitted.filter(owners=user).exists()
         )
+
+    def user_may_comment(self, user):
+        return user.is_authenticated and (
+            user == self.author or 
+            self.author.profile.following.filter(pk=user.profile.pk).exists() or 
+            self.prompts_submitted.filter(owners=user).exists()
+        ) 
 
     class PreprocessingError(Exception):
         "Raised when something goes wrong during preprocessing."

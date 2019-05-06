@@ -20,10 +20,10 @@
 {% if story.public %}
     Public story
 {% else %}
-    by <a href="{% url 'show_user' story.author.username %}">{{story.author}}</a>
+    by {{story.author.id | linkuser:user}}
 {% endif %}
 {% if story.parent %}
-    (Forked from {{story.parent.id | linkstory:user}})
+    (Forked from {{story.parent.id | linkstory:user}}{% if story.parent.author %} by {{story.parent.author.id | linkuser:user}}{% endif %})
 {% endif %}
 {% if request.user.is_authenticated and request.user.profile in story.loves.all %}
     {% if story.loves.count > 1 %}
@@ -80,7 +80,9 @@
             }
         </script>
     {% endif %}
-    [<a href="{% url 'show_story_versions' story.id %}">History</a>]
+{% endif %}
+{% if story.author %}
+[<a href="{% url 'show_story_versions' story.id %}">History{% if commentable %}/Comment{% endif %}</a>]
 {% endif %}
 </div>
 

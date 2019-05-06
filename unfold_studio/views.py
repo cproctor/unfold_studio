@@ -23,13 +23,16 @@ from reversion.models import Version
 from profiles.forms import SignUpForm
 from django.utils.timezone import now
 from django.contrib.sites.shortcuts import get_current_site
-from django.db.models import Q, F
+from django.db.models import Q, F, Window
+from django.db.models.functions import RowNumber
 from django.db import OperationalError
 from django.core.paginator import Paginator, PageNotAnInteger
 from unfold_studio.mixins import StoryMixin
 from unfold_studio.forms import SearchForm
 from literacy_events.models import LiteracyEvent
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
+from comments.models import Comment
+from comments.forms import CommentForm
 
 log = logging.getLogger(__name__)    
 
@@ -105,7 +108,7 @@ def new_story(request):
             with reversion.create_revision():
                 story.save()
                 reversion.set_user(story.author)
-                reversion.set_comment("Initial version of {}".format(story.title))
+                reversion.set_comment("Initial version of @story:{}".format(story.id))
             log.info("{} created story {}".format(u(request), story.id))
             return redirect('show_story', story.id)
     else:
@@ -154,8 +157,12 @@ def show_story(request, story_id):
         log.info("{} viewed story {} (public)".format(u(request), story.id))
     else:
         log.info("{} viewed story {} (owned by {})".format(u(request), story.id, story.author.username))
-    return render(request, 'unfold_studio/show_story.html', {'story': story, 'editable': editable, 
-            'addableBooks': addableBooks})
+    return render(request, 'unfold_studio/show_story.html', {
+        'story': story, 
+        'editable': editable, 
+        'commentable': story.user_may_comment(request.user),
+        'addableBooks': addableBooks}
+    )
 
 def show_json(request, story_id):
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
@@ -180,34 +187,8 @@ def signup(request):
 
     return render(request, 'registration/signup.html', {'form': form})
 
-class StoryVersionDetailView(View):
-    def get(self, request, *args, **kwargs):
-        story = Story.objects.get_for_request_or_404(request, pk=kwargs['pk'])
-        vIndex = int(kwargs['version'])
-        versions = Version.objects.get_for_object(story).exclude(revision__comment__exact='').reverse()
-        if vIndex >= versions.count():
-            raise Http404()
-        comment = versions[vIndex].revision.comment
-        if len(comment) > 100:
-            comment = comment[:100] + '...'
-        return render(request, 'unfold_studio/show_story_version.html', {
-            'story': versions[vIndex].object,
-            'comment': comment,
-            'version': vIndex,
-            'previousVersion': vIndex - 1 if vIndex > 0 else None,
-            'nextVersion': vIndex + 1 if vIndex + 1 < versions.count() else None
-        })
-
-class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
-    model = Story
-    require_editable = True
+class LoggingMixin:
     verb = "<undefined verb>"
-
-    def get_queryset(self):
-        if self.require_editable:
-            return Story.objects.editable_for_request(self.request)
-        else:
-            return Story.objects.for_request(self.request)
 
     def log_action(self, request):
         story = self.get_object()
@@ -217,6 +198,42 @@ class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
             log.info("{} {} story {} (id {}; own story)".format(u(request), self.verb, story.title, story.id))
         else:
             log.info("{} {} story {} (id {}; by {})".format(u(request), self.verb, story.title, story.id, story.author.username))
+
+class StoryVersionDetailView(LoggingMixin, View):
+    verb = "viewed the history of"
+
+    def get(self, request, *args, **kwargs):
+        self.story = story = Story.objects.get_for_request_or_404(request, pk=kwargs['pk'])
+        if not story.author:
+            raise Http404()
+        vIndex = int(kwargs['version']) # 1-indexed!
+        versions = Version.objects.get_for_object(story).exclude(revision__comment__exact='').reverse()
+        if vIndex > versions.count() or vIndex < 1:
+            raise Http404()
+        comment = versions[vIndex - 1].revision.comment
+        if len(comment) > 100:
+            comment = comment[:100] + '...'
+        self.log_action(request)
+        return render(request, 'unfold_studio/show_story_version.html', {
+            'story': versions[vIndex - 1].object,
+            'comment': comment,
+            'version': vIndex,
+            'previousVersion': vIndex - 1 if vIndex > 1 else None,
+            'nextVersion': vIndex + 1 if vIndex + 1 <= versions.count() else None
+        })
+
+    def get_object(self):
+        return self.story
+
+class StoryMethodView(LoginRequiredMixin, LoggingMixin, SingleObjectMixin, View):
+    model = Story
+    require_editable = True
+
+    def get_queryset(self):
+        if self.require_editable:
+            return Story.objects.editable_for_request(self.request)
+        else:
+            return Story.objects.for_request(self.request)
 
 class LoveStoryView(StoryMethodView):
     require_editable = False
@@ -256,7 +273,11 @@ class ForkStoryView(StoryMethodView):
         with reversion.create_revision():
             story.save()
             reversion.set_user(story.author)
-            reversion.set_comment("{} forked from @story:{}".format(story.title, parent.id))
+            if parent.author:
+                reversion.set_comment("{} forked from @story:{} by @user:{}".format(story.title, parent.id,
+                        parent.author.id))
+            else:
+                reversion.set_comment("{} forked from @story:{}".format(story.title, parent.id))
         story.compile()
         story.sites.add(get_current_site(self.request))
         #messages.success(self.request, "You have forked '{}'".format(story.title))
@@ -343,11 +364,16 @@ class NewStoryVersionView(StoryMethodView):
             revision.comment = form.cleaned_data['comment']
             revision.save()
             self.log_action(request)
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.TAGGED_STORY_VERSION,
+                subject=request.user,
+                story=story
+            )
             return redirect('show_story_versions', story.id)
         else:
             return render(request, self.template, {'form': form, 'story': story})
 
-class StoryVersionListView(LoginRequiredMixin, DetailView):
+class StoryVersionListView(DetailView):
     model = Story
     template_name = "unfold_studio/story_version_list.html"
     context_object_name = 'story'
@@ -355,18 +381,55 @@ class StoryVersionListView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Story.objects.for_request(self.request)
 
+    def get(self, request, *args, **kwargs):
+        story = self.get_object()
+        if not story.author:
+            raise Http404()
+        if not story.user_may_comment(self.request.user):
+            messages.warning(request, "You can only comment on a story if its author follows you or if they submit the story to one of your prompts.")
+        if self.request.user == story.author:
+            messages.success(request, "Tip: If you unfollow a user, their comments will disappear.")
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        story = self.get_object()
+        form = CommentForm(request.POST)
+        if form.is_valid() and story.user_may_comment(request.user):
+            comment = Comment.objects.create(
+                author = request.user,
+                story = story,
+                message = form.cleaned_data['comment']
+            )
+            log.info("{} commented on {}".format(request.user, story))
+            return redirect('show_story_versions', story.id)
+        else:
+            return redirect('show_story_versions', args=[story.id])
+        
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        versions = Version.objects.get_for_object(self.get_object()).exclude(revision__comment__exact='').reverse()
-        context['versions'] = [
+        story = self.get_object()
+        versions = Version.objects.get_for_object(story).exclude(revision__comment__exact='').reverse().annotate(
+                index=Window(RowNumber()))
+        comments = Comment.objects.for_story(story).all()
+
+        def date(e):
+            if isinstance(e, Comment):
+                return e.creation_date
+            elif isinstance(e, Version):
+                return e.revision.date_created
+            else:
+                raise ValueError("Unexpected value: {}".format(e))
+
+        history = sorted(list(versions) + list(comments), key=date)
+        context['history'] = [
             {
-                'story': v.object,
-                'comment': v.revision.comment,
-                'timestamp': v.revision.date_created
+                'content': 'version' if isinstance(e, Version) else 'comment',
+                'object': e
             }
-            for v in versions
+            for e in history
         ]
- 
+        if story.user_may_comment(self.request.user):
+            context['commentForm'] = CommentForm()
         return context
 
 class CreateBookView(LoginRequiredMixin, CreateView):

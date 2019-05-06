@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'unfold_studio',
     'profiles',
     'literacy_events',
-    'prompts'
+    'prompts',
+    'comments'
 ]
 
 MIDDLEWARE = [

@@ -28,10 +28,10 @@
 Version {{version}}
 {% if nextVersion is not None %}<a href="{% url 'show_story_version' pk=story.id version=nextVersion %}">&gt;</a>{% endif %}
 <a href="{% url 'show_story' story.id %}">&gt;&gt;</a>]
-[<a href="{% url 'show_story_versions' story.id %}">History</a>]
 [<a id="replay_story" href="">Replay</a>]
 <span id="show_code_opt" style="display: none;">[<a id="show_code" href="#">Show code</a>]</span>
 <span id="hide_code_opt">[<a id="hide_code" href="#">Hide code</a>]</span>
+[<a href="{% url 'show_story_versions' story.id %}">History</a>]
 </div>
 
 {# FROM INKY #}

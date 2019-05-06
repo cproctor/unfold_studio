@@ -5,17 +5,45 @@
 {% block content %}
     <h1>History of {{story.title}}</h1>
     <p class="description">
-        By {{story.author}}
+        By {{story.author.id | linkuser:user}}
         [<a href="{% url 'show_story' story.id %}">Current version</a>]
     </p>
-    <ul>
-    {% for version in versions %}
-    <li>
-        <a href="{% url 'show_story_version' pk=story.id version=forloop.counter0 %}">{{version.timestamp|humanize}}</a>:
-        {{version.comment|linkrefs:user}}
-    </li>
+    <table class="story-history">
+    {% for e in history %}
+    <tr>
+        {% if e.content == 'version' %}
+            {% with version=e.object %}
+                <td>
+                {{version.revision.date_created|humanize}}
+                </td>
+                <td>
+                  <a href="{% url 'show_story_version' pk=story.id version=version.index %}">
+                    Version {{version.index }}
+                  </a>
+                  {{version.revision.comment|linkrefs:user}}
+                </td>
+            {% endwith %}
+        {% else %}
+            {% with comment=e.object %}
+                <td>
+                {{comment.creation_date|humanize}}
+                </td>
+                <td>
+                {{comment.author.id|linkuser:user}} commented:
+                {{comment.message}}
+                </td>
+            {% endwith %}
+        {% endif %}
+    </tr>
     {% endfor%}
-    </ul>
+    </table>
+    {% if commentForm %}
+        <form action="{% url 'show_story_versions' story.id %}" method="post">
+            {% csrf_token %}
+            {{commentForm}}
+            <input type="submit" value="Submit">
+        </form>
+    {% endif %}
 
 {% endblock %}
 
