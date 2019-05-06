@@ -9,7 +9,7 @@
     {% elif event.event_type == LiteracyEvent.COMMENTED_ON_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         commented on 
-        {% include 'literacy_events/story.html' %}
+        {% include 'literacy_events/story_versions.html' %}
     {% elif event.event_type == LiteracyEvent.FORKED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         forked 
@@ -79,6 +79,10 @@
         {% include 'literacy_events/user.html' with user=subjectUser%} 
         unpublished the book of submissions from 
         {% include 'literacy_events/prompt.html' %}
+    {% elif event.event_type == LiteracyEvent.TAGGED_STORY_VERSION %}
+        {% include 'literacy_events/user.html' with user=subjectUser%} 
+        published a new version of 
+        {% include 'literacy_events/story_versions.html' %}
     {% else %}
         Error displaying [{{event}}]
     {% endif %}

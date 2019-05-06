@@ -20,8 +20,6 @@ class LiteracyEvent(models.Model):
     """
     Represents significant things that happen at the user level.
     """
-    # TODO: add new events: created_prompt, submitted_story_to_prompt, read_knot (will require session, ,storyVersion, knot)
-    # TODO: Created story, savedStoryVersion
 
     LOVED_STORY                     = '0'
     COMMENTED_ON_STORY              = '1'
@@ -40,6 +38,7 @@ class LiteracyEvent(models.Model):
     STORY_READING                   = 'f'
     PUBLISHED_PROMPT_AS_BOOK        = 'g'
     UNPUBLISHED_PROMPT_AS_BOOK      = 'h'
+    TAGGED_STORY_VERSION            = 'i'
 
     EVENT_TYPES = (
         (LOVED_STORY, "loved story"),
@@ -59,6 +58,7 @@ class LiteracyEvent(models.Model):
         (STORY_READING, "story knot read"),
         (PUBLISHED_PROMPT_AS_BOOK, "published prompt as book"),
         (UNPUBLISHED_PROMPT_AS_BOOK, "unpublished prompt as book"),
+        (TAGGED_STORY_VERSION, 'tagged a story version')
     )
     
     timestamp = models.DateTimeField(default=timezone.now)
@@ -117,6 +117,8 @@ class LiteracyEvent(models.Model):
             body = "{} published prompt {} as book {}".format(self.subject, self.prompt, self.book)
         elif self.event_type == LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK:
             body = "{} unpublished prompt {}".format(self.subject, self.prompt, self.book)
+        elif self.event_type == LiteracyEvent.TAGGED_STORY_VERSION:
+            body = "{} tagged a version of {}".format(self.subject, self.story)
         else:
             raise ValueError("Unhandled event type: {}".format(self.event_type))
         return (prefix if with_prefix else '') + body + ts

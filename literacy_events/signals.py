@@ -24,7 +24,7 @@ def literacy_event_notifications(sender, **kwargs):
 def get_recipients(e):
     if e.event_type == LiteracyEvent.LOVED_STORY:
         return set(subject(e) + story_author(e) + followers(subject(e)))
-    elif e.event_type == LiteracyEvent.COMMENTED_ON_STORY: # NOT IMPLEMENTED
+    elif e.event_type == LiteracyEvent.COMMENTED_ON_STORY:
         return set(subject(e) + story_author(e))
     elif e.event_type == LiteracyEvent.FORKED_STORY:
         return set(subject(e) + parent_story_author(e) + followers(subject(e)))
@@ -56,6 +56,11 @@ def get_recipients(e):
         return subject(e)
     elif e.event_type == LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK:
         return subject(e)
+    elif e.event_type == LiteracyEvent.TAGGED_STORY_VERSION:
+        if e.story.shared:
+            return set(subject(e) + followers(subject(e)))
+        else:
+            return subject(e)
     else:
         log.debug("No notifications created for {}".format(e))
         return []
