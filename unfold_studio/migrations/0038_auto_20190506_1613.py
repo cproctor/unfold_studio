@@ -2,6 +2,7 @@
 
 from django.db import migrations
 from reversion.models import Version, Revision
+from django.utils import timezone
 
 def update_revision_comments(apps, schema_editor):
     #Revision = apps.get_model('reversion', 'Revision')
@@ -10,6 +11,8 @@ def update_revision_comments(apps, schema_editor):
 
     for r in Revision.objects.iterator():
         r.comment = ''
+        if timezone.is_naive(r.date_created):
+            r.date_created = timezone.make_aware(r.date_created)
         r.save()
 
     for s in Story.objects.iterator():
