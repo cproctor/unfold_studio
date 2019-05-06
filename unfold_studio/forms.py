@@ -24,3 +24,6 @@ class SearchForm(Form):
             return urlencode(self.cleaned_data)
         else:
             return ""
+
+class StoryVersionForm(Form):
+    comment = forms.CharField(widget=forms.Textarea())

@@ -13,9 +13,10 @@
         <li>
             {% include 'unfold_studio/story.html'%}
             {% if book.owner == request.user %}
-                [<a href="{% url 'remove_story_from_book' book.id story.id %}">
-                    <span class="danger">remove</span>
-                </a>]
+                [<form action="{% url 'remove_story_from_book' book.id story.id %}" method="post" class="link">
+                    {% csrf_token %}
+                    <input type="submit" class="danger" value="remove">
+                </form>]
             {% endif %}
         </li>
     {% endfor %}

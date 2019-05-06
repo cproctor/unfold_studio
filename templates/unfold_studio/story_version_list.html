@@ -1,0 +1,22 @@
+{% extends 'base/base.html' %}
+{% load app_filters %}
+{% load linkrefs %} 
+
+{% block content %}
+    <h1>History of {{story.title}}</h1>
+    <p class="description">
+        By {{story.author}}
+        [<a href="{% url 'show_story' story.id %}">Current version</a>]
+    </p>
+    <ul>
+    {% for version in versions %}
+    <li>
+        <a href="{% url 'show_story_version' pk=story.id version=forloop.counter0 %}">{{version.timestamp|humanize}}</a>:
+        {{version.comment|linkrefs:user}}
+    </li>
+    {% endfor%}
+    </ul>
+
+{% endblock %}
+
+

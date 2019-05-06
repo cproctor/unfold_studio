@@ -1,8 +1,8 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-    <h1>Rename {{story.title}}</h1>
-    <form action="{% url 'edit_story' story.id %}" method="POST">
+    <h1>Save a version of {{story.title}}</h1>
+    <form action="{% url 'new_story_version' story.id %}" method="POST">
         {% csrf_token %}
         <table>
         {{form.as_table}}
@@ -10,3 +10,4 @@
         <input type="submit" value="Submit">
     </form>
 {% endblock %}
+

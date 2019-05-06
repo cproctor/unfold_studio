@@ -105,6 +105,12 @@ class Story(models.Model):
 
     objects = StoryManager()
 
+    def visible_to_user(self, user):
+        return (
+            self.public or self.shared or user == self.author or 
+            user in self.prompts_submitted.prefetch_related('owner')
+        )
+
     class PreprocessingError(Exception):
         "Raised when something goes wrong during preprocessing."
         def __init__(self, error_type, line=None, message=None):

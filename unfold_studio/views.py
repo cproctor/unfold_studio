@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.contrib.auth import login
 import json
 import logging
-from .forms import StoryForm
+from .forms import StoryForm, StoryVersionForm
 from .models import Story, Book
 from profiles.models import Profile
 from django.views.generic.detail import SingleObjectMixin, DetailView
@@ -19,6 +19,7 @@ from django.views import View
 from django.http import HttpResponseRedirect
 from django.urls import reverse
 import reversion
+from reversion.models import Version
 from profiles.forms import SignUpForm
 from django.utils.timezone import now
 from django.contrib.sites.shortcuts import get_current_site
@@ -104,7 +105,7 @@ def new_story(request):
             with reversion.create_revision():
                 story.save()
                 reversion.set_user(story.author)
-                reversion.set_comment("New story")
+                reversion.set_comment("Initial version of {}".format(story.title))
             log.info("{} created story {}".format(u(request), story.id))
             return redirect('show_story', story.id)
     else:
@@ -122,7 +123,6 @@ def edit_story(request, story_id):
             with reversion.create_revision():
                 story.save()
                 reversion.set_user(story.author)
-                reversion.set_comment("Title changed to {}".format(story.title))
             return redirect('show_story', story.id)
     else:
         form = StoryForm(instance=story)
@@ -139,10 +139,8 @@ def compile_story(request, story_id):
         reversion.set_user(story.author)
         if not story.errors.exists():
             log.info("{} edited story {} (ok)".format(u(request), story.id))
-            reversion.set_comment("Story edited and compiled.")
         else:
             log.info("{} edited story {} (errors)".format(u(request), story.id))
-            reversion.set_comment("Story edited and compiled (has error)")
     return JsonResponse(story.for_json())
 
 def show_story(request, story_id):
@@ -182,13 +180,34 @@ def signup(request):
 
     return render(request, 'registration/signup.html', {'form': form})
 
+class StoryVersionDetailView(View):
+    def get(self, request, *args, **kwargs):
+        story = Story.objects.get_for_request_or_404(request, pk=kwargs['pk'])
+        vIndex = int(kwargs['version'])
+        versions = Version.objects.get_for_object(story).exclude(revision__comment__exact='').reverse()
+        if vIndex >= versions.count():
+            raise Http404()
+        comment = versions[vIndex].revision.comment
+        if len(comment) > 100:
+            comment = comment[:100] + '...'
+        return render(request, 'unfold_studio/show_story_version.html', {
+            'story': versions[vIndex].object,
+            'comment': comment,
+            'version': vIndex,
+            'previousVersion': vIndex - 1 if vIndex > 0 else None,
+            'nextVersion': vIndex + 1 if vIndex + 1 < versions.count() else None
+        })
+
 class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
     model = Story
-    slug_field = 'id'
+    require_editable = True
     verb = "<undefined verb>"
 
     def get_queryset(self):
-        return Story.objects.for_request(self.request)
+        if self.require_editable:
+            return Story.objects.editable_for_request(self.request)
+        else:
+            return Story.objects.for_request(self.request)
 
     def log_action(self, request):
         story = self.get_object()
@@ -200,8 +219,9 @@ class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
             log.info("{} {} story {} (id {}; by {})".format(u(request), self.verb, story.title, story.id, story.author.username))
 
 class LoveStoryView(StoryMethodView):
+    require_editable = False
     verb = "loved"
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         story = self.get_object()
         if self.request.user.profile in story.loves.all():
             messages.warning(self.request, "You already love '{}'".format(story.title))
@@ -218,8 +238,9 @@ class LoveStoryView(StoryMethodView):
         return redirect('show_story', story.id)
         
 class ForkStoryView(StoryMethodView):
+    require_editable = False
     verb = "forked"
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         parent = self.get_object()
         if not request.user.is_authenticated:
             messages.warning(request, "You must be logged in to fork stories")
@@ -235,7 +256,7 @@ class ForkStoryView(StoryMethodView):
         with reversion.create_revision():
             story.save()
             reversion.set_user(story.author)
-            reversion.set_comment("Story forked")
+            reversion.set_comment("{} forked from @story:{}".format(story.title, parent.id))
         story.compile()
         story.sites.add(get_current_site(self.request))
         #messages.success(self.request, "You have forked '{}'".format(story.title))
@@ -249,7 +270,7 @@ class ForkStoryView(StoryMethodView):
 
 class DeleteStoryView(StoryMethodView):
     verb = "deleted"
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         story = self.get_object()
         if not request.user.is_authenticated:
             messages.warning(request, "You need to be logged in to delete stories")
@@ -265,7 +286,7 @@ class DeleteStoryView(StoryMethodView):
         
 class ShareStoryView(StoryMethodView):
     verb = "shared"
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         story = self.get_object()
         if story.author != request.user:
             messages.warning(request, "You can only share your own stories.")
@@ -285,7 +306,7 @@ class ShareStoryView(StoryMethodView):
 
 class UnshareStoryView(StoryMethodView):
     verb = "unshared"
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         story = self.get_object()
         if story.author != request.user:
             messages.warning(request, "You can only unshare your own stories.")
@@ -302,6 +323,51 @@ class UnshareStoryView(StoryMethodView):
             )
             #messages.success(request, "You unshared '{}'".format(story.title))
         return redirect('show_story', story.id)
+
+class NewStoryVersionView(StoryMethodView):
+    verb = "created a new version of"
+    template = "unfold_studio/new_story_version.html"
+
+    def get(self, request, *args, **kwargs):
+        story = self.get_object()
+        version = Version.objects.get_for_object(story).first()
+        form = StoryVersionForm(initial={'comment': version.revision.comment})
+        return render(request, self.template, {'form': form, 'story': story})
+
+    def post(self, request, *args, **kwargs):
+        form = StoryVersionForm(request.POST)
+        story = self.get_object()
+        if form.is_valid():
+            version = Version.objects.get_for_object(story).first()
+            revision = version.revision
+            revision.comment = form.cleaned_data['comment']
+            revision.save()
+            self.log_action(request)
+            return redirect('show_story_versions', story.id)
+        else:
+            return render(request, self.template, {'form': form, 'story': story})
+
+class StoryVersionListView(LoginRequiredMixin, DetailView):
+    model = Story
+    template_name = "unfold_studio/story_version_list.html"
+    context_object_name = 'story'
+
+    def get_queryset(self):
+        return Story.objects.for_request(self.request)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        versions = Version.objects.get_for_object(self.get_object()).exclude(revision__comment__exact='').reverse()
+        context['versions'] = [
+            {
+                'story': v.object,
+                'comment': v.revision.comment,
+                'timestamp': v.revision.date_created
+            }
+            for v in versions
+        ]
+ 
+        return context
 
 class CreateBookView(LoginRequiredMixin, CreateView):
     model = Book
@@ -367,7 +433,7 @@ class UpdateBookView(UpdateView):
         return reverse('show_book', args=(self.object.id,))
 
 class AddStoryToBookView(LoginRequiredMixin, StoryMixin, DetailView):
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         book = self.get_object(Book.objects.filter(owner=request.user))
         story = self.get_story()    # Lookup defaults to using story_id URL kwarg
         if story in book.stories.all():
@@ -388,7 +454,7 @@ class AddStoryToBookView(LoginRequiredMixin, StoryMixin, DetailView):
         return redirect('show_book', book.id)
             
 class RemoveStoryFromBookView(LoginRequiredMixin, StoryMixin, DetailView):
-    def get(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         book = self.get_object(Book.objects.filter(owner=request.user))
         story = self.get_story(queryset=book.stories.all())    # Lookup defaults to using story_id URL kwarg
         book.stories.remove(story)

@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load staticfiles %}
+{% load linkrefs %}
 
 {% block head %}
 
@@ -14,12 +15,15 @@
 {% endblock %}
 
 {% block content %}
-<h2>{{story.title}}</h2>
-<p class="description">
+<h2 class="story-title">{{story.title}}</h2>
+<div class="description">
 {% if story.public %}
     Public story
 {% else %}
     by <a href="{% url 'show_user' story.author.username %}">{{story.author}}</a>
+{% endif %}
+{% if story.parent %}
+    (Forked from {{story.parent.id | linkstory:user}})
 {% endif %}
 {% if request.user.is_authenticated and request.user.profile in story.loves.all %}
     {% if story.loves.count > 1 %}
@@ -35,6 +39,7 @@
 {% if story.author == request.user or story.public %}
     [<a id="save_story" href="">Save</a>]
     [<a id="edit_story" href="{% url 'edit_story' story.id %}">Rename</a>]
+    [<a href="{% url 'new_story_version' story.id %}">Tag this version</a>]
     <span id="show_code_opt" style="display: none;">[<a id="show_code" href="#">Show code</a>]</span>
     <span id="hide_code_opt">[<a id="hide_code" href="#">Hide code</a>]</span>
 {% else %}
@@ -45,22 +50,22 @@
 {% if request.user.is_authenticated %}
     {% if story.author == request.user %}
         {% if story.shared %}
-            [Public. <a id="share_story" href="{% url 'unshare_story' story.id %}">Unshare?</a>]
+            [Public. <form action="{% url 'unshare_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Unshare?"></form>]
         {% else %}
-            [Private. <a id="unshare_story" href="{% url 'share_story' story.id %}">Share?</a>]
+            [Private. <form action="{% url 'share_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Share?"></form>]
         {% endif %}
     {% else %}
         {% if request.user.profile not in story.loves.all %}
             {% if story.loves.count > 0 %}
-                [<a href="{% url 'love_story' story.id %}">&lt;3 (loved by {{story.loves.count}})</a>]
+                [<form action="{% url 'love_story' story.id %}" method="post" class="link"><input type="submit" value="&lt;3 (loved by {{story.loves.count}})">{% csrf_token %}</form>]
             {% else %}
-                [<a href="{% url 'love_story' story.id %}">&lt;3</a>]
+                [<form action="{% url 'love_story' story.id %}" method="post" class="link"><input type="submit" value="&lt;3">{% csrf_token %}</form>]
             {% endif %}
         {% endif %}
     {% endif %}
-    [<a href="{% url 'fork_story' story.id %}">Fork</a>]
+    [<form action="{% url 'fork_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Fork"></form>]
     {% if addableBooks %}
-        [<a href="{% url 'add_story_to_book' addableBooks.0.id story.id %}" id="add-book-link">Add to book</a>
+        [<form action="{% url 'add_story_to_book' addableBooks.0.id story.id %}" id="add-book-form" method="post" class="link">{% csrf_token %}<input type="submit" value="Add to book"></form>
          <select id="select-book" onchange="setBook(this)" autocomplete="off">
             {% for book in addableBooks %}
                 <option value={{book.id}} {% if forloop.first %} selected="selected" {% endif %}>{{book.title}}</option>
@@ -68,15 +73,16 @@
          </select>]
         <script type="text/javascript">
             function setBook(el) { 
-                let link = document.getElementById('add-book-link');
-                let linkParts = link.href.split('/');
-                linkParts[4] = el.value;
-                link.href = linkParts.join('/');
+                let form = document.getElementById('add-book-form');
+                let urlParts = form.action.split('/');
+                urlParts[4] = el.value;
+                form.action = urlParts.join('/');
             }
         </script>
     {% endif %}
+    [<a href="{% url 'show_story_versions' story.id %}">History</a>]
 {% endif %}
-</p>
+</div>
 
 {# FROM INKY #}
 <div id="main">
