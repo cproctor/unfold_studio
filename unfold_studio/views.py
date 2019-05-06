@@ -411,19 +411,14 @@ class StoryVersionListView(DetailView):
         story = self.get_object()
         versions = Version.objects.get_for_object(story).exclude(revision__comment__exact='').reverse().annotate(
                 index=Window(RowNumber()))
-        for v in versions:
-            r = v.revision
-            if timezone.is_naive(r.date_created):
-                r.date_created = timezone.make_aware(r.date_created)
-                #r.save()
 
         comments = Comment.objects.for_story(story).all()
 
         def date(e):
             if isinstance(e, Comment):
-                return e.creation_date
+                return timezone.make_aware(e.creation_date)
             elif isinstance(e, Version):
-                return e.revision.date_created
+                return timezone.make_aware(e.revision.date_created)
             else:
                 raise ValueError("Unexpected value: {}".format(e))
 
