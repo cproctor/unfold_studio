@@ -416,11 +416,14 @@ class StoryVersionListView(DetailView):
 
         def date(e):
             if isinstance(e, Comment):
-                return timezone.make_aware(e.creation_date)
+                d =  e.creation_date
             elif isinstance(e, Version):
-                return timezone.make_aware(e.revision.date_created)
+                d = e.revision.date_created
             else:
                 raise ValueError("Unexpected value: {}".format(e))
+            if timezone.is_naive(d):
+                d = timezone.make_aware(d)
+            return d
 
         history = sorted(list(versions) + list(comments), key=date)
         context['history'] = [
