@@ -27,6 +27,8 @@ def update_revision_comments(apps, schema_editor):
                     r.comment = "{} forked from @story:{}".format(s.title, s.parent.id)
             else:
                 r.comment = "Initial version of @story:{}".format(s.id)
+            if timezone.is_naive(r.date_created):
+                r.date_created = timezone.make_aware(r.date_created)
             r.save()
 
 def reverse_update(apps, schema_editor):
