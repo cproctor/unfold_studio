@@ -39,7 +39,7 @@
 {% if story.author == request.user or story.public %}
     [<a id="save_story" href="">Save</a>]
     [<a id="edit_story" href="{% url 'edit_story' story.id %}">Rename</a>]
-    [<a href="{% url 'new_story_version' story.id %}">Tag this version</a>]
+    [<a href="{% url 'new_story_version' story.id %}">Save this version</a>]
     <span id="show_code_opt" style="display: none;">[<a id="show_code" href="#">Show code</a>]</span>
     <span id="hide_code_opt">[<a id="hide_code" href="#">Hide code</a>]</span>
 {% else %}
