@@ -8,8 +8,11 @@ from unfold_studio.models import Story
 import logging
 log = logging.getLogger(__name__)    
 
-class LogReadingEvent(LoginRequiredMixin, ProcessFormView):
+class LogReadingEvent(ProcessFormView):
     def post(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            log.info("Ignoring anonymous logged reading")
+            return HttpResponse("OK")
         form = ReadingEventForm(request.POST)
         if form.is_valid():
             story = Story.objects.get_for_request_or_404(request, pk=form.cleaned_data['story'])
