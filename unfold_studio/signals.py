@@ -5,4 +5,4 @@ from unfold_studio.models import Story
 
 @receiver(post_save, sender=Story)
 def update_search_vector(sender, instance, **kwargs):
-    Story.objects.get(pk=instance.pk).update(search=SearchVector('title', 'ink'))
+    Story.objects.filter(pk=instance.pk).update(search=SearchVector('title', 'ink'))

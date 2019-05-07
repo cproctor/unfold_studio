@@ -62,7 +62,6 @@ def browse(request):
     site = get_current_site(request)
     if request.user.is_authenticated:
         stories = Story.objects.for_site_user(site, request.user)
-        stories = stories.select_related('author').prefetch_related('loves')
     else:
         stories = Story.objects.for_site_anonymous_user(site)
 
@@ -81,6 +80,9 @@ def browse(request):
     else:
         searching = False
         form = SearchForm()
+
+    if request.user.is_authenticated:
+        stories = stories.select_related('author').prefetch_related('loves')
 
     paginator = Paginator(stories, s.STORIES_PER_PAGE)
     page = request.GET.get('page', 1)
