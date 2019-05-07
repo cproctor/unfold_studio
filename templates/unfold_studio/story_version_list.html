@@ -5,7 +5,7 @@
 {% block content %}
     <h1>History of {{story.title}}</h1>
     <p class="description">
-        By {{story.author.id | linkuser:user}}
+        By {{story.author.username | linkuser:user}}
         [<a href="{% url 'show_story' story.id %}">Current version</a>]
     </p>
     <table class="story-history">
