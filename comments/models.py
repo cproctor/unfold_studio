@@ -25,3 +25,10 @@ class Comment(models.Model):
     deleted = models.BooleanField(default=False)
     
     objects = CommentManager()
+
+    def __str__(self):
+        return '{} commented on {}, "{}"'.format(
+            self.author, 
+            self.story, 
+            self.message[:20] + '...' if len(self.message) > 20 else self.message
+        )
