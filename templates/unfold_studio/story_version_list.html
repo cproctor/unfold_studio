@@ -29,8 +29,8 @@
                 {{comment.creation_date|humanize}}
                 </td>
                 <td>
-                {{comment.author.id|linkuser:user}} commented:
-                {{comment.message}}
+                {{comment.author.username|linkuser:user}} commented:
+                {{comment.message|linkrefs:user}}
                 </td>
             {% endwith %}
         {% endif %}

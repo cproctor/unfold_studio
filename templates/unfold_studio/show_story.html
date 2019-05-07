@@ -20,10 +20,10 @@
 {% if story.public %}
     Public story
 {% else %}
-    by {{story.author.id | linkuser:user}}
+    by {{story.author.username | linkuser:user}}
 {% endif %}
 {% if story.parent %}
-    (Forked from {{story.parent.id | linkstory:user}}{% if story.parent.author %} by {{story.parent.author.id | linkuser:user}}{% endif %})
+    (Forked from {{story.parent.id | linkstory:user}}{% if story.parent.author %} by {{story.parent.author.username | linkuser:user}}{% endif %})
 {% endif %}
 {% if request.user.is_authenticated and request.user.profile in story.loves.all %}
     {% if story.loves.count > 1 %}
