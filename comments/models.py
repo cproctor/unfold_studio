@@ -14,7 +14,7 @@ class CommentManager(models.Manager):
                 Q(author=story.author) | 
                 Q(author__profile__followers=story.author.profile) | 
                 Q(author__prompts_owned__submissions=story)
-            )
+            ).distinct()
 
 # Create your models here.
 class Comment(models.Model):
