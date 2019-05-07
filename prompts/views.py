@@ -21,14 +21,14 @@ def u(request):
     "Helper to return username"
     return request.user.username if request.user.is_authenticated else "<anonymous>"
 
-class PromptsOwnedListView(ListView):
+class PromptsOwnedListView(LoginRequiredMixin, ListView):
     model = Prompt
     context_object_name = 'prompts'
     template_name = 'prompts/list_prompts_owned.html'
     def get_queryset(self):
         return Prompt.objects.filter(owners=self.request.user)
 
-class PromptsOwnedCSVView(CSVResponseMixin, View):
+class PromptsOwnedCSVView(LoginRequiredMixin, CSVResponseMixin, View):
 
     def get_csv_filename(self):
         return timezone.now().strftime("unfold-studio-prompts-%Y-%m-%d.csv")
@@ -50,7 +50,7 @@ class PromptsOwnedCSVView(CSVResponseMixin, View):
 
         return self.render_to_csv(users.values(*values), dicts=True, fieldnames=values)
 
-class PromptsAssignedListView(ListView):
+class PromptsAssignedListView(LoginRequiredMixin, ListView):
     model = Prompt
     context_object_name = 'prompts'
     template_name = 'prompts/list_prompts_assigned.html'
@@ -65,7 +65,7 @@ class PromptsAssignedListView(ListView):
         ]
         return context
 
-class PromptAssignedDetailView(DetailView):
+class PromptAssignedDetailView(LoginRequiredMixin, DetailView):
     model = Prompt
     context_object_name = 'prompt'
     template_name = 'prompts/show_prompt_assigned.html'
@@ -107,7 +107,7 @@ class PromptAssignedDetailView(DetailView):
             return render(request, self.template_name, context)
 
 
-class ClearPromptSubmissionView(SingleObjectMixin, View):
+class ClearPromptSubmissionView(LoginRequiredMixin, SingleObjectMixin, View):
     http_method_names = ['post']
     def post(self, *args, **kwargs):
         prompt = self.get_object()
@@ -131,7 +131,7 @@ class ClearPromptSubmissionView(SingleObjectMixin, View):
     def get_queryset(self):
         return Prompt.objects.filter(assignee_groups__user=self.request.user)
 
-class PromptOwnedDetailView(DetailView):
+class PromptOwnedDetailView(LoginRequiredMixin, DetailView):
     model = Prompt
     context_object_name = 'prompt'
     template_name = 'prompts/show_prompt_owned.html'
