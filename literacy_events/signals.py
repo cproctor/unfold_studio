@@ -58,7 +58,7 @@ def get_recipients(e):
         return subject(e)
     elif e.event_type == LiteracyEvent.TAGGED_STORY_VERSION:
         if e.story.shared:
-            return set(subject(e) + followers(subject(e)))
+            return set(subject(e) + followers(subject(e)) + story_lovers(e))
         else:
             return subject(e)
     else:
@@ -70,6 +70,9 @@ def subject(e):
 
 def story_author(e):
     return [e.story.author] if e.story and e.story.author else []
+
+def story_lovers(e):
+    return [profile.user for profile in e.story.loves.select_related('user')]
 
 def parent_story_author(e):
     if e.story and e.story.parent and e.story.parent.author:
