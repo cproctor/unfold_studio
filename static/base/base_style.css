@@ -190,3 +190,9 @@ table.story-history td {
 table.story-history td:nth-child(1) {
     min-width: 10em;
 }
+table.story-history th {
+    text-align: left;
+    vertical-align: top;
+}
+    
+

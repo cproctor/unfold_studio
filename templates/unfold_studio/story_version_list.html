@@ -36,14 +36,19 @@
         {% endif %}
     </tr>
     {% endfor%}
-    </table>
     {% if commentForm %}
         <form action="{% url 'show_story_versions' story.id %}" method="post">
             {% csrf_token %}
-            {{commentForm}}
-            <input type="submit" value="Submit">
+            {{commentForm.as_table}}
+            <tr>
+                <td></td>
+                <td>
+                    <input type="submit" value="Submit">
+                </td>
+            </tr>
         </form>
     {% endif %}
+    </table>
 
 {% endblock %}
 

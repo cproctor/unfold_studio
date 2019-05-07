@@ -434,7 +434,9 @@ class StoryVersionListView(DetailView):
             for e in history
         ]
         if story.user_may_comment(self.request.user):
-            context['commentForm'] = CommentForm()
+            form = CommentForm()
+            form.fields['comment'].label = "Add a comment"
+            context['commentForm'] = form
         return context
 
 class CreateBookView(LoginRequiredMixin, CreateView):
