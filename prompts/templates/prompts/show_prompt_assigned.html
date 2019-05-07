@@ -1,9 +1,10 @@
 {% extends 'base/base.html' %}
 {% load staticfiles %}
+{% load linkrefs %}
 
 {% block content %}
 <h1>{{prompt.name}}</h1>
-<p>{{prompt.description}}</p>
+<p>{{prompt.description | linkrefs:user}}</p>
 {% if submission %}
     You submitted <a href="{% url 'show_story' submission.id %}">{{submission.title}}</a>. 
     [<form action="{% url 'clear_prompt_submission' prompt.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Clear"></form>]
