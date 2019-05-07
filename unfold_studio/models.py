@@ -52,6 +52,11 @@ class StoryManager(models.Manager):
             Q(author=user)
         ).distinct()
 
+    def for_site_anonymous_user(self, site):
+        return self.for_site(site).filter(
+            Q(public=True) | Q(shared=True)
+        )
+
     def editable_for_request(self, request):
         "Returns stories which are visible to the current request"
         user = request.user

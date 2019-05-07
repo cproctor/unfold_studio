@@ -43,24 +43,35 @@ def u(request):
 
 def home(request):
     "The homepage shows a subset of stories with the highest priority."
+    site = get_current_site(request)
     if request.user.is_authenticated:
         for g in request.user.groups.filter(id__in=s.GROUP_HOMEPAGE_MESSAGES.keys()).all():
             messages.warning(request, s.GROUP_HOMEPAGE_MESSAGES[g.id])
-        stories = Story.objects.for_request(request).select_related('author').prefetch_related('loves')[:s.STORIES_ON_HOMEPAGE]
+        stories = Story.objects.for_site_user(site, request.user)
+        stories = stories.select_related('author').prefetch_related('loves')
     else:
         site = get_current_site(request)
-        stories = Story.objects.for_site(site)[:s.STORIES_ON_HOMEPAGE]
+        stories = Story.objects.for_site_anonymous_user(site)
+
+    stories = stories[:s.STORIES_ON_HOMEPAGE]
     log.info("{} visited homepage".format(u(request)))
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
     "Shows all stories, sorted by priority. Someday, I'll need to paginate this."
+    site = get_current_site(request)
+    if request.user.is_authenticated:
+        stories = Story.objects.for_site_user(site, request.user)
+        stories = stories.select_related('author').prefetch_related('loves')
+    else:
+        stories = Story.objects.for_site_anonymous_user(site)
+
     if request.GET.get('query'):
         searching = True
         form = SearchForm(request.GET)
         if form.is_valid():
             query = SearchQuery(form.cleaned_data['query'])
-            stories = Story.objects.for_request(request).annotate(
+            stories = stories.annotate(
                 rank=SearchRank(F('search'), query), 
                 score=F('rank') * F('priority') / (F('rank') + F('priority'))
             ).filter(rank__gte=s.SEARCH_RANK_CUTOFF).order_by('-score')
@@ -70,8 +81,7 @@ def browse(request):
     else:
         searching = False
         form = SearchForm()
-        stories = Story.objects.for_request(request).all()
-    stories = stories.select_related('author').prefetch_related('loves')
+
     paginator = Paginator(stories, s.STORIES_PER_PAGE)
     page = request.GET.get('page', 1)
     try:
