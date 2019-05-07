@@ -1,9 +1,10 @@
 {% extends 'base/base.html' %}
 {% load staticfiles %}
+{% load linkrefs %}
 
 {% block content %}
 <h1>{{prompt.name}}</h1>
-<p>{{prompt.description}}</p>
+<p>{{prompt.description | linkrefs:user}}</p>
 {% if prompt.book %}
     [<a href="{% url 'show_book' prompt.book.id %}">Book</a>] 
     [<form action="{% url 'unpublish_prompt' prompt.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Unpublish"></form>]
