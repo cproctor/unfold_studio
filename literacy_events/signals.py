@@ -25,7 +25,7 @@ def get_recipients(e):
     if e.event_type == LiteracyEvent.LOVED_STORY:
         return set(subject(e) + story_author(e) + followers(subject(e)))
     elif e.event_type == LiteracyEvent.COMMENTED_ON_STORY:
-        return set(subject(e) + story_author(e))
+        return set(subject(e) + story_author(e) + story_commenters(e))
     elif e.event_type == LiteracyEvent.FORKED_STORY:
         return set(subject(e) + parent_story_author(e) + followers(subject(e)))
     elif e.event_type == LiteracyEvent.PUBLISHED_STORY:
@@ -73,6 +73,9 @@ def story_author(e):
 
 def story_lovers(e):
     return [profile.user for profile in e.story.loves.select_related('user')]
+
+def story_commenters(e):
+    return [comment.author for comment in e.story.comments.select_related('author')]
 
 def parent_story_author(e):
     if e.story and e.story.parent and e.story.parent.author:

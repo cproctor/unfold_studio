@@ -402,6 +402,11 @@ class StoryVersionListView(DetailView):
                 message = form.cleaned_data['comment']
             )
             log.info("{} commented on {}".format(request.user, story))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.COMMENTED_ON_STORY,
+                subject=request.user,
+                story=story
+            )
             return redirect('show_story_versions', story.id)
         else:
             return redirect('show_story_versions', args=[story.id])

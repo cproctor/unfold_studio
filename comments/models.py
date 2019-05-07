@@ -19,7 +19,7 @@ class CommentManager(models.Manager):
 # Create your models here.
 class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
-    story = models.ForeignKey(Story, on_delete=models.CASCADE)
+    story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name="comments")
     creation_date = models.DateTimeField('date created', default=timezone.now)
     message = models.TextField()
     deleted = models.BooleanField(default=False)
