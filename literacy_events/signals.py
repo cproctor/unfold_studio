@@ -1,11 +1,3 @@
-# NOTE These signal handlers are all currently disabled (see literacy_events/apps.py). 
-# They are not behaving as intended; I plan to rework the funcitonality and stop using signals
-# for most interaction. Instead view code will manually create LiteracyEvents as appropriate. 
-# I know this creates a tight coupling, but that coupling already exists in more cryptic form in 
-# the buggy logic encoded below. 
-
-# I will continue to use signals to create notifications in response to event creation. 
-
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
