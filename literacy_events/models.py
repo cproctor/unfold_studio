@@ -1,7 +1,9 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from django.db.models import Q
+from django.db.models import Q, Exists, OuterRef
+from unfold_studio.models import Story
+from django.contrib.sites.shortcuts import get_current_site
 import arrow
 
 class LiteracyEventManager(models.Manager):
@@ -138,9 +140,18 @@ class NotificationManager(models.Manager):
             Q(event__object_user__is_active=True) | Q(event__object_user__isnull=True)
         )
 
-    def for_user(self, user):
-        "Returns notifications that ought to be in the user's feed."
-        return self.valid_notifications().filter(recipient=user)
+    def for_request(self, request):
+        "Returns notifications that ought to be visible for the current request"
+        user = request.user
+        site = get_current_site(request)
+        return self.for_site_user(site, user)
+
+    def for_site_user(self, site, user):
+        storyVisible = Exists(Story.objects.for_site_user(site, user).filter(pk=OuterRef('event__story_id')))
+        parentStoryVisible = Exists(Story.objects.for_site_user(site, user).filter(
+                pk=OuterRef('event__story__parent__id')))
+        return self.valid_notifications().filter(recipient=user).annotate(
+                story_visible=storyVisible, parent_story_visible=parentStoryVisible)
 
     def mark_all_seen_for_user(self, user):
         for e in self.get_queryset().filter(recipient=user, seen=False).iterator(chunk_size=500):

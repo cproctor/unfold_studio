@@ -5,7 +5,7 @@
     {% if not story.shared %}
         (private)
     {% endif %}
-{% elif story.shared or story.public %}
+{% elif story_visible %}
     <a href="{% url 'show_story' story.id %}">
         {{story.title}}
     </a>

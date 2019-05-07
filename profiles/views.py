@@ -44,8 +44,8 @@ class UserDetailView(DetailView):
             raise Http404()
         if self.request.user == self.object:
             Notification.objects.mark_all_seen_for_user(self.request.user)
-            context['feed'] = Notification.objects.for_user(self.request.user)[:s.FEED_ITEMS_ON_PROFILE]
-            context['feed_continues'] = (Notification.objects.for_user(self.request.user).count() > 
+            context['feed'] = Notification.objects.for_request(self.request)[:s.FEED_ITEMS_ON_PROFILE]
+            context['feed_continues'] = (Notification.objects.for_request(self.request).count() > 
                     s.FEED_ITEMS_ON_PROFILE)
             context['LiteracyEvent'] = LiteracyEvent
         else:
@@ -67,7 +67,7 @@ class FeedView(DetailView):
             raise Http404()
         Notification.objects.mark_all_seen_for_user(self.request.user)
         context['LiteracyEvent'] = LiteracyEvent
-        notifications = Notification.objects.for_user(self.request.user)
+        notifications = Notification.objects.for_request(self.request)
         paginator = Paginator(notifications, s.FEED_ITEMS_PER_PAGE)
         try:
             context['feed'] = paginator.page(self.request.GET.get('page'))

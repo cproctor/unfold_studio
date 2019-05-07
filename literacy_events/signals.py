@@ -19,7 +19,7 @@ def get_recipients(e):
     elif e.event_type == LiteracyEvent.COMMENTED_ON_STORY:
         return set(subject(e) + story_author(e) + story_commenters(e))
     elif e.event_type == LiteracyEvent.FORKED_STORY:
-        return set(subject(e) + parent_story_author(e) + followers(subject(e)))
+        return set(subject(e) + parent_story_author(e) + story_visible(e.story.parent, followers(subject(e))))
     elif e.event_type == LiteracyEvent.PUBLISHED_STORY:
         return set(subject(e) + if_first(e, followers(subject(e))))
     elif e.event_type == LiteracyEvent.UNPUBLISHED_STORY:
@@ -86,6 +86,11 @@ def prompt_owners(e):
 
 def followers(users):
     return list(User.objects.filter(profile__following__user__in=users).distinct())
+
+def story_visible(story, users):
+    "Returns only users to whom the story is visible"
+    # TODO This should be done using an Exists aggregation
+    return [u for u in users if story.visible_to_user(u)]
 
 def if_first(e, users):
     "Returns users only if e is the first occurrence of the event"

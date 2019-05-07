@@ -1,7 +1,7 @@
 {% load app_filters %}
 <li class="event">
 {% with event=notification.event viewer=notification.recipient %}
-{% with subjectUser=event.subject story=event.story book=event.book objectUser=event.object_user prompt=event.prompt %}
+{% with subjectUser=event.subject story=event.story book=event.book objectUser=event.object_user prompt=event.prompt story_visible=notification.story_visible %}
     {% if event.event_type == LiteracyEvent.LOVED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         loved 
@@ -15,7 +15,7 @@
         forked 
         {% include 'literacy_events/story.html' %} 
         from 
-        {% include 'literacy_events/story.html' with story=story.parent %} 
+        {% include 'literacy_events/story.html' with story=story.parent story_visible=notification.parent_story_visible%} 
     {% elif event.event_type == LiteracyEvent.PUBLISHED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         published 
