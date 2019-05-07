@@ -23,6 +23,14 @@ from django.contrib.postgres.indexes import GinIndex
 log = logging.getLogger(__name__)
 
 class StoryManager(models.Manager):
+    """
+    Extends the default manager with custom queries. Note that "for request"
+    methods will check for user authentication as a convenience, even though
+    it's not really the model's business.
+
+    Methods for site and user will not check authentication, and will raise errors
+    if called with an anonymous user.
+    """
 
     def valid(self):
         "Returns non-deleted objects"
@@ -42,7 +50,10 @@ class StoryManager(models.Manager):
         "Returns stories which are visible to the current request"
         user = request.user
         site = get_current_site(request)
-        return self.for_site_user(site, user)
+        if user.is_authenticated:
+            return self.for_site_user(site, user)
+        else:
+            return self.for_site_anonymous_user(site)
 
     def for_site_user(self, site, user):
         return self.for_site(site).filter(
@@ -61,12 +72,20 @@ class StoryManager(models.Manager):
         "Returns stories which are visible to the current request"
         user = request.user
         site = get_current_site(request)
-        return self.editable_for_site_user(site, user)
+        if user.is_authenticated:
+            return self.editable_for_site_user(site, user)
+        else:
+            return self.editable_for_site_anonymous_user(site)
 
     def editable_for_site_user(self, site, user):
         return self.for_site(site).filter(
             Q(public=True) |
             Q(author=user)
+        )
+
+    def editable_for_site_anonymous_user(self, site):
+        return self.for_site(site).filter(
+            Q(public=True)
         )
 
     def get_for_request_or_404(self, request, **kwargs):
