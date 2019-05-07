@@ -17,7 +17,7 @@ def get_recipients(e):
     if e.event_type == LiteracyEvent.LOVED_STORY:
         return set(subject(e) + story_author(e) + followers(subject(e)))
     elif e.event_type == LiteracyEvent.COMMENTED_ON_STORY:
-        return set(subject(e) + story_author(e) + story_commenters(e))
+        return set(subject(e) + story_author(e) + story_visible(e.story, story_commenters(e)))
     elif e.event_type == LiteracyEvent.FORKED_STORY:
         return set(subject(e) + parent_story_author(e) + story_visible(e.story.parent, followers(subject(e))))
     elif e.event_type == LiteracyEvent.PUBLISHED_STORY:
@@ -50,7 +50,8 @@ def get_recipients(e):
         return subject(e)
     elif e.event_type == LiteracyEvent.TAGGED_STORY_VERSION:
         if e.story.shared:
-            return set(subject(e) + followers(subject(e)) + story_lovers(e) + story_commenters(e))
+            return set(subject(e) + story_visible(e.story, 
+                    set(followers(subject(e)) + story_lovers(e) + story_commenters(e))))
         else:
             return subject(e)
     else:
