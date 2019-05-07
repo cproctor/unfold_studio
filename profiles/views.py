@@ -40,7 +40,7 @@ class UserDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.for_request(self.request).filter(owner=self.object).all()
         context['stories'] = Story.objects.for_request(self.request).filter(author=self.object).all()
-        if not self.request.user.is_active:
+        if not self.object.is_active:
             raise Http404()
         if self.request.user == self.object:
             Notification.objects.mark_all_seen_for_user(self.request.user)
