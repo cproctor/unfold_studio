@@ -416,7 +416,7 @@ class StoryVersionListView(DetailView):
 
         def date(e):
             if isinstance(e, Comment):
-                d =  e.creation_date
+                d = e.creation_date
             elif isinstance(e, Version):
                 d = e.revision.date_created
             else:
