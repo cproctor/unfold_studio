@@ -29,21 +29,17 @@ define(
 
     return {
         init: function() {
-            console.log("App is loaded.");
             const player = new InkPlayer('.innerText');
 
             Story.setEvents({
                 newStory: function(story) {
-                    //console.log("NEW STORY");
                 },
                 storyFetched: function(story) {
-                    //console.log("STORY FETCHED");
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
                     player.play(story);
                 },
                 storySaved: function(story) {
-                    //console.log("STORY SAVED");
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
                     player.play(story);
@@ -53,7 +49,6 @@ define(
             $(function() {
                 story = new Story(STORY_ID);
                 story.fetch().then(function() {
-                    console.log(story.status);
                     if (story.status === "error") {
                         console.log("ERROR");
                         $('.twopane.solo').removeClass('solo');
@@ -76,6 +71,7 @@ define(
                 $('#edit_story').click(presave_story);
                 $('#share_story').click(presave_story);
                 $('#unshare_story').click(presave_story);
+                $('#save_version').click(presave_story);
 
                 $('#replay_story').click(function() {
                     player.stop();
@@ -132,7 +128,6 @@ InkProject.setEvents({
 // Wait for DOM to be ready before kicking most stuff off
 // (some of the views get confused otherwise)
 $(document).ready(() => {
-    console.log("DOCUMENT READY");
     if( InkProject.currentProject == null ) {
         InkProject.startNew();
     }
