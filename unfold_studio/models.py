@@ -232,13 +232,26 @@ class Story(models.Model):
             include(variables, iVars)
             include(knots, iKnots)
 
+        
+
         inkText = "\n".join(
+            self.external_function_declarations() +  # call-outs to javascript
             [l for i, l in variables.values()] +    # lifted variable initializations
             self.get_ink_preamble().split('\n') +   # Any remaining preamble (stripped)
             [k for i, k in knots.values()]          # The text of the story's knots
         )
-        offset = (len(variables) - initialVarLength) + len(directInclusions)
+        offset = ((len(variables) - initialVarLength) + len(directInclusions) + 
+                len(self.external_function_declarations()))
         return inkText, inclusions, variables, knots, offset
+
+    def external_function_declarations(self):
+        """
+        Declares available external functions. These ought to be bound by the client-side ink player.
+        """
+        return [
+            "EXTERNAL random()",
+            "EXTERNAL random_integer(a,b)"
+        ]
 
     def ink_to_json(self, ink, offset=0):
         """

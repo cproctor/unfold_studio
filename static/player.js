@@ -7,6 +7,14 @@ function InkPlayer(containerSelector) {
 }
 
 InkPlayer.prototype = {
+    bindExternalFunctions: function(story) {
+        story.BindExternalFunction("random", function() {
+            return Math.random();
+        });
+        story.BindExternalFunction("random_integer", function(low, high) {
+            return low + Math.floor(Math.random() * (high - low));
+        });
+    },
     play: function(content) {
         this.events.prepareToPlay.bind(this)();
         this.content = content;
@@ -15,6 +23,7 @@ InkPlayer.prototype = {
             return 
         } 
         this.story = new inkjs.Story(content.compiled);
+        this.bindExternalFunctions(this.story);
         this.running = true;
         this.continueStory();
     },
