@@ -14,6 +14,21 @@ InkPlayer.prototype = {
         story.BindExternalFunction("random_integer", function(low, high) {
             return low + Math.floor(Math.random() * (high - low));
         });
+        story.BindExternalFunction("ln", function(x) {
+            return Math.log(x);
+        });
+        story.BindExternalFunction("log2", function(x) {
+            return Math.log2(x);
+        });
+        story.BindExternalFunction("round", function(x) {
+            return Math.round(x);
+        });
+        story.BindExternalFunction("floor", function(x) {
+            return Math.floor(x);
+        });
+        story.BindExternalFunction("ceiling", function(x) {
+            return Math.ceil(x);
+        });
     },
     play: function(content) {
         this.events.prepareToPlay.bind(this)();

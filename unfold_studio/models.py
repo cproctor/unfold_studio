@@ -250,7 +250,12 @@ class Story(models.Model):
         """
         return [
             "EXTERNAL random()",
-            "EXTERNAL random_integer(a,b)"
+            "EXTERNAL random_integer(a,b)",
+            "EXTERNAL ln(a)",
+            "EXTERNAL log2(a)",
+            "EXTERNAL round(a)",
+            "EXTERNAL floor(a)",
+            "EXTERNAL ceiling(a)",
         ]
 
     def ink_to_json(self, ink, offset=0):
