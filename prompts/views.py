@@ -139,22 +139,49 @@ class PromptOwnedDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self):
         return Prompt.objects.filter(owners=self.request.user)
 
-    # TODO slow
+    # TODO slow. Should be done with a subquery.
     def get_context_data(self, **kwargs):
         prompt = self.get_object()
         context = super().get_context_data(**kwargs)
+        assignees = self.get_object().assignees.prefetch_related('groups').distinct()
         submissions = self.get_object().submissions.for_request(self.request).distinct()
         submissionsByUsername = {s.author.username : s for s in submissions}
         gn = lambda groups: ", ".join(g.name for g in groups)
         submissionData = [
             (
-                user, gn(user.groups.filter(id__in=prompt.assignee_groups.all()).all()), 
-                submissionsByUsername.get(user.username)
+                user, 
+                gn(user.groups.filter(id__in=prompt.assignee_groups.all()).all()), 
+                submissionsByUsername.get(user.username), 
+                self.has_new_material(submissionsByUsername.get(user.username), prompt)
             ) 
-            for user in self.get_object().assignees.prefetch_related('groups').distinct()
+            for user in assignees
         ]
         context['submissions'] = sorted(submissionData, key=lambda s: (s[1], s[0].username))
         return context
+
+    # TODO slow. Should be done with a subquery.
+    def has_new_material(self, story, prompt):
+        """
+        Returns a boolean indicating whether or not the story has something new the prompt owner may
+        want to respond to.
+        """
+        if story is None: 
+            return False
+        if not story.comments.filter(author__in=prompt.owners.all()).exists():
+            return True
+        latestTeacherComment = story.comments.filter(author__in=prompt.owners.all()).order_by('-creation_date').first()
+        return (
+            story.comments.filter(
+                author=story.author, 
+                creation_date__gt=latestTeacherComment.creation_date
+            ).exists() or 
+            Version.objects.get_for_object(story).filter(
+                revision__date_created__gt=latestTeacherComment.creation_date
+            ).exclude(
+                revision__comment__exact=''
+            ).exists()
+        )
+            
 
 class PublishAsBookView(LoginRequiredMixin, SingleObjectMixin, View):
     http_method_names = ['post']

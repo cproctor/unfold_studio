@@ -18,8 +18,9 @@
             <td>Assignee</td>
             <td>Group</td>
             <td>Submission</td>
+            <td>Needs feedback</td>
         </tr>
-        {% for user, group, story in submissions %}
+        {% for user, group, story, hasNewMaterial in submissions %}
         <tr>
             <td><a href="{% url 'show_user' user.username %}">{{user.username}}</a></td>
             <td>{{group}}</td>
@@ -28,6 +29,11 @@
                         <a href="{% url 'show_story' story.id %}">{{story.title}}</a>
                 {% else %}
                     .
+                {% endif %}
+            </td>
+            <td>
+                {% if hasNewMaterial %}
+                    <a href="{% url 'show_story_versions' story.id %}">-></a>
                 {% endif %}
             </td>
         </tr>
