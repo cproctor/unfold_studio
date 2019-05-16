@@ -319,7 +319,7 @@ class DeleteStoryView(StoryMethodView):
         self.log_action(request)
         story.deleted = True
         story.save()
-        return redirect('home')
+        return redirect('show_user', request.user.id)
         
 class ShareStoryView(StoryMethodView):
     verb = "shared"
