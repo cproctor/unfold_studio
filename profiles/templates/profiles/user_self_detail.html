@@ -23,7 +23,7 @@
                 {% if not story.shared %}
                     [Private]
                 {% endif %}
-                [<a href="{% url 'delete_story' story.id %}"><span class="danger">delete</span></a>]
+                [<form action="{% url 'delete_story' story.id %}" method="post" class="link danger"><input type="submit" value="delete">{% csrf_token %}</form>]
             </li>
         {% endfor %} 
         </ul>
