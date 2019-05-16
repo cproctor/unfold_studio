@@ -240,7 +240,7 @@ class Story(models.Model):
             self.get_ink_preamble().split('\n') +   # Any remaining preamble (stripped)
             [k for i, k in knots.values()]          # The text of the story's knots
         )
-        offset = ((len(variables) - initialVarLength) + len(directInclusions) + 
+        offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))
         return inkText, inclusions, variables, knots, offset
 
