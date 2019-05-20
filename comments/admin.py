@@ -10,4 +10,5 @@ class CommentAdmin(admin.ModelAdmin):
         'message',
         'deleted'
     ]
+    readonly_fields = ("author", "story")
     
