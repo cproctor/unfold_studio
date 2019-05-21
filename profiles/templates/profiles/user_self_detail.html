@@ -14,6 +14,18 @@
             <p><a href="{% url 'show_feed' user.username %}">More...</a></p>
         {% endif %}
     </div>
+    {% if user.profile.following.exists %}
+      <div>
+      <h2>Users you follow</h2>
+      <ul>
+        {% for p in user.profile.following.all %}
+        <li>
+            <a href="{% url 'show_user' p.user.id %}">{{p.user.username}}</a>
+        </li>
+        {% endfor %}
+      </ul> 
+      </div>
+    {% endif %}
     <div>
         <h2>Stories</h2>
         <ul>
