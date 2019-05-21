@@ -20,7 +20,7 @@
       <ul>
         {% for p in user.profile.following.all %}
         <li>
-            <a href="{% url 'show_user' p.user.id %}">{{p.user.username}}</a>
+            <a href="{% url 'show_user' p.user.username %}">{{p.user.username}}</a>
         </li>
         {% endfor %}
       </ul> 
