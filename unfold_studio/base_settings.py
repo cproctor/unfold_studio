@@ -58,7 +58,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'unfold_studio.urls'
+ROOT_URLCONF = 'unfold_studio.urls.base'
 
 TEMPLATES = [
     {
