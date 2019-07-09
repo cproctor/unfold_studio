@@ -135,7 +135,7 @@ class Story(models.Model):
     def user_may_comment(self, user):
         return user.is_authenticated and (
             user == self.author or 
-            self.author.profile.following.filter(pk=user.profile.pk).exists() or 
+            (self.author and self.author.profile.following.filter(pk=user.profile.pk).exists()) or 
             self.prompts_submitted.filter(owners=user).exists()
         ) 
 
