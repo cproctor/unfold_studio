@@ -20,34 +20,24 @@ It was written by Chris Proctor, who would love to receive your questions and fe
 Introduction
 ============
 
-**Who can we be?** The social worlds we live in provide both resources and limitations 
-for the kinds of identities we can write for ourselves. We all know how great it feels
-to be in a space where you feel safe and free. We are also familiar with how some spaces
-keep us from being the people we would like to be. Maybe it's because your parents have a 
-fixed idea about who you are, and impose that on you. Maybe it's because you're not around the
-people who know you best, and with whom you have shared memories. Maybe it's because you're 
-in a culture that attaches expectations to your gender, race, or social position. 
+**How do we build our worlds?** The social worlds we live in provide both resources and limitations for the kinds of identities we can write for ourselves. We all know how great it feels to be in a space where you feel safe and free. We are also familiar with how some spaces keep us from being the people we would like to be. Maybe it’s because your parents have a fixed idea about who you are, and impose that on you. Maybe it’s because you’re not around the people who know you best, and with whom you have shared memories. Maybe it’s because you’re in a culture that attaches expectations to your gender, race, or social position.
 
-This unit invites students to explore
-the relationship between language, identity, and literacy spaces. Literacy spaces are communities
-of meaning-making which have their own histories with ideas and ways of understanding media. 
-Your family is a literacy space--its members are known in particular ways, you know what gets talked
-about (and what doesn't) at the dinner table, and everyone knows what to laugh about and what to 
-take seriously. Other examples of literacy spaces are school classrooms and Facebook. 
+This unit invites students to explore the relationship between language, identity, and literacy spaces. Literacy spaces are communities of meaning-making which have their own histories with ideas and ways of understanding media. Your family is a literacy space–its members are known in particular ways, you know what gets talked about (and what doesn’t) at the dinner table, and everyone knows what to laugh about and what to take seriously. Other examples of literacy spaces are school classrooms and Facebook.
 
-In a typical US middle or high school, these questions would often be explored in an English, 
-Language Arts, or Social Studies class. They might also be right at home in a Computer 
-Science class. We are still developing an idea of what secondary Computer Science should look like, 
-but these questions are of central importance to human-computer interaction, modeling social phenomena, 
-and computational linguistics. This unit is an example of how `Unfold Studio`_ can support interdisciplinary 
-literacies, using computational tools to explore humanistic questions. 
+In a typical US middle or high school, these questions would often be explored in an English, Language Arts, or Social Studies class. They also ought to be right at home in a Computer Science class. We are still developing an idea of what secondary Computer Science should look like, but these questions are of central importance to human-computer interaction, modeling social phenomena, and computational linguistics. By opening a place for telling stories that matter to us, we will create a world where computational thinking is relevant and useful for the things we already care about. This unit is an example of how `Unfold Studio`_ can support interdisciplinary literacies, using computational tools to explore humanistic questions. 
+
+Essential Questions
+===================
+
+- What worlds do we live in?
+- Who can we be in those worlds? 
+- How do we build our worlds?
 
 Objectives
 ==========
 
-1. Use the concepts of *identity*, *model of personhood*, *register*, and 
-   *literacy space* to analyze real-world social experiences. 
-2. Write interactive stories which critically engage with real-world social experiences. 
+1. Write interactive stories which critically engage with real-world social experiences.
+2. Writing/programming practices: Reading, writing, revision, debugging, editing. 
 3. Plan interactive stories using planning and prewriting strategies such as 
    freewriting and using *graphs* to plan story flow. 
 4. Use *flow control* and *state* to write interactive stories. Specifically, make use of:
@@ -62,8 +52,6 @@ Assessment
 
 Three assessments will allow students to demonstrate mastery of these objectives:
 
-- The :ref:`prewriting_assessment` assesses students' prewriting and planning strategies (Objective 3). Students
-  submit prewriting documents, a story draft, and a reflection explaining the prewriting documents.
 - The :ref:`portfolio` assesses students' ability to analyze and critically engage with real-world
   social experiences (Objectives 1 \& 2). Students submit several stories and a reflection explaining their intent. 
 - The :ref:`fairy_assessment` assesses students' ability to use programming concepts (Objective 4). Students are 
@@ -85,8 +73,6 @@ Daily Lesson Plans
    :ref:`day16` :ref:`day17` :ref:`day18` :ref:`day19` :ref:`day20`
    :ref:`day21` :ref:`day22` :ref:`day23` :ref:`day24` :ref:`day25`
    ============ ============ ============ ============ ============
-
-.. todo:: Write daily lesson plans
 
 .. _day1:
 

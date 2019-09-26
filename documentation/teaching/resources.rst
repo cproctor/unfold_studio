@@ -1,3 +1,5 @@
+.. _teaching_resources:
+
 ********************
 Teaching Resources
 ********************
@@ -25,9 +27,18 @@ This is about the process of coming up with a story idea, prewriting, developing
 Story Portfolio
 ~~~~~~~~~~~~~~~
 
-.. todo:: Describe the portfolio and write a rubric.
+At the end of the unit, students will submit two stories they are proud of. One should show off the student's best storytelling skills; the other should show off their technical skills.
 
-This is mostly about using stories as social analytic artifacts. Using computational affordances.
+.. table:: Story portfolio rubric
+   :widths: auto
+
+   ================  ==========================================================================================================================================================================================  =============================================================================================================================================================================================================================================================================  ==============================================================================================================================================================================================================================================================================
+   Objective         Advanced                                                                                                                                                                                    Proficient                                                                                                                                                                                                                                                                     Basic
+   ================  ==========================================================================================================================================================================================  =============================================================================================================================================================================================================================================================================  ==============================================================================================================================================================================================================================================================================
+   Storytelling      AND The story feels fresh, bold, and powerful. Even if your story is completely fictional, it’s about real identities and worlds.                                                           The story creates a rich experience for the player. It’s a substantial story which includes lots of details so the reader can feel like they’re in the world.                                                                                                                  BUT the story might be short on details or might feel like it came together at the last minute. You might not have clearly explained what kind of experience you were trying to create, or it might be hard to see how the story matches the kind of experience you described.
+   Technical: State  AND the story uses state skillfully, doing something important in the story. The story wouldn’t be the same without them. The story uses some explicit state, probably declared variables.  The story uses flow correctly and meaningfully. Flow means using options to branch the story.                                                                                                                                                                                  BUT the use of state might be based closely on another story (for example, a fork). The use of state might “check the boxes” but not have much effect on the story’s meaning.
+   Technical: Flow   AND the story uses flow skillfully, doing something important in the story. The story wouldn’t be the same without them. The story uses some advanced flow control.                         The story uses state correctly and meaningfully. Using state means using variables (either the built-in variables counting the number of visits to a knot, or your own variables), to keep track of something in the story and using it to change what happens in the future.  BUT the use of flow might be based closely on another story (for example, a fork). The use of flow might “check the boxes” but not have much effect on the story’s meaning.
+   ================  ==========================================================================================================================================================================================  =============================================================================================================================================================================================================================================================================  ==============================================================================================================================================================================================================================================================================
 
 .. _fairy_assessment:
 
@@ -66,12 +77,12 @@ Rubric
    Conditional text        -  ``leave`` should have ``{minecraft: text | other text}``
    ======================= ======================================================================
 
-.. _story_prompts:
+.. _story_templates:
 
-Story Prompts
-=============
+Story templates
+===============
 
-These prompts can be helpful in introducing new skills or concepts, or as prewriting exercises. 
+These templates can be helpful in introducing new skills or concepts, or as prewriting exercises. 
 
 .. _childhood_prompt:
 

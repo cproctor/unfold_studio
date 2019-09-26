@@ -1056,13 +1056,6 @@ A value of 0 means "was seen as part of the current chunk". A value of -1 means 
 
 Note that the parameter passed to ``TURNS_SINCE`` is a "divert target", not simply the knot address itself (because the knot address is a number - the read count - not a location in the story...)
 
-TODO: (requirement of passing ``-c`` to the compiler)
-
-Advanced: more queries
-~~~~~~~~~~~~~~~~~~~~~~
-
-You can make your own external functions, though the syntax is a bit different: see the section on functions below.
-
 Part 2: Weave
 =============
 
@@ -1588,14 +1581,6 @@ A "divert" statement is actually a type of value in itself, and can be stored, a
    *  [Give up]        -> current_epilogue
 
 
-
-Advanced: Global variables are externally visible
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Global variables can be accessed, and altered, from the runtime as well from the story, so provide a good way to communicate between the wider game and the story. 
-
-The **ink** layer is often be a good place to store gameplay-variables; there's no save/load issues to consider, and the story itself can react to the current values. 
-
 Printing variables
 ^^^^^^^^^^^^^^^^^^
 
@@ -1677,6 +1662,8 @@ Mathematics
 ^^^^^^^^^^^
 
 **ink** supports the four basic mathematical operations (\ ``+``\ , ``-``\ , ``*`` and ``/``\ ), as well as ``%`` (or ``mod``\ ), which returns the remainder after integer division. 
+
+Unfold Studio provides additional functions. ``ln(x)`` and ``log2(x)`` return can be used to get logarithms. ``random()`` returns a random float between 0 and 1. ``random_integer(low, high)`` returns a random integer at least ``low`` but less than ``high``. 
 
 If more complex operations are required, one can write functions (using recursion if necessary), or call out to external, game-code functions (for anything more advanced). 
 
@@ -3984,13 +3971,22 @@ Unfold Studio currently runs on Ink 0.8.2, with a few customizations.
 
 Include
 -------
-Unfold Studio handles includes a bit differently from Ink. For one thing, you can only
+Unfold Studio handles ``INCLUDE`` a bit differently from Ink. For one thing, you can only
 include stories that are public or shared (even if they are your own), and stories are 
 included by their ID, not a filename.
 
 The rules for inclusion are also different. In regular Ink, defining the same knot or variable
-in two stories which are included together results in an error. In Unfold Studio, the 
-one in the including story is kept and the other is ignored.
+in two stories which are included together results in an error. In Unfold Studio, knots and variables defined in included stories are 
+ignored if they are already defined in the including story. When you ``INCLUDE`` a story, only its knots and variables are included. 
+Any text or redirects outside of a knot are not included. This makes it possible to write substories which work on their own, and which
+can also be included in larger stories. 
+
+This behavior is achieved through a preprocessing layer story code goes through before being parsed by Ink.
+
+External functions
+------------------
+Unfold Studio provides some functions which are not avialable in standard Ink. ``ln(x)`` and ``log2(x)`` provide support for logarithms. 
+``random()`` returns a random float between 0 and 1. ``random_integer(low, high)`` returns a random integer at least ``low`` but less than ``high``. 
 
 Styling
 -------

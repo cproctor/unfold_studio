@@ -1,3 +1,5 @@
+.. _workshops:
+
 *******************
 Workshops
 *******************
@@ -27,3 +29,7 @@ annual conference in Omaha, Nebraska. Here are the [slides](http://chrisproctor.
 Philly Celebration of Writing and Literacy
 ==========================================
 In October 2018, Chris led a workshop on Unfold Studio at the University of Pennsylvania with teachers from across Philadelphia.
+
+Iowa Technology and Education Conference (ITEC)
+===============================================
+Chris and Corey Rogers (Digital Learning Consultant, Grant Wood Area Education Association) gave a talk and led a workshop for teachers. 

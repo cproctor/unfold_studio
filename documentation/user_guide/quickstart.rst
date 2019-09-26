@@ -30,7 +30,7 @@ What's next...
 ~~~~~~~~~~~~~~
 
 - **Play some stories**. The homepage has featured stories; you can see the rest by clicking **Browse** in the menu. 
-- **Practice writing more complex stories** with :ref:`story_prompts`.
+- **Practice writing more complex stories** with :ref:`story_templates`.
 - **Learn more about the language** at :ref:`ink`.
 - **Sign up**. Once you have an account, you can create private stories and then share them once you're ready. You can 
   also ``<3`` stories you love, follow other users, collect stories into *books*, and more.

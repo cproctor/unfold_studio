@@ -25,18 +25,21 @@ Citing Unfold Studio
 
 The paper
 ~~~~~~~~~
-Proctor, C. & Blikstein, P. (2018). *Unfold.studio: Suporting critical literacies of text & code.*
-Manuscript submitted for publication.
+
+Proctor, C., & Blikstein, P. (2019). *Unfold studio: suporting critical literacies of text and code.* Information and Learning Science, 1(2).
 ::
 
-    @unpublished{proctor2018,
-        author = "Proctor, C. and Blikstein, P.",
-        year   = 2018,
-        title  = "Unfold.studio: Suporting critical literacies of text & code.",
-        notes  = "Manuscript in submission."
-        url    = "http://chrisproctor.net/text-and-code.html"
+    @article{proctor_2019_unfold_studio,
+        author = "Proctor, Chris and Blikstein, Paulo",
+        title = "Unfold Studio: Suporting critical literacies of text and code",
+        volume = "1",
+        number = "2",
+        journal = "Information and Learning Science",
+        year = "2019",
+        url = "http://chrisproctor.net/publications/proctor\_2019\_unfold\_studio",
+        pdf = "http://chrisproctor.net/media/publications/proctor\_2019\_unfold\_studio.pdf"
     }
-        
+
 
 The software
 ~~~~~~~~~~~~
