@@ -1,4 +1,4 @@
-from django.conf import settings # import the settings file
+from django.conf import settings
 
 def documentation_urls(request):
     return {

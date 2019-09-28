@@ -5,6 +5,16 @@ from reversion.models import Version
 from django.utils import timezone
 from django.contrib.sites.models import Site
 
+class PromptManager(models.Manager):
+    """
+    Extends the default Manager for Prompts, adding additional queries
+    """
+    def unsubmitted_for_user(self, user):
+        results = self.get_queryset().filter(deleted=False)
+        results = results.filter(literacy_group__members=user)
+        results = results.exclude(submissions__author=user)
+        return results
+
 class Prompt(models.Model):
     name = models.CharField(max_length=400)
     author = models.ForeignKey(User, on_delete="cascade", null=True)
@@ -18,12 +28,10 @@ class Prompt(models.Model):
             related_name='prompts_submitted')
     book = models.ForeignKey(Book, on_delete=models.SET_NULL, blank=True, null=True, related_name="prompts")
 
+    objects = PromptManager()
+
     def __str__(self):
         return self.name
-
-    @property
-    def assignees(self):
-        return User.objects.filter(groups__prompts_assigned=self)
 
     class Meta:
         ordering = ['-due_date']

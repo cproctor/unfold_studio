@@ -3,6 +3,14 @@
 
 {% block content %}
     <h1>{{user.username}}</h1>
+    {% if unsubmitted_prompts > 0 %}
+        <h2>To Do</h2>
+        <ul>
+        {% for prompt in prompts_to_submit %}
+            <li>Submit a story to <a href="{% url 'show_prompt' prompt.literacy_group.id prompt.id %}">{{prompt.name}}</a></li>
+        {% endfor %}
+        </ul>
+    {% endif %}
     <div class="feed">
         <h2>Feed</h2>
         <ul>

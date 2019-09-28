@@ -7,6 +7,7 @@ from profiles.models import Profile, Event
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from unfold_studio.models import Story, Book
+from prompts.models import Prompt
 from django.conf import settings as s                                 
 from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger
@@ -40,6 +41,7 @@ class UserDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.for_request(self.request).filter(owner=self.object).all()
         context['stories'] = Story.objects.for_request(self.request).filter(author=self.object).all()
+        context['prompts_to_submit'] = Prompt.objects.unsubmitted_for_user(self.request.user).all()
         if not self.object.is_active:
             raise Http404()
         if self.request.user == self.object:
