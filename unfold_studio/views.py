@@ -317,9 +317,13 @@ class DeleteStoryView(StoryMethodView):
             return redirect('show_story', story.id)
         messages.success(request, "Deleted '{}'".format(story.title))
         self.log_action(request)
+        for prompt in story.prompts_submitted.all():
+            story.prompts_submitted.remove(prompt)
+        for book in story.books.all():
+            story.books.remove(book)
         story.deleted = True
         story.save()
-        return redirect('show_user', request.user.id)
+        return redirect('show_user', request.user.username)
         
 class ShareStoryView(StoryMethodView):
     verb = "shared"
