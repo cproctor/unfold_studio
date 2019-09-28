@@ -5,19 +5,18 @@ from reversion.models import Version
 from django.utils import timezone
 from django.contrib.sites.models import Site
 
-# Create your models here.
 class Prompt(models.Model):
     name = models.CharField(max_length=400)
+    author = models.ForeignKey(User, on_delete="cascade", null=True)
     creation_date = models.DateTimeField(default=timezone.now)
     deleted = models.BooleanField(default=False)
-    due_date = models.DateTimeField(auto_now=True)
-    owners = models.ManyToManyField(User, related_name='prompts_owned')
-    assignee_groups = models.ManyToManyField(Group, related_name='prompts_assigned', blank=True)
+    due_date = models.DateTimeField(null=True, blank=True)
+    literacy_group = models.ForeignKey("literacy_groups.LiteracyGroup", related_name="prompts", on_delete="cascade", 
+            null=True)
     description = models.TextField(blank=True)
     submissions = models.ManyToManyField('unfold_studio.Story', through='prompts.PromptStory', 
             related_name='prompts_submitted')
     book = models.ForeignKey(Book, on_delete=models.SET_NULL, blank=True, null=True, related_name="prompts")
-    sites = models.ManyToManyField(Site)
 
     def __str__(self):
         return self.name

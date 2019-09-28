@@ -40,9 +40,11 @@ INSTALLED_APPS = [
     'django_extensions',
     'reversion',
     'social_django',
+    'qr_code',
     'unfold_studio',
     'profiles',
     'literacy_events',
+    'literacy_groups',
     'prompts',
     'comments'
 ]
@@ -72,7 +74,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'literacy_events.context_processors.unseen_events',
-                'prompts.context_processors.user_prompts',
                 'unfold_studio.context_processors.documentation_urls',
                 'social_django.context_processors.backends', 
                 'social_django.context_processors.login_redirect',

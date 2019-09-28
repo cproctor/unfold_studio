@@ -59,7 +59,7 @@ class StoryManager(models.Manager):
         return self.for_site(site).filter(
             Q(shared=True) | 
             Q(public=True) |
-            Q(prompts_submitted__owners=user) |
+            Q(prompts_submitted__literacy_group__leaders=user) |
             Q(author=user)
         ).distinct()
 
@@ -129,14 +129,14 @@ class Story(models.Model):
     def visible_to_user(self, user):
         return (
             self.public or self.shared or user == self.author or 
-            self.prompts_submitted.filter(owners=user).exists()
+            self.prompts_submitted.filter(literacy_group__leaders=user).exists()
         )
 
     def user_may_comment(self, user):
         return user.is_authenticated and (
             user == self.author or 
             (self.author and self.author.profile.following.filter(pk=user.profile.pk).exists()) or 
-            self.prompts_submitted.filter(owners=user).exists()
+            self.prompts_submitted.filter(literacy_group__leaders=user).exists()
         ) 
 
     class PreprocessingError(Exception):

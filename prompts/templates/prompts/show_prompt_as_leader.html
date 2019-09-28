@@ -1,0 +1,70 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+{% load linkrefs %}
+
+{% block content %}
+<h1>{{prompt.name}}</h1>
+<p></p>
+<p>{{prompt.description | linkrefs:user}}</p>
+<div class="description">
+[<a href="{% url 'show_group' group.id %}">&lt; Group</a>]
+[<a href="{% url 'update_prompt' group.id prompt.id %}">Edit</a>]
+[<a href="{% url 'export_prompt_as_csv' group.id prompt.id %}">Export</a>]
+{% if prompt.book %}
+    [<a href="{% url 'show_book' prompt.book.id %}">Book</a>] 
+    [<form action="{% url 'unpublish_prompt' group.id prompt.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Unpublish"></form>]
+{% else %}
+    [<form action="{% url 'publish_prompt' group.id prompt.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Publish as book"></form>]
+{% endif %}
+    [<form action="{% url 'delete_prompt' group.id prompt.id  %}" method="post" class="link">{% csrf_token %}<input type="submit" class="danger" value="Delete"></form>]
+</div>
+
+<h2>Your submission</h2>
+{% if submission %}
+    You submitted <a href="{% url 'show_story' submission.id %}">{{submission.title}}</a>. 
+    [<form action="{% url 'clear_prompt_submission' group.id prompt.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Clear"></form>]
+{% else %}
+    {% if user.stories.exists %}
+        Choose a story to submit to this prompt.
+        <form action="{% url 'show_prompt' group.id prompt.id %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit">
+        </form>
+    {% else %}
+        <p>You haven't written any stories yet. <a href="{% url 'new_story' %}">Write a story</a> and then come back here to submit it. 
+
+    {% endif %}
+{% endif %}
+<h2>All submissions</h2>
+<table style="width: 100%;">
+    <thead>
+        <tr>
+            <td>Member</td>
+            <td>Submission</td>
+            <td>Needs feedback</td>
+        </tr>
+        {% for member, submission, needs_feedback in member_submissions %}
+        <tr>
+            <td><a href="{% url 'show_user' member.username %}">{{member.username}}</a></td>
+            <td>
+                {% if submission %}
+                        <a href="{% url 'show_story' submission.id %}">{{submission.title}}</a>
+                {% else %}
+                    .
+                {% endif %}
+            </td>
+            <td>
+                {% if needs_feedback %}
+                    <a href="{% url 'show_story_versions' submission.id %}">-></a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+        </tr>
+    </thead>
+</table>
+
+{% endblock %}
+
+

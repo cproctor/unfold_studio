@@ -1,0 +1,34 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<h1>{{group.name}}</h1>
+<div class="description">
+{% if group in user.literacy_groups_leading.all %}
+    [<a href="{% url 'update_group' group.id %}">Edit</a>]
+    [<a href="{% url 'invite_to_group' group.id %}">Invite</a>]
+{% else %}
+    [<form action="{% url 'leave_group' group.id %}" method="post" class="link">{% csrf_token %}<input type="submit" class="danger" value="Leave group"></form>]
+{% endif %}
+</div>
+
+<p>
+</p>
+<h2>Prompts</h2>
+<ul>
+    {% for prompt in prompts %}
+        <li><a href="{% url 'show_prompt' group.id prompt.id %}">{{prompt.name}}</a></li>
+    {% endfor %}
+    {% if leader %}
+        <li><a href="{% url 'create_prompt' group.id %}">New prompt</a></li>
+    {% endif %}
+</ul>
+<h2>Members</h2>
+<ul>
+{% for member in group.members.all %}
+    <li>
+        {% if member in group.leaders.all %}[leader] {% endif %}
+        <a href="{% url 'show_user' member.username %}">{{member.username}}</a>
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}

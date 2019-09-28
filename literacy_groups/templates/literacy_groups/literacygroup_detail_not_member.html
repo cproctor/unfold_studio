@@ -1,0 +1,11 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+{% if group.anyone_can_join %}
+    <h1>{{group.name}}</h1>
+    <p>You are not a member of {{group.name}}, but you can <a href="{% url 'join_group' group.id %}">join.</a>
+{% else %}
+    <h1>Sorry</h1>
+    <p>You are not a member of this group. Please ask the group leader for a code to join.</p>
+{% endif %}
+{% endblock %}

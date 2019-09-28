@@ -1,0 +1,26 @@
+{% extends 'base/base.html' %}
+{% load staticfiles %}
+{% load linkrefs %}
+
+{% block content %}
+<h1>{{prompt.name}}</h1>
+<p>{{prompt.description | linkrefs:user}}</p>
+{% if submission %}
+    You submitted <a href="{% url 'show_story' submission.id %}">{{submission.title}}</a>. 
+    [<form action="{% url 'clear_prompt_submission' group.id prompt.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Clear"></form>]
+{% else %}
+    {% if user.stories.exists %}
+        Choose a story to submit to this prompt.
+        <form action="{% url 'show_prompt' group.id prompt.id %}" method="post">
+            {% csrf_token %}
+            {{ form }}
+            <input type="submit" value="Submit">
+        </form>
+    {% else %}
+        <p>You haven't written any stories yet. <a href="{% url 'new_story' %}">Write a story</a> and then come back here to submit it. 
+
+    {% endif %}
+
+{% endif %}
+{% endblock %}
+

@@ -1,18 +1,3 @@
-"""unfold_studio URL Configuration
-
-The `urlpatterns` list routes URLs to views. For more information please see:
-    https://docs.djangoproject.com/en/1.9/topics/http/urls/
-Examples:
-Function views
-    1. Add an import:  from my_app import views
-    2. Add a URL to urlpatterns:  path(r'$', views.home, name='home')
-Class-based views
-    1. Add an import:  from other_app.views import Home
-    2. Add a URL to urlpatterns:  path(r'$', Home.as_view(), name='home')
-Including another URLconf
-    1. Import the include() function: from django.conf.urls import url, include
-    2. Add a URL to urlpatterns:  path(r'blog/', include('blog.urls'))
-"""
 from django.urls import path, include
 from django.conf import settings
 from django.contrib import admin
@@ -20,6 +5,7 @@ from unfold_studio import views
 from profiles import views as profile_views
 from prompts import views as prompt_views
 from literacy_events import views as literacy_event_views
+from literacy_groups import views as literacy_group_views
 from django.views.generic.base import RedirectView
 
 favicon_view = RedirectView.as_view(url='/static/favicon.ico', permanent=True)
@@ -36,6 +22,31 @@ urlpatterns = [
     path('users/<slug:slug>/feed/', profile_views.FeedView.as_view(), name="show_feed"),
     path('users/<slug:slug>/follow/', profile_views.FollowUserView.as_view(), name="follow_user"),
     path('users/<slug:slug>/unfollow/', profile_views.UnfollowUserView.as_view(), name="unfollow_user"),
+
+    path('groups/', literacy_group_views.ListGroupsView.as_view(), name="list_groups"),
+    path('groups/new', literacy_group_views.CreateGroupView.as_view(), name="create_group"),
+    path('groups/<int:pk>/', literacy_group_views.ShowGroupView.as_view(), name="show_group"),
+    path('groups/<int:pk>/edit', literacy_group_views.UpdateGroupView.as_view(), name="update_group"),
+    path('groups/<int:pk>/invite', literacy_group_views.InviteToGroupView.as_view(), name="invite_to_group"),
+    path('groups/<int:pk>/change_invite', literacy_group_views.ChangeGroupInviteView.as_view(), name="change_group_invite"),
+    path('groups/<int:pk>/join', literacy_group_views.JoinGroupView.as_view(), name="join_group"),
+    path('groups/<int:pk>/leave', literacy_group_views.LeaveGroupView.as_view(), name="leave_group"),
+    path('groups/<int:pk>/prompts/new/', prompt_views.CreatePromptView.as_view(), 
+            name="create_prompt"),
+    path('groups/<int:group_pk>/prompts/<int:pk>/', prompt_views.ShowPromptView.as_view(), 
+            name="show_prompt"),
+    path('groups/<int:group_pk>/prompts/<int:pk>/edit/', prompt_views.UpdatePromptView.as_view(), 
+            name="update_prompt"),
+    path('groups/<int:group_pk>/prompts/<int:pk>/clear/', prompt_views.ClearPromptSubmissionView.as_view(), 
+            name="clear_prompt_submission"),
+    path('groups/<int:group_pk>/prompts/<int:pk>/export/', prompt_views.ExportPromptAsCsvView.as_view(), 
+            name="export_prompt_as_csv"),
+    path('groups/<int:group_pk>/prompts/<int:pk>/publish/', prompt_views.PublishAsBookView.as_view(), 
+            name="publish_prompt"),
+    path('groups/<int:group_pk>/prompts/<int:pk>/unpublish/', prompt_views.UnpublishBookView.as_view(), 
+            name="unpublish_prompt"),
+    path('groups/<int:group_pk>/prompts/<int:pk>/delete/', prompt_views.DeletePromptView.as_view(), 
+            name="delete_prompt"),
 
     path('stories/', views.browse, name="list_stories"),
     path('stories/new/', views.new_story, name="new_story"),
@@ -58,20 +69,10 @@ urlpatterns = [
     path('books/<int:pk>/', views.BookDetailView.as_view(), name="show_book"), 
     path('books/<int:pk>/edit/', views.UpdateBookView.as_view(), name="edit_book"), 
     path('books/<int:pk>/add/<int:story_id>/', views.AddStoryToBookView.as_view(), name="add_story_to_book"), 
-    path('books/<int:pk>/remove/<int:story_id>/', views.RemoveStoryFromBookView.as_view(), name="remove_story_from_book"), 
-
-    path('prompts/manage/', prompt_views.PromptsOwnedListView.as_view(), name="list_prompts_owned"),
-    path('prompts/manage/csv/', prompt_views.PromptsOwnedCSVView.as_view(), name="prompts_owned_csv"),
-    path('prompts/', prompt_views.PromptsAssignedListView.as_view(), name="list_prompts_assigned"),
-    path('prompts/<int:pk>/', prompt_views.PromptAssignedDetailView.as_view(), name="show_prompt_assigned"), 
-    path('prompts/<int:pk>/clear/', prompt_views.ClearPromptSubmissionView.as_view(),  
-            name="clear_prompt_submission"), 
-    path('prompts/manage/<int:pk>/', prompt_views.PromptOwnedDetailView.as_view(), name="show_prompt_owned"), 
-    path('prompts/manage/<int:pk>/publish/', prompt_views.PublishAsBookView.as_view(), name="publish_prompt"), 
-    path('prompts/manage/<int:pk>/unpublish/', prompt_views.UnpublishBookView.as_view(), name="unpublish_prompt"), 
+    path('books/<int:pk>/remove/<int:story_id>/', views.RemoveStoryFromBookView.as_view(), 
+            name="remove_story_from_book"), 
 
     path('reading/', literacy_event_views.LogReadingEvent.as_view(), name="log_reading_event"),
-
     path('require_entry_point.js', views.require_entry_point, name="require_entry_point"),
 ]
 

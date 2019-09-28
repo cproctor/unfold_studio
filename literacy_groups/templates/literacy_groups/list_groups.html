@@ -1,0 +1,15 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+    <h1>Groups</h1>
+    <ul>
+    {% for group in groups %}
+        <li><a href="{% url 'show_group' group.id %}">{{group.name}}</a></li>
+    {% endfor %}
+    {% if user.profile.is_teacher %}
+        <li><a href="{% url 'create_group' %}">New group</a></li>
+    {% endif %}
+    </ul>
+
+{% endblock %}
+

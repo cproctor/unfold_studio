@@ -19,6 +19,8 @@ class CSVResponseMixin(object):
             writer.writerows(data)
         else:
             writer = csv.writer(response)
+            if fieldnames:
+                writer.writerow(fieldnames)
             for row in data:
                 writer.writerow(row)
 

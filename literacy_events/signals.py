@@ -37,17 +37,17 @@ def get_recipients(e):
     elif e.event_type == LiteracyEvent.SIGNED_UP:
         return subject(e)
     elif e.event_type == LiteracyEvent.CREATED_PROMPT:
-        return subject(e)
+        return set(subject(e) + prompt_group_members(e))
     elif e.event_type == LiteracyEvent.SUBMITTED_TO_PROMPT:
-        return set(subject(e) + prompt_owners(e))
+        return set(subject(e) + prompt_group_leaders(e))
     elif e.event_type == LiteracyEvent.UNSUBMITTED_FROM_PROMPT:
-        return set(subject(e) + prompt_owners(e))
+        return set(subject(e) + prompt_group_leaders(e))
     elif e.event_type == LiteracyEvent.STORY_READING:
         return []
     elif e.event_type == LiteracyEvent.PUBLISHED_PROMPT_AS_BOOK:
-        return subject(e)
+        return set(subject(e) + prompt_group_members(e))
     elif e.event_type == LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK:
-        return subject(e)
+        return set(subject(e) + prompt_group_members(e))
     elif e.event_type == LiteracyEvent.TAGGED_STORY_VERSION:
         if e.story.shared:
             return set(subject(e) + story_visible(e.story, 
@@ -82,8 +82,11 @@ def book_owner(e):
 def object_user(e):
     return [e.object_user] if e.object_user else []
 
-def prompt_owners(e):
-    return list(e.prompt.owners.all()) if e.prompt else []
+def prompt_group_members(e):
+    return list(e.prompt.literacy_group.members.all()) if e.prompt else []
+
+def prompt_group_leaders(e):
+    return list(e.prompt.literacy_group.leaders.all()) if e.prompt else []
 
 def followers(users):
     return list(User.objects.filter(profile__following__user__in=users).distinct())

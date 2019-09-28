@@ -11,6 +11,7 @@ defusedxml==0.6.0
 Django==2.2.5
 django-debug-toolbar==1.11
 django-extensions==2.1.6
+django-qr-code==1.0.0
 django-reversion==3.0.3
 docutils==0.14
 funcsigs==1.0.2
@@ -41,6 +42,7 @@ python-dateutil==2.7.5
 python3-openid==3.1.0
 pytz==2018.7
 PyYAML==5.1
+qrcode==6.1
 requests==2.21.0
 requests-oauthlib==1.2.0
 six==1.11.0

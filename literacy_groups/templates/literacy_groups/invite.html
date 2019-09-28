@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+{% load qr_code %}
+
+{% block content %}
+<h1>Join {{group.name}}</h1>
+    [<a href="{% url 'show_group' group.id %}">&lt; Group</a>]
+    {% if not group.anyone_can_join and leader %}
+        [<form class="link" action="{% url 'change_group_invite' group.id %}" method="post">{% csrf_token %}<input type="submit" value="Change invite link"></form>]
+    {% endif %}
+<p>Unfold Studio users may use the following URL to join this group:</p>
+<a href="{{join_url}}">{{join_url}}</a>
+
+<div>{% qr_from_text join_url %}</div>
+
+{% endblock %}
+
