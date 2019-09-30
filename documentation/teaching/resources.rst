@@ -12,16 +12,6 @@ noted, all were written by Chris Proctor, and are released free for noncommercia
 Assessments
 ===========
 
-
-.. _prewriting_assessment:
-
-Writing Process Assesssment
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. todo:: Describe the portfolio and write a rubric.
-
-This is about the process of coming up with a story idea, prewriting, developing, getting feedback, revising, reflecting.
-
 .. _portfolio:
 
 Story Portfolio

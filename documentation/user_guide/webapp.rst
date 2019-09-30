@@ -2,17 +2,22 @@
 Using Unfold Studio
 *******************
 
-User accounts
-=============
+Anonymous usage
+===============
 You can participate in Unfold Studio without signing up.
 Before you have an account, all the stories you write are public. This means anybody can play and edit them. You can also play public stories and stories other authors have shared. 
 
 Public stories are good for quick experiments, but once you're ready to write stories that matter to you, you should
-create an account. When you are logged in to your account, you are the author of your stories and nobody else can 
+create an account. 
+
+Accounts
+=============
+When you are logged in to your account, you are the author of your stories and nobody else can 
 edit them.
 
-Unfold Studio is free and open-source; signing up is safe and easy. You will be asked to give your email and choose 
-a username and password. If you forget your password, you can have a reset code sent to your email address. If you prefer, you can also log in with a Google account. 
+Unfold Studio is free and open-source, and signing up is safe and easy. You will be asked to enter your email and choose 
+a username and password. If you forget your password, you can have a reset code sent to your email address. 
+If you prefer, you can also log in with a Google account. 
 
 Reading
 =======
@@ -21,11 +26,16 @@ The easiest way to start reading stories is to browse the stories on the homepag
 
 Anybody can see a story's code. (Stories are open-source.) When you're reading a story, click "show code" to see its code. This provides a different way to read the story, and also lets you learn techniques used by other authors.
 
-Once you become part of the community, you might want to start following certain authors. You can follow (or unfollow) an author from their profile page. Your profile page has a feed showing your community's activity. You will get notifications when an author you follow publishes a new story or a new version of a story. 
+Following other users
+---------------------
+
+Once you become part of the community, you might want to start following certain authors. You can follow (or unfollow) an author from their profile page. 
 
 Feed notifications
 ------------------
 
+Your profile page has a feed showing your community's activity. You will get notifications when an author you follow publishes a new story or a new version of a story. 
+You will also see notifications related to your own activity. 
 The rules for who gets which notifications are complex (check out `the source code`_), but the goal is that nobody should be surprised by who gets notifications. 
 
 .. _the source code: https://github.com/cproctor/unfold_studio/blob/master/literacy_events/signals.py
@@ -56,7 +66,7 @@ Please use forking respectfully. Forks are great for starting from templates, bo
 Who can see your stories
 ------------------------
 
-When you are logged in, your stories will be private until you choose to share them. Sharing a story makes it visible to everybody. If you are part of a class using Unfold Studio, you might be assigned :ref:`prompts`. When you submit a story to a prompt, the creator(s) of the prompt (probably your teacher) will be able to see it whether or not it's shared publicly. If you remove a story from a prompt, they will no longer be able to see your story. 
+When you are logged in, your stories will be private until you choose to share them. Sharing a story makes it visible to everybody. If you are part of a class using Unfold Studio, you might be assigned :ref:`prompts`. When you submit a story to a prompt, the leaders of the group (probably your teacher) will be able to see it whether or not it's shared publicly. If you remove a story from a prompt, they will no longer be able to see your story. 
 
 For users who are part of :ref:`private installations`, the administrator is able to see all content on Unfold Studio.
 
@@ -74,7 +84,6 @@ Comments
 
 Comments appear in a story's history.
 
-
 Who can comment?
 ++++++++++++++++
 
@@ -85,10 +94,10 @@ Whoever can see a story can also see the story's comments. The only people who c
 References
 ----------
 
-There are some places where you might need to write about stories, books, or other users. These include comments, book descriptions, and story prompts. In these contexts, you can add references by using codes like `@story:1184`, `@book:503`, and `@user:chris`. These references will be shown as links to the story, book, or user which will stay up to date as the name changes. If you reference a story, it will only be linked for users who are allowed to see it. 
+There are some places where you might need to write about stories, books, or other users. These include comments, book descriptions, and story prompts. In these contexts, you can add references by using codes like `@story:1184`, `@book:503`, `@user:chris`, and `@prompt:102`. These references will be shown as links to the story, book, or user which will stay up to date as the name changes. If you reference a story, it will only be linked for users who are allowed to see it. 
 
-Community
-==========
+Community standards
+===================
 
 Unfold Studio is a YA community, so the kind of content that's appropriate here is the same as what you would find in YA literature. There are some topics and some kinds of language that are legitimate and important, but which don't belong here. If you want a private installation of Unfold Studio that has different community standards, please get in touch (:ref:`contact`). 
 

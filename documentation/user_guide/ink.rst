@@ -11,18 +11,22 @@ The Ink language
 Introduction
 ============
 
-**ink** is a scripting language built around the idea of marking up pure-text with flow in order to produce interactive scripts. 
+In Unfold Studio, stories are written in a programming language called **ink**.
 
-At its most basic, it can be used to write a Choose Your Own-style story, or a branching dialogue tree. But its real strength is in writing dialogues with lots of options and lots of recombination of the flow. 
-
-**ink** offers several features to enable non-technical writers to branch often, and play out the consequences of those branches, in both minor and major ways, without fuss. 
-
-The script aims to be clean and logically ordered, so branching dialogue can be tested "by eye". The flow is described in a declarative fashion where possible.
-
+**ink** was designed to feel as much as possible like regular writing. You can write
+the same way you would write a story or a diary, and then you can add code to make the story interactive or turn it into a game. 
+At its most basic, it can be used to write a Choose Your Own-style story, or a branching dialogue tree. But its 
+real strength is in writing dialogues with lots of options and lots of recombination of the flow. 
 It's also designed with redrafting in mind; so editing a flow should be fast.
+
+The idea is to bring programming into your writing, not the other way around. This
+approach allows you to do new things with writing, and supports :ref:`literacy_based_cs`.
 
 Part One: The Basics
 ====================
+
+If you're just starting out, we suggest creating a new story in Unfold Studio where you can copy and paste the code examples below. 
+That way you can see them work, and you can mess around with them.
 
 1) Content
 ----------
@@ -30,14 +34,14 @@ Part One: The Basics
 The simplest ink script
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-The most basic ink script is just text in a .ink file.
+The most basic ink script is just regular writing.
 
 ::
 
    Hello, world!
 
 
-On running, this will output the content, and then stop.
+When you save this story, it will output the content and then stop. 
 
 Text on separate lines produces new paragraphs. The script:
 
@@ -55,7 +59,7 @@ Comments
 
 By default, all text in your file will appear in the output content, unless specially marked up. 
 
-The simplest mark-up is a comment. **ink** supports two kinds of comment. There's the kind used for someone reading the code, which the compiler ignores:
+The simplest mark-up is a comment. **ink** supports two kinds of comment. Comments are useful for making notes to yourself and to other programmers:
 
 ::
 
@@ -72,15 +76,16 @@ The simplest mark-up is a comment. **ink** supports two kinds of comment. There'
 Tags
 ^^^^
 
-Tags don't appear in story flow; instead they can be used to change how the story is presented. Unfold Studio supports tags to 
-style content as text messages. Student designers are currently developing tags for tweets, Facebook posts, etc. To style content, 
-use hashtags at the end of a line:
+Tags don't appear in story flow; instead they can be used to change how the story is presented. The
+tags below style content as text messages. 
 
 ::
-   === texting ===
+
    What's up? # text-them
    nm. U? # text-me
 
+.. image:: ../images/sms.png
+   :width: 300px
 
 2) Choices
 ----------
@@ -91,48 +96,40 @@ If no other flow instructions are given, once made, the choice will flow into th
 
 ::
 
-   Hello world!
-   *   Hello back!
-       Nice to hear from you!
+   Good morning!
+   * And good morning to you!
+       Nice to see you. 
 
-
-This produces the following game:
+The player will see "Good morning!" and then the story pauses until the player clicks on 
+"And good morning to you!" The story will flow like this:
 
 ::
 
-   Hello world 
-   1: Hello back! 
+   Good morning!
+   And good morning to you!
+   Nice to see you.
 
-   > 1
-   Hello back!
-   Nice to hear from you.  
-
-
-By default, the text of a choice appears again, in the output. 
+By default, the text of a choice appears in the output. 
 
 Suppressing choice text
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-Some games separate the text of a choice from its outcome. In **ink**\ , if the choice text is given in square brackets, the text of the choice will not be printed into response.
+Sometimes it's useful to present a choice without having the choice text become part of the story. 
+In **ink**\ , if the choice text is given in square brackets, the text of the choice will not be printed into response.
 
 ::
 
-   Hello world!
-   *   [Hello back!]
-       Nice to hear from you!
+   Good morning!
+   * [Smile]
+       Nice to see you. 
 
-
-produces
+produces:
 
 ::
 
-   Hello world 
-   1: Hello back! 
-
-   > 1
-   Nice to hear from you.  
-
-
+   Good morning!
+   Nice to see you.
+   
 Advanced: mixing choice and output text
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -145,13 +142,11 @@ The square brackets in fact divide up the option content. What's before is print
        Nice to hear from you!
 
 
-produces:
+When this runs, the player will see the choice "Hello back!" and the story will produce the following:
 
 ::
 
    Hello world 
-   1: Hello back!
-   > 1
    Hello right back to you!
    Nice to hear from you.  
 
@@ -170,8 +165,6 @@ produces:
 ::
 
    "What's that?" my master asked.
-   1. "I am somewhat tired."
-   > 1
    "I am somewhat tired," I repeated.
    "Really," he responded. "How deleterious."
 
@@ -255,19 +248,13 @@ The simplest knotty script is:
    Hello world!
 
 
-However, **ink** doesn't like loose ends, and produces a warning on compilation and/or run-time when it thinks this has happened. The script above produces this on compilation:
+However, **ink** doesn't like loose ends. The story above will produce the following error:
 
 ::
 
    WARNING: Apparent loose end exists where the flow runs out. Do you need a '-> END' statement, choice or divert? on line 3 of tests/test.ink
 
-
-and this on running:
-
-::
-
-   Runtime error in tests/test.ink line 3: ran out of content. Do you need a '-> DONE' or '-> END'?
-
+Basically, Unfold Studio is telling you that it reached the end of ``top_knot`` and doesn't know what to do next.
 
 The following plays and compiles without error:
 
@@ -278,7 +265,7 @@ The following plays and compiles without error:
    -> END
 
 
-``-> END`` is a marker for both the writer and the compiler; it means "the story flow should now stop".
+``-> END`` means "the story flow should now stop". You can also use ``->DONE``.
 
 4) Diverts
 ----------
@@ -297,6 +284,7 @@ You can tell the story to move from one knot to another using ``->``\ , a "diver
 
    === hurry_home === 
    We hurried home to Savile Row as fast as we could.
+   -> END
 
 
 Diverts are invisible
@@ -311,6 +299,7 @@ Diverts are intended to be seamless and can even happen mid-sentence:
 
    === as_fast_as_we_could ===
    as fast as we could.
+   -> END
 
 
 produces the same line as above:
@@ -337,6 +326,7 @@ The default behaviour inserts line-breaks before every new line of content. In s
 
    === as_fast_as_we_could ===
    <> as fast as we could.
+   -> END
 
 
 also produces:
@@ -404,22 +394,22 @@ Using diverts, the writer can branch the flow, and join it back up again, withou
 
    === as_fast_as_we_could === 
    <> as fast as we could.
+   -> END
 
 
 
 The story flow
 ^^^^^^^^^^^^^^
 
-Knots and diverts combine to create the basic story flow of the game. This flow is "flat" - there's no call-stack, and diverts aren't "returned" from. 
+Knots and diverts combine to create the basic story flow of the game. This flow is "flat" - when the flow diverts, the story continues from the new knot and doesn't come back. In CS terms, there is no call stack. 
+(Sometimes it's useful to divert and then return, for example when a player checks her inventory in a role-playing game. For this, see :ref:`tunnels`.
 
 In most ink scripts, the story flow starts at the top, bounces around in a spaghetti-like mess, and eventually, hopefully, reaches a ``-> END``.
-
-The very loose structure means writers can get on and write, branching and rejoining without worrying about the structure that they're creating as they go. There's no boiler-plate to creating new branches or diversions, and no need to track any state.
 
 Advanced: Loops
 ~~~~~~~~~~~~~~~
 
-You absolutely can use diverts to create looped content, and **ink** has several features to exploit this, including ways to make the content vary itself, and ways to control how often options can be chosen. 
+You can use diverts to create looped content, and **ink** has several features to exploit this, including ways to make the content vary itself, and ways to control how often options can be chosen. 
 
 See the sections on Varying Text and Conditional Options for more information.
 
@@ -427,8 +417,9 @@ Oh, and the following is legal and not a great idea:
 
 ::
 
+   We went -> round
    === round ===
-   and
+   round and
    -> round
 
 
@@ -2338,6 +2329,9 @@ Both of these locations now call and execute the same segment of storyflow, but 
 But what if the section of story being called is more complex - what if it spreads across several knots? Using the above, we'd have to keep passing the 'return-to' parameter from knot to knot, to ensure we always knew where to return.
 
 So instead, **ink** integrates this into the language with a new kind of divert, that functions rather like a subroutine, and is called a 'tunnel'.
+
+
+.. _tunnels:
 
 Tunnels run sub-stories
 ^^^^^^^^^^^^^^^^^^^^^^^

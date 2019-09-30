@@ -72,6 +72,11 @@ to move around, and to work together. One common pattern is pair-programming, in
 which two students sit at one computer, periodically rotating who is typing. This encourages more thoughtful 
 programming.
 
+.. _literacy_based_cs:
+
+Literacy-based computer science
+===============================
+
 .. note:: In the near future, Unfold Studio will support real-time collaobration in the same story. This will unlock 
    many new collaborative possibilities.
 
