@@ -16,6 +16,9 @@ class LiteracyGroup(models.Model):
     join_code = models.TextField()
     deleted = models.BooleanField(default=False)
 
+    def __str__(self):
+        return self.name
+
     def new_join_code(self):
         "Returns a new join code"
         return get_random_string(length=8).upper()

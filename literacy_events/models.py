@@ -41,6 +41,8 @@ class LiteracyEvent(models.Model):
     PUBLISHED_PROMPT_AS_BOOK        = 'g'
     UNPUBLISHED_PROMPT_AS_BOOK      = 'h'
     TAGGED_STORY_VERSION            = 'i'
+    JOINED_LITERACY_GROUP           = 'j'
+    LEFT_LITERACY_GROUP             = 'k'
 
     EVENT_TYPES = (
         (LOVED_STORY, "loved story"),
@@ -60,7 +62,9 @@ class LiteracyEvent(models.Model):
         (STORY_READING, "story knot read"),
         (PUBLISHED_PROMPT_AS_BOOK, "published prompt as book"),
         (UNPUBLISHED_PROMPT_AS_BOOK, "unpublished prompt as book"),
-        (TAGGED_STORY_VERSION, 'tagged a story version')
+        (TAGGED_STORY_VERSION, 'tagged a story version'),
+        (JOINED_LITERACY_GROUP, 'joined literacy group'),
+        (LEFT_LITERACY_GROUP, 'left literacy group'),
     )
     
     timestamp = models.DateTimeField(default=timezone.now)
@@ -72,6 +76,8 @@ class LiteracyEvent(models.Model):
             related_name='literacy_events')
     prompt = models.ForeignKey('prompts.Prompt', null=True, blank=True, on_delete=models.CASCADE,
             related_name='literacy_events')
+    literacy_group = models.ForeignKey('literacy_groups.LiteracyGroup', null=True, blank=True,
+            on_delete=models.CASCADE, related_name='literacy_events')
     object_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.CASCADE, 
             related_name='literacy_events_as_object')
     extra = models.TextField(blank=True, null=True)
@@ -121,6 +127,10 @@ class LiteracyEvent(models.Model):
             body = "{} unpublished prompt {}".format(self.subject, self.prompt, self.book)
         elif self.event_type == LiteracyEvent.TAGGED_STORY_VERSION:
             body = "{} tagged a version of {}".format(self.subject, self.story)
+        elif self.event_type == LiteracyEvent.JOINED_LITERACY_GROUP:
+            body = "{} joined group {}".format(self.subject, self.literacy_group)
+        elif self.event_type == LiteracyEvent.LEFT_LITERACY_GROUP:
+            body = "{} left group {}".format(self.subject, self.literacy_group)
         else:
             raise ValueError("Unhandled event type: {}".format(self.event_type))
         return (prefix if with_prefix else '') + body + ts
@@ -137,7 +147,8 @@ class NotificationManager(models.Manager):
             (Q(event__story__deleted=False) & Q(event__story__author__is_active=True)) | Q(event__story__isnull=True),
             (Q(event__book__deleted=False) & Q(event__book__owner__is_active=True)) | Q(event__book__isnull=True),
             Q(event__subject__is_active=True) | Q(event__subject__isnull=True),
-            Q(event__object_user__is_active=True) | Q(event__object_user__isnull=True)
+            Q(event__object_user__is_active=True) | Q(event__object_user__isnull=True),
+            Q(event__literacy_group__deleted=False) | Q(event__literacy_group__isnull=True),
         )
 
     def for_request(self, request):

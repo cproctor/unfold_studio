@@ -7,6 +7,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.sites.shortcuts import get_current_site
 from literacy_groups.models import LiteracyGroup
 from literacy_groups.forms import LiteracyGroupForm
+from literacy_events.models import LiteracyEvent
 from django.db.models import Count
 from django.views.generic.base import View
 from django.db.models import Q
@@ -136,6 +137,11 @@ class JoinGroupView(LiteracyGroupContextMixin, View):
             messages.success(request, "Joined {}".format(self.group.name))
             log.info("{} joined {} (id {})".format(
                     request.user, self.group.name, self.group.id))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.JOINED_LITERACY_GROUP,
+                subject=request.user,
+                literacy_group=self.group,
+            )
         return redirect('show_group', self.group.id)
 
 class LeaveGroupView(LiteracyGroupContextMixin, View):
@@ -153,6 +159,11 @@ class LeaveGroupView(LiteracyGroupContextMixin, View):
         else:
             request.user.literacy_groups.remove(self.group)
             messages.success(request, "Left {}".format(self.group.name))
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.LEFT_LITERACY_GROUP,
+                subject=request.user,
+                literacy_group=self.group,
+            )
             log.info("{} left {} (id {})".format(
                     request.user, self.group.name, self.group.id))
         if request.user.literacy_groups.exists():

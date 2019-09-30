@@ -86,6 +86,7 @@ class ShowPromptView(LiteracyGroupContextMixin, DetailView):
             return ["prompts/show_prompt.html"]
 
     def post(self, *args, **kwargs):
+        "Handle submission to a prompt"
         form = PromptSubmissionForm(self.request.POST)
         form.fields['story'].choices = [(s.id, s.title) for s in self.request.user.stories.all()]
         if form.is_valid():
@@ -99,7 +100,8 @@ class ShowPromptView(LiteracyGroupContextMixin, DetailView):
                 event_type=LiteracyEvent.SUBMITTED_TO_PROMPT,
                 subject=self.request.user,
                 story=story,
-                prompt=self.get_object()
+                prompt=self.get_object(),
+                literacy_group=self.get_object().literacy_group,
             )
             if prompt.book:
                 prompt.book.stories.add(story)
@@ -195,7 +197,8 @@ class ClearPromptSubmissionView(LiteracyGroupContextMixin, SingleObjectMixin, Vi
             event_type=LiteracyEvent.UNSUBMITTED_FROM_PROMPT,
             subject=self.request.user,
             story=story,
-            prompt=self.get_object()
+            prompt=self.get_object(),
+            literacy_group=self.get_object().literacy_group,
         )
         if prompt.book:
             prompt.book.stories.remove(story)
@@ -230,7 +233,8 @@ class PublishAsBookView(LiteracyGroupContextMixin, SingleObjectMixin, View):
             event_type=LiteracyEvent.PUBLISHED_PROMPT_AS_BOOK,
             subject=self.request.user,
             prompt=prompt,
-            book=book
+            book=book,
+            literacy_group=prompt.literacy_group,
         )
         return redirect('show_book', book.id)
     
@@ -256,6 +260,7 @@ class UnpublishBookView(LiteracyGroupContextMixin, SingleObjectMixin, View):
             event_type=LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK,
             subject=self.request.user,
             prompt=prompt,
+            literacy_group=prompt.literacy_group,
         )
         return redirect('show_prompt', self.group.id, prompt.id)
             

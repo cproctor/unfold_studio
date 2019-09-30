@@ -54,6 +54,10 @@ def get_recipients(e):
                     set(followers(subject(e)) + story_lovers(e) + story_commenters(e))))
         else:
             return subject(e)
+    elif e.event_type == LiteracyEvent.JOINED_LITERACY_GROUP:
+        return set(subject(e) + group_leaders(e))
+    elif e.event_type == LiteracyEvent.LEFT_LITERACY_GROUP:
+        return set(subject(e) + group_leaders(e))
     else:
         log.debug("No notifications created for {}".format(e))
         return []
@@ -87,6 +91,9 @@ def prompt_group_members(e):
 
 def prompt_group_leaders(e):
     return list(e.prompt.literacy_group.leaders.all()) if e.prompt else []
+
+def group_leaders(e):
+    return list(e.literacy_group.leaders.all()) if e.literacy_group else []
 
 def followers(users):
     return list(User.objects.filter(profile__following__user__in=users).distinct())

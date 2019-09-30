@@ -64,7 +64,7 @@ def user_replacement(username, user, autoescape=True):
         if username == user.username:
             return "you"
         else: 
-            subjectUser = User.objects.get(username=username, active=True)
+            subjectUser = User.objects.get(username=username, is_active=True)
             return '<a href="{}">{}</a>'.format(
                 reverse('show_user', args=[subjectUser.username]),
                 esc(subjectUser.username)

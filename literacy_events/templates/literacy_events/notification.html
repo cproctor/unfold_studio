@@ -1,7 +1,7 @@
 {% load app_filters %}
 <li class="event">
 {% with event=notification.event viewer=notification.recipient %}
-{% with subjectUser=event.subject story=event.story book=event.book objectUser=event.object_user prompt=event.prompt story_visible=notification.story_visible %}
+{% with subjectUser=event.subject story=event.story book=event.book objectUser=event.object_user prompt=event.prompt group=event.literacy_group story_visible=notification.story_visible %}
     {% if event.event_type == LiteracyEvent.LOVED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         loved 
@@ -83,6 +83,12 @@
         {% include 'literacy_events/user.html' with user=subjectUser%} 
         published a new version of 
         {% include 'literacy_events/story_versions.html' %}
+    {% elif event.event_type == LiteracyEvent.JOINED_LITERACY_GROUP %}
+        {% include 'literacy_events/user.html' with user=subjectUser %}
+        joined the group {{group}}
+    {% elif event.event_type == LiteracyEvent.LEFT_LITERACY_GROUP %}
+        {% include 'literacy_events/user.html' with user=subjectUser %}
+        left the group {{group}}
     {% else %}
         Error displaying [{{event}}]
     {% endif %}
