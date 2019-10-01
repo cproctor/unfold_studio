@@ -30,7 +30,7 @@ class ListGroupsView(LoginRequiredMixin, ListView):
 
 class CreateGroupView(LoginRequiredMixin, CreateView):
     model = LiteracyGroup
-    fields = ['name', 'accepting_new_members']
+    fields = ['name', 'anyone_can_join']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
