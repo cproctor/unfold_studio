@@ -14,15 +14,15 @@ Unfold Studio is under active development! You're welcome to contribute new idea
 
 0.5
 ===
-Version 0.5 adds features that make it easier to teach with Unfold Studio. There are also new features designed 
+Version 0.5 adds features that make it easier to teach with Unfold Studio.
 
-- There is now a teacher role. Teachers can have groups of students. (Note: Currently, you can't sign up as a teacher on your own. Please see :ref:`contact` to get in touch.)
+- There is now a teacher role. Teachers can have groups of students. See :ref:`teacher_mode` for details. Currently, you can't sign up as a teacher on your own. Please see :ref:`contact` to request access.
 - Teachers can assign :ref:`prompts` to students. Students see prompts they are assigned, and can submit stories to them. Teachers can see and comment on stories submitted to prompts, even if they are not publicly shared. 
 - Authors can save versions of stories (:ref:`story_versions`). This is helpful for the writing process, and for long serialized stories, where your followers might want to know there's an update available.
 - Added :ref:`comments`. 
 - In comments, book descriptions, and prompts, it's now possible to add :ref:`link_references` to stories, books, and users that stay up to date and are contextualized for different users.
 - Private installations give teachers and schools access to separate worlds, where content is only visible to logged-in members. 
-- Added internal support for single sign on integration
+- Added internal support for single sign on integration.
 
 0.4.2
 =====
