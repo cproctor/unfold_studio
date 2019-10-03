@@ -87,7 +87,11 @@ Comments appear in a story's history.
 Who can comment?
 ++++++++++++++++
 
-Whoever can see a story can also see the story's comments. The only people who can comment on your stories are people you follow and the creators of prompts you have submitted the story to. If you unfollow a user, all their comments disappear. If you withdraw a story from a prompt, the prompt owners' comments will disappear. So you are always in control of who can leave comments on your stories. 
+Whoever can see a story can also see the story's comments. The only people who can comment on your stories are people you follow and the creators of prompts you have submitted the story to. If you unfollow a user, all their comments disappear. If you withdraw a story from a prompt (or leave the group in which the prompt was assigned), the group leader's comments will disappear. So you are always in control of who can comment on your stories. 
+
+
+Advanced
+========
 
 .. _link_references:
 
@@ -95,6 +99,26 @@ References
 ----------
 
 There are some places where you might need to write about stories, books, or other users. These include comments, book descriptions, and story prompts. In these contexts, you can add references by using codes like `@story:1184`, `@book:503`, `@user:chris`, and `@prompt:102`. These references will be shown as links to the story, book, or user which will stay up to date as the name changes. If you reference a story, it will only be linked for users who are allowed to see it. 
+
+Embedding stories in other sites
+--------------------------------
+
+Unfold Studio supports embedding stories into other webpages. (They must be public or shared.) Use the following code:
+
+.. code:: html
+
+        <div id="story"></div>
+        <script>
+            EMBED_TARGET = "#story"
+            STORY_ID = 8849;
+        </script>
+        <script src="https://unfold.studio/static/scripts/ink.js"></script>
+        <script data-main="https://unfold.studio/embed_entry_point.js"
+                src="https://unfold.studio/static/lib/require/require.js">
+        </script>
+
+This method of embedding is a bit messy, and will be improved in the upcoming fromt-end rewrite. 
+
 
 Community standards
 ===================

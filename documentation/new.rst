@@ -12,6 +12,10 @@ Unfold Studio is under active development! You're welcome to contribute new idea
 - The ability to add pictures and sounds to stories
 - Internationalization (Unfold Studio's interface will show up in users' preferred language). Writing stories in multiple languages (and emoji!) is already supported and heartily encouraged.
 
+0.5.1
+=====
+Version 0.5.1 adds the ability to embed stories in other webpages. 
+
 0.5
 ===
 Version 0.5 adds features that make it easier to teach with Unfold Studio.
