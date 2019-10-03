@@ -110,7 +110,7 @@ Unfold Studio supports embedding stories into other webpages. (They must be publ
         <div id="story"></div>
         <script>
             EMBED_TARGET = "#story"
-            STORY_ID = 8849;
+            STORY_ID = 9215;
         </script>
         <script src="https://unfold.studio/static/scripts/ink.js"></script>
         <script data-main="https://unfold.studio/embed_entry_point.js"
