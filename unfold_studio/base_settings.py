@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'reversion',
     'social_django',
     'qr_code',
+    'corsheaders',
     'unfold_studio',
     'profiles',
     'literacy_events',
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -181,3 +183,4 @@ SOCIAL_AUTH_POSTGRES_JSONFIELD = True
 
 SEARCH_RANK_CUTOFF = 0.01
 
+CORS_ORIGIN_ALLOW_ALL = True

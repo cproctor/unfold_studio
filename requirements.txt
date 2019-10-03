@@ -9,6 +9,7 @@ chardet==3.0.4
 clipboard==0.0.4
 defusedxml==0.6.0
 Django==2.2.5
+django-cors-headers==3.1.1
 django-debug-toolbar==1.11
 django-extensions==2.1.6
 django-qr-code==1.0.0
