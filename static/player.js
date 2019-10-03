@@ -79,18 +79,20 @@ InkPlayer.prototype = {
         this.running = false;
     },
     logPath: function() {
-        const path = Array.from(this.story.state.turnIndices.keys()).join(';');
-        console.log(path);
-        return $.ajax(LOG_READING_URL, {
-            beforeSend: function(xhr) { 
-                xhr.setRequestHeader("X-CSRFToken", CSRF);
-            },
-            method: 'POST',
-            data: {
-                'story': parseInt(STORY_ID),
-                'path': path
-            }
-        })
+        if (window.LOG_READING_URL) {
+            const path = Array.from(this.story.state.turnIndices.keys()).join(';');
+            console.log(path);
+            return $.ajax(window.LOG_READING_URL, {
+                beforeSend: function(xhr) { 
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                },
+                method: 'POST',
+                data: {
+                    'story': parseInt(STORY_ID),
+                    'path': path
+                }
+            })
+        }
     },
     events: {
         prepareToPlay: function() {
