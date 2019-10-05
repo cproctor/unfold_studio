@@ -41,7 +41,6 @@ class UserDetailView(DetailView):
         context = super().get_context_data(**kwargs)
         context['books'] = Book.objects.for_request(self.request).filter(owner=self.object).all()
         context['stories'] = Story.objects.for_request(self.request).filter(author=self.object).all()
-        context['prompts_to_submit'] = Prompt.objects.unsubmitted_for_user(self.request.user).all()
         if not self.object.is_active:
             raise Http404()
         if self.request.user == self.object:
@@ -50,6 +49,7 @@ class UserDetailView(DetailView):
             context['feed_continues'] = (Notification.objects.for_request(self.request).count() > 
                     s.FEED_ITEMS_ON_PROFILE)
             context['LiteracyEvent'] = LiteracyEvent
+            context['prompts_to_submit'] = Prompt.objects.unsubmitted_for_user(self.request.user).all()
         else:
             if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
                 messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
