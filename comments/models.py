@@ -7,13 +7,21 @@ from django.utils import timezone
 class CommentManager(models.Manager):
 
     def for_story(self, story):
+        """
+        Gets all comments pertaining to a story which are:
+            - not deleted, and 
+            - authored by:
+                - the story author OR
+                - someone the story author follows OR
+                - someone who leads a literacy group with a prompt where this story was submitted
+        """
         if not story.author:
             return self.get_queryset().none()
         else:
             return self.get_queryset().filter(deleted=False, story=story).filter(
                 Q(author=story.author) | 
                 Q(author__profile__followers=story.author.profile) | 
-                Q(author__prompts_owned__submissions=story)
+                Q(author__literacy_groups_leading__prompts__submissions=story)
             ).distinct()
 
 # Create your models here.
