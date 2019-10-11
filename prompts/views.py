@@ -177,7 +177,7 @@ class ExportPromptAsCsvView(LiteracyGroupContextMixin, CSVResponseMixin, DetailV
     def get(self, request, *args, **kwargs):
         submissions_by_user = {s.author: s for s in self.get_object().submissions.all()}
         member_submissions = [(m, submissions_by_user.get(m)) for m in self.group.members.all()]
-        values = [(m.username, s.title if s else None, s.id if s else None, reverse('show_story', s.id) if s else None) for m, s in member_submissions]
+        values = [(m.username, s.title if s else None, s.id if s else None, reverse('show_story', args=(s.id,)) if s else None) for m, s in member_submissions]
         fields = ['username', 'story_title', 'story_id', 'story_url']
         log.info("{} downloaded prompt {} (group {}) as CSV".format(request.user, self.get_object().id, self.group.id))
         return self.render_to_csv(values, fieldnames=fields)
@@ -216,7 +216,7 @@ class PublishAsBookView(LiteracyGroupContextMixin, SingleObjectMixin, View):
         if prompt.book:
             messages.warning(request, "{} is already published as a book".format(prompt.name))
             log.warning("{} tried to re-publish {} as a book".format(request.user), prompt.name)
-            return redirect('show_prompt_owned', prompt.id)
+            return redirect('show_prompt', prompt.id)
         book_desc = "This automatically-generated book contains stories submitted to @prompt:{}".format(prompt.id)
         book = Book.objects.create(
             owner=request.user, 
