@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django.contrib.sites',
+    'storages',
     'debug_toolbar',
     'django_extensions',
     'reversion',
