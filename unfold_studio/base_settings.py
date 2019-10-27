@@ -136,6 +136,7 @@ STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = 'static.unfold.studio'
 #STATIC_URL = '/static/'
 STATIC_URL = "https://static.unfold.studio"
+AWS_DEFAULT_ACL = None
 
 # Authentication
 LOGIN_REDIRECT_URL = '/'
