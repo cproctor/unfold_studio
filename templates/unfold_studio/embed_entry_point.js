@@ -1,9 +1,9 @@
-{% load staticfiles %}{% autoescape off %}
+{% autoescape off %}
 
 document.LOG_READING_URL = "{% url 'log_reading_event' %}";
 
 require.config({
-    baseUrl: "{{ request.scheme }}://{{ request.get_host }}{% static '' %}",
+    baseUrl: "{{STATIC_URL}}",
     paths: {
         jquery: 'lib/jquery/jquery-2.2.3.min'
     }
