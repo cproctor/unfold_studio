@@ -129,7 +129,12 @@ INKLECATE = '/Users/chris/Documents/3-Software-Engineer/unfold_studio/unfold_stu
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = "../static_assets"
-STATIC_URL = '/static/'
+
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+AWS_STORAGE_BUCKET_NAME = 'static.unfold.studio'
+#STATIC_URL = '/static/'
+STATIC_URL = "https://static.unfold.studio"
 
 # Authentication
 LOGIN_REDIRECT_URL = '/'
