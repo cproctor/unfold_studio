@@ -5,5 +5,6 @@ def documentation_urls(request):
         'DOCUMENTATION_URL': settings.DOCUMENTATION_URL,
         'HELP_URL': settings.HELP_URL,
         'TEACHING_URL': settings.TEACHING_URL,
-        'DEBUG': settings.DEBUG
+        'DEBUG': settings.DEBUG,
+        'STATIC_URL': settings.STATIC_URL,
     }

@@ -1,6 +1,6 @@
-{% load staticfiles %}{% autoescape off %}
+{% autoescape off %}
 require.config({
-    baseUrl: "{{ request.scheme }}://{{ request.get_host }}{% static '' %}",
+    baseUrl: "{{STATIC_URL}}",
     paths: {
         jquery: 'lib/jquery/jquery-2.2.3.min',
         ace: 'lib/ace_src'
