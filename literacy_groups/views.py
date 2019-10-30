@@ -128,7 +128,7 @@ class JoinGroupView(LiteracyGroupContextMixin, View):
             messages.warning(request, "You're already a member of {}".format(self.group.name))
             log.warning("{} tried to join {} (id {}), but was already a member".format(
                     request.user, self.group.name, self.group.id))
-        elif not self.group.anyone_can_join and request.GET['code'] != self.group.join_code:
+        elif not self.group.anyone_can_join and request.GET.get('code') != self.group.join_code:
             messages.warning(request, "Wrong code")
             log.warning("{} tried to join {} (id {}), but provided the wrong code".format(
                     request.user, self.group.name, self.group.id))
