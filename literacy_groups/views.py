@@ -39,7 +39,7 @@ class CreateGroupView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         if not request.user.profile.is_teacher:
-            messages.warning("Only teachers can create groups. Please contact chris@unfoldstudio.net if you would like to be upgraded to teacher role.")
+            messages.warning(request, "Only teachers can create groups. Please contact chris@unfoldstudio.net if you would like to be upgraded to teacher role.")
             return redirect('list_groups')
             
         group = LiteracyGroup(site=get_current_site(request))
