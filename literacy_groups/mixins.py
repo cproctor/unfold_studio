@@ -16,6 +16,9 @@ class LiteracyGroupContextMixin(LoginRequiredMixin, View):
 
     def setup(self, request, *args, **kwargs):
         super().setup(request, *args, **kwargs)
+        if not request.user.is_authenticated:
+            messages.warning("You need to be logged in to view groups.")
+            return redirect('home')
         if self.require_member:
             self.group = get_object_or_404(LiteracyGroup, pk=kwargs[self.url_group_key], members=request.user, 
                     site=get_current_site(request), deleted=False)
