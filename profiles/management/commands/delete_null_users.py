@@ -12,12 +12,14 @@ class Command(BaseCommand):
         parser.add_argument("-d", "--dryrun", help="show users who would be deleted, but don't delete them", action="store_true")
 
     def handle(self, *args, **options):
-        cutoff = timezone.now() - timedelta(days=options["age"])
+        verbosity = int(options["verbosity"])
+        cutoff = timezone.now() - timedelta(days=int(options["age"]))
         null_users = User.objects.annotate(num_stories=Count("stories")).filter(num_stories=0, last_login__lt=cutoff)
-        if int(options["verbosity"]) > 1 or options["dryrun"]:
-            self.stdout.write("{} users {} be deleted:".format(null_users.count(), "would" if options["dryrun"] else "will"))
-            for user in null_users.all():
-                self.stdout.write(" - {}".format(user))
+        if verbosity > 0 or options["dryrun"]:
+            self.stdout.write("{} users {} be deleted".format(null_users.count(), "would" if options["dryrun"] else "will"))
+            if verbosity > 1:
+                for user in null_users.all():
+                    self.stdout.write(" - {}".format(user))
         if not options["dryrun"]:
             for user in null_users.all():
                 user.delete()
