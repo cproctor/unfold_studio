@@ -20,6 +20,8 @@ def ref_pattern(entity):
 
 def prompt_replacement(promptId, user, autoescape=True):
     esc = conditional_escape if autoescape else lambda x: x
+    if not user.is_authenticated:
+        return 'a prompt'
     try:
         prompt = Prompt.objects.get(pk=promptId, deleted=False)
         if prompt.literacy_group in user.literacy_groups.all():
