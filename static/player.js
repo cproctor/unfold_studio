@@ -104,6 +104,7 @@ InkPlayer.prototype = {
                 var wrapper = document.createElement('div')
                 wrapper.classList.add('sms')
                 wrapper.classList.add('text-me')
+                wrapper.classList.add('story-content')
                 var p = document.createElement('p');
                 p.innerHTML = content.text;
                 wrapper.appendChild(p)
@@ -116,6 +117,7 @@ InkPlayer.prototype = {
                 var wrapper = document.createElement('div')
                 wrapper.classList.add('sms')
                 wrapper.classList.add('text-them')
+                wrapper.classList.add('story-content')
                 var p = document.createElement('p');
                 p.innerHTML = content.text;
                 wrapper.appendChild(p)
@@ -124,9 +126,15 @@ InkPlayer.prototype = {
                 this.container.appendChild(wrapper);
                 this.container.appendChild(clear);
                 this.timeouts.push(setTimeout(function() { wrapper.classList.add("show") }, 200 * i));
+            } else if (content.tags.includes("clear")) {
+                var storyText = document.getElementsByClassName('story-content');
+                while (storyText[0]) {
+                    storyText[0].parentNode.removeChild(storyText[0]);
+                }
             } else {
                 var p = document.createElement('p');
                 p.classList.add('regular-text')
+                p.classList.add('story-content')
                 p.innerHTML = content.text;
                 this.container.appendChild(p);
                 this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * i));
