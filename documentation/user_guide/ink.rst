@@ -1655,8 +1655,7 @@ Mathematics
 **ink** supports the four basic mathematical operations (\ ``+``\ , ``-``\ , ``*`` and ``/``\ ), as well as ``%`` (or ``mod``\ ), which returns the remainder after integer division. 
 
 Unfold Studio provides additional functions. ``ln(x)`` and ``log2(x)`` return can be used to get logarithms. ``random()`` returns a random float between 0 and 1. ``random_integer(low, high)`` returns a random integer at least ``low`` but less than ``high``. 
-
-If more complex operations are required, one can write functions (using recursion if necessary), or call out to external, game-code functions (for anything more advanced). 
+And ``random_gaussian(mean, std)`` returns a Gaussian (normal) random number with mean ``mean`` and standard deviation ``std``.
 
 Advanced: numerical types are implicit
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -3981,6 +3980,7 @@ External functions
 ------------------
 Unfold Studio provides some functions which are not avialable in standard Ink. ``ln(x)`` and ``log2(x)`` provide support for logarithms. 
 ``random()`` returns a random float between 0 and 1. ``random_integer(low, high)`` returns a random integer at least ``low`` but less than ``high``. 
+And ``random_gaussian(mean, std)`` returns a Gaussian (normal) random number with mean ``mean`` and standard deviation ``std``.
 
 Styling
 -------
@@ -3992,6 +3992,12 @@ Stories can use tags to style content. Currently, only text messages are support
    What's up? # text-them
    nm. U? # text-me
 
+Clearing the output
+-------------------
+Some stories might need to clear the output history. You can do this with the #clear tag. 
 
+::
 
-
+   Now you see it.
+   + And now...
+      you don't #clear
