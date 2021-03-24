@@ -56,7 +56,7 @@ PyYAML==5.1
 qrcode==6.1
 requests==2.21.0
 requests-oauthlib==1.2.0
-rsa==3.4.2
+rsa==4.1
 s3transfer==0.2.1
 six==1.11.0
 snowballstemmer==1.2.1
