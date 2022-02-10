@@ -12,7 +12,7 @@ chardet==3.0.4
 clipboard==0.0.4
 colorama==0.4.1
 defusedxml==0.6.0
-Django==2.2.5
+Django==2.2.27
 django-cors-headers==3.1.1
 django-debug-toolbar==1.11
 django-extensions==2.1.6
