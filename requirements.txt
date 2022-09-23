@@ -38,7 +38,7 @@ packaging==18.0
 pandas==0.23.4
 pbr==4.2.0
 Pillow==6.2.0
-protobuf==3.6.0
+protobuf==3.18.3
 psycopg2-binary==2.8.2
 pyaml==17.12.1
 pyasn1==0.4.7
