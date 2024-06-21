@@ -96,6 +96,8 @@ DATABASES = {
     }
 }
 
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
@@ -118,7 +120,6 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
-USE_TZ = True
 
 # Ink Directory
 # Inklecate reads and write to files. INK_DIR specifies a directory which 
@@ -135,7 +136,7 @@ DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 AWS_STORAGE_BUCKET_NAME = 'static.unfold.studio'
 #STATIC_URL = '/static/'
-STATIC_URL = "https://static.unfold.studio"
+STATIC_URL = "https://static.unfold.studio/"
 AWS_DEFAULT_ACL = None
 
 # Authentication
