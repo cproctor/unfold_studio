@@ -1,5 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.contrib.sites.models import Site
+from django.contrib.auth.models import User
 from django.conf import settings
 
 template = """
@@ -22,12 +23,7 @@ class Command(BaseCommand):
         parser.add_argument("-f", '--force', action="store_true")
 
     def handle(self, *args, **options):
-        site_count = Site.objects.count()
-        if site_count:
-            if options['force']:
-                Site.objects.all().delete()
-            else:
-                raise CommandError(f"This command would destroy {site_count} existing Sites and related content.")
+        Site.objects.all().delete()
         site = Site.objects.create(
             id=1, 
             domain=options['domain'],
@@ -36,3 +32,10 @@ class Command(BaseCommand):
         if getattr(settings, 'SITE_ID') != site.id:
             print({"site": site, **options})
             print(template.format(site=site, **options))
+
+    User.objects.all().delete()
+    usernames = ["teacher", "alicia", "ben", "chris"]
+    for username in usernames:
+        u = User(username=username)
+        u.set_password(username)
+        u.save()

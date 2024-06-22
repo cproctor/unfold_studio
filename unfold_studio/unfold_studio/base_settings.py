@@ -126,7 +126,7 @@ USE_L10N = True
 # Ink
 # Inklecate reads and write to files. INK_DIR specifies a directory which 
 # should exist and have appropriate permissions.
-INK_VERSION = "1.2.0"
+INK_VERSION = "0.8.2"
 INK_DIR = Path(BASE_DIR).parent / "ink"
 INKLECATE = Path(BASE_DIR).parent / f"inklecate_{INK_VERSION}" / "inklecate"
 
@@ -140,13 +140,6 @@ STATIC_URL = '/static/'
 # Authentication
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/'
-AUTHENTICATION_BACKENDS = (
-    #'unfold_studio.auth.TokenBackend',
-    'social_core.backends.open_id.OpenIdAuth',  # for Google authentication
-    'social_core.backends.google.GoogleOpenId',  # for Google authentication
-    'social_core.backends.google.GoogleOAuth2',  # for Google authentication
-    'django.contrib.auth.backends.ModelBackend',
-)
 
 LOGIN_URL = 'login'
 PASSWORD_TOKEN_MAX_AGE = 60 * 60 * 24
