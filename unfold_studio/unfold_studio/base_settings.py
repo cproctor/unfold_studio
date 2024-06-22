@@ -9,10 +9,13 @@ instance up and running.
 """
 
 import os
+from pathlib import Path
+
+SITE_ID = 1
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-BASE_URL = 'http://unfold.local:8000'
+BASE_URL = 'http://local.unfoldstudio.net:8000'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'afg+8)$-yk((4fppx2a6@vb1$49)2)obmd6pz3ijg+r7)qy@z^'
@@ -24,7 +27,7 @@ DEBUG = True
 # Disables signals, for use during migration
 DISCONNECT_SIGNALS = False
 
-ALLOWED_HOSTS = ['unfold.local']
+ALLOWED_HOSTS = ['local.unfoldstudio.net']
 INTERNAL_IPS = ['127.0.0.1']
 
 # Application definition
@@ -87,15 +90,12 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'unfold_studio.wsgi.application'
 
-
 # Database
 DATABASES = {
     "default": {
         "ENGINE": "django.db.backends.postgresql",
-        "OPTIONS": {
-            "NAME": "unfold_studio",
-            "USER": "unfold_studio_user",
-        },
+        "NAME": "unfold_studio",
+        "USER": "unfold_studio_user",
     }
 }
 
@@ -117,30 +117,25 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_L10N = True
 
-# Ink Directory
+# Ink
 # Inklecate reads and write to files. INK_DIR specifies a directory which 
 # should exist and have appropriate permissions.
-INK_DIR = "/Users/chris/temp/inkspace"
-INKLECATE = '/Users/chris/Documents/3-Software-Engineer/unfold_studio/unfold_studio/inklecate_0_7_4'
+INK_VERSION = "1.2.0"
+INK_DIR = Path(BASE_DIR).parent / "ink"
+INKLECATE = Path(BASE_DIR).parent / f"inklecate_{INK_VERSION}" / "inklecate"
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
-STATIC_ROOT = "../static_assets"
+STATIC_ROOT = Path(BASE_DIR).parent / "static_assets"
 
-DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-AWS_STORAGE_BUCKET_NAME = 'static.unfold.studio'
-#STATIC_URL = '/static/'
-STATIC_URL = "https://static.unfold.studio/"
-AWS_DEFAULT_ACL = None
+STATIC_URL = '/static/'
 
 # Authentication
 LOGIN_REDIRECT_URL = '/'
