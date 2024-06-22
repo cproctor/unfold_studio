@@ -4,6 +4,7 @@
 *.swo
 unfold_studio/settings.py
 documentation/_build/*
+static_assets/*
 inklecate*
 log/*
 analysis/
