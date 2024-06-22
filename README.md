@@ -21,7 +21,17 @@ These steps should get a development instance running on MacOS. The process shou
 - Install [Poetry](https://python-poetry.org/).
 - Install Postgresql (`brew install postgresql@16`)
 
-1. Basic setup
+1. Route `local.unfoldstudio.net` to localhost. Add the following line to the bottom of `/etc/hosts` 
+   (requires admin permissions). Unfold Studio uses Django's Sites framework, which depends on the 
+   domain name of incoming requests.
+
+        127.0.0.1	local.unfoldstudio.net
+
+2. Prepare the database. 
+
+        createuser unfold_studio_user; createdb unfold_studio -O unfold_studio_user
+
+1. Prepare the codebase.
 
         cd /opt # (Or wherever you want to install)
         git clone https://github.com/cproctor/unfold_studio.git
