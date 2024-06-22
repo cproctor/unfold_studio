@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.sites.shortcuts import get_current_site
 
 def documentation_urls(request):
     return {
@@ -7,4 +8,5 @@ def documentation_urls(request):
         'TEACHING_URL': settings.TEACHING_URL,
         'DEBUG': settings.DEBUG,
         'STATIC_URL': settings.STATIC_URL,
+        'SITE': get_current_site(request),
     }
