@@ -15,6 +15,7 @@
 # import os
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
+import pkg_resources
 
 
 # -- Project information -----------------------------------------------------
@@ -23,11 +24,8 @@ project = 'Unfold Studio'
 copyright = '2019, Chris Proctor'
 author = 'Chris Proctor'
 
-# The short X.Y version
-version = '0.5'
-# The full version, including alpha/beta/rc tags
-release = '0.5.1'
-
+release = pkg_resources.get_distribution('unfold-studio').version
+version = ''.join(release.split('.')[:2])
 
 # -- General configuration ---------------------------------------------------
 
@@ -60,7 +58,7 @@ master_doc = 'index'
 #
 # This is also used if you do content translation via gettext catalogs.
 # Usually you set "language" from the command line for these cases.
-language = None
+language = 'en'
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.
@@ -167,6 +165,7 @@ texinfo_documents = [
 
 
 # -- Extension configuration -------------------------------------------------
+bibtex_bibfiles = ['refs.bib']
 
 # -- Options for todo extension ----------------------------------------------
 

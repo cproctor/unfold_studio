@@ -2,7 +2,7 @@
 References
 ********************
 
-.. bibliography:: ../z_references.bib
+.. bibliography:: ../refs.bib
    :all:
 
 
