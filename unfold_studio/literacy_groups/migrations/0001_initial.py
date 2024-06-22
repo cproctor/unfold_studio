@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('password', models.TextField(blank=True, null=True)),
                 ('leaders', models.ManyToManyField(related_name='literacy_groups_leading', to='profiles.Profile')),
                 ('members', models.ManyToManyField(related_name='literacy_groups', to='profiles.Profile')),
-                ('site', models.ForeignKey(on_delete='cascade', to='sites.Site')),
+                ('site', models.ForeignKey(on_delete=models.CASCADE, to='sites.Site')),
             ],
         ),
     ]

@@ -14,6 +14,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='prompt',
             name='author',
-            field=models.ForeignKey(null=True, on_delete='cascade', to='profiles.Profile'),
+            field=models.ForeignKey(null=True, on_delete=models.CASCADE, to='profiles.Profile'),
         ),
     ]

@@ -17,12 +17,12 @@ class PromptManager(models.Manager):
 
 class Prompt(models.Model):
     name = models.CharField(max_length=400)
-    author = models.ForeignKey(User, on_delete="cascade", null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     creation_date = models.DateTimeField(default=timezone.now)
     deleted = models.BooleanField(default=False)
     due_date = models.DateTimeField(null=True, blank=True)
-    literacy_group = models.ForeignKey("literacy_groups.LiteracyGroup", related_name="prompts", on_delete="cascade", 
-            null=True)
+    literacy_group = models.ForeignKey("literacy_groups.LiteracyGroup", 
+            related_name="prompts", on_delete=models.CASCADE, null=True)
     description = models.TextField(blank=True)
     submissions = models.ManyToManyField('unfold_studio.Story', through='prompts.PromptStory', 
             related_name='prompts_submitted')

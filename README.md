@@ -13,21 +13,20 @@ There is additional code to support school and teacher features which is not cur
 
 ### Setup
 
-These steps should get a development instance running on linux or MacOS.
+These steps should get a development instance running on MacOS. The process should be similar on Linux or Unix systems.
 
-0. From bare-bones digital ocean droplet, running as root. Probably not necessary for other contexts.
+0. Prerequisites
 
-        apt-get update
-        apt-get install python3-venv
+- Install [Homebrew](https://brew.sh/). 
+- Install [Poetry](https://python-poetry.org/).
+- Install Postgresql (`brew install postgresql@16`)
 
 1. Basic setup
 
         cd /opt # (Or wherever you want to install)
-        python3 -m venv env
-        source env/bin/activate
         git clone https://github.com/cproctor/unfold_studio.git
         cd unfold_studio
-        pip install -r requirements.txt
+        poetry install
         cp unfold_studio/base_settings.py unfold_studio/settings.py
         python manage.py migrate
         python manage.py collectstatic

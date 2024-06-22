@@ -25,6 +25,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='prompt',
             name='literacy_group',
-            field=models.ForeignKey(null=True, on_delete='cascade', related_name='prompts', to='literacy_groups.LiteracyGroup'),
+            field=models.ForeignKey(null=True, on_delete=models.CASCADE, related_name='prompts', to='literacy_groups.LiteracyGroup'),
         ),
     ]

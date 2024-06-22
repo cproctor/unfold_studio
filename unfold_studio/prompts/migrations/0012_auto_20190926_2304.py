@@ -14,7 +14,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='prompt',
             name='author',
-            field=models.ForeignKey(null=True, on_delete='cascade', to=settings.AUTH_USER_MODEL),
+            field=models.ForeignKey(null=True, on_delete=models.CASCADE, to=settings.AUTH_USER_MODEL),
         ),
         migrations.AlterField(
             model_name='prompt',

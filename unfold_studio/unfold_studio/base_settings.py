@@ -90,9 +90,12 @@ WSGI_APPLICATION = 'unfold_studio.wsgi.application'
 
 # Database
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "OPTIONS": {
+            "NAME": "unfold_studio",
+            "USER": "unfold_studio_user",
+        },
     }
 }
 

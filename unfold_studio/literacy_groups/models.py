@@ -11,7 +11,7 @@ class LiteracyGroup(models.Model):
     name = models.TextField()
     members = models.ManyToManyField(User, related_name="literacy_groups")
     leaders = models.ManyToManyField(User, related_name="literacy_groups_leading")
-    site = models.ForeignKey(Site, on_delete="cascade")
+    site = models.ForeignKey(Site, on_delete=models.CASCADE)
     anyone_can_join = models.BooleanField(default=False)
     join_code = models.TextField()
     deleted = models.BooleanField(default=False)
