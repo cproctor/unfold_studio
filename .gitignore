@@ -6,5 +6,7 @@ unfold_studio/settings.py
 documentation/_build/*
 static_assets/*
 inklecate*
+ink*
 log/*
 analysis/
+**/.DS_Store
