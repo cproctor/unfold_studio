@@ -29,6 +29,9 @@ InkPlayer.prototype = {
         story.BindExternalFunction("ceiling", function(x) {
             return Math.ceil(x);
         });
+        story.BindExternalFunction("generate", function(x) {
+            return "AI content... wooo...";
+        });
     },
     play: function(content) {
         this.events.prepareToPlay.bind(this)();
