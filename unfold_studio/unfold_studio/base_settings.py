@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     'literacy_events',
     'literacy_groups',
     'prompts',
-    'comments'
+    'comments',
+    'text_generation',
 ]
 
 MIDDLEWARE = [
@@ -146,6 +147,14 @@ PASSWORD_TOKEN_MAX_AGE = 60 * 60 * 24
 EMAIL_SENDER = 'unfold@chrisproctor.net'
 EMAIL_SUBJECT_PREFIX = '[UNFOLD STUDIO] '
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+TEXT_GENERATION = {
+    "backend": "OpenAI",
+    "api_key": "...",
+    "temperature": 1.0,
+    "model": "gpt-4o-2024-05-13",
+    "memoize": False,
+}
 
 # Users in the given groups will be shown the following messages on the homepage
 GROUP_HOMEPAGE_MESSAGES = {}

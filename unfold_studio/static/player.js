@@ -1,6 +1,13 @@
 // inkjs global
 define(['jquery'], function($) {
 
+// Snagged from https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
+function uuid() {
+  return "10000000-1000-4000-8000-100000000000".replace(/[018]/g, c =>
+    (+c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> +c / 4).toString(16)
+  );
+}
+
 function InkPlayer(containerSelector) {
     this.container = document.querySelectorAll(containerSelector)[0];
     this.timeouts = [];
@@ -29,8 +36,36 @@ InkPlayer.prototype = {
         story.BindExternalFunction("ceiling", function(x) {
             return Math.ceil(x);
         });
-        story.BindExternalFunction("generate", function(x) {
-            return "AI content... wooo...";
+        // TODO: There is a race condition here: the ajax query is sent off
+        // with a callback for when it returns. Meanwhile, a temporary span
+        // is created with text "Loading..." and a unique ID. Once the query 
+        // returns, the callback looks for the temp div and replaces its content
+        // with the LLM-generated text. In all likelihood this will always work 
+        // fine, but it is possible that the ajax query could return before 
+        // the DOM update, in which case it will not find the span to update. 
+        story.BindExternalFunction("generate", function(prompt_text) {
+            let nonce = uuid();
+            $.ajax("/generate", {
+                beforeSend: function(xhr) { 
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                },
+                method: 'POST',
+                data: JSON.stringify({'prompt': prompt_text}),
+                contentType: "application/json",
+            })
+                .done((data) => {
+                    console.log(data)
+                    let el = document.getElementById(nonce);
+                    if (el) {
+                        el.innerHTML = data.result;
+                    }
+                    else {
+                        console.log("Could not find element " + nonce);
+                    }
+                })
+            return '<span id="' + nonce + '">Loading...</span>';
+            /*
+            */
         });
     },
     play: function(content) {
@@ -82,6 +117,7 @@ InkPlayer.prototype = {
         this.running = false;
     },
     logPath: function() {
+        /*
         if (window.LOG_READING_URL) {
             const path = Array.from(this.story.state.turnIndices.keys()).join(';');
             console.log(path);
@@ -96,6 +132,7 @@ InkPlayer.prototype = {
                 }
             })
         }
+        */
     },
     events: {
         prepareToPlay: function() {
