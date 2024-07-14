@@ -2,7 +2,7 @@
 *.pyc
 *.swp
 *.swo
-unfold_studio/settings.py
+unfold_studio/unfold_studio/settings.py
 documentation/_build/*
 static_assets/*
 inklecate*

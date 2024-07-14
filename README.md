@@ -1,15 +1,21 @@
 # Unfold Studio
 
-[Unfold Studio](https://unfold.studio) is an online community for interactive storytelling powered by a programming language called Ink. Interactive storytelling brings together the power of programming with the ability of stories to represent and explore our lived realities. Unfold Studio is free and open-source.
+[Unfold Studio](https://unfold.studio) is an online community for interactive 
+storytelling powered by a programming language called Ink. Interactive storytelling 
+brings together the power of programming with the ability of stories to represent 
+and explore our lived realities. Unfold Studio is free and open-source.
 
-Unfold Studio is used in schools, clubs, and by many individual writers. Interactive storytelling can be a way to integrate Computer Science into English, Social Studies, or other subjects. It can also be an excellent way to introduce Computer Science as a subject relevant to questions of identity, culture, and social justice. (We are currently doing research with a school which uses Unfold Studio for several months as part of its core CS curriculum.)
+Unfold Studio is used in schools, clubs, and by many individual writers. 
+Interactive storytelling can be a way to integrate Computer Science into English, 
+Social Studies, or other subjects. It can also be an excellent way to introduce 
+Computer Science as a subject relevant to questions of identity, culture, and 
+social justice. (We are currently doing research with a school which uses Unfold 
+Studio for several months as part of its core CS curriculum.)
 
-Unfold Studio's main documentation is at [docs.unfold.studio](http://docs.unfold.studio).
+Unfold Studio's main documentation is at 
+[docs.unfold.studio](http://docs.unfold.studio).
 
 ## Development
-
-Development of Unfold Studio is currently migrating to this repository's issues page. New bug reports should be filed here. 
-There is additional code to support school and teacher features which is not currently open-source.
 
 ### Setup
 
@@ -27,31 +33,37 @@ These steps should get a development instance running on MacOS. The process shou
 
         127.0.0.1	local.unfoldstudio.net
 
-2. Prepare the database. 
+2. Prepare the database.
 
         createuser unfold_studio_user; createdb unfold_studio -O unfold_studio_user
 
-1. Prepare the codebase.
+3. Get the code.
 
         cd /opt # (Or wherever you want to install)
         git clone https://github.com/cproctor/unfold_studio.git
         cd unfold_studio
         poetry install
         cp unfold_studio/base_settings.py unfold_studio/settings.py
-        python manage.py migrate
-        python manage.py collectstatic
+
+4. Inklecate. To save (and compile) stories, you'll also need an Inklecate executable, which you can 
+   get from https://github.com/inkle/ink/releases. Ensure that the backend Inklecate version, the frontend
+   inkjs version, and `INK_VERSION` in `settings.py` are synchronized. 
+
+   For the default installation, download ink 0.8.2 and unpack it into the `inklecate_0.8.2` directory in 
+   the Unfold Studio repository's root. Additionally, create an `ink` directory in the repository root; 
+   ink stories will be saved here during compilation.
+
+5. Last steps.
+
+        ./manage.py migrate
+        ./manage.py collectstatic
+        ./manage.py dev_init
         python manage.py runserver
 
    This should be enough to get a local server running; you can test it by navigating to
-   http://localhost:8000.
+   http://local.unfoldstudio.net:8000.
 
-2. Inklecate
-
-   To save (and compile) stories, you'll also need an Inklecate executable, which you can get
-   from https://github.com/inkle/ink/releases. You'll probably have to configure settings.py a
-   bit to get it to work. 
-
-3. Cron jobs
+6. (Optional) Cron jobs
 
    Stories and books are weighted according to priority, which depends on factors defined in settings.
    Content is subject to 'gravity,' causing older content to fall and make room for newer content.  
