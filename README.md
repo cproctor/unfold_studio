@@ -26,7 +26,8 @@ These steps should get a development instance running on MacOS. The process shou
 - Install [Homebrew](https://brew.sh/). 
 - Install [Poetry](https://python-poetry.org/).
 - Install [Postgresql](https://www.postgresql.org/download/) (`brew install postgresql@16`)
-    * Instructions to set up default user
+    * Set up default postgres user
+        sudo passwd postgres
 
 1. Route `local.unfoldstudio.net` to localhost. Add the following line to the bottom of `/etc/hosts` 
    (requires admin permissions). Unfold Studio uses Django's Sites framework, which depends on the 
@@ -38,7 +39,11 @@ These steps should get a development instance running on MacOS. The process shou
 
         createuser unfold_studio_user; createdb unfold_studio -O unfold_studio_user
 
-    set password for unfold_studio_user (optional step?)
+    Set password for `unfold_studio_user`
+
+        sudo -u postgres psql
+        alter user unfold_studio_user with password '<password>';
+
 
 3. Get the code.
 
@@ -47,6 +52,8 @@ These steps should get a development instance running on MacOS. The process shou
         cd unfold_studio
         poetry install
         cp unfold_studio/unfold_studio/base_settings.py unfold_studio/unfold_studio/settings.py
+
+    You will need to ensure the `PASSWORD`, `HOST`, and `PORT` fields are set correctly in `settings.py[DATABASES.default]` based on your postgres configuration
 
 4. Inklecate. To save (and compile) stories, you'll also need an Inklecate executable, which you can 
    get from https://github.com/inkle/ink/releases. Ensure that the backend Inklecate version, the frontend

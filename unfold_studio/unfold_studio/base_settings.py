@@ -97,6 +97,9 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "unfold_studio",
         "USER": "unfold_studio_user",
+        "PASSWORD": '<password>',
+        "HOST": "localhost",
+        "PORT": "5432"
     }
 }
 
