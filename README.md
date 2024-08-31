@@ -26,7 +26,9 @@ These steps should get a development instance running on MacOS. The process shou
 - Install [Homebrew](https://brew.sh/). 
 - Install [Poetry](https://python-poetry.org/).
 - Install [Postgresql](https://www.postgresql.org/download/) (`brew install postgresql@16`)
-    * Set up default postgres user
+  
+    Set up default postgres user
+  
         sudo passwd postgres
 
 1. Route `local.unfoldstudio.net` to localhost. Add the following line to the bottom of `/etc/hosts` 
