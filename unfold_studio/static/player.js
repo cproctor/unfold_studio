@@ -43,29 +43,50 @@ InkPlayer.prototype = {
         // with the LLM-generated text. In all likelihood this will always work 
         // fine, but it is possible that the ajax query could return before 
         // the DOM update, in which case it will not find the span to update. 
-        story.BindExternalFunction("generate", function(prompt_text) {
+        story.BindExternalFunction("generate", function (prompt_text) {
+            // If the prompt contains a placeholder span, replace it with
+            // the appropriate text if possible
+            if (prompt_text.includes("data-loaded")) {
+                const el = new DOMParser().parseFromString(
+                    prompt_text,
+                    "text/html",
+                );
+                let span = el.querySelector("span[data-loaded=false]");
+                const id = span.id;
+                const generated = JSON.parse(
+                    sessionStorage.getItem("generated"),
+                );
+                if (generated?.[id]) {
+                    span.replaceWith(generated[id]);
+                    prompt_text = el.firstChild.children[1].innerHTML;
+                }
+            }
             let nonce = uuid();
             $.ajax("/generate", {
-                beforeSend: function(xhr) { 
+                beforeSend: function (xhr) {
                     xhr.setRequestHeader("X-CSRFToken", CSRF);
                 },
-                method: 'POST',
-                data: JSON.stringify({'prompt': prompt_text}),
+                method: "POST",
+                data: JSON.stringify({ prompt: prompt_text }),
                 contentType: "application/json",
-            })
-                .done((data) => {
-                    console.log(data)
-                    let el = document.getElementById(nonce);
-                    if (el) {
-                        el.innerHTML = data.result;
-                    }
-                    else {
-                        console.log("Could not find element " + nonce);
-                    }
-                })
-            return '<span id="' + nonce + '">Loading...</span>';
-            /*
-            */
+            }).done((data) => {
+                console.log("result: ", { data, nonce });
+                let el = document.getElementById(nonce);
+                let generated = JSON.parse(
+                    sessionStorage.getItem("generated") ?? "{}",
+                );
+                generated[nonce] = data.result;
+                sessionStorage.setItem(
+                    "generated",
+                    JSON.stringify(generated),
+                );
+                if (el) {
+                    el.innerHTML = data.result;
+                } else {
+                    console.log("Could not find element " + nonce);
+                }
+            });
+            return '<span id="' + nonce + '" data-loaded=false></span>';
         });
     },
     play: function(content) {
