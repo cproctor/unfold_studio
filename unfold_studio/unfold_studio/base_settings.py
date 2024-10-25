@@ -130,7 +130,7 @@ USE_L10N = True
 # Ink
 # Inklecate reads and write to files. INK_DIR specifies a directory which 
 # should exist and have appropriate permissions.
-INK_VERSION = "0.8.2"
+INK_VERSION = "1.2.0"
 INK_DIR = Path(BASE_DIR).parent / "ink"
 INKLECATE = Path(BASE_DIR).parent / f"inklecate_{INK_VERSION}" / "inklecate"
 
