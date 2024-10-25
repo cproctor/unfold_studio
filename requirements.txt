@@ -73,4 +73,4 @@ typing==3.6.6
 Unidecode==1.0.22
 urllib3==1.24.2
 virtualenv==16.0.0
-Werkzeug==0.16.0
+Werkzeug==3.0.6
