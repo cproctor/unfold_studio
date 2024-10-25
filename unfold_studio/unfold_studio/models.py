@@ -302,9 +302,9 @@ class Story(models.Model):
             message=("line {}: ".format(lineNum) if line else "") + description
         )
 
-    include_pattern = "^\s*INCLUDE\s+(\d+)\s*(\/\/.*)?(#.*)?$"
-    var_init_pattern = "^\s*(VAR|CONST|LIST)\s+(\w+)\s*="
-    knot_pattern = "^\s*===\s*([\w\d]+)\s*(\(.*\)\s*)?(===)?\s*(\/\/.*)?(#.*)?$"
+    include_pattern = r"^\s*INCLUDE\s+(\d+)\s*(\/\/.*)?(#.*)?$"
+    var_init_pattern = r"^\s*(VAR|CONST|LIST)\s+(\w+)\s*="
+    knot_pattern = r"^\s*===\s*([\w\d]+)\s*(\(.*\)\s*)?(===)?\s*(\/\/.*)?(#.*)?$"
 
     def get_inclusions(self):
         "Return an OrderedDict of include codes"
@@ -481,7 +481,7 @@ class StoryError(models.Model):
 
     @classmethod
     def parse_line(cls, error_location):
-        result = re.search("line (\d+)", error_location)
+        result = re.search(r"line (\d+)", error_location)
         if result: return int(result.group(1))
 
     

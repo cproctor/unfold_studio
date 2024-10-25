@@ -8,7 +8,7 @@ readme = "README.md"
 packages = [{include = "unfold_studio"}]
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 django = "^5.0.6"
 django-storages = "^1.14.3"
 django-reversion = "^5.0.12"
