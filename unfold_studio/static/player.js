@@ -70,7 +70,6 @@ InkPlayer.prototype = {
                 data: JSON.stringify({ prompt: prompt_text }),
                 contentType: "application/json",
             }).done((data) => {
-                console.log("result: ", { data, nonce });
                 let el = document.getElementById(nonce);
                 let generated = JSON.parse(
                     sessionStorage.getItem("generated") ?? "{}",
