@@ -188,6 +188,10 @@ DOCUMENTATION_URL = 'http://docs.unfold.studio/'
 HELP_URL = DOCUMENTATION_URL + 'user_guide/index.html'
 TEACHING_URL = DOCUMENTATION_URL + 'teaching/index.html'
 
+ENABLE_ANALYTICS = True
+ANALYTICS_URL = "//analytics.unfoldstudio.net/"
+ANALYTICS_SITE_ID = "2"
+
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY =''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 SOCIAL_AUTH_POSTGRES_JSONFIELD = True
