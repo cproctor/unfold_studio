@@ -91,6 +91,39 @@ define(
                     return false;
                 });
             });
+
+            // Mutation observer to update async generate calls
+            const targetNode = document.getElementById("player");
+            const config = {
+                attributes: false,
+                childList: true,
+                subtree: true,
+            };
+            const callback = (mutationList, observer) => {
+                for (const mutation of mutationList) {
+                    if (
+                        mutation.type === "childList" &&
+                        mutation.addedNodes.length > 0
+                    ) {
+                        mutation.addedNodes.forEach((addedNode) => {
+                            if (addedNode.querySelector) {
+                                const spans = addedNode.querySelectorAll(
+                                    "span[data-loaded=false]",
+                                );
+                                const generated = JSON.parse(
+                                    sessionStorage.getItem("generated"),
+                                );
+                                spans.forEach((s) => {
+                                    s.innerHTML =
+                                        generated[s.id] ?? "Loading...";
+                                });
+                            }
+                        });
+                    }
+                }
+            };
+            const observer = new MutationObserver(callback);
+            observer.observe(targetNode, config);
         },
         
         originalInit: function() {
