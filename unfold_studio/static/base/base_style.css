@@ -43,6 +43,16 @@ body {
     padding: 10px 30px;
 }
 
+.logout-button {
+    color: white;
+    background: none;
+    border: none;
+    padding: 10px 30px;
+    font-size: inherit;
+    cursor: pointer;
+}
+
+
 .menu-item-logo {
     padding: 10px;
 }
