@@ -2,9 +2,9 @@
 # When memoize is True, cache query results.
 
 from openai import OpenAI, APIError
-import logging
+import structlog
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger("unfold_studio")
 
 class TextGenerationBackend:
     """Interface to a text generation service.
@@ -43,7 +43,7 @@ class OpenAIBackend:
             )
             return result.choices[0].message.content
         except APIError as err:
-            log.error(f"Error calling OpenAI backend: {err}")
+            log.error(name="Text Generation Alert", event="Error Calling OpenAI", arg={"error": err})
             return "...error generating text..."
 
 text_generation_backends = {

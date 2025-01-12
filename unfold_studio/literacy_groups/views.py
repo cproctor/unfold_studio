@@ -11,11 +11,11 @@ from literacy_events.models import LiteracyEvent
 from django.db.models import Count
 from django.views.generic.base import View
 from django.db.models import Q
-import logging
+import structlog
 from django.contrib import messages
 from literacy_groups.mixins import LiteracyGroupContextMixin
 
-log = logging.getLogger(__name__)    
+log = structlog.get_logger("unfold_studio")    
 
 # Create your views here.
 class ListGroupsView(LoginRequiredMixin, ListView):
@@ -48,7 +48,7 @@ class CreateGroupView(LoginRequiredMixin, CreateView):
             group = form.save()
             group.members.add(request.user)
             group.leaders.add(request.user)
-            log.info("{} created group (id {})".format(request.user, group.name, group.id))
+            log.info(name = "Literacy Groups Alert", event="New Litaracy Group Created", args={"user": request.user, "group_name": group.name, "group_id": group.id})
             return redirect('show_group', group.id)
         else:
             context = self.get_context_data(form=form)
@@ -126,17 +126,17 @@ class JoinGroupView(LiteracyGroupContextMixin, View):
     def get(self, request, *args, **kwargs):
         if self.group in request.user.literacy_groups.all():
             messages.warning(request, "You're already a member of {}".format(self.group.name))
-            log.warning("{} tried to join {} (id {}), but was already a member".format(
-                    request.user, self.group.name, self.group.id))
+            log.warning(name = "Literacy Groups Alert", event= "Failed Joining Group", msg ="User Already Member",
+                         args={"user": request.user, "group_name": self.group.name, "group_id": self.group.id})
         elif not self.group.anyone_can_join and request.GET.get('code') != self.group.join_code:
             messages.warning(request, "Wrong code")
-            log.warning("{} tried to join {} (id {}), but provided the wrong code".format(
-                    request.user, self.group.name, self.group.id))
+            log.warning(name = "Literacy Groups Alert", event= "Failed Joining Group", msg= "User Provided Wrong Code", 
+                        args={"user": request.user, "group_name": self.group.name, "group_id": self.group.id})
         else:
             request.user.literacy_groups.add(self.group)
             messages.success(request, "Joined {}".format(self.group.name))
-            log.info("{} joined {} (id {})".format(
-                    request.user, self.group.name, self.group.id))
+            log.info(name = "Literacy Groups Alert", event= "New User Joined Literacy Group", args={
+                "user": request.user, "group_name": self.group.name, "group_id": self.group.id})
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.JOINED_LITERACY_GROUP,
                 subject=request.user,
@@ -150,12 +150,12 @@ class LeaveGroupView(LiteracyGroupContextMixin, View):
     def post(self, request, *args, **kwargs):
         if self.group not in request.user.literacy_groups.all():
             messages.warning(request, "You're not a member of {}".format(self.group.name))
-            log.warning("{} tried to leave {} (id {}), but was not a member".format(
-                    request.user, self.group.name, self.group.id))
+            log.warning(name = "Literacy Groups Alert", event= "Failed Leaving Group", msg="User not a member",
+                         args={"user": request.user, "group_name": self.group.name, "group_id": self.group.id})
         elif self.group in request.user.literacy_groups_leading.all():
             messages.warning(request, "You can't leave groups you lead".format(self.group.name))
-            log.warning("{} tried to leave {} (id {}), but was a leader".format(
-                    request.user, self.group.name, self.group.id))
+            log.warning(name = "Literacy Groups Alert", event= "Failed Leaving Group", msg= "User is Leader", args={
+                "user": request.user, "group_name": self.group.name, "group_id": self.group.id})
         else:
             request.user.literacy_groups.remove(self.group)
             messages.success(request, "Left {}".format(self.group.name))
@@ -164,8 +164,8 @@ class LeaveGroupView(LiteracyGroupContextMixin, View):
                 subject=request.user,
                 literacy_group=self.group,
             )
-            log.info("{} left {} (id {})".format(
-                    request.user, self.group.name, self.group.id))
+            log.info(name = "Literacy Groups Alert", event= "Member Left", args={
+                "user": request.user, "group_name": self.group.name, "group_id": self.group.id})
         if request.user.literacy_groups.exists():
             return redirect('list_groups')
         else:

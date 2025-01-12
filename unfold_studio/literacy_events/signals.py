@@ -2,16 +2,16 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.contrib.auth.models import User
 from literacy_events.models import LiteracyEvent, Notification
-import logging
+import structlog
 
-log = logging.getLogger(__name__)    
+log = structlog.get_logger("unfold_studio")  
 
 @receiver(post_save, sender=LiteracyEvent, weak=False, dispatch_uid="literacy_event_notification")
 def literacy_event_notifications(sender, **kwargs):
     event = kwargs['instance']
     for user in get_recipients(event):
         n = Notification.objects.create(recipient=user, event=event)
-        log.debug("Created notification: {}".format(n))
+        log.info(name = "Literacy Events Alert", event = "New Notification Created", args={"notification": n})
     
 def get_recipients(e):
     if e.event_type == LiteracyEvent.LOVED_STORY:
@@ -59,7 +59,7 @@ def get_recipients(e):
     elif e.event_type == LiteracyEvent.LEFT_LITERACY_GROUP:
         return set(subject(e) + group_leaders(e))
     else:
-        log.debug("No notifications created for {}".format(e))
+        log.error(name = "Literacy Events Alert", event = "Notification Creation Failed", args={"literacy_event": e})
         return []
 
 def subject(e):

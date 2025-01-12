@@ -10,3 +10,4 @@ ink*
 log/*
 analysis/
 **/.DS_Store
+.unfold_studio*

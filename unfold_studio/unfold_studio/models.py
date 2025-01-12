@@ -8,7 +8,7 @@ import reversion
 from django.conf import settings
 import json
 import re
-import logging
+import structlog
 from collections import OrderedDict, deque
 from enum import Enum
 import os
@@ -20,7 +20,7 @@ from django.http import Http404
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 
-log = logging.getLogger(__name__)
+log = structlog.get_logger(__name__)
 
 class StoryManager(models.Manager):
     """
@@ -292,7 +292,7 @@ class Story(models.Model):
             description = ":".join(description)
             lineNum = StoryError.parse_line(location) + offset
         except ValueError:
-            log.error("UNREADABLE ERROR:"+line)
+            log.error(name="Application Alert", event="Inklecate Creation Error", arg={"error": line})
             description = "unknown error"
             lineNum = None
         self.errors.create(
