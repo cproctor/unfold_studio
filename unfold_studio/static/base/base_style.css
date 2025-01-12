@@ -84,6 +84,7 @@ pre {
 p.description {
     color: black;
     opacity: 1;
+    word-wrap: break-word;
 }
 
 .love {
