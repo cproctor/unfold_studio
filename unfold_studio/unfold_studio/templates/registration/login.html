@@ -36,6 +36,7 @@
 <p><a href="{% url 'password_reset' %}">Lost password?</a></p>
 <p>
     Or
+    <!-- <a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a> -->
 
     <!-- https://developers.google.com/identity/branding-guidelines -->
     <button class="gsi-material-button" onclick="location.href='{% url 'social:begin' 'google-oauth2' %}'">
