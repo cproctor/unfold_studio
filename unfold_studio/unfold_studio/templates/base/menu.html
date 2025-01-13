@@ -29,9 +29,13 @@
                 {{user}}
             </a>
         </div>
-        <div class="menu-item">
-            <a href="{% url 'logout' %}">[Log out]</a>
-        </div>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit" class="logout-button">
+                [Log out]
+            </button>
+        </form>
+    </div>
     {% else %}
         <div class="menu-item menu-item-right">
             <a href="{% url 'login' %}">Log in</a>
