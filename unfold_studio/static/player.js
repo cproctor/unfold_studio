@@ -62,12 +62,16 @@ InkPlayer.prototype = {
                 }
             }
             let nonce = uuid();
+            console.log("inside generate")
+            const contextArray = story.state.context
+            console.log("inside generate contextArray is: ")
+            console.log(contextArray)
             $.ajax("/generate", {
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("X-CSRFToken", CSRF);
                 },
                 method: "POST",
-                data: JSON.stringify({ prompt: prompt_text }),
+                data: JSON.stringify({ prompt: prompt_text, context_array: contextArray}),
                 contentType: "application/json",
             }).done((data) => {
                 let el = document.getElementById(nonce);
@@ -89,6 +93,7 @@ InkPlayer.prototype = {
         });
     },
     play: function(content) {
+        console.log("inside play")
         this.events.prepareToPlay.bind(this)();
         this.content = content;
         if (content.status != 'ok') {
@@ -96,31 +101,41 @@ InkPlayer.prototype = {
             return 
         } 
         this.story = new inkjs.Story(content.compiled);
+        console.log(this.story)
         this.bindExternalFunctions(this.story);
         this.running = true;
         this.continueStory();
     },
     continueStory: function() {
+        console.log("inside continue story")
         const self = this;
         this.events.renderWillStart.bind(this)();
         if (!this.running) {
             return;
         }
         var content = [];
+        this.story.state.context = [];
         while (this.story.canContinue) { 
             try {
                 var text = this.story.Continue()
                 var tags = this.story.currentTags.slice()
+                console.log("inside while text and tag is")
+                console.log(text, tags)
                 content.push({
                     tags: tags,
                     text: text
                 });
+                if (tags.includes('context')){
+                    this.story.state.context.push(text);
+                }
+                
             }
             catch (err) {
                 this.events.reportError.bind(this)(err.message);
             }
         }
         if (!this.running) return;
+        console.log(content)
         content.forEach(this.events.addContent, this);
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
@@ -160,7 +175,9 @@ InkPlayer.prototype = {
             $('.scrollContainer').scrollTop(0);
         },
         addContent: function(content, i) {
-            if (content.tags.includes("text-me")) {
+            if (content.tags.includes("context")){
+                return
+            } else if (content.tags.includes("text-me")) {
                 var wrapper = document.createElement('div')
                 wrapper.classList.add('sms')
                 wrapper.classList.add('text-me')

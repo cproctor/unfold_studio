@@ -12,7 +12,11 @@ class GenerateTextView(View):
     """
     def post(self, request):
         prompt = json.loads(request.body)['prompt']
-        print(request.body, prompt)
+        context_array = json.loads(request.body)['context_array']
+        print(request.body)
+        print(f"inside GenerateTextView context_array is: {context_array}")
+        prompt += " ".join(context_array)
+        print(f"inside GenerateTextView with final prompt: {prompt}")
         backend = get_text_generation_backend(settings.TEXT_GENERATION)
         result = backend.generate(prompt)
         data = {"result": result}

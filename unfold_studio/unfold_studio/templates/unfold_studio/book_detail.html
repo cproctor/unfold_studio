@@ -4,7 +4,7 @@
 
 {% block content %}
 <h1>{{book.title}}</h1>
-{% if book.description %} <p class="description">{{book.description | linkrefs:user}}</p>{% endif %}
+{% if book.description %} <p>{{book.description | linkrefs:user}}</p>{% endif %}
 {% if book.owner == request.user %} 
     <p>[<a href="{% url 'edit_book' book.id %}">Edit</a>]</p>
 {% endif %}
