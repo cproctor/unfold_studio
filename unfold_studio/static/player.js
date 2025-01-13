@@ -62,12 +62,13 @@ InkPlayer.prototype = {
                 }
             }
             let nonce = uuid();
+            const contextArray = story.state.context
             $.ajax("/generate", {
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("X-CSRFToken", CSRF);
                 },
                 method: "POST",
-                data: JSON.stringify({ prompt: prompt_text }),
+                data: JSON.stringify({ prompt: prompt_text, context_array: contextArray}),
                 contentType: "application/json",
             }).done((data) => {
                 let el = document.getElementById(nonce);
@@ -107,6 +108,7 @@ InkPlayer.prototype = {
             return;
         }
         var content = [];
+        this.story.state.context = [];
         while (this.story.canContinue) { 
             try {
                 var text = this.story.Continue()
@@ -115,6 +117,9 @@ InkPlayer.prototype = {
                     tags: tags,
                     text: text
                 });
+                if (tags.includes('context')){
+                    this.story.state.context.push(text);
+                }
             }
             catch (err) {
                 this.events.reportError.bind(this)(err.message);
@@ -160,7 +165,9 @@ InkPlayer.prototype = {
             $('.scrollContainer').scrollTop(0);
         },
         addContent: function(content, i) {
-            if (content.tags.includes("text-me")) {
+            if (content.tags.includes("context")){
+                return
+            } else if (content.tags.includes("text-me")) {
                 var wrapper = document.createElement('div')
                 wrapper.classList.add('sms')
                 wrapper.classList.add('text-me')
