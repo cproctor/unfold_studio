@@ -4,7 +4,10 @@ html {
     height: 100%;
 }
 
-body, pre, textarea, input {
+body,
+pre,
+textarea,
+input {
     font-family: Courier, monospace;
     font-size: 1em;
 }
@@ -48,7 +51,7 @@ body {
 }
 
 .menu-item-title {
-    padding-left: 0px;   
+    padding-left: 0px;
 }
 
 .menu-item a {
@@ -59,9 +62,8 @@ body {
 .menu-fill {
     flex-grow: 4;
 }
-    
-textarea {
-}
+
+textarea {}
 
 #container {
     width: 1000px;
@@ -69,7 +71,8 @@ textarea {
     padding: 10px;
     flex: 1 0 auto;
 }
- h1 {
+
+h1 {
     text-align: left;
     font-weight: 700;
 }
@@ -104,12 +107,10 @@ a:visited {
     color: #2980b9;
 }
 
-a:hover {
-
-}
+a:hover {}
 
 #story {
-    height: 600px; 
+    height: 600px;
     overflow: scroll;
 }
 
@@ -135,29 +136,32 @@ a:hover {
 .twopane.solo #editor {
     display: none;
 }
+
 .twopane.solo .split {
     display: none;
 }
+
 .twopane.solo #player {
     position: inherit;
     left: 0;
 }
+
 .helptext {
     display: none;
 }
 
-.danger{
+.danger {
     color: #c0392b;
 }
 
 .badge {
-   background-color: #c0392b;
-   padding: 4px;
-   border-radius: 4px;
+    background-color: #c0392b;
+    padding: 4px;
+    border-radius: 4px;
 }
 
 .badge:hover {
-   background-color: #e74c3c;
+    background-color: #e74c3c;
 }
 
 .menu-item a.new-feature {
@@ -165,15 +169,15 @@ a:hover {
 }
 
 form.link {
-    display: inline; 
+    display: inline;
     padding: 0;
     margin: 0;
 }
 
-form.link input[type=submit] { 
-    border: none; 
-    background: none; 
-    display: inline; 
+form.link input[type=submit] {
+    border: none;
+    background: none;
+    display: inline;
     color: #3498db;
     cursor: pointer;
     padding: 0;
@@ -191,9 +195,116 @@ table.story-history td {
 table.story-history td:nth-child(1) {
     min-width: 10em;
 }
+
 table.story-history th {
     text-align: left;
     vertical-align: top;
 }
-    
 
+/* GOOGLE SIGN-IN/UP STYLING (https://developers.google.com/identity/branding-guidelines) */
+.gsi-material-button {
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    -webkit-appearance: none;
+    background-color: #f2f2f2;
+    background-image: none;
+    border: none;
+    -webkit-border-radius: 4px;
+    border-radius: 4px;
+    -webkit-box-sizing: border-box;
+    box-sizing: border-box;
+    color: #1f1f1f;
+    cursor: pointer;
+    font-family: 'Roboto', arial, sans-serif;
+    font-size: 14px;
+    height: 40px;
+    letter-spacing: 0.25px;
+    outline: none;
+    overflow: hidden;
+    padding: 0 12px;
+    position: relative;
+    text-align: center;
+    -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
+    transition: background-color .218s, border-color .218s, box-shadow .218s;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: auto;
+    max-width: 400px;
+    min-width: min-content;
+  }
+  
+  .gsi-material-button .gsi-material-button-icon {
+    height: 20px;
+    margin-right: 12px;
+    min-width: 20px;
+    width: 20px;
+  }
+  
+  .gsi-material-button .gsi-material-button-content-wrapper {
+    -webkit-align-items: center;
+    align-items: center;
+    display: flex;
+    -webkit-flex-direction: row;
+    flex-direction: row;
+    -webkit-flex-wrap: nowrap;
+    flex-wrap: nowrap;
+    height: 100%;
+    justify-content: space-between;
+    position: relative;
+    width: 100%;
+  }
+  
+  .gsi-material-button .gsi-material-button-contents {
+    -webkit-flex-grow: 1;
+    flex-grow: 1;
+    font-family: 'Roboto', arial, sans-serif;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: top;
+  }
+  
+  .gsi-material-button .gsi-material-button-state {
+    -webkit-transition: opacity .218s;
+    transition: opacity .218s;
+    bottom: 0;
+    left: 0;
+    opacity: 0;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+  
+  .gsi-material-button:disabled {
+    cursor: default;
+    background-color: #ffffff61;
+  }
+  
+  .gsi-material-button:disabled .gsi-material-button-state {
+    background-color: #1f1f1f1f;
+  }
+  
+  .gsi-material-button:disabled .gsi-material-button-contents {
+    opacity: 38%;
+  }
+  
+  .gsi-material-button:disabled .gsi-material-button-icon {
+    opacity: 38%;
+  }
+  
+  .gsi-material-button:not(:disabled):active .gsi-material-button-state, 
+  .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+    background-color: #001d35;
+    opacity: 12%;
+  }
+  
+  .gsi-material-button:not(:disabled):hover {
+    -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+    box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
+  }
+  
+  .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+    background-color: #001d35;
+    opacity: 8%;
+  }
