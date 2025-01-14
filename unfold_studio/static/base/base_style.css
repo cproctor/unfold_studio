@@ -54,6 +54,7 @@ body {
     font-size: inherit;
     font-family: inherit;
     cursor: pointer;
+    height: 100%;
 }
 
 .menu-item-logo {
