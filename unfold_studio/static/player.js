@@ -36,6 +36,40 @@ InkPlayer.prototype = {
         story.BindExternalFunction("ceiling", function(x) {
             return Math.ceil(x);
         });
+        story.BindExternalFunction("input", function(placeholder = "Enter text...", variableName) {
+            this.stop();
+
+            const container = document.createElement("div");
+            container.classList.add("input-container");
+        
+            const inputElement = document.createElement("input");
+            inputElement.type = "text";
+            inputElement.placeholder = placeholder;
+        
+            const buttonElement = document.createElement("button");
+            buttonElement.innerText = "Submit";
+        
+            container.appendChild(inputElement);
+            container.appendChild(buttonElement);
+            this.container.appendChild(container);
+        
+            buttonElement.addEventListener("click", () => {
+              const userText = inputElement.value.trim();
+              console.log("User typed:", userText);
+              this.story.variablesState[variableName] = userText;
+              inputElement.disabled = true;
+              buttonElement.disabled = true;
+              container.style.opacity = "0.5";
+        
+              this.running = true;
+              this.continueStory();
+            });
+
+            return "";
+        }.bind(this));
+        
+        
+        
         // TODO: There is a race condition here: the ajax query is sent off
         // with a callback for when it returns. Meanwhile, a temporary span
         // is created with text "Loading..." and a unique ID. Once the query 
@@ -86,6 +120,7 @@ InkPlayer.prototype = {
                     console.log("Could not find element " + nonce);
                 }
             });
+
             return '<span id="' + nonce + '" data-loaded=false></span>';
         });
     },
@@ -129,7 +164,7 @@ InkPlayer.prototype = {
         content.forEach(this.events.addContent, this);
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
-                this.events.addChoice.bind(self)(choice, i, text);
+                this.events.addChoice.bind(self)(choice);
             }, this);
             this.events.renderDidEnd.bind(this)();
         }
@@ -207,13 +242,13 @@ InkPlayer.prototype = {
                 this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * i));
             }
         },
-        addChoice: function(choice, i, text) {
+        addChoice: function(choice) {
             var self = this;
             var p = document.createElement('p');
             p.classList.add("choice");
             p.innerHTML = `<a href='#'>${choice.text}</a>`
             this.container.appendChild(p);
-            this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * (i+text.length)));
+            this.timeouts.push(setTimeout(function() { p.classList.add("show") }, 200 * (choice.index+choice.text.length)));
             var a = p.querySelectorAll("a")[0];
             a.addEventListener("click", function(event) {
                 event.preventDefault();
