@@ -120,7 +120,6 @@ InkPlayer.prototype = {
                     console.log("Could not find element " + nonce);
                 }
             });
-
             return '<span id="' + nonce + '" data-loaded=false></span>';
         });
     },
