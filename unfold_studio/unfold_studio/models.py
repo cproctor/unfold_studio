@@ -258,6 +258,7 @@ class Story(models.Model):
             "EXTERNAL ceiling(a)",
             "EXTERNAL random_gaussian(a, b)",
             "EXTERNAL generate(a)",
+            "EXTERNAL input(a,b)",
         ]
 
     def ink_to_json(self, ink, offset=0):
