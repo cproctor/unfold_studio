@@ -36,37 +36,44 @@ InkPlayer.prototype = {
         story.BindExternalFunction("ceiling", function(x) {
             return Math.ceil(x);
         });
-        story.BindExternalFunction("input", function(placeholder = "Enter text...", variableName) {
+        story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
             this.stop();
-
-            const container = document.createElement("div");
-            container.classList.add("input-container");
+        
+            const formContainer = document.createElement("div");
+            formContainer.classList.add("input-container");
+        
+            const formElement = document.createElement("form");
         
             const inputElement = document.createElement("input");
             inputElement.type = "text";
             inputElement.placeholder = placeholder;
+            inputElement.required = true;
         
             const buttonElement = document.createElement("button");
+            buttonElement.type = "submit";
             buttonElement.innerText = "Submit";
         
-            container.appendChild(inputElement);
-            container.appendChild(buttonElement);
-            this.container.appendChild(container);
+            formElement.appendChild(inputElement);
+            formElement.appendChild(buttonElement);
+            formContainer.appendChild(formElement);
+            this.container.appendChild(formContainer);
         
-            buttonElement.addEventListener("click", () => {
-              const userText = inputElement.value.trim();
-              console.log("User typed:", userText);
-              this.story.variablesState[variableName] = userText;
-              inputElement.disabled = true;
-              buttonElement.disabled = true;
-              container.style.opacity = "0.5";
+            formElement.addEventListener("submit", (event) => {
+                event.preventDefault();
+                const userInput = inputElement.value.trim();
+                this.story.variablesState[variableName] = userInput;
         
-              this.running = true;
-              this.continueStory();
+                inputElement.disabled = true;
+                buttonElement.disabled = true;
+                formElement.style.opacity = "0.5";
+        
+                this.running = true;
+                this.continueStory();
             });
-
+        
             return "";
         }.bind(this));
+        
         
         
         
