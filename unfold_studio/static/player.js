@@ -140,10 +140,12 @@ InkPlayer.prototype = {
         this.story = new inkjs.Story(content.compiled);
         this.bindExternalFunctions(this.story);
         this.running = true;
-        this.createStoryPlayInstance(content.id);
-        this.continueStory();
+        this.createStoryPlayInstanceAndContinueStory(content.id);
     },
     continueStory: function() {
+        console.log("Inside continueStory")
+        const story_play_instance_uuid = sessionStorage.getItem("story_play_instance_uuid")
+        console.log(story_play_instance_uuid)
         const self = this;
         this.events.renderWillStart.bind(this)();
         if (!this.running) {
@@ -201,8 +203,8 @@ InkPlayer.prototype = {
         }
         */
     },
-    createStoryPlayInstance: function(story_id) {
-        console.log("Inside createStoryPlayInstance with story_id: " + story_id);
+    createStoryPlayInstanceAndContinueStory: function(story_id) {
+        console.log("Inside createStoryPlayInstanceAndContinueStory with story_id: " + story_id);
         $.ajax("/story_play_instance/new/", {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("X-CSRFToken", CSRF);
@@ -211,13 +213,14 @@ InkPlayer.prototype = {
             data: JSON.stringify({story_id}),
             contentType: "application/json",
         }).done((data) => {
-            console.log("createStoryPlayInstance is done")
+            console.log("createStoryPlayInstanceAndContinueStory is done")
             story_play_instance_uuid = data.story_play_instance_uuid
             console.log("New created story_play_instance_uuid is: " + story_play_instance_uuid)
             sessionStorage.setItem(
                 "story_play_instance_uuid",
                 story_play_instance_uuid
             );
+            this.continueStory();
         });
     },
     events: {
