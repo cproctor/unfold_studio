@@ -508,7 +508,7 @@ class StoryPlayRecord(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     created_on = models.DateTimeField(auto_now_add=True)
     story_play_instance = models.ForeignKey(StoryPlayInstance, on_delete=models.CASCADE, related_name='records')
-    data_type = models.CharField(max_length=30, choices=StoryPlayRecordDataType..choices())
+    data_type = models.CharField(max_length=30, choices=StoryPlayRecordDataType.choices())
     data = models.JSONField()
 
     class Meta:
