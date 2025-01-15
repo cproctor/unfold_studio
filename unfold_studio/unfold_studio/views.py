@@ -6,7 +6,7 @@ from django.views import generic
 from django.http import JsonResponse                                  
 from django.contrib.auth import login
 import json
-import logging
+import structlog
 from .forms import StoryForm, StoryVersionForm
 from .models import Story, Book
 from profiles.models import Profile
@@ -35,7 +35,7 @@ from comments.models import Comment
 from comments.forms import CommentForm
 from django.utils import timezone
 
-log = logging.getLogger(__name__)    
+log = structlog.get_logger("unfold_studio")    
 
 def u(request):
     "Helper to return username"
@@ -54,7 +54,6 @@ def home(request):
         stories = Story.objects.for_site_anonymous_user(site)
 
     stories = stories[:s.STORIES_ON_HOMEPAGE]
-    log.info("{} visited homepage".format(u(request)))
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):
@@ -66,7 +65,6 @@ def browse(request):
         stories = Story.objects.for_site_anonymous_user(site)
 
     if request.GET.get('query'):
-        searching = True
         form = SearchForm(request.GET)
         if form.is_valid():
             query = SearchQuery(form.cleaned_data['query'])
@@ -78,7 +76,6 @@ def browse(request):
             messages.warning(request, "Please enter a valid search query")
             return redirect('list_stories')
     else:
-        searching = False
         form = SearchForm()
 
     if request.user.is_authenticated:
@@ -88,10 +85,6 @@ def browse(request):
     page = request.GET.get('page', 1)
     try:
         story_page = paginator.page(page)
-        if searching:
-            log.info("{} searched for '{}', viewing {}".format(u(request), request.GET.get('query'), story_page))
-        else:
-            log.info("{} browsed {}".format(u(request), story_page))
         return render(request, 'unfold_studio/list_stories.html', {
             'stories': story_page, 
             'form': form
@@ -125,7 +118,7 @@ def new_story(request):
                 story.save()
                 reversion.set_user(story.author)
                 reversion.set_comment("Initial version of @story:{}".format(story.id))
-            log.info("{} created story {}".format(u(request), story.id))
+            log.info(name="Application Alert", event="New Story Created", arg={"user": u(request), "story": story.id})
             return redirect('show_story', story.id)
     else:
         form = StoryForm()
@@ -157,9 +150,9 @@ def compile_story(request, story_id):
         story.save()
         reversion.set_user(story.author)
         if not story.errors.exists():
-            log.info("{} edited story {} (ok)".format(u(request), story.id))
+            log.info(name="Application Alert", event="Story Editted", msg="OK", arg={"user": u(request), "story": story.id})
         else:
-            log.info("{} edited story {} (errors)".format(u(request), story.id))
+            log.warning(name="Application Alert", event="Story Editted", msg="Edit has Errors", arg={"user": u(request), "story": story.id})
     return JsonResponse(story.for_json())
 
 def show_story(request, story_id):
@@ -167,12 +160,6 @@ def show_story(request, story_id):
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
     editable = int(story.author == request.user or story.public)
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
-    if story.author == request.user:
-        log.info("{} viewed story {} (own story)".format(u(request), story.id))
-    elif story.public:
-        log.info("{} viewed story {} (public)".format(u(request), story.id))
-    else:
-        log.info("{} viewed story {} (owned by {})".format(u(request), story.id, story.author.username))
     return render(request, 'unfold_studio/show_story.html', {
         'story': story, 
         'editable': editable, 
@@ -196,26 +183,14 @@ def signup(request):
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 
                 "Welcome to Unfold Studio! Have fun, and please be a good community member.")
-            log.info("{} signed up".format(u(request)))
+            log.info(name="Application Alert", event="New User Sign Up", arg={"user": u(request)})
             return redirect('home')
     else:
         form = SignUpForm()
 
     return render(request, 'registration/signup.html', {'form': form})
 
-class LoggingMixin:
-    verb = "<undefined verb>"
-
-    def log_action(self, request):
-        story = self.get_object()
-        if story.public:
-            log.info("{} {} story {} (id {}; public)".format(u(request), self.verb, story.title, story.id))
-        elif story.author == request.user:
-            log.info("{} {} story {} (id {}; own story)".format(u(request), self.verb, story.title, story.id))
-        else:
-            log.info("{} {} story {} (id {}; by {})".format(u(request), self.verb, story.title, story.id, story.author.username))
-
-class StoryVersionDetailView(LoggingMixin, View):
+class StoryVersionDetailView(View):
     verb = "viewed the history of"
 
     def get(self, request, *args, **kwargs):
@@ -229,7 +204,6 @@ class StoryVersionDetailView(LoggingMixin, View):
         comment = versions[vIndex - 1].revision.comment
         if len(comment) > 100:
             comment = comment[:100] + '...'
-        self.log_action(request)
         return render(request, 'unfold_studio/show_story_version.html', {
             'story': versions[vIndex - 1].object,
             'comment': comment,
@@ -241,7 +215,7 @@ class StoryVersionDetailView(LoggingMixin, View):
     def get_object(self):
         return self.story
 
-class StoryMethodView(LoginRequiredMixin, LoggingMixin, SingleObjectMixin, View):
+class StoryMethodView(LoginRequiredMixin, SingleObjectMixin, View):
     model = Story
     require_editable = True
 
@@ -267,7 +241,6 @@ class LoveStoryView(StoryMethodView):
                 subject=self.request.user,
                 story=story
             )
-            self.log_action(request)
         return redirect('show_story', story.id)
         
 class ForkStoryView(StoryMethodView):
@@ -297,7 +270,6 @@ class ForkStoryView(StoryMethodView):
         story.compile()
         story.sites.add(get_current_site(self.request))
         #messages.success(self.request, "You have forked '{}'".format(story.title))
-        self.log_action(request)
         LiteracyEvent.objects.create(
             event_type=LiteracyEvent.FORKED_STORY,
             subject=request.user,
@@ -316,7 +288,6 @@ class DeleteStoryView(StoryMethodView):
             messages.warning(request, "You can only delete your own stories")
             return redirect('show_story', story.id)
         messages.success(request, "Deleted '{}'".format(story.title))
-        self.log_action(request)
         for prompt in story.prompts_submitted.all():
             story.prompts_submitted.remove(prompt)
         for book in story.books.all():
@@ -336,7 +307,6 @@ class ShareStoryView(StoryMethodView):
         else:
             story.shared = True
             story.save()
-            self.log_action(request)
             #messages.success(request, "You shared '{}'".format(story.title))
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.PUBLISHED_STORY,
@@ -356,7 +326,6 @@ class UnshareStoryView(StoryMethodView):
         else:
             story.shared = False
             story.save()
-            self.log_action(request)
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.UNPUBLISHED_STORY,
                 subject=request.user,
@@ -383,7 +352,6 @@ class NewStoryVersionView(StoryMethodView):
             revision = version.revision
             revision.comment = form.cleaned_data['comment']
             revision.save()
-            self.log_action(request)
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.TAGGED_STORY_VERSION,
                 subject=request.user,

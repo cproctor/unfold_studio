@@ -13,11 +13,12 @@ from django.db.models import Q
 from django.core.paginator import Paginator, PageNotAnInteger
 from django.http import HttpResponse, Http404                         
 from django.contrib.sites.shortcuts import get_current_site
-import logging
+import structlog
 
 from literacy_events.models import Notification, LiteracyEvent
 
-log = logging.getLogger(__name__)    
+log = structlog.get_logger("unfold_studio")  
+  
 
 def un(request):
     "Helper to return username"
@@ -53,8 +54,8 @@ class UserDetailView(DetailView):
         else:
             if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
                 messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
-            
-        log.info("{} viewed {}'s profile".format(un(self.request), self.object.username))
+        log.info(name="Profile Alert", event="Profile Viewed", 
+                 args={"request": un(self.request), "profile_username": self.object.username})
         return context
 
 class FeedView(DetailView):
@@ -95,7 +96,8 @@ class FollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
                 subject=self.request.user,
                 object_user=u
             )
-            log.info("{} followed {}".format(un(self.request), u.username))
+            log.info(name="Profile Alert", event = "Follow Request", 
+                     args={"follower": un(self.request), "following": u.username})
         return redirect('show_user', u)
         
 class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
@@ -114,6 +116,7 @@ class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
                 subject=self.request.user,
                 object_user=u
             )
-            log.info("{} unfollowed {}".format(un(self.request), u.username))
+            log.info(name="Profile Alert", event="Unfollow Request", 
+                     args={"follower": un(self.request), "following": u.username})
         return redirect('show_user', u)
         
