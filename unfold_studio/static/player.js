@@ -99,6 +99,7 @@ InkPlayer.prototype = {
         this.story = new inkjs.Story(content.compiled);
         this.bindExternalFunctions(this.story);
         this.running = true;
+        this.createStoryPlayInstance();
         this.continueStory();
     },
     continueStory: function() {
@@ -158,6 +159,9 @@ InkPlayer.prototype = {
             })
         }
         */
+    },
+    createStoryPlayInstance: function() {
+        console.log("Inside createStoryPlayInstance");
     },
     events: {
         prepareToPlay: function() {
