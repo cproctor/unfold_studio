@@ -497,9 +497,6 @@ class StoryPlayInstance(models.Model):
     story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='story_play_instances')
     state = models.CharField(max_length=32, choices=StoryPlayInstanceState.choices(), default=StoryPlayInstanceState.IN_PROGRESS)
 
-    class Meta:
-        db_table = 'story_play_instance'
-
     def __str__(self):
         return f"StoryPlayInstance {self.uuid} - id: {self.id}"
 
@@ -510,9 +507,6 @@ class StoryPlayRecord(models.Model):
     story_play_instance = models.ForeignKey(StoryPlayInstance, on_delete=models.CASCADE, related_name='records')
     data_type = models.CharField(max_length=30, choices=StoryPlayRecordDataType.choices())
     data = models.JSONField()
-
-    class Meta:
-        db_table = 'story_play_record'
 
     def __str__(self):
         return f"StoryPlayRecord {self.uuid} - id: {self.id}"
