@@ -8,7 +8,7 @@ from django.contrib.auth import login
 import json
 import structlog
 from .forms import StoryForm, StoryVersionForm
-from .models import Story, Book
+from .models import Story, Book, StoryPlayInstance
 from profiles.models import Profile
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.list import ListView
@@ -530,6 +530,22 @@ class RemoveStoryFromBookView(LoginRequiredMixin, StoryMixin, DetailView):
             book=book
         )
         return redirect('show_book', book.id)
+
+class CreateStoryPlayInstanceView(LoginRequiredMixin, CreateView):
+
+    def post(self, request, *args, **kwargs):
+        print("Inside CreateStoryPlayInstanceView")
+        request_body = json.loads(request.body)
+        story_id = request_body['story_id']
+        user = request.user
+        print(story_id)
+        print(user)
+        story_play_instance = StoryPlayInstance.objects.create(
+            user_id=user.id,
+            story_id=story_id
+        )
+
+        return JsonResponse({"story_play_instance_uuid": str(story_play_instance.uuid)})
 
 def require_entry_point(request):
     return render(request, 'unfold_studio/require_entry_point.js', content_type="application/javascript")

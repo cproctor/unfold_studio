@@ -140,7 +140,7 @@ InkPlayer.prototype = {
         this.story = new inkjs.Story(content.compiled);
         this.bindExternalFunctions(this.story);
         this.running = true;
-        this.createStoryPlayInstance();
+        this.createStoryPlayInstance(content.id);
         this.continueStory();
     },
     continueStory: function() {
@@ -201,8 +201,24 @@ InkPlayer.prototype = {
         }
         */
     },
-    createStoryPlayInstance: function() {
-        console.log("Inside createStoryPlayInstance");
+    createStoryPlayInstance: function(story_id) {
+        console.log("Inside createStoryPlayInstance with story_id: " + story_id);
+        $.ajax("/story_play_instance/new/", {
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", CSRF);
+            },
+            method: "POST",
+            data: JSON.stringify({story_id}),
+            contentType: "application/json",
+        }).done((data) => {
+            console.log("createStoryPlayInstance is done")
+            story_play_instance_uuid = data.story_play_instance_uuid
+            console.log("New created story_play_instance_uuid is: " + story_play_instance_uuid)
+            sessionStorage.setItem(
+                "story_play_instance_uuid",
+                story_play_instance_uuid
+            );
+        });
     },
     events: {
         prepareToPlay: function() {

@@ -75,6 +75,7 @@ urlpatterns = [
     path('reading/', literacy_event_views.LogReadingEvent.as_view(), name="log_reading_event"),
     path('require_entry_point.js', views.require_entry_point, name="require_entry_point"),
     path('embed_entry_point.js', views.embed_entry_point, name="embed_entry_point"),
+    path('story_play_instance/new/', views.CreateStoryPlayInstanceView.as_view(), name="new_story_play_instance"),
     path('', include('text_generation.urls')),
 ]
 
