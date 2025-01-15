@@ -13,7 +13,7 @@ from prompts.forms import PromptSubmissionForm
 from prompts.mixins import CSVResponseMixin
 from unfold_studio.models import Story, Book
 from reversion.models import Version
-import logging
+import structlog
 from literacy_events.models import LiteracyEvent
 from literacy_groups.models import LiteracyGroup
 from literacy_groups.mixins import LiteracyGroupContextMixin
@@ -21,7 +21,7 @@ from collections import defaultdict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 
-log = logging.getLogger(__name__)    
+log = structlog.get_logger("unfold_studio")    
 
 def u(request):
     "Helper to return username"
@@ -95,7 +95,8 @@ class ShowPromptView(LiteracyGroupContextMixin, DetailView):
             version = Version.objects.get_for_object(story).last()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
                     submitted_story_version=version)
-            log.info("{} submitted story {} to prompt {}".format(u(self.request), story, self.get_object()))
+            log.info(name="Prompt Alert", event="Story Submission", 
+                     args={"user": u(self.request), "story": story, "prompt": self.get_object()})
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.SUBMITTED_TO_PROMPT,
                 subject=self.request.user,
@@ -125,7 +126,8 @@ class CreatePromptView(LiteracyGroupContextMixin, CreateView):
         form = self.get_form_class()(request.POST, instance=prompt)
         if form.is_valid():
             prompt = form.save()
-            log.info("{} created prompt {} (id: {})".format(request.user, prompt.name, prompt.id))
+            log.info(name="Prompt Alert", event="New Prompt Created", 
+                     args={"user": request.user, "prompt_name": prompt.name, "prompt_id": prompt.id})
             return redirect('show_prompt', self.group.id, prompt.id)
         else:
             context = self.get_context_data(form=form)
@@ -179,7 +181,8 @@ class ExportPromptAsCsvView(LiteracyGroupContextMixin, CSVResponseMixin, DetailV
         member_submissions = [(m, submissions_by_user.get(m)) for m in self.group.members.all()]
         values = [(m.username, s.title if s else None, s.id if s else None, reverse('show_story', args=(s.id,)) if s else None) for m, s in member_submissions]
         fields = ['username', 'story_title', 'story_id', 'story_url']
-        log.info("{} downloaded prompt {} (group {}) as CSV".format(request.user, self.get_object().id, self.group.id))
+        log.info(name="Prompt Alert", event="Prompt Download (CSV)", 
+                     args={"user": request.user, "prompt": self.get_object().id, "group": self.group.id})
         return self.render_to_csv(values, fieldnames=fields)
 
 class ClearPromptSubmissionView(LiteracyGroupContextMixin, SingleObjectMixin, View):
@@ -192,7 +195,8 @@ class ClearPromptSubmissionView(LiteracyGroupContextMixin, SingleObjectMixin, Vi
         )
         story = ps.story
         ps.delete()
-        log.info("{} cleared submitted story {} from prompt {}".format(u(self.request), story, self.get_object()))
+        log.info(name="Prompt Alert", event="Cleared Story", 
+                     args={"user": u(self.request), "story": story, "prompt": self.get_object()})
         LiteracyEvent.objects.create(
             event_type=LiteracyEvent.UNSUBMITTED_FROM_PROMPT,
             subject=self.request.user,
@@ -215,7 +219,8 @@ class PublishAsBookView(LiteracyGroupContextMixin, SingleObjectMixin, View):
         prompt = self.get_object()
         if prompt.book:
             messages.warning(request, "{} is already published as a book".format(prompt.name))
-            log.warning("{} tried to re-publish {} as a book".format(request.user), prompt.name)
+            log.warning(name="Prompt Alert", event="Publish Book Failed", msg="Already Published" ,
+                     args={"user": request.user, "prompt_name": prompt.name})
             return redirect('show_prompt', prompt.id)
         book_desc = "This automatically-generated book contains stories submitted to @prompt:{}".format(prompt.id)
         book = Book.objects.create(
@@ -228,7 +233,8 @@ class PublishAsBookView(LiteracyGroupContextMixin, SingleObjectMixin, View):
         prompt.save()
         for story in prompt.submissions.all():
             book.stories.add(story)
-        log.info("{} published {} as a book".format(request.user, prompt.name))
+        log.info(name="Prompt Alert", event="Published as a Book", 
+                     args={"user": request.user, "prompt_name": prompt.name})
         LiteracyEvent.objects.create(
             event_type=LiteracyEvent.PUBLISHED_PROMPT_AS_BOOK,
             subject=self.request.user,
@@ -249,13 +255,15 @@ class UnpublishBookView(LiteracyGroupContextMixin, SingleObjectMixin, View):
         prompt = self.get_object()
         if not prompt.book:
             messages.warning(request, "{} is not published as a book".format(prompt.name))
-            log.warning("{} tried to unpublish {} when it was not published".format(request.user, prompt.name))
+            log.warning(name="Prompt Alert", event="Unpublish Failed", msg="Not published", 
+                     args={"user": request.user, "prompt_name": prompt.name})
             return redirect('show_prompt', self.group.id, prompt.id)
         prompt.book.deleted = True
         prompt.book.save()
         prompt.book = None
         prompt.save()
-        log.info("{} unpublished {} as a book".format(request.user, prompt.name))
+        log.info(name="Prompt Alert", event="Unpublished as a book",
+                     args={"user": request.user, "prompt_name": prompt.name})
         LiteracyEvent.objects.create(
             event_type=LiteracyEvent.UNPUBLISHED_PROMPT_AS_BOOK,
             subject=self.request.user,

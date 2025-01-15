@@ -1,16 +1,16 @@
 from django.core.management.base import BaseCommand, CommandError
 from unfold_studio.models import Story
-import logging
+import structlog
 import reversion
 
-log = logging.getLogger(__name__)    
+log = structlog.get_logger("unfold_studio")    
 
 class Command(BaseCommand):
     help = "Recompile all stories (for example after upgrading inklecate)"
 
     def handle(self, *args, **options):
         for story in Story.objects.all():
-            log.debug("Recompiling '{}' (Story {})".format(story, story.id))
+            log.debug(name="Application Alert", event="Recompiling Story", args={"story": story, "story_id": story.id})
             if not story.latest_version():
                 with reversion.create_revision():
                     story.save()
