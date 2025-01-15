@@ -29,12 +29,24 @@ class OpenAIBackend:
         """
         return []
 
-    def generate(self, prompt):
+    def get_messages_for_request(self, prompt, context_array=None):
         messages = self.get_prompt_context()
+        if context_array:
+            for context in context_array:
+                messages.append({
+                    "role": "system",
+                    "content": context,
+                })
+
         messages.append({
             "role": "user", 
             "content": prompt
         })
+
+        return messages
+
+    def generate(self, prompt, context_array):
+        messages = self.get_messages_for_request(prompt, context_array)
         try:
             result = self.api_client.chat.completions.create(
                 messages=messages,

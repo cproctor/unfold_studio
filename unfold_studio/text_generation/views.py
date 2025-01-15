@@ -14,8 +14,7 @@ class GenerateTextView(View):
         prompt = json.loads(request.body)['prompt']
         context_array = json.loads(request.body)['context_array']
         print(request.body, prompt)
-        prompt += " ".join(context_array)
         backend = get_text_generation_backend(settings.TEXT_GENERATION)
-        result = backend.generate(prompt)
+        result = backend.generate(prompt, context_array)
         data = {"result": result}
         return HttpResponse(json.dumps(data), content_type='application/json')
