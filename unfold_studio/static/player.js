@@ -143,9 +143,9 @@ InkPlayer.prototype = {
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
     continueStory: function() {
-        console.log("Inside continueStory")
-        const story_play_instance_uuid = sessionStorage.getItem("story_play_instance_uuid")
-        console.log(story_play_instance_uuid)
+        console.log("Inside continueStory");
+        const story_play_instance_uuid = this.getStoryPlayInstanceUUID();
+        console.log(story_play_instance_uuid);
         const self = this;
         this.events.renderWillStart.bind(this)();
         if (!this.running) {
@@ -222,6 +222,10 @@ InkPlayer.prototype = {
             );
             this.continueStory();
         });
+    },
+    getStoryPlayInstanceUUID: function() {
+        story_play_instance_uuid = sessionStorage.getItem("story_play_instance_uuid");
+        return story_play_instance_uuid;
     },
     events: {
         prepareToPlay: function() {
