@@ -560,6 +560,7 @@ class CreateStoryPlayRecordView(LoginRequiredMixin, CreateView):
         story_play_instance_uuid = request_body['story_play_instance_uuid']
         data_type = request_body['data_type']
         data = request_body['data']
+        story_point = request_body['story_point']
         print(story_play_instance_uuid)
         print(user)
 
@@ -569,6 +570,7 @@ class CreateStoryPlayRecordView(LoginRequiredMixin, CreateView):
             story_play_instance=story_play_instance,
             data_type=data_type,
             data=data,
+            story_point=story_point,
         )
 
         return JsonResponse({"story_play_record_uuid": str(story_play_record.uuid)})

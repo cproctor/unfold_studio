@@ -11,6 +11,7 @@ function uuid() {
 function InkPlayer(containerSelector) {
     this.container = document.querySelectorAll(containerSelector)[0];
     this.timeouts = [];
+    this.currentStoryPoint = 10;
 }
 
 InkPlayer.prototype = {
@@ -149,9 +150,9 @@ InkPlayer.prototype = {
     },
     continueStory: function() {
         console.log("Inside continueStory");
-        const story_play_instance_uuid = this.getStoryPlayInstanceUUID();
-        console.log(story_play_instance_uuid);
-        const self = this;
+        const storyPlayInstanceUUID = this.getStoryPlayInstanceUUID();
+        console.log(storyPlayInstanceUUID);
+        const self = this;storyPlayInstanceUUID
         this.events.renderWillStart.bind(this)();
         if (!this.running) {
             return;
@@ -176,10 +177,10 @@ InkPlayer.prototype = {
         }
         if (!this.running) return;
 
-        self.createStoryPlayRecord(story_play_instance_uuid, "AUTHORS_TEXT", content)
+        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
         const choices = this.story.currentChoices.map(choice => choice.text);
         console.log(choices);
-        self.createStoryPlayRecord(story_play_instance_uuid, "AUTHORS_CHOICE_LIST", choices)
+        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
 
         content.forEach(this.events.addContent, this);
         if (this.story.currentChoices.length > 0) {
@@ -214,9 +215,9 @@ InkPlayer.prototype = {
         }
         */
     },
-    createStoryPlayRecord: function(story_play_instance_uuid, data_type, data){
+    createStoryPlayRecord: function(storyPlayInstanceUUID, data_type, data){
         console.log("Inside createStoryPlayRecord");
-        console.log(story_play_instance_uuid);
+        console.log(storyPlayInstanceUUID);
         console.log(data_type);
         console.log(data);
         if (
@@ -229,9 +230,10 @@ InkPlayer.prototype = {
             return;
         }
         request_data = {
-            "story_play_instance_uuid": story_play_instance_uuid,
+            "story_play_instance_uuid": storyPlayInstanceUUID,
             "data_type": data_type,
             "data": data,
+            "story_point": this.currentStoryPoint,
         }
         $.ajax("/story_play_record/new/", {
             beforeSend: function (xhr) {
@@ -260,22 +262,15 @@ InkPlayer.prototype = {
             contentType: "application/json",
         }).done((data) => {
             console.log("createStoryPlayInstanceAndContinueStory is done")
-            story_play_instance_uuid = data.story_play_instance_uuid
-            console.log("New created story_play_instance_uuid is: " + story_play_instance_uuid)
-            // sessionStorage.setItem(
-            //     "story_play_instance_uuid",
-            //     story_play_instance_uuid
-            // );
-            this.story_play_instance_uuid = story_play_instance_uuid
-            console.log("this.story_play_instance_uuid")
-            console.log(this.story_play_instance_uuid)
+            this.storyPlayInstanceUUID = data.story_play_instance_uuid
+            console.log("New created storyPlayInstanceUUID is: " + this.storyPlayInstanceUUID)
+            console.log("this.storyPlayInstanceUUID")
+            console.log(this.storyPlayInstanceUUID)
             this.continueStory();
         });
     },
     getStoryPlayInstanceUUID: function() {
-        return this.story_play_instance_uuid;
-        // story_play_instance_uuid = sessionStorage.getItem("story_play_instance_uuid");
-        // return story_play_instance_uuid;
+        return this.storyPlayInstanceUUID;
     },
     events: {
         prepareToPlay: function() {
