@@ -57,11 +57,15 @@ InkPlayer.prototype = {
             formElement.appendChild(buttonElement);
             formContainer.appendChild(formElement);
             this.container.appendChild(formContainer);
+
+            this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_INPUT_BOX", {"text": placeholder, "variable_name": variableName});
         
             formElement.addEventListener("submit", (event) => {
                 event.preventDefault();
                 const userInput = inputElement.value.trim();
                 this.story.variablesState[variableName] = userInput;
+
+                this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_ENTERED_TEXT", userInput);
         
                 inputElement.disabled = true;
                 buttonElement.disabled = true;
@@ -121,6 +125,7 @@ InkPlayer.prototype = {
                     "generated",
                     JSON.stringify(generated),
                 );
+                this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
                 if (el) {
                     el.innerHTML = data.result;
                 } else {
@@ -128,7 +133,7 @@ InkPlayer.prototype = {
                 }
             });
             return '<span id="' + nonce + '" data-loaded=false></span>';
-        });
+        }.bind(this));
     },
     play: function(content) {
         this.events.prepareToPlay.bind(this)();
@@ -170,6 +175,12 @@ InkPlayer.prototype = {
             }
         }
         if (!this.running) return;
+
+        self.createStoryPlayRecord(story_play_instance_uuid, "AUTHORS_TEXT", content)
+        const choices = this.story.currentChoices.map(choice => choice.text);
+        console.log(choices);
+        self.createStoryPlayRecord(story_play_instance_uuid, "AUTHORS_CHOICE_LIST", choices)
+
         content.forEach(this.events.addContent, this);
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
@@ -203,14 +214,49 @@ InkPlayer.prototype = {
         }
         */
     },
+    createStoryPlayRecord: function(story_play_instance_uuid, data_type, data){
+        console.log("Inside createStoryPlayRecord");
+        console.log(story_play_instance_uuid);
+        console.log(data_type);
+        console.log(data);
+        if (
+            data === null || 
+            data === undefined || 
+            (typeof data === "string" && data.trim() === "") || 
+            (Array.isArray(data) && data.length === 0)
+        ) {
+            console.log("Data is empty. Exiting the function.");
+            return;
+        }
+        request_data = {
+            "story_play_instance_uuid": story_play_instance_uuid,
+            "data_type": data_type,
+            "data": data,
+        }
+        $.ajax("/story_play_record/new/", {
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", CSRF);
+            },
+            method: "POST",
+            data: JSON.stringify(request_data),
+            contentType: "application/json",
+        }).done((data) => {
+            console.log("createStoryPlayRecord is done")
+            story_play_record_uuid = data.story_play_record_uuid
+            console.log("New created story_play_record_uuid is: " + story_play_record_uuid)
+        });
+    },
     createStoryPlayInstanceAndContinueStory: function(story_id) {
         console.log("Inside createStoryPlayInstanceAndContinueStory with story_id: " + story_id);
+        request_data = {
+            "story_id": story_id,
+        }
         $.ajax("/story_play_instance/new/", {
             beforeSend: function (xhr) {
                 xhr.setRequestHeader("X-CSRFToken", CSRF);
             },
             method: "POST",
-            data: JSON.stringify({story_id}),
+            data: JSON.stringify(request_data),
             contentType: "application/json",
         }).done((data) => {
             console.log("createStoryPlayInstanceAndContinueStory is done")
@@ -220,12 +266,16 @@ InkPlayer.prototype = {
                 "story_play_instance_uuid",
                 story_play_instance_uuid
             );
+            this.story_play_instance_uuid = story_play_instance_uuid
+            console.log("this.story_play_instance_uuid")
+            console.log(this.story_play_instance_uuid)
             this.continueStory();
         });
     },
     getStoryPlayInstanceUUID: function() {
-        story_play_instance_uuid = sessionStorage.getItem("story_play_instance_uuid");
-        return story_play_instance_uuid;
+        return this.story_play_instance_uuid;
+        // story_play_instance_uuid = sessionStorage.getItem("story_play_instance_uuid");
+        // return story_play_instance_uuid;
     },
     events: {
         prepareToPlay: function() {
@@ -289,6 +339,9 @@ InkPlayer.prototype = {
             })
         },
         choose: function(i) {
+            chosen_choice = this.story.currentChoices[i].text
+            console.log("chosen_choice is: " + chosen_choice)
+            this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_CHOSEN_CHOICE", chosen_choice)
             this.story.ChooseChoiceIndex(i);
             this.continueStory();
         },
