@@ -262,10 +262,10 @@ InkPlayer.prototype = {
             console.log("createStoryPlayInstanceAndContinueStory is done")
             story_play_instance_uuid = data.story_play_instance_uuid
             console.log("New created story_play_instance_uuid is: " + story_play_instance_uuid)
-            sessionStorage.setItem(
-                "story_play_instance_uuid",
-                story_play_instance_uuid
-            );
+            // sessionStorage.setItem(
+            //     "story_play_instance_uuid",
+            //     story_play_instance_uuid
+            // );
             this.story_play_instance_uuid = story_play_instance_uuid
             console.log("this.story_play_instance_uuid")
             console.log(this.story_play_instance_uuid)
