@@ -17,6 +17,7 @@ class GenerateTextView(AuthenticatedView):
     def post(self, request):
         try:
             request_body = json.loads(request.body)
+            print(request.body)
             prompt = request_body.get('prompt')
             context_array = request_body.get('context_array')
 
