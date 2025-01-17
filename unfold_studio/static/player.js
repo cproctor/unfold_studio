@@ -149,10 +149,8 @@ InkPlayer.prototype = {
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
     continueStory: function() {
-        console.log("Inside continueStory");
         const storyPlayInstanceUUID = this.getStoryPlayInstanceUUID();
-        console.log(storyPlayInstanceUUID);
-        const self = this;storyPlayInstanceUUID
+        const self = this;
         this.events.renderWillStart.bind(this)();
         if (!this.running) {
             return;
@@ -178,8 +176,8 @@ InkPlayer.prototype = {
         if (!this.running) return;
 
         self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
+
         const choices = this.story.currentChoices.map(choice => choice.text);
-        console.log(choices);
         self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
 
         content.forEach(this.events.addContent, this);
@@ -216,17 +214,12 @@ InkPlayer.prototype = {
         */
     },
     createStoryPlayRecord: function(storyPlayInstanceUUID, data_type, data){
-        console.log("Inside createStoryPlayRecord");
-        console.log(storyPlayInstanceUUID);
-        console.log(data_type);
-        console.log(data);
         if (
             data === null || 
             data === undefined || 
             (typeof data === "string" && data.trim() === "") || 
             (Array.isArray(data) && data.length === 0)
         ) {
-            console.log("Data is empty. Exiting the function.");
             return;
         }
         this.currentStoryPoint +=1;
@@ -244,13 +237,10 @@ InkPlayer.prototype = {
             data: JSON.stringify(request_data),
             contentType: "application/json",
         }).done((data) => {
-            console.log("createStoryPlayRecord is done")
             story_play_record_uuid = data.story_play_record_uuid
-            console.log("New created story_play_record_uuid is: " + story_play_record_uuid)
         });
     },
     createStoryPlayInstanceAndContinueStory: function(story_id) {
-        console.log("Inside createStoryPlayInstanceAndContinueStory with story_id: " + story_id);
         request_data = {
             "story_id": story_id,
         }
@@ -262,11 +252,7 @@ InkPlayer.prototype = {
             data: JSON.stringify(request_data),
             contentType: "application/json",
         }).done((data) => {
-            console.log("createStoryPlayInstanceAndContinueStory is done")
             this.storyPlayInstanceUUID = data.story_play_instance_uuid
-            console.log("New created storyPlayInstanceUUID is: " + this.storyPlayInstanceUUID)
-            console.log("this.storyPlayInstanceUUID")
-            console.log(this.storyPlayInstanceUUID)
             this.continueStory();
         });
     },
@@ -336,7 +322,6 @@ InkPlayer.prototype = {
         },
         choose: function(i) {
             chosen_choice = this.story.currentChoices[i].text
-            console.log("chosen_choice is: " + chosen_choice)
             this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_CHOSEN_CHOICE", chosen_choice)
             this.story.ChooseChoiceIndex(i);
             this.continueStory();
