@@ -11,7 +11,7 @@ function uuid() {
 function InkPlayer(containerSelector) {
     this.container = document.querySelectorAll(containerSelector)[0];
     this.timeouts = [];
-    this.currentStoryPoint = 10;
+    this.currentStoryPoint = 0;
 }
 
 InkPlayer.prototype = {
@@ -229,6 +229,7 @@ InkPlayer.prototype = {
             console.log("Data is empty. Exiting the function.");
             return;
         }
+        this.currentStoryPoint +=1;
         request_data = {
             "story_play_instance_uuid": storyPlayInstanceUUID,
             "data_type": data_type,
