@@ -534,13 +534,10 @@ class RemoveStoryFromBookView(LoginRequiredMixin, StoryMixin, DetailView):
 class CreateStoryPlayInstanceView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
-        print("Inside CreateStoryPlayInstanceView")
         user = request.user
         request_body = json.loads(request.body)
 
         story_id = request_body['story_id']
-        print(story_id)
-        print(user)
 
         story_play_instance = StoryPlayInstance.objects.create(
             user_id=user.id,
@@ -553,7 +550,6 @@ class CreateStoryPlayInstanceView(LoginRequiredMixin, CreateView):
 class CreateStoryPlayRecordView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
-        print("Inside CreateStoryPlayInstanceView")
         user = request.user
         request_body = json.loads(request.body)
 
@@ -561,8 +557,6 @@ class CreateStoryPlayRecordView(LoginRequiredMixin, CreateView):
         data_type = request_body['data_type']
         data = request_body['data']
         story_point = request_body['story_point']
-        print(story_play_instance_uuid)
-        print(user)
 
         story_play_instance = StoryPlayInstance.objects.get(uuid=story_play_instance_uuid)
 
