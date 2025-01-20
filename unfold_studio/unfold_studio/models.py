@@ -123,6 +123,7 @@ class Story(models.Model):
     priority = models.FloatField(default=0)
     sites = models.ManyToManyField(Site)
     search = SearchVectorField(null=True)
+    description = models.CharField(max_length=512)
 
     objects = StoryManager()
 

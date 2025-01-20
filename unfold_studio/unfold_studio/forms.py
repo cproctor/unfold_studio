@@ -4,11 +4,10 @@ from .models import Story, Book
 from django.core.exceptions import ValidationError
 from django.utils.http import urlencode
 
-# TODO: Blurb should be here too.
 class StoryForm(ModelForm):
     class Meta:
         model = Story
-        fields = ['title']
+        fields = ['title', 'description']
 
 class SharedStoryBookForm(ModelForm):
     class Meta:
