@@ -262,6 +262,7 @@ class Story(models.Model):
             "EXTERNAL random_gaussian(a, b)",
             "EXTERNAL generate(a)",
             "EXTERNAL input(a,b)",
+            "EXTERNAL SEED_AI(a)",
         ]
 
     def ink_to_json(self, ink, offset=0):

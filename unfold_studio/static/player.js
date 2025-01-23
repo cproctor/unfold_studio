@@ -41,7 +41,8 @@ InkPlayer.prototype = {
         story.BindExternalFunction("SEED_AI", function(seed) {
             this.aiSeed = seed;
             console.log(`AI Seed set to: ${seed}`);
-        });
+            return "";
+        }.bind(this));
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
             this.stop();
         
@@ -117,7 +118,7 @@ InkPlayer.prototype = {
             request_data = {
                 prompt: prompt_text,
                 context_array: contextArray,
-                ai_seed: aiSeed,
+                ai_seed: this.aiSeed,
 
             }
             $.ajax("/generate", {
@@ -150,6 +151,7 @@ InkPlayer.prototype = {
     play: function(content) {
         this.events.prepareToPlay.bind(this)();
         this.content = content;
+        this.aiSeed = null;
         if (content.status != 'ok') {
             this.events.reportError.bind(this)(content.error);
             return 
