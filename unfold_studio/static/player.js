@@ -11,6 +11,7 @@ function uuid() {
 function InkPlayer(containerSelector) {
     this.container = document.querySelectorAll(containerSelector)[0];
     this.timeouts = [];
+    this.currentStoryPoint = 0;
 }
 
 InkPlayer.prototype = {
@@ -57,11 +58,15 @@ InkPlayer.prototype = {
             formElement.appendChild(buttonElement);
             formContainer.appendChild(formElement);
             this.container.appendChild(formContainer);
+
+            this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_INPUT_BOX", {"text": placeholder, "variable_name": variableName});
         
             formElement.addEventListener("submit", (event) => {
                 event.preventDefault();
                 const userInput = inputElement.value.trim();
                 this.story.variablesState[variableName] = userInput;
+
+                this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_ENTERED_TEXT", userInput);
         
                 inputElement.disabled = true;
                 buttonElement.disabled = true;
@@ -121,6 +126,7 @@ InkPlayer.prototype = {
                     "generated",
                     JSON.stringify(generated),
                 );
+                this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
                 if (el) {
                     el.innerHTML = data.result;
                 } else {
@@ -128,7 +134,7 @@ InkPlayer.prototype = {
                 }
             });
             return '<span id="' + nonce + '" data-loaded=false></span>';
-        });
+        }.bind(this));
     },
     play: function(content) {
         this.events.prepareToPlay.bind(this)();
@@ -140,9 +146,10 @@ InkPlayer.prototype = {
         this.story = new inkjs.Story(content.compiled);
         this.bindExternalFunctions(this.story);
         this.running = true;
-        this.continueStory();
+        this.createStoryPlayInstanceAndContinueStory(content.id);
     },
     continueStory: function() {
+        const storyPlayInstanceUUID = this.getStoryPlayInstanceUUID();
         const self = this;
         this.events.renderWillStart.bind(this)();
         if (!this.running) {
@@ -167,6 +174,12 @@ InkPlayer.prototype = {
             }
         }
         if (!this.running) return;
+
+        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
+
+        const choices = this.story.currentChoices.map(choice => choice.text);
+        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
+
         content.forEach(this.events.addContent, this);
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
@@ -199,6 +212,52 @@ InkPlayer.prototype = {
             })
         }
         */
+    },
+    createStoryPlayRecord: function(storyPlayInstanceUUID, data_type, data){
+        if (
+            data === null || 
+            data === undefined || 
+            (typeof data === "string" && data.trim() === "") || 
+            (Array.isArray(data) && data.length === 0)
+        ) {
+            return;
+        }
+        this.currentStoryPoint +=1;
+        request_data = {
+            "story_play_instance_uuid": storyPlayInstanceUUID,
+            "data_type": data_type,
+            "data": data,
+            "story_point": this.currentStoryPoint,
+        }
+        $.ajax("/story_play_record/new/", {
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", CSRF);
+            },
+            method: "POST",
+            data: JSON.stringify(request_data),
+            contentType: "application/json",
+        }).done((data) => {
+            story_play_record_uuid = data.story_play_record_uuid
+        });
+    },
+    createStoryPlayInstanceAndContinueStory: function(story_id) {
+        request_data = {
+            "story_id": story_id,
+        }
+        $.ajax("/story_play_instance/new/", {
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("X-CSRFToken", CSRF);
+            },
+            method: "POST",
+            data: JSON.stringify(request_data),
+            contentType: "application/json",
+        }).done((data) => {
+            this.storyPlayInstanceUUID = data.story_play_instance_uuid
+            this.continueStory();
+        });
+    },
+    getStoryPlayInstanceUUID: function() {
+        return this.storyPlayInstanceUUID;
     },
     events: {
         prepareToPlay: function() {
@@ -262,6 +321,8 @@ InkPlayer.prototype = {
             })
         },
         choose: function(i) {
+            chosen_choice = this.story.currentChoices[i].text
+            this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_CHOSEN_CHOICE", chosen_choice)
             this.story.ChooseChoiceIndex(i);
             this.continueStory();
         },

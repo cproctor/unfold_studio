@@ -19,6 +19,8 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.http import Http404                         
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
+import uuid
+from .choices import StoryPlayInstanceState, StoryPlayRecordDataType
 
 log = structlog.get_logger(__name__)
 
@@ -489,4 +491,25 @@ class StoryError(models.Model):
     
 
 
+class StoryPlayInstance(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_on = models.DateTimeField(auto_now_add=True)
+    modified_on = models.DateTimeField(auto_now=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='story_play_instances')
+    story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='story_play_instances')
+    state = models.CharField(max_length=32, choices=StoryPlayInstanceState.choices(), default=StoryPlayInstanceState.IN_PROGRESS)
 
+    def __str__(self):
+        return f"StoryPlayInstance {self.uuid} - id: {self.id}"
+
+
+class StoryPlayRecord(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    created_on = models.DateTimeField(auto_now_add=True)
+    story_play_instance = models.ForeignKey(StoryPlayInstance, on_delete=models.CASCADE, related_name='records')
+    story_point = models.IntegerField()
+    data_type = models.CharField(max_length=30, choices=StoryPlayRecordDataType.choices())
+    data = models.JSONField()
+
+    def __str__(self):
+        return f"StoryPlayRecord {self.uuid} - id: {self.id}"

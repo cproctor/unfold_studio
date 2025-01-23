@@ -8,7 +8,7 @@ from django.contrib.auth import login
 import json
 import structlog
 from .forms import StoryForm, StoryVersionForm
-from .models import Story, Book
+from .models import Story, Book, StoryPlayInstance, StoryPlayRecord
 from profiles.models import Profile
 from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.list import ListView
@@ -530,6 +530,44 @@ class RemoveStoryFromBookView(LoginRequiredMixin, StoryMixin, DetailView):
             book=book
         )
         return redirect('show_book', book.id)
+
+class CreateStoryPlayInstanceView(LoginRequiredMixin, CreateView):
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        request_body = json.loads(request.body)
+
+        story_id = request_body['story_id']
+
+        story_play_instance = StoryPlayInstance.objects.create(
+            user_id=user.id,
+            story_id=story_id
+        )
+
+        return JsonResponse({"story_play_instance_uuid": str(story_play_instance.uuid)})
+
+
+class CreateStoryPlayRecordView(LoginRequiredMixin, CreateView):
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        request_body = json.loads(request.body)
+
+        story_play_instance_uuid = request_body['story_play_instance_uuid']
+        data_type = request_body['data_type']
+        data = request_body['data']
+        story_point = request_body['story_point']
+
+        story_play_instance = StoryPlayInstance.objects.get(uuid=story_play_instance_uuid)
+
+        story_play_record = StoryPlayRecord.objects.create(
+            story_play_instance=story_play_instance,
+            data_type=data_type,
+            data=data,
+            story_point=story_point,
+        )
+
+        return JsonResponse({"story_play_record_uuid": str(story_play_record.uuid)})
 
 def require_entry_point(request):
     return render(request, 'unfold_studio/require_entry_point.js', content_type="application/javascript")
