@@ -117,7 +117,7 @@ InkPlayer.prototype = {
             request_data = {
                 prompt: prompt_text,
                 context_array: contextArray,
-                seed: aiSeed,
+                ai_seed: aiSeed,
 
             }
             $.ajax("/generate", {

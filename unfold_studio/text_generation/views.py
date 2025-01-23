@@ -20,6 +20,8 @@ class GenerateTextView(AuthenticatedView):
             print(request.body)
             prompt = request_body.get('prompt')
             context_array = request_body.get('context_array')
+            ai_seed = request_body.get('ai_seed')
+            print(f"AI seed is: {ai_seed}")
 
             validation_successful, failure_reason = self.validate_request(request_body)
             if not validation_successful:
