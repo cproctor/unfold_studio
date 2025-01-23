@@ -11,6 +11,7 @@ function uuid() {
 function InkPlayer(containerSelector) {
     this.container = document.querySelectorAll(containerSelector)[0];
     this.timeouts = [];
+    this.aiSeed = null;
 }
 
 InkPlayer.prototype = {
@@ -35,6 +36,10 @@ InkPlayer.prototype = {
         });
         story.BindExternalFunction("ceiling", function(x) {
             return Math.ceil(x);
+        });
+        story.BindExternalFunction("SEED_AI", function(seed) {
+            this.aiSeed = seed;
+            console.log(`AI Seed set to: ${seed}`);
         });
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
             this.stop();
@@ -104,12 +109,18 @@ InkPlayer.prototype = {
             }
             let nonce = uuid();
             const contextArray = story.state.context
+            request_data = {
+                prompt: prompt_text,
+                context_array: contextArray,
+                seed: aiSeed,
+
+            }
             $.ajax("/generate", {
                 beforeSend: function (xhr) {
                     xhr.setRequestHeader("X-CSRFToken", CSRF);
                 },
                 method: "POST",
-                data: JSON.stringify({ prompt: prompt_text, context_array: contextArray}),
+                data: JSON.stringify(request_data),
                 contentType: "application/json",
             }).done((data) => {
                 let el = document.getElementById(nonce);
