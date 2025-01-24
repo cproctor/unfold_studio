@@ -40,7 +40,6 @@ InkPlayer.prototype = {
         });
         story.BindExternalFunction("SEED_AI", function(seed) {
             this.aiSeed = seed;
-            console.log(`AI Seed set to: ${seed}`);
             return "";
         }.bind(this));
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
