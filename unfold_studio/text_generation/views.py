@@ -1,5 +1,4 @@
 import json
-from django.views import View
 from text_generation.backends import get_text_generation_backend
 from django.conf import settings
 from django.http import JsonResponse
@@ -7,7 +6,7 @@ from unfold_studio.commons.views import AuthenticatedView
 from .models import TextGenerationRecord
 import hashlib
 
-class GenerateTextView(View):
+class GenerateTextView(AuthenticatedView):
 
     def validate_request(self, request_body):
         prompt = request_body.get('prompt')
@@ -37,12 +36,11 @@ class GenerateTextView(View):
         )
 
     def post(self, request):
-        try:
-            result={"ok":"ok"}
+        try: 
             request_body = json.loads(request.body)
             prompt = request_body.get('prompt')
             context_array = request_body.get('context_array', [])
-            seed = request_body.get('ai_seed', 42)
+            seed = request_body.get('ai_seed', settings.DEFAULT_AI_SEED)
 
             validation_successful, failure_reason = self.validate_request(request_body)
             if not validation_successful:
