@@ -154,6 +154,7 @@ EMAIL_SENDER = 'unfold@chrisproctor.net'
 EMAIL_SUBJECT_PREFIX = '[UNFOLD STUDIO] '
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+DEFAULT_AI_SEED = 45
 TEXT_GENERATION = {
     "backend": "OpenAI",
     "api_key": "...",
