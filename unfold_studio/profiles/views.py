@@ -3,7 +3,7 @@ from django.views.generic import DetailView
 from django.views.generic.detail import SingleObjectMixin
 from django.views import View
 from django.contrib.auth.models import User
-from profiles.models import Profile, Event
+from profiles.models import Profile
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from unfold_studio.models import Story, Book

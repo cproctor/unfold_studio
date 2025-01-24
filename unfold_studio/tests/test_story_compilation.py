@@ -1,6 +1,6 @@
 from django.test import TestCase
 from unfold_studio.models import Story, Book
-from profiles.models import Profile, Event
+from profiles.models import Profile
 from django.contrib.auth.models import User
 
 class StoryCompilationTestCase(TestCase):
