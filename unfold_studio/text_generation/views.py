@@ -40,7 +40,7 @@ class GenerateTextView(AuthenticatedView):
             request_body = json.loads(request.body)
             prompt = request_body.get('prompt')
             context_array = request_body.get('context_array', [])
-            seed = request_body.get('ai_seed', settings.DEFAULT_AI_SEED)
+            seed = request_body.get('ai_seed') or settings.DEFAULT_AI_SEED
 
             validation_successful, failure_reason = self.validate_request(request_body)
             if not validation_successful:
@@ -50,6 +50,7 @@ class GenerateTextView(AuthenticatedView):
 
             backend_config = settings.TEXT_GENERATION
             backend = get_text_generation_backend(backend_config)
+            backend_name = backend.config['backend']
 
             cached_result = self.get_cached_response(seed, hashed_key, backend_name)
             if cached_result:
