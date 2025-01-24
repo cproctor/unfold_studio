@@ -7,7 +7,7 @@ from unfold_studio.commons.views import AuthenticatedView
 from .models import TextGenerationRecord
 import hashlib
 
-class GenerateTextView(AuthenticatedView):
+class GenerateTextView(View):
 
     def validate_request(self, request_body):
         prompt = request_body.get('prompt')
@@ -21,9 +21,8 @@ class GenerateTextView(AuthenticatedView):
 
     def get_cached_response(self, seed, hashed_key, backend_name):
         cache_entry = TextGenerationRecord.objects.filter(seed=seed, hashed_key=hashed_key, backend_name=backend_name)
-        print(cache_entry)
         if cache_entry.exists():
-            return cache_entry.first()
+            return cache_entry.first().result
         else:
             return None
 
@@ -34,7 +33,7 @@ class GenerateTextView(AuthenticatedView):
             prompt=prompt,
             context=context,
             result=result,
-            backend=backend_name,
+            backend_name=backend_name,
         )
 
     def post(self, request):
@@ -43,28 +42,23 @@ class GenerateTextView(AuthenticatedView):
             request_body = json.loads(request.body)
             prompt = request_body.get('prompt')
             context_array = request_body.get('context_array', [])
-            seed = request_body.get('seed', 42)
-            print(seed)
+            seed = request_body.get('ai_seed', 42)
 
             validation_successful, failure_reason = self.validate_request(request_body)
             if not validation_successful:
                 return JsonResponse({"error": failure_reason}, status=400)
 
             hashed_key = self.hash_prompt_and_context(prompt, context_array)
-            print(hashed_key)
 
             backend_config = settings.TEXT_GENERATION
             backend = get_text_generation_backend(backend_config)
-            backend_name = backend.config['backend']
-            print(backend_name)
 
             cached_result = self.get_cached_response(seed, hashed_key, backend_name)
-            # if cached_result:
-            #     return JsonResponse({"result": cached_result}, status=200)
+            if cached_result:
+                return JsonResponse({"result": cached_result}, status=200)
 
-            # result = backend.generate(prompt, context_array)
-
-            # self.save_to_cache(seed, hashed_key, prompt, context_array, result, backend_name)
+            result = backend.generate(prompt, context_array)
+            self.save_to_cache(seed, hashed_key, prompt, context_array, result, backend_name)
 
             return JsonResponse({"result": result}, status=200)
 
