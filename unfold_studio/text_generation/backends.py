@@ -3,19 +3,25 @@
 
 from openai import OpenAI, APIError
 import structlog
+from abc import ABC, abstractmethod
 
 log = structlog.get_logger("unfold_studio")
 
-class TextGenerationBackend:
+class TextGenerationBackend(ABC):
     """Interface to a text generation service.
     """
     def __init__(self, config):
         self.config = config
 
+    @abstractmethod
     def generate(self, prompt):
-        return "GENERATED TEXT"
+        pass
 
-class OpenAIBackend:
+    @abstractmethod
+    def get_prompt_context(self):
+        pass
+
+class OpenAIBackend(TextGenerationBackend):
     """Interface to OpenAI API.
     """
     def __init__(self, config):
@@ -58,6 +64,8 @@ class OpenAIBackend:
             log.error(name="Text Generation Alert", event="Error Calling OpenAI", arg={"error": err})
             return "...error generating text..."
 
+
+
 text_generation_backends = {
     "OpenAI": OpenAIBackend,
 }
@@ -67,6 +75,8 @@ def get_text_generation_backend(config):
     instantiates and returns a TextGenerationBackend.
     """
     backend_name = config['backend']
-    backend_class = text_generation_backends[backend_name]
+    backend_class = text_generation_backends.get(backend_name)
+    if not backend_class:
+        raise ValueError(f"Unsupported backend: {backend_name}")
     return backend_class(config)
 
