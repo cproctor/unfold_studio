@@ -42,6 +42,13 @@ InkPlayer.prototype = {
             this.aiSeed = seed;
             return "";
         }.bind(this));
+        story.BindExternalFunction("continue", function(targetKnot) {
+            console.log("Inside continue function")
+            console.log(targetKnot);
+            this.currentTargetKnot = targetKnot
+            this.scheduleInputBoxForContinue()
+            return '';
+        }.bind(this));
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
             this.stop();
         
@@ -184,6 +191,7 @@ InkPlayer.prototype = {
                 this.events.reportError.bind(this)(err.message);
             }
         }
+        console.log(content)
         if (!this.running) return;
 
         self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
@@ -192,6 +200,9 @@ InkPlayer.prototype = {
         self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
 
         content.forEach(this.events.addContent, this);
+        
+        this.showScheduledInputBox();
+
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
                 this.events.addChoice.bind(self)(choice);
@@ -266,6 +277,69 @@ InkPlayer.prototype = {
             this.storyPlayInstanceUUID = data.story_play_instance_uuid
             this.continueStory();
         });
+    },
+    showScheduledInputBox: function() {
+        if(this.inputBoxToInsert){
+            this.container.appendChild(this.inputBoxToInsert);
+            this.inputBoxToInsert = null;
+        }
+    },
+    scheduleInputBoxForContinue: function() {
+        const formContainer = document.createElement("div");
+        formContainer.classList.add("input-container");
+        
+        const formElement = document.createElement("form");
+        
+        const inputElement = document.createElement("input");
+        inputElement.type = "text";
+        inputElement.placeholder = "What would you like to do?";
+        inputElement.required = true;
+        
+        const buttonElement = document.createElement("button");
+        buttonElement.type = "submit";
+        buttonElement.innerText = "Submit";
+        
+        formElement.appendChild(inputElement);
+        formElement.appendChild(buttonElement);
+        formContainer.appendChild(formElement);
+        this.inputBoxToInsert = formContainer;
+
+        formElement.addEventListener("submit", (event) => {
+            event.preventDefault();
+            console.log("clicked")
+            const userInput = inputElement.value.trim();
+            // formContainer.parentNode.removeChild(formContainer);
+            this.handleUserInputForContinue(userInput);
+    
+            inputElement.disabled = true;
+            buttonElement.disabled = true;
+            formElement.style.opacity = "0.5";
+        });
+    },
+    handleUserInputForContinue: function(userInput){
+        console.log("Inside handleUserInputForContinue")
+        console.log(userInput)
+        nextAction = this.getNextActionForContinue(userInput);
+        console.log(nextAction)
+        if (nextAction === 'NEEDS_INPUT'){
+            console.log("okay next action is NEEDS_INPUT")
+            this.scheduleInputBoxForContinue();
+            this.showScheduledInputBox()
+
+        }
+        if (nextAction === 'DIRECT_CONTINUE'){
+            console.log("okay next action is DIRECT_CONTINUE")
+            console.log("currentTargetKnot is: ")
+            console.log(this.currentTargetKnot)
+            this.story.ChoosePathString(this.currentTargetKnot);
+            this.continueStory();
+        }
+    },
+    getNextActionForContinue: function(userInput){
+        console.log("Inside getNextActionForContinue")
+        console.log(userInput)
+        // return "DIRECT_CONTINUE"
+        return "NEEDS_INPUT"
     },
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
