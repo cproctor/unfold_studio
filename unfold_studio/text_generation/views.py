@@ -75,23 +75,36 @@ class GenerateTextView(AuthenticatedView):
 
 class GetNextActionView(AuthenticatedView):
     def validate_request(self, request_body):
-        userInput = request_body.get('userInput')
-        if not userInput:
-            return False, "userInput cannot be empty"
+        user_input = request_body.get('user_input')
+        target_knot_data = request_body.get('target_knot_data')
+        story_play_instance_uuid = request_body.get('story_play_instance_uuid')
+        if not user_input:
+            return False, "user_input cannot be empty"
+        if not target_knot_data:
+            return False, "target_knot_data cannot be empty"
+        if not story_play_instance_uuid:
+            return False, "story_play_instance_uuid cannot be empty"
         return True, None
 
     def post(self, request):
         try: 
             request_body = json.loads(request.body)
             print(request_body)
-            result = {
-                "action": "DIRECT_CONTINUE",
-            }
+            user_input = request_body.get('user_input')
+            target_knot_data = request_body.get('target_knot_data')
+            story_play_instance_uuid = request_body.get('story_play_instance_uuid')
+
+            result = {}
 
             validation_successful, failure_reason = self.validate_request(request_body)
             if not validation_successful:
                 return JsonResponse({"error": failure_reason}, status=400)
 
+            if user_input=="abc":
+                result['action'] = "DIRECT_CONTINUE"
+            else:
+                result['action'] = "NEEDS_INPUT"
+            
             return JsonResponse({"result": result}, status=200)
 
         except json.JSONDecodeError:

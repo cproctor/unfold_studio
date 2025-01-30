@@ -322,7 +322,9 @@ InkPlayer.prototype = {
     handleUserInputForContinue: async function(userInput){
         console.log("Inside handleUserInputForContinue")
         console.log(userInput)
-        nextAction = await this.getNextActionForContinue(userInput)
+        targetKnotData = this.getKnotData(this.currentTargetKnot);
+        console.log(targetKnotData)
+        nextAction = await this.getNextActionForContinue(userInput, this.getStoryPlayInstanceUUID(), targetKnotData)
         console.log(nextAction)
 
         switch(nextAction) {
@@ -344,11 +346,13 @@ InkPlayer.prototype = {
                 break;
         }
     },
-    getNextActionForContinue: function(userInput){
+    getNextActionForContinue: function(userInput, storyPlayInstanceUUID, targetKnotData){
         console.log("Inside getNextActionForContinue")
         console.log(userInput)
         request_data = {
-            "userInput": userInput,
+            "user_input": userInput,
+            "story_play_instance_uuid": storyPlayInstanceUUID,
+            "target_knot_data": targetKnotData,
         }
         // return "DIRECT_CONTINUE"
         // return "NEEDS_INPUT"
@@ -357,12 +361,32 @@ InkPlayer.prototype = {
                 xhr.setRequestHeader("X-CSRFToken", CSRF);
             },
             method: "POST",
-            data: JSON.stringify({ userInput: userInput }),
+            data: JSON.stringify(request_data),
             contentType: "application/json",
         }).then(response => response.result.action);
     },
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
+    },
+    getKnotData: function(knotName){
+        const savedState = this.story.state.toJson();
+        this.story.ChoosePathString(knotName);
+
+        let knotContents = [];
+        while (this.story.canContinue) {
+            knotContents.push(this.story.Continue());
+        }
+        let knotChoices = this.story.currentChoices.map(choice => choice.text);
+        
+        this.story.state.LoadJson(savedState);
+
+        knotData = {
+            "knotContents": knotContents,
+            "knotChoices": knotChoices,
+        }
+        console.log("Knot Data:", knotData)
+
+        return knotData;
     },
     events: {
         prepareToPlay: function() {
