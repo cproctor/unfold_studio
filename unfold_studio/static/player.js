@@ -50,45 +50,8 @@ InkPlayer.prototype = {
             return '';
         }.bind(this));
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
-            this.stop();
-        
-            const formContainer = document.createElement("div");
-            formContainer.classList.add("input-container");
-        
-            const formElement = document.createElement("form");
-        
-            const inputElement = document.createElement("input");
-            inputElement.type = "text";
-            inputElement.placeholder = placeholder;
-            inputElement.required = true;
-        
-            const buttonElement = document.createElement("button");
-            buttonElement.type = "submit";
-            buttonElement.innerText = "Submit";
-        
-            formElement.appendChild(inputElement);
-            formElement.appendChild(buttonElement);
-            formContainer.appendChild(formElement);
-            this.container.appendChild(formContainer);
-
-            this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_INPUT_BOX", {"text": placeholder, "variable_name": variableName});
-        
-            formElement.addEventListener("submit", (event) => {
-                event.preventDefault();
-                const userInput = inputElement.value.trim();
-                this.story.variablesState[variableName] = userInput;
-
-                this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_ENTERED_TEXT", userInput);
-        
-                inputElement.disabled = true;
-                buttonElement.disabled = true;
-                formElement.style.opacity = "0.5";
-        
-                this.running = true;
-                this.continueStory();
-            });
-        
-            return "";
+            this.scheduleInputBox(placeholder, variableName);
+            return '';
         }.bind(this));
         
         
@@ -284,6 +247,47 @@ InkPlayer.prototype = {
             this.inputBoxToInsert = null;
         }
     },
+    scheduleInputBox: function(placeholder, variableName){
+        console.log("scheduled")
+        const formContainer = document.createElement("div");
+        formContainer.classList.add("input-container");
+    
+        const formElement = document.createElement("form");
+    
+        const inputElement = document.createElement("input");
+        inputElement.type = "text";
+        inputElement.placeholder = placeholder;
+        inputElement.required = true;
+    
+        const buttonElement = document.createElement("button");
+        buttonElement.type = "submit";
+        buttonElement.innerText = "Submit";
+    
+        formElement.appendChild(inputElement);
+        formElement.appendChild(buttonElement);
+        formContainer.appendChild(formElement);
+        this.inputBoxToInsert = formContainer;
+
+        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_INPUT_BOX", {"text": placeholder, "variable_name": variableName});
+    
+        formElement.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const userInput = inputElement.value.trim();
+            this.story.variablesState[variableName] = userInput;
+            console.log(userInput)
+
+            this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_ENTERED_TEXT", userInput);
+    
+            inputElement.disabled = true;
+            buttonElement.disabled = true;
+            formElement.style.opacity = "0.5";
+    
+            this.running = true;
+            this.continueStory();
+        });
+    
+        return "";
+    },
     scheduleInputBoxForContinue: function() {
         const formContainer = document.createElement("div");
         formContainer.classList.add("input-container");
@@ -308,7 +312,6 @@ InkPlayer.prototype = {
             event.preventDefault();
             console.log("clicked")
             const userInput = inputElement.value.trim();
-            // formContainer.parentNode.removeChild(formContainer);
             this.handleUserInputForContinue(userInput);
     
             inputElement.disabled = true;
@@ -338,7 +341,7 @@ InkPlayer.prototype = {
     getNextActionForContinue: function(userInput){
         console.log("Inside getNextActionForContinue")
         console.log(userInput)
-        // return "DIRECT_CONTINUE"
+        return "DIRECT_CONTINUE"
         return "NEEDS_INPUT"
     },
     getStoryPlayInstanceUUID: function() {
