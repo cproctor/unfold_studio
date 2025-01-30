@@ -71,3 +71,31 @@ class GenerateTextView(AuthenticatedView):
             return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
         except Exception as e:
             return JsonResponse({"error": str(e)}, status=500)
+
+
+class GetNextActionView(AuthenticatedView):
+    def validate_request(self, request_body):
+        userInput = request_body.get('userInput')
+        if not userInput:
+            return False, "userInput cannot be empty"
+        return True, None
+
+    def post(self, request):
+        try: 
+            request_body = json.loads(request.body)
+            print(request_body)
+            result = {
+                "action": "DIRECT_CONTINUE",
+            }
+
+            validation_successful, failure_reason = self.validate_request(request_body)
+            if not validation_successful:
+                return JsonResponse({"error": failure_reason}, status=400)
+
+            return JsonResponse({"result": result}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
+        except Exception as e:
+            print(str(e))
+            return JsonResponse({"error": str(e)}, status=500)

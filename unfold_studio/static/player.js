@@ -319,30 +319,47 @@ InkPlayer.prototype = {
             formElement.style.opacity = "0.5";
         });
     },
-    handleUserInputForContinue: function(userInput){
+    handleUserInputForContinue: async function(userInput){
         console.log("Inside handleUserInputForContinue")
         console.log(userInput)
-        nextAction = this.getNextActionForContinue(userInput);
+        nextAction = await this.getNextActionForContinue(userInput)
         console.log(nextAction)
-        if (nextAction === 'NEEDS_INPUT'){
-            console.log("okay next action is NEEDS_INPUT")
-            this.scheduleInputBoxForContinue();
-            this.showScheduledInputBox()
 
-        }
-        if (nextAction === 'DIRECT_CONTINUE'){
-            console.log("okay next action is DIRECT_CONTINUE")
-            console.log("currentTargetKnot is: ")
-            console.log(this.currentTargetKnot)
-            this.story.ChoosePathString(this.currentTargetKnot);
-            this.continueStory();
+        switch(nextAction) {
+            case 'NEEDS_INPUT':
+                console.log("okay next action is NEEDS_INPUT");
+                this.scheduleInputBoxForContinue();
+                this.showScheduledInputBox();
+                break;
+    
+            case 'DIRECT_CONTINUE':
+                console.log("okay next action is DIRECT_CONTINUE");
+                console.log("currentTargetKnot is: ", this.currentTargetKnot);
+                this.story.ChoosePathString(this.currentTargetKnot);
+                this.continueStory();
+                break;
+    
+            default:
+                console.error("Unexpected action:", nextAction);
+                break;
         }
     },
     getNextActionForContinue: function(userInput){
         console.log("Inside getNextActionForContinue")
         console.log(userInput)
-        return "DIRECT_CONTINUE"
-        return "NEEDS_INPUT"
+        request_data = {
+            "userInput": userInput,
+        }
+        // return "DIRECT_CONTINUE"
+        // return "NEEDS_INPUT"
+        return $.ajax("/get_next_action", {
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", CSRF);
+            },
+            method: "POST",
+            data: JSON.stringify({ userInput: userInput }),
+            contentType: "application/json",
+        }).then(response => response.result.action);
     },
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
