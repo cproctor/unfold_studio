@@ -136,19 +136,59 @@ class GetNextActionView(AuthenticatedView):
         }"""
 
     def validate_request(self, request_body):
-        user_input = request_body.get('user_input')
-        target_knot_data = request_body.get('target_knot_data')
-        story_play_instance_uuid = request_body.get('story_play_instance_uuid')
-        if not user_input:
-            return False, "user_input cannot be empty"
-        if not target_knot_data:
-            return False, "target_knot_data cannot be empty"
-        if not story_play_instance_uuid:
-            return False, "story_play_instance_uuid cannot be empty"
+        required_fields = ['user_input', 'target_knot_data', 'story_play_instance_uuid']
+        for field in required_fields:
+            if not request_body.get(field):
+                return False, f"Missing required field: {field}"
         return True, None
 
+    def get_direction_and_content_from_response(self, response):
+        default_direction = "NEEDS_INPUT"
+        default_content = {
+            "guidance_text": "What would you like to do next?",
+            "reason": "System fallback"
+        }
 
-    def get_ai_direction(self, target_knot_data, story_history, user_input):
+        try:
+            probabilities = response.get('probabilities', {})
+            if not isinstance(probabilities, dict):
+                raise ValueError("Invalid probabilities format")
+                
+            required_directions = ["DIRECT_CONTINUE", "BRIDGE_AND_CONTINUE", "NEEDS_INPUT"]
+            for direction in required_directions:
+                if direction not in probabilities:
+                    raise ValueError(f"Missing probability for {direction}")
+
+            total_probability = int(sum(probabilities.values()))
+            if total_probability != 1:
+                raise ValueError(f"Total probability does not equal 1")
+
+            max_prob = max(probabilities.values())
+            selected_direction = next(
+                direction for direction, prob in probabilities.items()
+                if prob == max_prob
+            )
+
+            direction_content = response.get(selected_direction.lower(), {})
+            
+            if selected_direction == "BRIDGE_AND_CONTINUE":
+                if "bridge_text" not in direction_content:
+                    raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
+                    
+            elif selected_direction == "NEEDS_INPUT":
+                if "guidance_text" not in direction_content:
+                    raise ValueError("Missing guidance_text for NEEDS_INPUT")
+            
+            return selected_direction, direction_content, max_prob
+
+
+        except Exception as e:
+            print(f"Error processing AI response: {str(e)}")
+            return default_direction, default_content, None
+
+
+
+    def get_next_direction_for_story(self, target_knot_data, story_history, user_input):
         USER_PROMPT = f"""### Story Context ###
                         Target Knot: {target_knot_data.get('knotContents', [])}
                         History: {json.dumps(story_history, indent=2)}
@@ -162,27 +202,15 @@ class GetNextActionView(AuthenticatedView):
         try:
             backend_config = settings.TEXT_GENERATION
             backend = get_text_generation_backend(backend_config)
-            response = backend.get_ai_direction(self.SYSTEM_PROMPT, USER_PROMPT)
-            print(response)
+            response = backend.get_next_direction_for_story(self.SYSTEM_PROMPT, USER_PROMPT)
  
             if response.startswith("```json") and response.endswith("```"):
                 response = response[7:-3].strip()
-            
             response_json = json.loads(response)
             print(response_json)
-            print("hi")
-            print(response_json['probabilities'])
-            
-            
-            # # Validate AI response format
-            # if 'action' not in ai_response:
-            #     raise ValueError("Invalid AI response format")
+            direction, content, probability = self.get_direction_and_content_from_response(response_json)
                 
-            # if ai_response['action'] == 'BRIDGE_AND_CONTINUE' and not ai_response.get('bridge_text'):
-            #     ai_response['action'] = 'NEEDS_INPUT'
-            #     ai_response['reason'] = 'Missing bridge text'
-                
-            return ai_response
+            return direction, content, probability
             
         except Exception as e:
             return {
@@ -206,8 +234,9 @@ class GetNextActionView(AuthenticatedView):
                 return JsonResponse({"error": failure_reason}, status=400)
 
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
-            print(story_play_history)
-            self.get_ai_direction(target_knot_data, story_play_history, user_input)
+
+            direction, content, probability = self.get_next_direction_for_story(target_knot_data, story_play_history, user_input)
+            print(f"Direction taken: {direction},  Content: {content},  Probability: {probability}")
 
             if user_input=="abc":
                 result['action'] = "DIRECT_CONTINUE"
