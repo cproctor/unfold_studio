@@ -288,7 +288,7 @@ InkPlayer.prototype = {
     
         return "";
     },
-    scheduleInputBoxForContinue: function() {
+    scheduleInputBoxForContinue: function(placeholder = "What would you like to do?") {
         const formContainer = document.createElement("div");
         formContainer.classList.add("input-container");
         
@@ -296,7 +296,7 @@ InkPlayer.prototype = {
         
         const inputElement = document.createElement("input");
         inputElement.type = "text";
-        inputElement.placeholder = "What would you like to do?";
+        inputElement.placeholder = placeholder;
         inputElement.required = true;
         
         const buttonElement = document.createElement("button");
@@ -308,11 +308,15 @@ InkPlayer.prototype = {
         formContainer.appendChild(formElement);
         this.inputBoxToInsert = formContainer;
 
+        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_CONTINUE_INPUT_BOX", {"placeholder": placeholder});
+
         formElement.addEventListener("submit", (event) => {
             event.preventDefault();
             console.log("clicked")
             const userInput = inputElement.value.trim();
             this.handleUserInputForContinue(userInput);
+
+            this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_CONTINUE_ENTERED_TEXT", userInput);
     
             inputElement.disabled = true;
             buttonElement.disabled = true;
@@ -377,7 +381,7 @@ InkPlayer.prototype = {
             knotContents.push(this.story.Continue());
         }
         let knotChoices = this.story.currentChoices.map(choice => choice.text);
-        
+
         this.story.state.LoadJson(savedState);
 
         knotData = {

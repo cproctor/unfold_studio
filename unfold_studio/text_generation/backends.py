@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 
 log = structlog.get_logger("unfold_studio")
 
-class TextGenerationBackend(ABC):
+class TextGenerationBackendInterface(ABC):
     """Interface to a text generation service.
     """
     def __init__(self, config):
@@ -21,7 +21,7 @@ class TextGenerationBackend(ABC):
     def get_prompt_context(self):
         pass
 
-class OpenAIBackend(TextGenerationBackend):
+class OpenAIBackend(TextGenerationBackendInterface):
     """Interface to OpenAI API.
     """
     def __init__(self, config):
@@ -63,6 +63,22 @@ class OpenAIBackend(TextGenerationBackend):
         except APIError as err:
             log.error(name="Text Generation Alert", event="Error Calling OpenAI", arg={"error": err})
             return "...error generating text..."
+    
+    def get_ai_direction(self, system_prompt, user_prompt):
+        try:
+            messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt}
+                ]
+            result = self.api_client.chat.completions.create(
+                messages=messages,
+                model=self.model, 
+                temperature=self.temperature,
+            )
+            return result.choices[0].message.content
+        except APIError as err:
+            log.error(name="Text Generation Alert", event="Error Calling OpenAI", arg={"error": err})
+            return "...error getting AI direction..."
 
 
 
@@ -72,7 +88,7 @@ text_generation_backends = {
 
 def get_text_generation_backend(config):
     """Given a config dict like settings.TEXT_GENERATION,
-    instantiates and returns a TextGenerationBackend.
+    instantiates and returns a TextGenerationBackendInterface implemented class.
     """
     backend_name = config['backend']
     backend_class = text_generation_backends.get(backend_name)
