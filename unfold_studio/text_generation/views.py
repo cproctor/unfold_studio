@@ -85,7 +85,7 @@ class GetNextActionView(AuthenticatedView):
                 return False, f"Missing required field: {field}"
         return True, None
 
-    def build_system_and_user_prompt_for_next_direction(self, target_knot_data, story_history, user_input):
+    def build_system_and_user_prompt(self, target_knot_data, story_history, user_input):
         system_prompt = CONTINUE_STORY_SYSTEM_PROMPT
         user_prompt = CONTINUE_STORY_USER_PROMPT_TEMPLATE % {
             'target_knot': target_knot_data.get('knotContents', []),
@@ -95,8 +95,12 @@ class GetNextActionView(AuthenticatedView):
 
         return system_prompt, user_prompt
 
-    def get_direction_and_content_from_response(self, response):
-        probabilities = response.get('probabilities', {})
+    def parse_and_validate_ai_response(self, data):
+        if data.startswith("```json") and data.endswith("```"):
+            data = data[7:-3].strip()
+        parsed_data = json.loads(data)
+
+        probabilities = parsed_data.get('probabilities', {})
         if not isinstance(probabilities, dict):
             raise ValueError("Invalid probabilities format")
             
@@ -113,6 +117,16 @@ class GetNextActionView(AuthenticatedView):
         if total_probability != 1:
             raise ValueError(f"Total probability does not equal 1")
 
+        if "bridge_text" not in parsed_data.get(StoryContinueDirections.BRIDGE_AND_CONTINUE.lower()):
+            raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
+                
+        if "guidance_text" not in parsed_data.get(StoryContinueDirections.NEEDS_INPUT.lower()):
+            raise ValueError("Missing guidance_text for NEEDS_INPUT")
+
+        return parsed_data
+
+    def get_next_direction_details_from_ai_response(self, data):
+        probabilities = data.get('probabilities', {})
         max_prob = max(probabilities.values())
         selected_direction = next(
             direction for direction, prob in probabilities.items()
@@ -120,24 +134,15 @@ class GetNextActionView(AuthenticatedView):
         )
 
         # CHANGE THE BELOW DIRECTION TO TEST DIFFERENT CASES
-        selected_direction = "BRIDGE_AND_CONTINUE"
+        # selected_direction = "BRIDGE_AND_CONTINUE"
         print(f"selected_direction: {selected_direction}")
 
-        selected_direction_content = response.get(selected_direction.lower(), {})
-        if selected_direction == StoryContinueDirections.BRIDGE_AND_CONTINUE:
-            if "bridge_text" not in selected_direction_content:
-                raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
-                
-        elif selected_direction == StoryContinueDirections.NEEDS_INPUT:
-            if "guidance_text" not in selected_direction_content:
-                raise ValueError("Missing guidance_text for NEEDS_INPUT")
+        selected_direction_content = data.get(selected_direction.lower(), {})
 
         return selected_direction, selected_direction_content
 
 
-
     def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input):
-        system_prompt, user_prompt = self.build_system_and_user_prompt_for_next_direction(target_knot_data, story_history, user_input)
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
             "guidance_text": "What would you like to do next?",
@@ -147,18 +152,18 @@ class GetNextActionView(AuthenticatedView):
         try:
             backend_config = settings.TEXT_GENERATION
             backend = get_text_generation_backend(backend_config)
-            response = backend.get_response_for_system_and_user_prompt(system_prompt, user_prompt)
- 
-            if response.startswith("```json") and response.endswith("```"):
-                response = response[7:-3].strip()
-            response_json = json.loads(response)
-            print(response_json)
-            direction, content = self.get_direction_and_content_from_response(response_json)
+
+            system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
+            response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt)
+            print(response)
+
+            parsed_response = self.parse_and_validate_ai_response(response)
+            direction, content = self.get_next_direction_details_from_ai_response(parsed_response)
 
             return direction, content
             
         except Exception as e:
-            print(f"cacthing the exception: {str(e)}")
+            print(f"Exception occoured in get_next_direction_details_for_story: {str(e)}")
             return default_direction, default_content
 
 
