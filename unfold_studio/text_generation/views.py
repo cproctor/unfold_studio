@@ -85,6 +85,16 @@ class GetNextActionView(AuthenticatedView):
                 return False, f"Missing required field: {field}"
         return True, None
 
+    def build_system_and_user_prompt_for_next_direction(self, target_knot_data, story_history, user_input):
+        system_prompt = CONTINUE_STORY_SYSTEM_PROMPT
+        user_prompt = CONTINUE_STORY_USER_PROMPT_TEMPLATE % {
+            'target_knot': target_knot_data.get('knotContents', []),
+            'history': json.dumps(story_history, indent=2),
+            'user_input': user_input
+        }
+
+        return system_prompt, user_prompt
+
     def get_direction_and_content_from_response(self, response):
         probabilities = response.get('probabilities', {})
         if not isinstance(probabilities, dict):
@@ -128,12 +138,9 @@ class GetNextActionView(AuthenticatedView):
 
 
     def get_next_direction_for_story(self, target_knot_data, story_history, user_input):
-        USER_PROMPT = CONTINUE_STORY_USER_PROMPT_TEMPLATE % {
-            'target_knot': target_knot_data.get('knotContents', []),
-            'history': json.dumps(story_history, indent=2),
-            'user_input': user_input
-        }
-        
+        system_prompt, user_prompt = self.build_system_and_user_prompt_for_next_direction(target_knot_data, story_history, user_input)
+        print(f"system_prompt: {system_prompt}")
+        print(f"user_prompt: {user_prompt}")
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
             "guidance_text": "What would you like to do next?",
@@ -143,7 +150,7 @@ class GetNextActionView(AuthenticatedView):
         try:
             backend_config = settings.TEXT_GENERATION
             backend = get_text_generation_backend(backend_config)
-            response = backend.get_next_direction_for_story(CONTINUE_STORY_SYSTEM_PROMPT, USER_PROMPT)
+            response = backend.get_next_direction_for_story(system_prompt, user_prompt)
  
             if response.startswith("```json") and response.endswith("```"):
                 response = response[7:-3].strip()
@@ -154,7 +161,7 @@ class GetNextActionView(AuthenticatedView):
             return direction, content
             
         except Exception as e:
-            print("cacthing the exception")
+            print(f"cacthing the exception: {str(e)}")
             return default_direction, default_content
 
 
