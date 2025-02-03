@@ -6,6 +6,7 @@ from unfold_studio.commons.views import AuthenticatedView
 from .models import TextGenerationRecord
 import hashlib
 from .services.unfold_studio import UnfoldStudioService
+from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
 
 class GenerateTextView(AuthenticatedView):
 
@@ -75,65 +76,7 @@ class GenerateTextView(AuthenticatedView):
 
 
 class GetNextActionView(AuthenticatedView):
-    SYSTEM_PROMPT = """You are a story transition analyst. Analyze how user input leads to target story nodes:
 
-    DIRECT_CONTINUE: Input directly matches target conditions chronologically
-    BRIDGE_AND_CONTINUE: Requires narrative to connect input to target timeline
-    NEEDS_INPUT: Needs clarification to maintain chronological consistency
-
-    Consider temporal relationships: user input must precede target node events.
-    Also the guidance_text/bridge_text you give should not include details of the target knot. 
-
-    Example Flow:
-    [Current Story] "You sit on your bed"
-    [User Input] "drink coffee"
-    [Target Node] "You wake up at 7AM tired"
-
-    Good Bridge: 
-    "After drinking coffee late at night, you struggle to sleep. The caffeine keeps you awake until..."
-
-    Bad Bridge: 
-    "You wake up tired and drink coffee" (wrong order)
-
-        Follow this JSON format:
-        {
-            "probabilities": {
-                "DIRECT_CONTINUE": 0.0-1.0,
-                "BRIDGE_AND_CONTINUE": 0.0-1.0,
-                "NEEDS_INPUT": 0.0-1.0
-            },
-            "direct_continue": {
-                "reason": "...",
-            },
-            "bridge_and_continue": {
-                "reason": "...",
-                "bridge_text": "..." // Full narrative bridge text
-            },
-            "needs_input": {
-                "reason": "...",
-                "guidance_text": "...", // Question/prompt for next input from user
-            }
-        }
-
-        Example:
-        {
-            "probabilities": {
-                "DIRECT_CONTINUE": 0.3,
-                "BRIDGE_AND_CONTINUE": 0.5,
-                "NEEDS_INPUT": 0.2
-            },
-            "direct_continue": {
-                "reason": "User specified exact target location",
-            },
-            "bridge_and_continue": {
-                "reason": "Needs transition to hidden chamber",
-                "bridge_text": "As you push the ancient door, it creaks open to reveal..."
-            },
-            "needs_input": {
-                "reason": "Requires specific investigation focus",
-                "guidance_text": "What part of the wall will you examine?",
-            }
-        }"""
 
     def validate_request(self, request_body):
         required_fields = ['user_input', 'target_knot_data', 'story_play_instance_uuid']
@@ -147,7 +90,11 @@ class GetNextActionView(AuthenticatedView):
         if not isinstance(probabilities, dict):
             raise ValueError("Invalid probabilities format")
             
-        required_directions = ["DIRECT_CONTINUE", "BRIDGE_AND_CONTINUE", "NEEDS_INPUT"]
+        required_directions = [
+            StoryContinueDirections.DIRECT_CONTINUE, 
+            StoryContinueDirections.BRIDGE_AND_CONTINUE, 
+            StoryContinueDirections.NEEDS_INPUT
+        ]
         for direction in required_directions:
             if direction not in probabilities:
                 raise ValueError(f"Missing probability for {direction}")
@@ -168,11 +115,11 @@ class GetNextActionView(AuthenticatedView):
 
         direction_content = response.get(selected_direction.lower(), {})
         
-        if selected_direction == "BRIDGE_AND_CONTINUE":
+        if selected_direction == StoryContinueDirections.BRIDGE_AND_CONTINUE:
             if "bridge_text" not in direction_content:
                 raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
                 
-        elif selected_direction == "NEEDS_INPUT":
+        elif selected_direction == StoryContinueDirections.NEEDS_INPUT:
             if "guidance_text" not in direction_content:
                 raise ValueError("Missing guidance_text for NEEDS_INPUT")
 
@@ -181,17 +128,13 @@ class GetNextActionView(AuthenticatedView):
 
 
     def get_next_direction_for_story(self, target_knot_data, story_history, user_input):
-        USER_PROMPT = f"""### Story Context ###
-                        Target Knot: {target_knot_data.get('knotContents', [])}
-                        History: {json.dumps(story_history, indent=2)}
-                        User Input: {user_input}
-
-                        ### Analysis Request ###
-                        1. Probability distribution
-                        2. Action parameters
-                        3. Brief reasoning"""
+        USER_PROMPT = CONTINUE_STORY_USER_PROMPT_TEMPLATE % {
+            'target_knot': target_knot_data.get('knotContents', []),
+            'history': json.dumps(story_history, indent=2),
+            'user_input': user_input
+        }
         
-        default_direction = "NEEDS_INPUT"
+        default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
             "guidance_text": "What would you like to do next?",
             "reason": "System failure"
@@ -200,7 +143,7 @@ class GetNextActionView(AuthenticatedView):
         try:
             backend_config = settings.TEXT_GENERATION
             backend = get_text_generation_backend(backend_config)
-            response = backend.get_next_direction_for_story(self.SYSTEM_PROMPT, USER_PROMPT)
+            response = backend.get_next_direction_for_story(CONTINUE_STORY_SYSTEM_PROMPT, USER_PROMPT)
  
             if response.startswith("```json") and response.endswith("```"):
                 response = response[7:-3].strip()
