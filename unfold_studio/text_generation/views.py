@@ -96,34 +96,40 @@ class GetNextActionView(AuthenticatedView):
         return system_prompt, user_prompt
 
     def parse_and_validate_ai_response(self, data):
-        if data.startswith("```json") and data.endswith("```"):
-            data = data[7:-3].strip()
-        parsed_data = json.loads(data)
+        try:
+            if data.startswith("```json") and data.endswith("```"):
+                data = data[7:-3].strip()
+            parsed_data = json.loads(data)
 
-        probabilities = parsed_data.get('probabilities', {})
-        if not isinstance(probabilities, dict):
-            raise ValueError("Invalid probabilities format")
-            
-        required_directions = [
-            StoryContinueDirections.DIRECT_CONTINUE, 
-            StoryContinueDirections.BRIDGE_AND_CONTINUE, 
-            StoryContinueDirections.NEEDS_INPUT
-        ]
-        for direction in required_directions:
-            if direction not in probabilities:
-                raise ValueError(f"Missing probability for {direction}")
-
-        total_probability = int(sum(probabilities.values()))
-        if total_probability != 1:
-            raise ValueError(f"Total probability does not equal 1")
-
-        if "bridge_text" not in parsed_data.get(StoryContinueDirections.BRIDGE_AND_CONTINUE.lower()):
-            raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
+            probabilities = parsed_data.get('probabilities', {})
+            if not isinstance(probabilities, dict):
+                raise ValueError("Invalid probabilities format")
                 
-        if "guidance_text" not in parsed_data.get(StoryContinueDirections.NEEDS_INPUT.lower()):
-            raise ValueError("Missing guidance_text for NEEDS_INPUT")
+            required_directions = StoryContinueDirections.values()
+            for direction in required_directions:
+                if direction not in probabilities:
+                    raise ValueError(f"Missing probability for {direction}")
 
-        return parsed_data
+            total_probability = int(sum(probabilities.values()))
+            if total_probability != 1:
+                raise ValueError(f"Total probability does not equal 1")
+
+            if "bridge_text" not in parsed_data.get(StoryContinueDirections.BRIDGE_AND_CONTINUE.lower()):
+                raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
+                    
+            if "guidance_text" not in parsed_data.get(StoryContinueDirections.NEEDS_INPUT.lower()):
+                raise ValueError("Missing guidance_text for NEEDS_INPUT")
+
+            return parsed_data
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error in data: {str(e)}")
+            raise
+        except ValueError as e:
+            print(f"Data validation failed: {str(e)}")
+            raise
+        except Exception:
+            print(f"Unexpected error occured in parsing data: {str(e)}")
+            raise
 
     def determine_next_direction_details_from_ai_response(self, data):
         probabilities = data.get('probabilities', {})

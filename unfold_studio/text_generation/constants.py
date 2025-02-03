@@ -2,6 +2,9 @@ class StoryContinueDirections:
     DIRECT_CONTINUE = "DIRECT_CONTINUE"
     BRIDGE_AND_CONTINUE = "BRIDGE_AND_CONTINUE"
     NEEDS_INPUT = "NEEDS_INPUT"
+    @classmethod
+    def values(cls):
+        return [v for k,v in vars(cls).items() if k.isupper() and not callable(v)]
 
 CONTINUE_STORY_SYSTEM_PROMPT = """You are a story transition analyst. Analyze how user input leads to target story nodes:
 
