@@ -125,7 +125,7 @@ class GetNextActionView(AuthenticatedView):
 
         return parsed_data
 
-    def get_next_direction_details_from_ai_response(self, data):
+    def determine_next_direction_details_from_ai_response(self, data):
         probabilities = data.get('probabilities', {})
         max_prob = max(probabilities.values())
         selected_direction = next(
@@ -158,7 +158,7 @@ class GetNextActionView(AuthenticatedView):
             print(response)
 
             parsed_response = self.parse_and_validate_ai_response(response)
-            direction, content = self.get_next_direction_details_from_ai_response(parsed_response)
+            direction, content = self.determine_next_direction_details_from_ai_response(parsed_response)
 
             return direction, content
             
