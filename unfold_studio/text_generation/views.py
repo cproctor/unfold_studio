@@ -143,48 +143,49 @@ class GetNextActionView(AuthenticatedView):
         return True, None
 
     def get_direction_and_content_from_response(self, response):
-        default_direction = "NEEDS_INPUT"
-        default_content = {
-            "guidance_text": "What would you like to do next?",
-            "reason": "System fallback"
-        }
+        probabilities = response.get('probabilities', {})
+        if not isinstance(probabilities, dict):
+            raise ValueError("Invalid probabilities format")
+            
+        required_directions = ["DIRECT_CONTINUE", "BRIDGE_AND_CONTINUE", "NEEDS_INPUT"]
+        for direction in required_directions:
+            if direction not in probabilities:
+                raise ValueError(f"Missing probability for {direction}")
 
-        try:
-            probabilities = response.get('probabilities', {})
-            if not isinstance(probabilities, dict):
-                raise ValueError("Invalid probabilities format")
+        total_probability = int(sum(probabilities.values()))
+        if total_probability != 1:
+            raise ValueError(f"Total probability does not equal 1")
+
+        max_prob = min(probabilities.values())
+        selected_direction = next(
+            direction for direction, prob in probabilities.items()
+            if prob == max_prob
+        )
+
+        direction_content = response.get(selected_direction.lower(), {})
+        
+        if selected_direction == "BRIDGE_AND_CONTINUE":
+            if "bridge_text" not in direction_content:
+                raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
                 
-            required_directions = ["DIRECT_CONTINUE", "BRIDGE_AND_CONTINUE", "NEEDS_INPUT"]
-            for direction in required_directions:
-                if direction not in probabilities:
-                    raise ValueError(f"Missing probability for {direction}")
+        elif selected_direction == "NEEDS_INPUT":
+            if "guidance_text" not in direction_content:
+                raise ValueError("Missing guidance_text for NEEDS_INPUT")
+        direction_content = {"guidance_text": "im the guidance text"}
 
-            total_probability = int(sum(probabilities.values()))
-            if total_probability != 1:
-                raise ValueError(f"Total probability does not equal 1")
+        # # Uncomment below for NEEDS_INPUT direction
+        # direction = "NEEDS_INPUT"
+        # direction_content = {"guidance_text": "I am guidance text for next input box"}
 
-            max_prob = max(probabilities.values())
-            selected_direction = next(
-                direction for direction, prob in probabilities.items()
-                if prob == max_prob
-            )
+        # # Uncomment below for BRIDGE_AND_CONTINUE direction
+        # direction = "BRIDGE_AND_CONTINUE"
+        # direction_content = {"bridge_text": "I am bridge text to continue the story"}
 
-            direction_content = response.get(selected_direction.lower(), {})
-            
-            if selected_direction == "BRIDGE_AND_CONTINUE":
-                if "bridge_text" not in direction_content:
-                    raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
-                    
-            elif selected_direction == "NEEDS_INPUT":
-                if "guidance_text" not in direction_content:
-                    raise ValueError("Missing guidance_text for NEEDS_INPUT")
-            
-            return selected_direction, direction_content, max_prob
+        # # Uncomment below for DIRECT_CONTINUE direction
+        # direction = "DIRECT_CONTINUE"
+        # direction_content = {}
 
-
-        except Exception as e:
-            print(f"Error processing AI response: {str(e)}")
-            return default_direction, default_content, None
+        return direction, direction_content, max_prob
 
 
 
@@ -198,6 +199,12 @@ class GetNextActionView(AuthenticatedView):
                         1. Probability distribution
                         2. Action parameters
                         3. Brief reasoning"""
+        
+        default_direction = "NEEDS_INPUT"
+        default_content = {
+            "guidance_text": "What would you like to do next?",
+            "reason": "System failure"
+        }
 
         try:
             backend_config = settings.TEXT_GENERATION
@@ -213,11 +220,8 @@ class GetNextActionView(AuthenticatedView):
             return direction, content, probability
             
         except Exception as e:
-            return {
-                "action": "NEEDS_INPUT",
-                "reason": f"AI Error: {str(e)}",
-                "bridge_text": None
-            }
+            return default_direction, default_content, 0
+
 
     def post(self, request):
         try: 
@@ -238,10 +242,12 @@ class GetNextActionView(AuthenticatedView):
             direction, content, probability = self.get_next_direction_for_story(target_knot_data, story_play_history, user_input)
             print(f"Direction taken: {direction},  Content: {content},  Probability: {probability}")
 
-            if user_input=="abc":
-                result['action'] = "DIRECT_CONTINUE"
-            else:
-                result['action'] = "NEEDS_INPUT"
+            result['action'] = direction
+            result = {
+                "direction": direction,
+                "content": content,
+                "probability": probability,
+            }
             
             return JsonResponse({"result": result}, status=200)
 

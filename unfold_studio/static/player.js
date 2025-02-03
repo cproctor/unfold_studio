@@ -328,30 +328,52 @@ InkPlayer.prototype = {
         console.log(userInput)
         targetKnotData = this.getKnotData(this.currentTargetKnot);
         console.log(targetKnotData)
-        nextAction = await this.getNextActionForContinue(userInput, this.getStoryPlayInstanceUUID(), targetKnotData)
-        console.log(nextAction)
+        nextDirectionJson = await this.getNextDirectionForContinue(userInput, this.getStoryPlayInstanceUUID(), targetKnotData)
+        console.log(nextDirectionJson)
 
-        switch(nextAction) {
+        switch(nextDirectionJson.direction) {
             case 'NEEDS_INPUT':
-                console.log("okay next action is NEEDS_INPUT");
+                console.log("okay next direction is NEEDS_INPUT");
+                content = [{
+                    text: nextDirectionJson.content.guidance_text,
+                    tags: []
+                }]
+                content.forEach(this.events.addContent, this);
                 this.scheduleInputBoxForContinue();
                 this.showScheduledInputBox();
                 break;
     
             case 'DIRECT_CONTINUE':
-                console.log("okay next action is DIRECT_CONTINUE");
+                console.log("okay next direction is DIRECT_CONTINUE");
                 console.log("currentTargetKnot is: ", this.currentTargetKnot);
                 this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
-    
+            case 'BRIDGE_AND_CONTINUE':
+            console.log("okay next direction is BRIDGE_AND_CONTINUE");
+            console.log(nextDirectionJson.content.bridge_text)
+            content = [{
+                text: nextDirectionJson.content.bridge_text,
+                tags: ['bridge']
+            }]
+            content.forEach(this.events.addContent, this);
+            
+            this.createStoryPlayRecord(
+                this.getStoryPlayInstanceUUID(),
+                "AI_GENERATED_TEXT",
+                nextDirectionJson.content.bridge_text
+            );
+            this.story.ChoosePathString(this.currentTargetKnot);
+            this.continueStory();
+
+            break;
             default:
-                console.error("Unexpected action:", nextAction);
+                console.error("Unexpected direction:", nextDirectionJson);
                 break;
         }
     },
-    getNextActionForContinue: function(userInput, storyPlayInstanceUUID, targetKnotData){
-        console.log("Inside getNextActionForContinue")
+    getNextDirectionForContinue: function(userInput, storyPlayInstanceUUID, targetKnotData){
+        console.log("Inside getNextDirectionForContinue")
         console.log(userInput)
         request_data = {
             "user_input": userInput,
@@ -367,7 +389,7 @@ InkPlayer.prototype = {
             method: "POST",
             data: JSON.stringify(request_data),
             contentType: "application/json",
-        }).then(response => response.result.action);
+        }).then(response => response.result);
     },
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
@@ -398,6 +420,7 @@ InkPlayer.prototype = {
             $('.scrollContainer').scrollTop(0);
         },
         addContent: function(content, i) {
+            console.log("content is: ", content)
             if (content.tags.includes("context")){
                 return
             } else if (content.tags.includes("text-me")) {
@@ -431,7 +454,8 @@ InkPlayer.prototype = {
                 while (storyText[0]) {
                     storyText[0].parentNode.removeChild(storyText[0]);
                 }
-            } else {
+            }
+            else {
                 var p = document.createElement('p');
                 p.classList.add('regular-text')
                 p.classList.add('story-content')
