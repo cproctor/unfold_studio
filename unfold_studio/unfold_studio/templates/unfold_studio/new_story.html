@@ -8,12 +8,10 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Name your story</h2>
-    <form action="{% url 'new_story' %}" method="POST">
+    <h1>Name your story</h1>
+    <form action="{% url 'new_story' %}" method="POST" class="search-form">
         {% csrf_token %}
-        <table>
-        {{form.as_table}}
-        </table>
+        {{form}}
         <input type="submit" value="Submit">
     </form>
 {% endblock %}

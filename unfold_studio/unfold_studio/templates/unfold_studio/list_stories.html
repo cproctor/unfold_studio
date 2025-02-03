@@ -1,7 +1,8 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-    <form action="{% url 'list_stories' %}" method="get">
+    <h1>Browse Stories</h1>
+    <form action="{% url 'list_stories' %}" method="get" class="search-form">
         {{form}}
         <input type="submit" value="Search">
     </form>

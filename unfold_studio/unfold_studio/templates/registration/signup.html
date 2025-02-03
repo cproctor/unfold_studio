@@ -7,24 +7,28 @@
     keep your email private, and only use it if you need to reset your password or for account-related stuff.</p>
 
 {% if form.errors %}
-{% for field in form %}
-{% for error in field.errors %}
-<div class="alert alert-danger">
-    <strong>{{ error|escape }}</strong>
-</div>
-{% endfor %}
-{% endfor %}
 {% for error in form.non_field_errors %}
 <div class="alert alert-danger">
-    <strong>{{ error|escape }}</strong>
+    <strong>&#9888; {{ error|escape }}</strong>
 </div>
 {% endfor %}
 {% endif %}
 
 <form method="post" action="{% url 'signup' %}">
     {% csrf_token %}
-    {{form.as_table}}
-    <input type="submit" value="login" />
+    <!-- {{form.as_table}} -->
+    {% for field in form %}
+        <div class="form-group">
+            <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
+            {{ field }}
+            {% for error in field.errors %}
+                <div class="alert alert-danger">
+                    <strong>&#9888; {{ error|escape }}</strong>
+                </div>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    <input type="submit" value="sign up" />
 </form>
 <p>
     Or
