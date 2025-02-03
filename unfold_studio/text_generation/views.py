@@ -156,11 +156,15 @@ class GetNextActionView(AuthenticatedView):
         if total_probability != 1:
             raise ValueError(f"Total probability does not equal 1")
 
-        max_prob = min(probabilities.values())
+        max_prob = max(probabilities.values())
         selected_direction = next(
             direction for direction, prob in probabilities.items()
             if prob == max_prob
         )
+
+        # CHANGE THE BELOW DIRECTION TO TEST DIFFERENT CASES
+        # selected_direction = "DIRECT_CONTINUE"
+        print(f"selected_direction: {selected_direction}")
 
         direction_content = response.get(selected_direction.lower(), {})
         
@@ -171,21 +175,8 @@ class GetNextActionView(AuthenticatedView):
         elif selected_direction == "NEEDS_INPUT":
             if "guidance_text" not in direction_content:
                 raise ValueError("Missing guidance_text for NEEDS_INPUT")
-        direction_content = {"guidance_text": "im the guidance text"}
 
-        # # Uncomment below for NEEDS_INPUT direction
-        # direction = "NEEDS_INPUT"
-        # direction_content = {"guidance_text": "I am guidance text for next input box"}
-
-        # # Uncomment below for BRIDGE_AND_CONTINUE direction
-        # direction = "BRIDGE_AND_CONTINUE"
-        # direction_content = {"bridge_text": "I am bridge text to continue the story"}
-
-        # # Uncomment below for DIRECT_CONTINUE direction
-        # direction = "DIRECT_CONTINUE"
-        # direction_content = {}
-
-        return direction, direction_content, max_prob
+        return selected_direction, direction_content
 
 
 
@@ -215,12 +206,13 @@ class GetNextActionView(AuthenticatedView):
                 response = response[7:-3].strip()
             response_json = json.loads(response)
             print(response_json)
-            direction, content, probability = self.get_direction_and_content_from_response(response_json)
-                
-            return direction, content, probability
+            direction, content = self.get_direction_and_content_from_response(response_json)
+
+            return direction, content
             
         except Exception as e:
-            return default_direction, default_content, 0
+            print("cacthing the exception")
+            return default_direction, default_content
 
 
     def post(self, request):
@@ -239,14 +231,12 @@ class GetNextActionView(AuthenticatedView):
 
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
 
-            direction, content, probability = self.get_next_direction_for_story(target_knot_data, story_play_history, user_input)
-            print(f"Direction taken: {direction},  Content: {content},  Probability: {probability}")
+            direction, content = self.get_next_direction_for_story(target_knot_data, story_play_history, user_input)
+            print(f"Direction taken: {direction},  Content: {content}")
 
-            result['action'] = direction
             result = {
                 "direction": direction,
                 "content": content,
-                "probability": probability,
             }
             
             return JsonResponse({"result": result}, status=200)
