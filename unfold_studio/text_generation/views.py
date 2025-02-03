@@ -120,27 +120,24 @@ class GetNextActionView(AuthenticatedView):
         )
 
         # CHANGE THE BELOW DIRECTION TO TEST DIFFERENT CASES
-        # selected_direction = "DIRECT_CONTINUE"
+        selected_direction = "BRIDGE_AND_CONTINUE"
         print(f"selected_direction: {selected_direction}")
 
-        direction_content = response.get(selected_direction.lower(), {})
-        
+        selected_direction_content = response.get(selected_direction.lower(), {})
         if selected_direction == StoryContinueDirections.BRIDGE_AND_CONTINUE:
-            if "bridge_text" not in direction_content:
+            if "bridge_text" not in selected_direction_content:
                 raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
                 
         elif selected_direction == StoryContinueDirections.NEEDS_INPUT:
-            if "guidance_text" not in direction_content:
+            if "guidance_text" not in selected_direction_content:
                 raise ValueError("Missing guidance_text for NEEDS_INPUT")
 
-        return selected_direction, direction_content
+        return selected_direction, selected_direction_content
 
 
 
-    def get_next_direction_for_story(self, target_knot_data, story_history, user_input):
+    def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input):
         system_prompt, user_prompt = self.build_system_and_user_prompt_for_next_direction(target_knot_data, story_history, user_input)
-        print(f"system_prompt: {system_prompt}")
-        print(f"user_prompt: {user_prompt}")
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
             "guidance_text": "What would you like to do next?",
@@ -150,7 +147,7 @@ class GetNextActionView(AuthenticatedView):
         try:
             backend_config = settings.TEXT_GENERATION
             backend = get_text_generation_backend(backend_config)
-            response = backend.get_next_direction_for_story(system_prompt, user_prompt)
+            response = backend.get_response_for_system_and_user_prompt(system_prompt, user_prompt)
  
             if response.startswith("```json") and response.endswith("```"):
                 response = response[7:-3].strip()
@@ -180,8 +177,9 @@ class GetNextActionView(AuthenticatedView):
                 return JsonResponse({"error": failure_reason}, status=400)
 
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
+            print(story_play_history)
 
-            direction, content = self.get_next_direction_for_story(target_knot_data, story_play_history, user_input)
+            direction, content = self.get_next_direction_details_for_story(target_knot_data, story_play_history, user_input)
             print(f"Direction taken: {direction},  Content: {content}")
 
             result = {

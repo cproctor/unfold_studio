@@ -22,7 +22,7 @@ class TextGenerationBackendInterface(ABC):
         pass
 
     @abstractmethod
-    def get_next_direction_for_story(self, system_prompt, user_prompt):
+    def get_response_for_system_and_user_prompt(self, system_prompt, user_prompt):
         pass
 
 class OpenAIBackend(TextGenerationBackendInterface):
@@ -68,7 +68,7 @@ class OpenAIBackend(TextGenerationBackendInterface):
             log.error(name="Text Generation Alert", event="Error Calling OpenAI", arg={"error": err})
             return "...error generating text..."
     
-    def get_next_direction_for_story(self, system_prompt, user_prompt):
+    def get_response_for_system_and_user_prompt(self, system_prompt, user_prompt):
         try:
             messages=[
                     {"role": "system", "content": system_prompt},
