@@ -9,7 +9,7 @@ from django.contrib import messages
 from unfold_studio.models import Story, Book
 from prompts.models import Prompt
 from django.conf import settings as s                                 
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery
 from django.core.paginator import Paginator, PageNotAnInteger
 from django.http import HttpResponse, Http404                         
 from django.contrib.sites.shortcuts import get_current_site
@@ -46,11 +46,32 @@ class UserDetailView(DetailView):
             raise Http404()
         if self.request.user == self.object:
             Notification.objects.mark_all_seen_for_user(self.request.user)
-            context['feed'] = Notification.objects.for_request(self.request)[:s.FEED_ITEMS_ON_PROFILE]
-            context['feed_continues'] = (Notification.objects.for_request(self.request).count() > 
-                    s.FEED_ITEMS_ON_PROFILE)
+            notifications_raw = Notification.objects.for_request(self.request).prefetch_related(
+                "event__subject", 
+                "event__story__author",
+                "event__book",
+                "event__literacy_group"
+                )
+            notifications = [
+                {
+                    "notification": notification,
+                    "event": notification.event,
+                    "subject": notification.event.subject,
+                    "object_user": notification.event.object_user,
+                    "story": notification.event.story,
+                    "book": notification.event.book,
+                    "literacy_group": notification.event.literacy_group,
+                    "story_visible": notification.story_visible
+                }
+                for notification in notifications_raw
+            ]
+            context['username'] = self.request.user.username
+            context['feed'] = notifications[:s.FEED_ITEMS_ON_PROFILE]
+            context['feed_continues'] = (notifications_raw.count() > s.FEED_ITEMS_ON_PROFILE)
             context['LiteracyEvent'] = LiteracyEvent
-            context['prompts_to_submit'] = Prompt.objects.unsubmitted_for_user(self.request.user).all()
+            context['prompts_to_submit'] = Prompt.objects.unsubmitted_for_user(
+                self.request.user
+            ).select_related('literacy_group')
         else:
             if self.request.user.is_authenticated and (self.object not in self.request.user.profile.following.all()):
                 messages.success(self.request, "Tip: If you follow a user, you'll see when they publish new stories.")
@@ -70,8 +91,28 @@ class FeedView(DetailView):
             raise Http404()
         Notification.objects.mark_all_seen_for_user(self.request.user)
         context['LiteracyEvent'] = LiteracyEvent
-        notifications = Notification.objects.for_request(self.request)
+        notifications_raw = Notification.objects.for_request(self.request).prefetch_related(
+                "event__subject", 
+                "event__story__author",
+                "event__book",
+                "event__literacy_group"
+                )
+        notifications = [
+                {
+                    "notification": notification,
+                    "event": notification.event,
+                    "subject": notification.event.subject,
+                    "object_user": notification.event.object_user,
+                    "story": notification.event.story,
+                    "book": notification.event.book,
+                    "literacy_group": notification.event.literacy_group,
+                    "story_visible": notification.story_visible
+                }
+                for notification in notifications_raw
+            ]
+        
         paginator = Paginator(notifications, s.FEED_ITEMS_PER_PAGE)
+        context['username'] = self.request.user.username
         try:
             context['feed'] = paginator.page(self.request.GET.get('page'))
         except PageNotAnInteger:

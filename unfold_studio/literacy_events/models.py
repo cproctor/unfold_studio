@@ -1,8 +1,8 @@
 from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
-from django.db.models import Q, Exists, OuterRef
-from unfold_studio.models import Story
+from django.db.models import Q, Exists, OuterRef, Subquery
+from unfold_studio.models import Story, Book
 from django.contrib.sites.shortcuts import get_current_site
 import arrow
 
@@ -140,29 +140,25 @@ class LiteracyEvent(models.Model):
         ordering = ('-timestamp',)
 
 class NotificationManager(models.Manager):
-
-    def valid_notifications(self):
-        "Returns notifications for which no subject or object is disabled or deleted"
-        return self.get_queryset().filter(
-            (Q(event__story__deleted=False) & Q(event__story__author__is_active=True)) | Q(event__story__isnull=True),
-            (Q(event__book__deleted=False) & Q(event__book__owner__is_active=True)) | Q(event__book__isnull=True),
-            Q(event__subject__is_active=True) | Q(event__subject__isnull=True),
-            Q(event__object_user__is_active=True) | Q(event__object_user__isnull=True),
-            Q(event__literacy_group__deleted=False) | Q(event__literacy_group__isnull=True),
+    def for_request(self, request):
+        site = get_current_site(request)
+        storyVisible = Exists(Story.objects.for_site_user(site, request.user).filter(pk=OuterRef('event__story_id')))
+        parentStoryVisible = Exists(Story.objects.for_site_user(site, request.user).filter(pk=OuterRef('event__story__parent__id')))
+        stories = Story.objects.filter(pk=OuterRef('story_id')).filter(
+            Q(deleted=False) & Q(author__is_active=True)
+        )
+        books = Book.objects.filter(pk=OuterRef('book_id')).filter(
+            Q(deleted=False) & Q(owner__is_active=True)
         )
 
-    def for_request(self, request):
-        "Returns notifications that ought to be visible for the current request"
-        user = request.user
-        site = get_current_site(request)
-        return self.for_site_user(site, user)
+        literacy_events = LiteracyEvent.objects.filter(
+            Q(story_id=Subquery(stories.values('id'))) |
+            Q(book_id=Subquery(books.values('id'))) |
+            Q(subject_id=request.user) |
+            Q(object_user_id=request.user) 
+        )
+        return self.filter(recipient=request.user).filter(event__in=literacy_events).annotate(story_visible=storyVisible, parent_story_visible=parentStoryVisible)
 
-    def for_site_user(self, site, user):
-        storyVisible = Exists(Story.objects.for_site_user(site, user).filter(pk=OuterRef('event__story_id')))
-        parentStoryVisible = Exists(Story.objects.for_site_user(site, user).filter(
-                pk=OuterRef('event__story__parent__id')))
-        return self.valid_notifications().filter(recipient=user).annotate(
-                story_visible=storyVisible, parent_story_visible=parentStoryVisible)
 
     def mark_all_seen_for_user(self, user):
         for e in self.get_queryset().filter(recipient=user, seen=False).iterator(chunk_size=500):

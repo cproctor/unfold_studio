@@ -1,9 +1,10 @@
 from django.db import models 
-from django.db.models import Q
+from django.db.models import Q, OuterRef, Subquery, Exists
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
 from profiles.models import Profile
+from literacy_groups.models import LiteracyGroup
 import reversion
 from django.conf import settings
 import json
@@ -34,20 +35,6 @@ class StoryManager(models.Manager):
     if called with an anonymous user.
     """
 
-    def valid(self):
-        "Returns non-deleted objects"
-        return self.get_queryset().filter(
-            Q(public=True) | Q(author__is_active=True),
-            deleted=False
-        )
-
-    def for_site(self, site):
-        """
-        Returns only stories in the current scope--that is, those associated with a site and 
-        not deleted.
-        """
-        return self.valid().filter(sites=site)
-
     def for_request(self, request):
         "Returns stories which are visible to the current request"
         user = request.user
@@ -58,16 +45,23 @@ class StoryManager(models.Manager):
             return self.for_site_anonymous_user(site)
 
     def for_site_user(self, site, user):
-        return self.for_site(site).filter(
+        literacy_groups = LiteracyGroup.objects.filter(
+            leaders=user
+            )
+        return self.filter(
+            Q(sites=site),
+            Q(deleted=False),
+            Q(author=user) |
             Q(shared=True) | 
             Q(public=True) |
-            Q(prompts_submitted__literacy_group__leaders=user) |
-            Q(author=user)
+            Q(prompts_submitted__literacy_group=Subquery(literacy_groups.values('id')))
         ).distinct()
 
     def for_site_anonymous_user(self, site):
-        return self.for_site(site).filter(
-            Q(public=True) | Q(shared=True)
+        return self.filter(
+            Q(sites=site),
+            Q(public=True) | 
+            Q(shared=True)
         )
 
     def editable_for_request(self, request):
@@ -80,13 +74,18 @@ class StoryManager(models.Manager):
             return self.editable_for_site_anonymous_user(site)
 
     def editable_for_site_user(self, site, user):
-        return self.for_site(site).filter(
+        return self.filter(
+            Q(sites=site),
+            Q(deleted=False),
+            Q(author=user) |
             Q(public=True) |
             Q(author=user)
         )
 
     def editable_for_site_anonymous_user(self, site):
-        return self.for_site(site).filter(
+        return self.filter(
+            Q(sites=site),
+            Q(deleted=False),
             Q(public=True)
         )
 

@@ -1,29 +1,29 @@
 {% load app_filters %}
 <li class="event">
-{% with event=notification.event viewer=notification.recipient %}
-{% with subjectUser=event.subject story=event.story book=event.book objectUser=event.object_user prompt=event.prompt group=event.literacy_group story_visible=notification.story_visible %}
+{% with event=notification.event viewer=username %}
+{% with subjectUser=notification.subject story=notification.story book=notification.book objectUser=notification.object_user prompt=event.prompt group=notification.literacy_group story_visible=notification.story_visible %}
     {% if event.event_type == LiteracyEvent.LOVED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         loved 
-        {% include 'literacy_events/story.html' %}
+        {% include 'literacy_events/story.html' with author=notification.story %}
     {% elif event.event_type == LiteracyEvent.COMMENTED_ON_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         commented on 
-        {% include 'literacy_events/story_versions.html' %}
+        {% include 'literacy_events/story_versions.html' with author=notification.story %}
     {% elif event.event_type == LiteracyEvent.FORKED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         forked 
-        {% include 'literacy_events/story.html' %} 
+        {% include 'literacy_events/story.html' with author=notification.story %} 
         from 
-        {% include 'literacy_events/story.html' with story=story.parent story_visible=notification.parent_story_visible%} 
+        {% include 'literacy_events/story.html' with story=story.parent story_visible=notification.parent_story_visible author=notification.story %} 
     {% elif event.event_type == LiteracyEvent.PUBLISHED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         published 
-        {% include 'literacy_events/story.html' %}
+        {% include 'literacy_events/story.html' with author=notification.story %}
     {% elif event.event_type == LiteracyEvent.UNPUBLISHED_STORY %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         stopped sharing 
-        {% include 'literacy_events/story.html' %}
+        {% include 'literacy_events/story.html' with author=notification.story %}
     {% elif event.event_type == LiteracyEvent.PUBLISHED_BOOK %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         published 
@@ -31,13 +31,13 @@
     {% elif event.event_type == LiteracyEvent.ADDED_STORY_TO_BOOK %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         added 
-        {% include 'literacy_events/story.html' %} 
+        {% include 'literacy_events/story.html' with author=notification.story %} 
         to 
         {% include 'literacy_events/book.html' %}
     {% elif event.event_type == LiteracyEvent.REMOVED_STORY_FROM_BOOK %}
         {% include 'literacy_events/user.html' with user=subjectUser %} 
         removed 
-        {% include 'literacy_events/story.html' %} 
+        {% include 'literacy_events/story.html' with author=notification.story %} 
         from
         {% include 'literacy_events/book.html' %}
     {% elif event.event_type == LiteracyEvent.FOLLOWED %}
@@ -58,13 +58,13 @@
     {% elif event.event_type == LiteracyEvent.SUBMITTED_TO_PROMPT %}
         {% include 'literacy_events/user.html' with user=subjectUser%} 
         submitted 
-        {% include 'literacy_events/story.html' %}
+        {% include 'literacy_events/story.html' with author=notification.story %}
         to
         {% include 'literacy_events/prompt.html' %}
     {% elif event.event_type == LiteracyEvent.UNSUBMITTED_FROM_PROMPT %}
         {% include 'literacy_events/user.html' with user=subjectUser%} 
         removed 
-        {% include 'literacy_events/story.html' %}
+        {% include 'literacy_events/story.html' with author=notification.story %}
         from
         {% include 'literacy_events/prompt.html' %}
     {% elif event.event_type == LiteracyEvent.STORY_READING %}
