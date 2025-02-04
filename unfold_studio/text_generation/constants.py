@@ -8,7 +8,8 @@ class StoryContinueDirections:
         return [v for k, v in vars(cls).items() if k.isupper() and not callable(v)]
 
 
-CONTINUE_STORY_SYSTEM_PROMPT = """You are a story transition analyst. Analyze how user input leads to target story nodes:
+CONTINUE_STORY_SYSTEM_PROMPT = """
+You are a story transition analyst. Analyze how user input leads to target story nodes:
 
 DIRECT_CONTINUE: Input directly matches target conditions chronologically
 BRIDGE_AND_CONTINUE: Requires narrative to connect input to target timeline
