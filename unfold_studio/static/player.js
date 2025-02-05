@@ -375,7 +375,7 @@ InkPlayer.prototype = {
         }
         // return "DIRECT_CONTINUE"
         // return "NEEDS_INPUT"
-        return $.ajax("/get_next_action", {
+        return $.ajax("/get_next_direction", {
             beforeSend: function(xhr) {
                 xhr.setRequestHeader("X-CSRFToken", CSRF);
             },

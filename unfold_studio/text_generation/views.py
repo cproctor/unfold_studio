@@ -75,7 +75,7 @@ class GenerateTextView(AuthenticatedView):
             return JsonResponse({"error": str(e)}, status=500)
 
 
-class GetNextActionView(AuthenticatedView):
+class GetNextDirectionView(AuthenticatedView):
 
 
     def validate_request(self, request_body):
