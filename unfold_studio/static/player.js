@@ -263,12 +263,12 @@ InkPlayer.prototype = {
     },
     scheduleInputBoxForContinue: function(placeholder = "What would you like to do next?") {
         const eventHandler = (userInput) => {
-            this.handleUserInputForContinue(userInput);
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
                 "READERS_CONTINUE_ENTERED_TEXT", 
                 userInput
             );
+            this.handleUserInputForContinue(userInput);
         };
     
         formContainer = this.createInputForm(
