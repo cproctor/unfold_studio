@@ -164,7 +164,7 @@ InkPlayer.prototype = {
 
         content.forEach(this.events.addContent, this);
         
-        this.showScheduledInputBox();
+        this.events.renderScheduledInputBox.bind(this)();
 
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
@@ -240,12 +240,6 @@ InkPlayer.prototype = {
             this.storyPlayInstanceUUID = data.story_play_instance_uuid
             this.continueStory();
         });
-    },
-    showScheduledInputBox: function() {
-        if(this.inputBoxToInsert){
-            this.container.appendChild(this.inputBoxToInsert);
-            this.inputBoxToInsert = null;
-        }
     },
     scheduleInputBox: function(placeholder, variableName) {
         const eventHandler = (userInput) => {
@@ -339,7 +333,7 @@ InkPlayer.prototype = {
                 }]
                 content.forEach(this.events.addContent, this);
                 this.scheduleInputBoxForContinue();
-                this.showScheduledInputBox();
+                this.events.renderScheduledInputBox.bind(this)();
                 break;
     
             case 'DIRECT_CONTINUE':
@@ -349,23 +343,23 @@ InkPlayer.prototype = {
                 this.continueStory();
                 break;
             case 'BRIDGE_AND_CONTINUE':
-            console.log("okay next direction is BRIDGE_AND_CONTINUE");
-            console.log(nextDirectionJson.content.bridge_text)
-            content = [{
-                text: nextDirectionJson.content.bridge_text,
-                tags: ['bridge']
-            }]
-            content.forEach(this.events.addContent, this);
-            
-            this.createStoryPlayRecord(
-                this.getStoryPlayInstanceUUID(),
-                "AI_GENERATED_TEXT",
-                nextDirectionJson.content.bridge_text
-            );
-            this.story.ChoosePathString(this.currentTargetKnot);
-            this.continueStory();
+                console.log("okay next direction is BRIDGE_AND_CONTINUE");
+                console.log(nextDirectionJson.content.bridge_text)
+                content = [{
+                    text: nextDirectionJson.content.bridge_text,
+                    tags: ['bridge']
+                }]
+                content.forEach(this.events.addContent, this);
+                
+                this.createStoryPlayRecord(
+                    this.getStoryPlayInstanceUUID(),
+                    "AI_GENERATED_TEXT",
+                    nextDirectionJson.content.bridge_text
+                );
+                this.story.ChoosePathString(this.currentTargetKnot);
+                this.continueStory();
 
-            break;
+                break;
             default:
                 console.error("Unexpected direction:", nextDirectionJson);
                 break;
@@ -414,6 +408,13 @@ InkPlayer.prototype = {
         return knotData;
     },
     events: {
+        renderScheduledInputBox: function() {
+            console.log("inside renderScheduledInputBox")
+            if(this.inputBoxToInsert){
+                this.container.appendChild(this.inputBoxToInsert);
+                this.inputBoxToInsert = null;
+            }
+        },
         prepareToPlay: function() {
             $(this.container).html('');
             $('.scrollContainer').scrollTop(0);
