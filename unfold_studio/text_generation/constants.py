@@ -37,7 +37,7 @@ Follow this JSON format:
         "NEEDS_INPUT": 0.0-1.0
     },
     "direct_continue": {
-        "reason": "...",
+        "reason": "..."
     },
     "bridge_and_continue": {
         "reason": "...",

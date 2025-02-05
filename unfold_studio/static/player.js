@@ -265,10 +265,6 @@ InkPlayer.prototype = {
     
         formElement.appendChild(inputElement);
         formElement.appendChild(buttonElement);
-        formContainer.appendChild(formElement);
-        this.inputBoxToInsert = formContainer;
-
-        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_INPUT_BOX", {"text": placeholder, "variable_name": variableName});
     
         formElement.addEventListener("submit", (event) => {
             event.preventDefault();
@@ -285,6 +281,11 @@ InkPlayer.prototype = {
             this.running = true;
             this.continueStory();
         });
+
+        formContainer.appendChild(formElement);
+        this.inputBoxToInsert = formContainer;
+
+        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_INPUT_BOX", {"text": placeholder, "variable_name": variableName});
     
         return "";
     },
@@ -305,10 +306,6 @@ InkPlayer.prototype = {
         
         formElement.appendChild(inputElement);
         formElement.appendChild(buttonElement);
-        formContainer.appendChild(formElement);
-        this.inputBoxToInsert = formContainer;
-
-        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_CONTINUE_INPUT_BOX", {"placeholder": placeholder});
 
         formElement.addEventListener("submit", (event) => {
             event.preventDefault();
@@ -322,6 +319,11 @@ InkPlayer.prototype = {
             buttonElement.disabled = true;
             formElement.style.opacity = "0.5";
         });
+
+        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_CONTINUE_INPUT_BOX", {"placeholder": placeholder});
+
+        formContainer.appendChild(formElement);
+        this.inputBoxToInsert = formContainer;
     },
     handleUserInputForContinue: async function(userInput){
         console.log("Inside handleUserInputForContinue")
