@@ -140,7 +140,7 @@ class GetNextActionView(AuthenticatedView):
         )
 
         # CHANGE THE BELOW DIRECTION TO TEST DIFFERENT CASES
-        # selected_direction = "BRIDGE_AND_CONTINUE"
+        selected_direction = "NEEDS_INPUT"
         print(f"selected_direction: {selected_direction}")
 
         selected_direction_content = data.get(selected_direction.lower(), {})
