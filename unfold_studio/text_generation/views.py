@@ -140,7 +140,9 @@ class GetNextDirectionView(AuthenticatedView):
         )
 
         # CHANGE THE BELOW DIRECTION TO TEST DIFFERENT CASES
+        # selected_direction = "NEEDS_INPUT"
         # selected_direction = "DIRECT_CONTINUE"
+        # selected_direction = "BRIDGE_AND_CONTINUE"
         if selected_direction not in StoryContinueDirections.values():
             raise ValueError("Invalid direction received")
         print(f"selected_direction: {selected_direction}")
