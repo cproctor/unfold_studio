@@ -155,7 +155,7 @@ class GetNextDirectionView(AuthenticatedView):
     def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input):
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
-            "guidance_text": "What would you like to do next (JSON decode error happended)?",
+            "guidance_text": "What would you like to do next (JSON decode error happened)?",
             "reason": "System failure"
         }
 
