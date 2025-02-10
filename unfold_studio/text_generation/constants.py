@@ -45,7 +45,7 @@ Follow this JSON format:
     },
     "needs_input": {
         "reason": "...",
-        "guidance_text": "...", // Question/prompt for next input from user
+        "guidance_text": "..." // Question/prompt for next input from user
     }
 }
 
@@ -57,7 +57,7 @@ Example:
         "NEEDS_INPUT": 0.2
     },
     "direct_continue": {
-        "reason": "User specified exact target location",
+        "reason": "User specified exact target location"
     },
     "bridge_and_continue": {
         "reason": "Needs transition to hidden chamber",
@@ -65,7 +65,7 @@ Example:
     },
     "needs_input": {
         "reason": "Requires specific investigation focus",
-        "guidance_text": "What part of the wall will you examine?",
+        "guidance_text": "What part of the wall will you examine?"
     }
 }"""
 
