@@ -5,6 +5,8 @@ from django.http import JsonResponse
 from unfold_studio.commons.views import AuthenticatedView
 from .models import TextGenerationRecord
 import hashlib
+from .services.unfold_studio import UnfoldStudioService
+from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
 
 class GenerateTextView(AuthenticatedView):
 
@@ -70,4 +72,140 @@ class GenerateTextView(AuthenticatedView):
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
         except Exception as e:
+            return JsonResponse({"error": str(e)}, status=500)
+
+
+class GetNextDirectionView(AuthenticatedView):
+
+
+    def validate_request(self, request_body):
+        required_fields = ['user_input', 'target_knot_data', 'story_play_instance_uuid']
+        for field in required_fields:
+            if not request_body.get(field):
+                return False, f"Missing required field: {field}"
+        return True, None
+
+    def build_system_and_user_prompt(self, target_knot_data, story_history, user_input):
+        system_prompt = CONTINUE_STORY_SYSTEM_PROMPT
+        user_prompt = CONTINUE_STORY_USER_PROMPT_TEMPLATE % {
+            'target_knot': target_knot_data.get('knotContents', []),
+            'history': json.dumps(story_history, indent=2),
+            'user_input': user_input
+        }
+
+        return system_prompt, user_prompt
+
+    def parse_and_validate_ai_response(self, data):
+        try:
+            if data.startswith("```json") and data.endswith("```"):
+                data = data[7:-3].strip()
+            parsed_data = json.loads(data)
+
+            probabilities = parsed_data.get('probabilities', {})
+            if not isinstance(probabilities, dict):
+                raise ValueError("Invalid probabilities format")
+                
+            required_directions = StoryContinueDirections.values()
+            for direction in required_directions:
+                if direction not in probabilities:
+                    raise ValueError(f"Missing probability for {direction}")
+
+            total_probability = int(sum(probabilities.values()))
+            if total_probability != 1:
+                raise ValueError(f"Total probability does not equal 1")
+
+            if "bridge_text" not in parsed_data.get(StoryContinueDirections.BRIDGE_AND_CONTINUE.lower()):
+                raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
+                    
+            if "guidance_text" not in parsed_data.get(StoryContinueDirections.NEEDS_INPUT.lower()):
+                raise ValueError("Missing guidance_text for NEEDS_INPUT")
+
+            return parsed_data
+        except json.JSONDecodeError as e:
+            print(f"JSON decode error in data: {str(e)}")
+            raise
+        except ValueError as e:
+            print(f"Data validation failed: {str(e)}")
+            raise
+        except Exception:
+            print(f"Unexpected error occured in parsing data: {str(e)}")
+            raise
+
+    def determine_next_direction_details_from_ai_response(self, data):
+        probabilities = data.get('probabilities', {})
+        max_prob = max(probabilities.values())
+        selected_direction = next(
+            direction for direction, prob in probabilities.items()
+            if prob == max_prob
+        )
+
+        # CHANGE THE BELOW DIRECTION TO TEST DIFFERENT CASES
+        # selected_direction = "NEEDS_INPUT"
+        # selected_direction = "DIRECT_CONTINUE"
+        # selected_direction = "BRIDGE_AND_CONTINUE"
+        if selected_direction not in StoryContinueDirections.values():
+            raise ValueError("Invalid direction received")
+        print(f"selected_direction: {selected_direction}")
+
+        selected_direction_content = data.get(selected_direction.lower(), {})
+
+        return selected_direction, selected_direction_content
+
+
+    def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input):
+        default_direction = StoryContinueDirections.NEEDS_INPUT
+        default_content = {
+            "guidance_text": "What would you like to do next (JSON decode error happened)?",
+            "reason": "System failure"
+        }
+
+        try:
+            backend_config = settings.TEXT_GENERATION
+            backend = get_text_generation_backend(backend_config)
+
+            system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
+            response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt)
+            print(response)
+
+            parsed_response = self.parse_and_validate_ai_response(response)
+            direction, content = self.determine_next_direction_details_from_ai_response(parsed_response)
+
+            return direction, content
+            
+        except Exception as e:
+            print(f"Exception occoured in get_next_direction_details_for_story: {str(e)}")
+            return default_direction, default_content
+
+
+    def post(self, request):
+        try: 
+            request_body = json.loads(request.body)
+            print(request_body)
+            user_input = request_body.get('user_input')
+            target_knot_data = request_body.get('target_knot_data')
+            story_play_instance_uuid = request_body.get('story_play_instance_uuid')
+
+            result = {}
+
+            validation_successful, failure_reason = self.validate_request(request_body)
+            if not validation_successful:
+                return JsonResponse({"error": failure_reason}, status=400)
+
+            story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
+            print(story_play_history)
+
+            direction, content = self.get_next_direction_details_for_story(target_knot_data, story_play_history, user_input)
+            print(f"Direction taken: {direction},  Content: {content}")
+
+            result = {
+                "direction": direction,
+                "content": content,
+            }
+            
+            return JsonResponse({"result": result}, status=200)
+
+        except json.JSONDecodeError:
+            return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
+        except Exception as e:
+            print(str(e))
             return JsonResponse({"error": str(e)}, status=500)

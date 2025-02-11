@@ -42,46 +42,16 @@ InkPlayer.prototype = {
             this.aiSeed = seed;
             return "";
         }.bind(this));
+        story.BindExternalFunction("continue", function(targetKnot) {
+            console.log("Inside continue function")
+            console.log(targetKnot);
+            this.currentTargetKnot = targetKnot
+            this.scheduleInputBoxForContinue()
+            return '';
+        }.bind(this));
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
-            this.stop();
-        
-            const formContainer = document.createElement("div");
-            formContainer.classList.add("input-container");
-        
-            const formElement = document.createElement("form");
-        
-            const inputElement = document.createElement("input");
-            inputElement.type = "text";
-            inputElement.placeholder = placeholder;
-            inputElement.required = true;
-        
-            const buttonElement = document.createElement("button");
-            buttonElement.type = "submit";
-            buttonElement.innerText = "Submit";
-        
-            formElement.appendChild(inputElement);
-            formElement.appendChild(buttonElement);
-            formContainer.appendChild(formElement);
-            this.container.appendChild(formContainer);
-
-            this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AUTHORS_INPUT_BOX", {"text": placeholder, "variable_name": variableName});
-        
-            formElement.addEventListener("submit", (event) => {
-                event.preventDefault();
-                const userInput = inputElement.value.trim();
-                this.story.variablesState[variableName] = userInput;
-
-                this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_ENTERED_TEXT", userInput);
-        
-                inputElement.disabled = true;
-                buttonElement.disabled = true;
-                formElement.style.opacity = "0.5";
-        
-                this.running = true;
-                this.continueStory();
-            });
-        
-            return "";
+            this.scheduleInputBox(placeholder, variableName);
+            return '';
         }.bind(this));
         
         
@@ -184,6 +154,7 @@ InkPlayer.prototype = {
                 this.events.reportError.bind(this)(err.message);
             }
         }
+        console.log(content)
         if (!this.running) return;
 
         self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
@@ -192,6 +163,9 @@ InkPlayer.prototype = {
         self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
 
         content.forEach(this.events.addContent, this);
+        
+        this.events.renderScheduledInputBox.bind(this)();
+
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
                 this.events.addChoice.bind(self)(choice);
@@ -267,15 +241,186 @@ InkPlayer.prototype = {
             this.continueStory();
         });
     },
+    scheduleInputBox: function(placeholder, variableName) {
+        const eventHandler = (userInput) => {
+            this.story.variablesState[variableName] = userInput;
+            this.createStoryPlayRecord(
+                this.getStoryPlayInstanceUUID(), 
+                "READERS_ENTERED_TEXT", 
+                userInput
+            );
+            this.running = true;
+            this.continueStory();
+        };
+        
+        formContainer = this.createInputForm(
+            "AUTHORS_INPUT_BOX",
+            eventHandler,
+            placeholder,
+            variableName,
+        );
+        this.inputBoxToInsert = formContainer;
+    },
+    scheduleInputBoxForContinue: function(placeholder = "What would you like to do next?") {
+        const eventHandler = (userInput) => {
+            this.createStoryPlayRecord(
+                this.getStoryPlayInstanceUUID(), 
+                "READERS_CONTINUE_ENTERED_TEXT", 
+                userInput
+            );
+            this.handleUserInputForContinue(userInput);
+        };
+    
+        formContainer = this.createInputForm(
+            "AUTHORS_CONTINUE_INPUT_BOX",
+            eventHandler,
+            placeholder,
+        );
+        this.inputBoxToInsert = formContainer;
+    },
+    createInputForm: function(formType, eventHandler, placeholder, variableName=null) {
+        const formContainer = document.createElement("div");
+        formContainer.classList.add("input-container");
+    
+        const formElement = document.createElement("form");
+        
+        const inputElement = document.createElement("input");
+        inputElement.type = "text";
+        inputElement.placeholder = placeholder;
+        inputElement.required = true;
+        
+        const buttonElement = document.createElement("button");
+        buttonElement.type = "submit";
+        buttonElement.innerText = "Submit";
+        
+        formElement.appendChild(inputElement);
+        formElement.appendChild(buttonElement);
+    
+        formElement.addEventListener("submit", (event) => {
+            event.preventDefault();
+            const userInput = inputElement.value.trim();
+            eventHandler(userInput);
+            
+            inputElement.disabled = true;
+            buttonElement.disabled = true;
+            formElement.style.opacity = "0.5";
+        });
+    
+        this.createStoryPlayRecord(
+            this.getStoryPlayInstanceUUID(),
+            formType,
+            {"placeholder": placeholder, "variableName": variableName}
+        );
+    
+        formContainer.appendChild(formElement);
+
+        return formContainer
+    },
+    handleUserInputForContinue: async function(userInput){
+        console.log("Inside handleUserInputForContinue")
+        console.log(userInput)
+        targetKnotData = this.getKnotData(this.currentTargetKnot);
+        console.log(targetKnotData)
+        nextDirectionJson = await this.getNextDirectionForContinue(userInput, this.getStoryPlayInstanceUUID(), targetKnotData)
+        console.log(nextDirectionJson)
+
+        switch(nextDirectionJson.direction) {
+            case 'NEEDS_INPUT':
+                console.log("okay next direction is NEEDS_INPUT");
+                content = [{
+                    text: nextDirectionJson.content.guidance_text,
+                    tags: []
+                }]
+                content.forEach(this.events.addContent, this);
+                this.scheduleInputBoxForContinue();
+                this.events.renderScheduledInputBox.bind(this)();
+                break;
+    
+            case 'DIRECT_CONTINUE':
+                console.log("okay next direction is DIRECT_CONTINUE");
+                console.log("currentTargetKnot is: ", this.currentTargetKnot);
+                this.story.ChoosePathString(this.currentTargetKnot);
+                this.continueStory();
+                break;
+            case 'BRIDGE_AND_CONTINUE':
+                console.log("okay next direction is BRIDGE_AND_CONTINUE");
+                console.log(nextDirectionJson.content.bridge_text)
+                content = [{
+                    text: nextDirectionJson.content.bridge_text,
+                    tags: ['bridge']
+                }]
+                content.forEach(this.events.addContent, this);
+                
+                this.createStoryPlayRecord(
+                    this.getStoryPlayInstanceUUID(),
+                    "AI_GENERATED_TEXT",
+                    nextDirectionJson.content.bridge_text
+                );
+                this.story.ChoosePathString(this.currentTargetKnot);
+                this.continueStory();
+
+                break;
+            default:
+                console.error("Unexpected direction:", nextDirectionJson);
+                break;
+        }
+    },
+    getNextDirectionForContinue: function(userInput, storyPlayInstanceUUID, targetKnotData){
+        console.log("Inside getNextDirectionForContinue")
+        console.log(userInput)
+        request_data = {
+            "user_input": userInput,
+            "story_play_instance_uuid": storyPlayInstanceUUID,
+            "target_knot_data": targetKnotData,
+        }
+        // return "DIRECT_CONTINUE"
+        // return "NEEDS_INPUT"
+        return $.ajax("/get_next_direction", {
+            beforeSend: function(xhr) {
+                xhr.setRequestHeader("X-CSRFToken", CSRF);
+            },
+            method: "POST",
+            data: JSON.stringify(request_data),
+            contentType: "application/json",
+        }).then(response => response.result);
+    },
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
     },
+    getKnotData: function(knotName){
+        const savedState = this.story.state.toJson();
+        this.story.ChoosePathString(knotName);
+
+        let knotContents = [];
+        while (this.story.canContinue) {
+            knotContents.push(this.story.Continue());
+        }
+        let knotChoices = this.story.currentChoices.map(choice => choice.text);
+
+        this.story.state.LoadJson(savedState);
+
+        knotData = {
+            "knotContents": knotContents,
+            "knotChoices": knotChoices,
+        }
+        console.log("Knot Data:", knotData)
+
+        return knotData;
+    },
     events: {
+        renderScheduledInputBox: function() {
+            console.log("inside renderScheduledInputBox")
+            if(this.inputBoxToInsert){
+                this.container.appendChild(this.inputBoxToInsert);
+                this.inputBoxToInsert = null;
+            }
+        },
         prepareToPlay: function() {
             $(this.container).html('');
             $('.scrollContainer').scrollTop(0);
         },
         addContent: function(content, i) {
+            console.log("content is: ", content)
             if (content.tags.includes("context")){
                 return
             } else if (content.tags.includes("text-me")) {
@@ -309,7 +454,8 @@ InkPlayer.prototype = {
                 while (storyText[0]) {
                     storyText[0].parentNode.removeChild(storyText[0]);
                 }
-            } else {
+            }
+            else {
                 var p = document.createElement('p');
                 p.classList.add('regular-text')
                 p.classList.add('story-content')
