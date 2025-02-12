@@ -7,6 +7,7 @@ from abc import ABC, abstractmethod
 
 log = structlog.get_logger("unfold_studio")
 
+
 class TextGenerationBackendInterface(ABC):
     """Interface to a text generation service.
     """
@@ -84,19 +85,20 @@ class OpenAIBackend(TextGenerationBackendInterface):
             log.error(name="Text Generation Alert", event="Error Calling OpenAI", arg={"error": err})
             return "...error getting AI direction..."
 
+class TextGenerationFactory:
+    _registry = {
+        "OpenAI": OpenAIBackend,
+    }
 
+    @classmethod
+    def create(cls, config):
+        backend_name = config.get('backend')
+        if not backend_name:
+            raise ValueError("Config must specify a 'backend'")
 
-text_generation_backends = {
-    "OpenAI": OpenAIBackend,
-}
+        backend_class = cls._registry.get(backend_name)
+        if not backend_class:
+            raise ValueError(f"Unsupported backend: {backend_name}")
 
-def get_text_generation_backend(config):
-    """Given a config dict like settings.TEXT_GENERATION,
-    instantiates and returns a TextGenerationBackendInterface implemented class.
-    """
-    backend_name = config['backend']
-    backend_class = text_generation_backends.get(backend_name)
-    if not backend_class:
-        raise ValueError(f"Unsupported backend: {backend_name}")
-    return backend_class(config)
-
+        return backend_class(config)
+        

@@ -1,5 +1,5 @@
 import json
-from text_generation.backends import get_text_generation_backend
+from text_generation.backends import TextGenerationFactory
 from django.conf import settings
 from django.http import JsonResponse
 from unfold_studio.commons.views import AuthenticatedView
@@ -57,7 +57,7 @@ class GenerateTextView(AuthenticatedView):
             hashed_key = self.get_prompt_and_context_hash(prompt, context_array)
 
             backend_config = settings.TEXT_GENERATION
-            backend = get_text_generation_backend(backend_config)
+            backend = TextGenerationFactory.create(backend_config)
             backend_config_hash = self.get_text_generation_backend_config_hash(backend_config)
 
             cached_result = self.get_cached_response(seed, hashed_key, backend_config_hash)
@@ -160,7 +160,7 @@ class GetNextDirectionView(AuthenticatedView):
 
         try:
             backend_config = settings.TEXT_GENERATION
-            backend = get_text_generation_backend(backend_config)
+            backend = TextGenerationFactory.create(backend_config)
 
             system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
             response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt)
