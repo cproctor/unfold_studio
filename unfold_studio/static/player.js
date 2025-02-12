@@ -344,6 +344,7 @@ InkPlayer.prototype = {
                     "AI_GENERATED_TEXT",
                     nextDirectionJson.content.bridge_text
                 );
+                
                 this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
 
@@ -384,6 +385,7 @@ InkPlayer.prototype = {
         let knotChoices = this.story.currentChoices.map(choice => choice.text);
 
         this.story.state.LoadJson(savedState);
+        this.currentTargetKnot = knotName;
 
         knotData = {
             "knotContents": knotContents,
