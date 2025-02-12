@@ -1,11 +1,12 @@
-class StoryContinueDirections:
-    DIRECT_CONTINUE = "DIRECT_CONTINUE"
-    BRIDGE_AND_CONTINUE = "BRIDGE_AND_CONTINUE"
-    NEEDS_INPUT = "NEEDS_INPUT"
-    
+class BaseConstant:
     @classmethod
     def values(cls):
         return [v for k, v in vars(cls).items() if k.isupper() and not callable(v)]
+
+class StoryContinueDirections(BaseConstant):
+    DIRECT_CONTINUE = "DIRECT_CONTINUE"
+    BRIDGE_AND_CONTINUE = "BRIDGE_AND_CONTINUE"
+    NEEDS_INPUT = "NEEDS_INPUT"
 
 
 CONTINUE_STORY_SYSTEM_PROMPT = """
