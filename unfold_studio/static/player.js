@@ -43,8 +43,6 @@ InkPlayer.prototype = {
             return "";
         }.bind(this));
         story.BindExternalFunction("continue", function(targetKnot) {
-            console.log("Inside continue function")
-            console.log(targetKnot);
             this.currentTargetKnot = targetKnot
             this.scheduleInputBoxForContinue()
             return '';
@@ -154,7 +152,6 @@ InkPlayer.prototype = {
                 this.events.reportError.bind(this)(err.message);
             }
         }
-        console.log(content)
         if (!this.running) return;
 
         self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
@@ -317,16 +314,11 @@ InkPlayer.prototype = {
         return formContainer
     },
     handleUserInputForContinue: async function(userInput){
-        console.log("Inside handleUserInputForContinue")
-        console.log(userInput)
         targetKnotData = this.getKnotData(this.currentTargetKnot);
-        console.log(targetKnotData)
         nextDirectionJson = await this.getNextDirectionForContinue(userInput, this.getStoryPlayInstanceUUID(), targetKnotData)
-        console.log(nextDirectionJson)
 
         switch(nextDirectionJson.direction) {
             case 'NEEDS_INPUT':
-                console.log("okay next direction is NEEDS_INPUT");
                 content = [{
                     text: nextDirectionJson.content.guidance_text,
                     tags: []
@@ -337,14 +329,10 @@ InkPlayer.prototype = {
                 break;
     
             case 'DIRECT_CONTINUE':
-                console.log("okay next direction is DIRECT_CONTINUE");
-                console.log("currentTargetKnot is: ", this.currentTargetKnot);
                 this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
             case 'BRIDGE_AND_CONTINUE':
-                console.log("okay next direction is BRIDGE_AND_CONTINUE");
-                console.log(nextDirectionJson.content.bridge_text)
                 content = [{
                     text: nextDirectionJson.content.bridge_text,
                     tags: ['bridge']
@@ -366,8 +354,6 @@ InkPlayer.prototype = {
         }
     },
     getNextDirectionForContinue: function(userInput, storyPlayInstanceUUID, targetKnotData){
-        console.log("Inside getNextDirectionForContinue")
-        console.log(userInput)
         request_data = {
             "user_input": userInput,
             "story_play_instance_uuid": storyPlayInstanceUUID,
@@ -403,13 +389,11 @@ InkPlayer.prototype = {
             "knotContents": knotContents,
             "knotChoices": knotChoices,
         }
-        console.log("Knot Data:", knotData)
 
         return knotData;
     },
     events: {
         renderScheduledInputBox: function() {
-            console.log("inside renderScheduledInputBox")
             if(this.inputBoxToInsert){
                 this.container.appendChild(this.inputBoxToInsert);
                 this.inputBoxToInsert = null;
@@ -420,7 +404,6 @@ InkPlayer.prototype = {
             $('.scrollContainer').scrollTop(0);
         },
         addContent: function(content, i) {
-            console.log("content is: ", content)
             if (content.tags.includes("context")){
                 return
             } else if (content.tags.includes("text-me")) {

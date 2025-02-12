@@ -139,13 +139,12 @@ class GetNextDirectionView(AuthenticatedView):
             if prob == max_prob
         )
 
-        # CHANGE THE BELOW DIRECTION TO TEST DIFFERENT CASES
+        # SET THE BELOW DIRECTION TO TEST DIFFERENT CASES
         # selected_direction = "NEEDS_INPUT"
         # selected_direction = "DIRECT_CONTINUE"
         # selected_direction = "BRIDGE_AND_CONTINUE"
         if selected_direction not in StoryContinueDirections.values():
             raise ValueError("Invalid direction received")
-        print(f"selected_direction: {selected_direction}")
 
         selected_direction_content = data.get(selected_direction.lower(), {})
 
@@ -155,7 +154,7 @@ class GetNextDirectionView(AuthenticatedView):
     def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input):
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
-            "guidance_text": "What would you like to do next (JSON decode error happened)?",
+            "guidance_text": "What would you like to do next?",
             "reason": "System failure"
         }
 
@@ -180,7 +179,6 @@ class GetNextDirectionView(AuthenticatedView):
     def post(self, request):
         try: 
             request_body = json.loads(request.body)
-            print(request_body)
             user_input = request_body.get('user_input')
             target_knot_data = request_body.get('target_knot_data')
             story_play_instance_uuid = request_body.get('story_play_instance_uuid')
@@ -192,10 +190,8 @@ class GetNextDirectionView(AuthenticatedView):
                 return JsonResponse({"error": failure_reason}, status=400)
 
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
-            print(story_play_history)
 
             direction, content = self.get_next_direction_details_for_story(target_knot_data, story_play_history, user_input)
-            print(f"Direction taken: {direction},  Content: {content}")
 
             result = {
                 "direction": direction,
