@@ -2,7 +2,7 @@ import json
 from text_generation.backends import TextGenerationFactory
 from django.conf import settings
 from django.http import JsonResponse
-from commons.views import AuthenticatedView
+from commons.base.views import AuthenticatedView
 from .models import TextGenerationRecord
 import hashlib
 from .services.unfold_studio import UnfoldStudioService
