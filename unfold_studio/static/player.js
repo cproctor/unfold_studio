@@ -201,15 +201,12 @@ InkPlayer.prototype = {
             return;
         }
         this.currentStoryPoint +=1;
-        this.api.createStoryPlayRecord(storyPlayInstanceUUID, data_type, data, this.currentStoryPoint).done((data) => {
-            story_play_record_uuid = data.story_play_record_uuid
-        });
+        this.api.createStoryPlayRecord(storyPlayInstanceUUID, data_type, data, this.currentStoryPoint);
     },
-    createStoryPlayInstanceAndContinueStory: function(storyID) {
-        this.api.createStoryPlayInstance(storyID).done((data) => {
-            this.storyPlayInstanceUUID = data.story_play_instance_uuid
-            this.continueStory();
-        });
+    createStoryPlayInstanceAndContinueStory: async function(storyID) {
+        response = await this.api.createStoryPlayInstance(storyID)
+        this.storyPlayInstanceUUID = response.story_play_instance_uuid
+        this.continueStory();
     },
     scheduleInputBox: function(placeholder, variableName) {
         const eventHandler = (userInput) => {
@@ -288,7 +285,8 @@ InkPlayer.prototype = {
     },
     handleUserInputForContinue: async function(userInput){
         targetKnotData = this.getKnotData(this.currentTargetKnot);
-        nextDirectionJson = await this.getNextDirectionForContinue(userInput, this.getStoryPlayInstanceUUID(), targetKnotData)
+        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotData)
+        nextDirectionJson = response.result
 
         switch(nextDirectionJson.direction) {
             case 'NEEDS_INPUT':
@@ -326,9 +324,6 @@ InkPlayer.prototype = {
                 console.error("Unexpected direction:", nextDirectionJson);
                 break;
         }
-    },
-    getNextDirectionForContinue: function(userInput, storyPlayInstanceUUID, targetKnotData){
-       return this.api.getNextDirection(userInput, storyPlayInstanceUUID, targetKnotData).then(response => response.result);
     },
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
