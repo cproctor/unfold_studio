@@ -87,14 +87,9 @@ InkPlayer.prototype = {
                 context_array: contextArray,
                 ai_seed: this.aiSeed,
             }
-            $.ajax("/generate", {
-                beforeSend: function (xhr) {
-                    xhr.setRequestHeader("X-CSRFToken", CSRF);
-                },
-                method: "POST",
-                data: JSON.stringify(request_data),
-                contentType: "application/json",
-            }).done((data) => {
+
+            this.api.generate(prompt_text, contextArray, this.aiSeed)
+            .done((data) => {
                 let el = document.getElementById(nonce);
                 let generated = JSON.parse(
                     sessionStorage.getItem("generated") ?? "{}",
@@ -111,6 +106,7 @@ InkPlayer.prototype = {
                     console.log("Could not find element " + nonce);
                 }
             });
+
             return '<span id="' + nonce + '" data-loaded=false></span>';
         }.bind(this));
     },
@@ -205,35 +201,12 @@ InkPlayer.prototype = {
             return;
         }
         this.currentStoryPoint +=1;
-        request_data = {
-            "story_play_instance_uuid": storyPlayInstanceUUID,
-            "data_type": data_type,
-            "data": data,
-            "story_point": this.currentStoryPoint,
-        }
-        $.ajax("/story_play_record/new/", {
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", CSRF);
-            },
-            method: "POST",
-            data: JSON.stringify(request_data),
-            contentType: "application/json",
-        }).done((data) => {
+        this.api.createStoryPlayRecord(storyPlayInstanceUUID, data_type, data, this.currentStoryPoint).done((data) => {
             story_play_record_uuid = data.story_play_record_uuid
         });
     },
-    createStoryPlayInstanceAndContinueStory: function(story_id) {
-        request_data = {
-            "story_id": story_id,
-        }
-        $.ajax("/story_play_instance/new/", {
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("X-CSRFToken", CSRF);
-            },
-            method: "POST",
-            data: JSON.stringify(request_data),
-            contentType: "application/json",
-        }).done((data) => {
+    createStoryPlayInstanceAndContinueStory: function(storyID) {
+        this.api.createStoryPlayInstance(storyID).done((data) => {
             this.storyPlayInstanceUUID = data.story_play_instance_uuid
             this.continueStory();
         });
@@ -355,21 +328,7 @@ InkPlayer.prototype = {
         }
     },
     getNextDirectionForContinue: function(userInput, storyPlayInstanceUUID, targetKnotData){
-        request_data = {
-            "user_input": userInput,
-            "story_play_instance_uuid": storyPlayInstanceUUID,
-            "target_knot_data": targetKnotData,
-        }
-        // return "DIRECT_CONTINUE"
-        // return "NEEDS_INPUT"
-        return $.ajax("/get_next_direction", {
-            beforeSend: function(xhr) {
-                xhr.setRequestHeader("X-CSRFToken", CSRF);
-            },
-            method: "POST",
-            data: JSON.stringify(request_data),
-            contentType: "application/json",
-        }).then(response => response.result);
+       return this.api.getNextDirection(userInput, storyPlayInstanceUUID, targetKnotData).then(response => response.result);
     },
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
@@ -393,6 +352,72 @@ InkPlayer.prototype = {
         }
 
         return knotData;
+    },
+    api: {
+        generate: function(prompt_text, contextArray, aiSeed) {
+            const requestData = {
+                prompt: prompt_text,
+                context_array: contextArray,
+                ai_seed: aiSeed,
+            };
+            
+            return $.ajax("/generate", {
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                },
+                method: "POST",
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+            });
+        },
+
+        getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotData){
+            requestData = {
+                "user_input": userInput,
+                "story_play_instance_uuid": storyPlayInstanceUUID,
+                "target_knot_data": targetKnotData,
+            }
+
+            return $.ajax("/get_next_direction", {
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                },
+                method: "POST",
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+            });
+        },
+
+        createStoryPlayInstance: function(storyID){
+            requestData = {
+                "story_id": storyID,
+            }
+            return $.ajax("/story_play_instance/new/", {
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                },
+                method: "POST",
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+            });
+        },
+
+        createStoryPlayRecord: function(storyPlayInstanceUUID, data_type, data, currentStoryPoint){
+            requestData = {
+                "story_play_instance_uuid": storyPlayInstanceUUID,
+                "data_type": data_type,
+                "data": data,
+                "story_point": currentStoryPoint,
+            }
+            return $.ajax("/story_play_record/new/", {
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                },
+                method: "POST",
+                data: JSON.stringify(requestData),
+                contentType: "application/json",
+            })
+        }
     },
     events: {
         renderScheduledInputBox: function() {
