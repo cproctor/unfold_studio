@@ -19,6 +19,7 @@ jobs:
           echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCurriEjF0mL4URhhuBcKVHIJvRDPOzDxpRMDZ+Ig18YfD/lIpXOH7e/cQ7GNPK1jQu4EYgteTTM54Oby20YdNNpTDctfqL4PY1drgpMLIHI/1/P6b8UEVEjyeRRuXrPeuRnaNFF7MhZDeX5PI9z+qmgp5Z46s8OCJryuAOD9C306OwAU/8a4KYc/F0QXsJXcfO8jq8cN7zB7pa0Be5SpFYrGltoteBGZwg/DIpp16I0NJ0Mm8WHgYPh9t4BGzHEBRJw6vniKRkj3awmx3RYhNO9G5WhwU1z9/5Z5pNlu0m7+7rqNzIkibg3rKMvaMtBrcbPs2HNCnLBiWF1Ov8dfuz2PB3OmRBIUD2jT31nDoLC9b1CVa6XiOaHGgNWREHeE1wWChaNcTPk72jXvHIuC+VPfqqjxBZleIoRjea1UWIxWmXwM9wd7c2OAVLsQ1AkIc9P/noEc1xl7NRsz2zcXyG05FGSRomrprERhjBR4NsYeDYvpgKSYj1NE8bBzQEwZt3EzQEPErbU6h5DM0U7jeCBG+XECnv3DBjUEtcFrEs7yKHL0kxkt/UTK3i9PMnfYvwDLPFsW8p+pp6kySzyYSq+P8GJLqc+cWA+vFNMoopzAs9p/whCC6FR+VjjGw9LYqd0rPFCNLg1hFERkFGXmUNltsxS3fGWjlOUZt/2hEZKQ== asifahm2@buffalo.edu" > ~/.ssh/id_rsa.pub
           chmod 644 ~/.ssh/id_rsa.pub
           ssh-keyscan -H 174.138.56.3 >> ~/.ssh/known_hosts
+          cat ~/.ssh/id_rsa.pub
 
       - name: SSH into Server and Create File
         run: |
