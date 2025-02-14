@@ -3,7 +3,7 @@ name: Deploy via SSH
 on:
   push:
     branches:
-      - main
+      - cicd
 
 jobs:
   deploy:
