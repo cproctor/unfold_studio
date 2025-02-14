@@ -91,4 +91,5 @@ jobs:
             . env/bin/activate && \
             cd unfold_studio && \
             ./manage.py migrate && \
-            ./manage.py collectstatic --noinput"
+            ./manage.py collectstatic --noinput && \
+            echo '${{ env.SSH_PASSWORD }}' | sudo -S systemctl restart gunicorn"
