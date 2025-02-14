@@ -13,6 +13,7 @@ function InkPlayer(containerSelector) {
     this.timeouts = [];
     this.currentStoryPoint = 0;
     this.aiSeed = null;
+    this.generateInProgress = true;
 }
 
 InkPlayer.prototype = {
@@ -107,8 +108,9 @@ InkPlayer.prototype = {
             //     console.log("Could not find element " + nonce);
             // }
             // console.log("hey2")
+            this.generateInProgress = true;
 
-            return "generate_function_call";
+            return prompt_text;
             // return '<span id="' + nonce + '" data-loaded=false></span>';
         }.bind(this));
     },
@@ -125,8 +127,8 @@ InkPlayer.prototype = {
         this.running = true;
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
-    blockingGenerate: async function(a) {
-        console.log("Inside blockingGenerate ", a)
+    blockingGenerate: async function(prompt_text) {
+        console.log("Inside blockingGenerate ", prompt_text)
         let nonce = uuid();
         let loadingSpan = '<span id="' + nonce + '" data-loaded=false></span>';
         content = [{
@@ -134,7 +136,7 @@ InkPlayer.prototype = {
             tags: []
         }]
         content.forEach(this.events.addContent, this);
-        data = await this.api.generate("promapt_textrraaa", [], this.aiSeed)
+        data = await this.api.generate(prompt_text, [], this.aiSeed)
         console.log(data)
         let el = document.getElementById(nonce);
         let generated = JSON.parse(
@@ -151,6 +153,7 @@ InkPlayer.prototype = {
         } else {
             console.log("Could not find element " + nonce);
         }
+        this.generateInProgress = false;
     },
     continueStory: async function() {
         const storyPlayInstanceUUID = this.getStoryPlayInstanceUUID();
@@ -169,11 +172,11 @@ InkPlayer.prototype = {
                     tags: tags,
                     text: text
                 });
-
-                if (text.trim() == "generate_function_call") {
+                if (this.generateInProgress) {
                     console.log("wohooooooooo");
+                    console.log(text)
                     // here we need to do our blocking generate work
-                    await this.blockingGenerate(1);
+                    await this.blockingGenerate(text);
                 }
                 if (tags.includes('context')){
                     this.story.state.context.push(text);
