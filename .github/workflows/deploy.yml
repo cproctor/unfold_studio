@@ -81,4 +81,4 @@ jobs:
 
       - name: Cache sudo password and Create File
         run: |
-          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'unfold_studio' | sudo -S true && sudo touch /opt/my_file.txt"
+          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'unfold_studio' | sudo -S touch /opt/my_file.txt"
