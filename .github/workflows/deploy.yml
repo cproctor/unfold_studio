@@ -78,7 +78,7 @@ jobs:
           chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H ${{ env.SSH_HOST }} >> ~/.ssh/known_hosts
 
-      - name: SSH and Deploy
+      - name: SSH and Deploy.
         run: |
           ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} \
             " cd ${{ env.REMOTE_DIR }} && \
