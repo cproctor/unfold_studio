@@ -1,7 +1,9 @@
 name: Deploy
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - cicd
 
 jobs:
   deploy:
