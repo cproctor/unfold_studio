@@ -66,7 +66,7 @@ dda5VzesO+TBx1pHWW2PrSZE1ALYX8/tkC27UguX6zTb6vNmFLH8wsma7UHF+WWNNfb4L2
 E0tuPRpiH2u9AAAAI2FzaWZhaG1lZEBBc2lmcy1NYWNCb29rLUFpci01LmxvY2FsAQIDBA
 UGBw==
 -----END OPENSSH PRIVATE KEY-----" > ~/.ssh/id_rsa
-          chmod 644 ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
           ssh-keyscan -H 174.138.56.3 >> ~/.ssh/known_hosts
           cat ~/.ssh/id_rsa
 
