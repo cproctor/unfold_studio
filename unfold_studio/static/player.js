@@ -228,7 +228,7 @@ InkPlayer.prototype = {
         );
         this.inputBoxToInsert = formContainer;
     },
-    scheduleInputBoxForContinue: function(placeholder = "What would you like to do next?") {
+    scheduleInputBoxForContinue: function(placeholder = "what would you like to do next?") {
         const eventHandler = (userInput) => {
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
