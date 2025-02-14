@@ -62,52 +62,54 @@ InkPlayer.prototype = {
         // with the LLM-generated text. In all likelihood this will always work 
         // fine, but it is possible that the ajax query could return before 
         // the DOM update, in which case it will not find the span to update. 
-        story.BindExternalFunction("generate", function (prompt_text) {
+        story.BindExternalFunction("generate",  function (prompt_text) {
             // If the prompt contains a placeholder span, replace it with
             // the appropriate text if possible
-            if (prompt_text.includes("data-loaded")) {
-                const el = new DOMParser().parseFromString(
-                    prompt_text,
-                    "text/html",
-                );
-                let span = el.querySelector("span[data-loaded=false]");
-                const id = span.id;
-                const generated = JSON.parse(
-                    sessionStorage.getItem("generated"),
-                );
-                if (generated?.[id]) {
-                    span.replaceWith(generated[id]);
-                    prompt_text = el.firstChild.children[1].innerHTML;
-                }
-            }
-            let nonce = uuid();
-            const contextArray = story.state.context
-            request_data = {
-                prompt: prompt_text,
-                context_array: contextArray,
-                ai_seed: this.aiSeed,
-            }
+            // if (prompt_text.includes("data-loaded")) {
+            //     const el = new DOMParser().parseFromString(
+            //         prompt_text,
+            //         "text/html",
+            //     );
+            //     let span = el.querySelector("span[data-loaded=false]");
+            //     const id = span.id;
+            //     const generated = JSON.parse(
+            //         sessionStorage.getItem("generated"),
+            //     );
+            //     if (generated?.[id]) {
+            //         span.replaceWith(generated[id]);
+            //         prompt_text = el.firstChild.children[1].innerHTML;
+            //     }
+            // }
+            // let nonce = uuid();
+            // const contextArray = story.state.context
+            // request_data = {
+            //     prompt: prompt_text,
+            //     context_array: contextArray,
+            //     ai_seed: this.aiSeed,
+            // }
 
-            this.api.generate(prompt_text, contextArray, this.aiSeed)
-            .done((data) => {
-                let el = document.getElementById(nonce);
-                let generated = JSON.parse(
-                    sessionStorage.getItem("generated") ?? "{}",
-                );
-                generated[nonce] = data.result;
-                sessionStorage.setItem(
-                    "generated",
-                    JSON.stringify(generated),
-                );
-                this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
-                if (el) {
-                    el.innerHTML = data.result;
-                } else {
-                    console.log("Could not find element " + nonce);
-                }
-            });
+            console.log("hey")
 
-            return '<span id="' + nonce + '" data-loaded=false></span>';
+            // await this.api.generate("promapt_textrr", [], this.aiSeed)
+            // let el = document.getElementById(nonce);
+            // let generated = JSON.parse(
+            //     sessionStorage.getItem("generated") ?? "{}",
+            // );
+            // generated[nonce] = data.result;
+            // sessionStorage.setItem(
+            //     "generated",
+            //     JSON.stringify(generated),
+            // );
+            // this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
+            // if (el) {
+            //     el.innerHTML = data.result;
+            // } else {
+            //     console.log("Could not find element " + nonce);
+            // }
+            // console.log("hey2")
+
+            return "generate_function_call";
+            // return '<span id="' + nonce + '" data-loaded=false></span>';
         }.bind(this));
     },
     play: function(content) {
@@ -123,7 +125,34 @@ InkPlayer.prototype = {
         this.running = true;
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
-    continueStory: function() {
+    blockingGenerate: async function(a) {
+        console.log("Inside blockingGenerate ", a)
+        let nonce = uuid();
+        let loadingSpan = '<span id="' + nonce + '" data-loaded=false></span>';
+        content = [{
+            text: loadingSpan,
+            tags: []
+        }]
+        content.forEach(this.events.addContent, this);
+        data = await this.api.generate("promapt_textrraaa", [], this.aiSeed)
+        console.log(data)
+        let el = document.getElementById(nonce);
+        let generated = JSON.parse(
+            sessionStorage.getItem("generated") ?? "{}",
+        );
+        generated[nonce] = data.result;
+        sessionStorage.setItem(
+            "generated",
+            JSON.stringify(generated),
+        );
+        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
+        if (el) {
+            el.innerHTML = data.result;
+        } else {
+            console.log("Could not find element " + nonce);
+        }
+    },
+    continueStory: async function() {
         const storyPlayInstanceUUID = this.getStoryPlayInstanceUUID();
         const self = this;
         this.events.renderWillStart.bind(this)();
@@ -140,6 +169,12 @@ InkPlayer.prototype = {
                     tags: tags,
                     text: text
                 });
+
+                if (text.trim() == "generate_function_call") {
+                    console.log("wohooooooooo");
+                    // here we need to do our blocking generate work
+                    await this.blockingGenerate(1);
+                }
                 if (tags.includes('context')){
                     this.story.state.context.push(text);
                 }
