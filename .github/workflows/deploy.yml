@@ -85,8 +85,7 @@ jobs:
 
       - name: SSH and Deploy
         run: |
-          sshpass -p "${{ env.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} \
-            "echo '${{ env.SSH_PASSWORD }}' | sudo -S touch /opt/my_file.txt && \
+          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} \
             cd ${{ env.REMOTE_DIR }} && \
             git pull && \
             . env/bin/activate && \
