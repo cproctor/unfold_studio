@@ -77,4 +77,4 @@ jobs:
 
       - name: SSH and Create File.
         run: |
-          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'unfold_studio' | sudo -S touch /opt/my_file.txt && cd /opt/unfold_studio && git pull && . env/bin/activate"
+          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'unfold_studio' | sudo -S touch /opt/my_file.txt && cd /opt/unfold_studio && git pull && . env/bin/activate && cd unfold_studio && ./manage.py migrate"
