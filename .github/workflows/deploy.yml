@@ -70,6 +70,6 @@ jobs:
           ssh-keyscan -H 174.138.56.3 >> ~/.ssh/known_hosts
           cat ~/.ssh/id_rsa
 
-      - name: SSH into Server and Create File
+      - name: SSH into Server and Create File.
         run: |
           ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "touch /opt/my_file.txt && echo 'Created by GitHub Actions' > /opt/my_file.txt"
