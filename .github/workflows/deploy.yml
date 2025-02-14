@@ -13,6 +13,11 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v3
 
+      - name: Install sshpass
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y sshpass
+
       - name: Setup SSH Key
         run: |
           mkdir -p ~/.ssh
@@ -70,6 +75,6 @@ jobs:
           ssh-keyscan -H 174.138.56.3 >> ~/.ssh/known_hosts
           cat ~/.ssh/id_rsa
 
-      - name: SSH into Server and Create File.
+      - name: SSH into Server and Create File
         run: |
-          ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "touch /opt/my_file.txt && echo 'Created by GitHub Actions' > /opt/my_file.txt"
+          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo '${{ secrets.SUDO_PASSWORD }}' | sudo -S touch /opt/my_file.txt && echo 'Created by GitHub Actions' > /opt/my_file.txt"
