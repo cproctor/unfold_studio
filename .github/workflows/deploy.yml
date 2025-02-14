@@ -79,10 +79,6 @@ jobs:
         run: |
           sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'SSH connection established'"
 
-      - name: Cache sudo password
+      - name: Cache sudo password and Create File
         run: |
-          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'unfold_studio' | sudo -S true"
-
-      - name: Create File
-        run: |
-          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "sudo touch /opt/my_file.txt"
+          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'unfold_studio' | sudo -S true && sudo touch /opt/my_file.txt"
