@@ -75,10 +75,6 @@ jobs:
           ssh-keyscan -H 174.138.56.3 >> ~/.ssh/known_hosts
           cat ~/.ssh/id_rsa
 
-      - name: SSH into Server
-        run: |
-          sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'SSH connection established'"
-
-      - name: Cache sudo password and Create File.
+      - name: SSH and Create File.
         run: |
           sshpass -p "unfold_studio" ssh -o StrictHostKeyChecking=no unfold_studio@174.138.56.3 "echo 'unfold_studio' | sudo -S touch /opt/my_file.txt"
