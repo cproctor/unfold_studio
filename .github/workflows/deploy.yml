@@ -86,10 +86,10 @@ jobs:
       - name: SSH and Deploy
         run: |
           sshpass -p "${{ env.SSH_PASSWORD }}" ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} \
-            cd ${{ env.REMOTE_DIR }} && \
+            " cd ${{ env.REMOTE_DIR }} && \
             git pull && \
             . env/bin/activate && \
             cd unfold_studio && \
             ./manage.py migrate && \
             ./manage.py collectstatic --noinput && \
-            echo '${{ env.SSH_PASSWORD }}' | sudo -S systemctl restart gunicorn
+            echo '${{ env.SSH_PASSWORD }}' | sudo -S systemctl restart gunicorn"
