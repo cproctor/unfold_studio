@@ -13,7 +13,7 @@ function InkPlayer(containerSelector) {
     this.timeouts = [];
     this.currentStoryPoint = 0;
     this.aiSeed = null;
-    this.generateInProgress = true;
+    this.generateInProgress = false;
 }
 
 InkPlayer.prototype = {
@@ -144,7 +144,7 @@ InkPlayer.prototype = {
                 prompt_text = el.firstChild.children[1].innerHTML;
             }
         }
-        
+
         let nonce = uuid();
         let loadingSpan = '<span id="' + nonce + '" data-loaded=false></span>';
         this.events.addContent.bind(this)({ text: loadingSpan, tags: [] });
