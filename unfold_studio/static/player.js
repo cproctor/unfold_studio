@@ -130,7 +130,7 @@ InkPlayer.prototype = {
         if (!this.running) {
             return;
         }
-        var content = [];
+
         this.story.state.context = [];
         while (this.story.canContinue) { 
             try {
@@ -140,26 +140,24 @@ InkPlayer.prototype = {
                     await this.generateAndInsertInDOM(text);
                     continue;
                 }
-                content.push({ text: text, tags: tags });
                 if (tags.includes('context')){
                     this.story.state.context.push(text);
                 }
+                
+                content = { text: text, tags: tags }
+                this.events.addContent.bind(this)(content);
+                self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
             }
             catch (err) {
                 this.events.reportError.bind(this)(err.message);
             }
         }
         if (!this.running) return;
-
-        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
-
-        const choices = this.story.currentChoices.map(choice => choice.text);
-        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
-
-        content.forEach(this.events.addContent, this);
         
         this.events.renderScheduledInputBox.bind(this)();
 
+        const choices = this.story.currentChoices.map(choice => choice.text);
+        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
                 this.events.addChoice.bind(self)(choice);
