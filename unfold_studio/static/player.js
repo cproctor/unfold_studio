@@ -129,16 +129,29 @@ InkPlayer.prototype = {
     },
     blockingGenerate: async function(prompt_text) {
         console.log("Inside blockingGenerate ", prompt_text)
+        if (prompt_text.includes("data-loaded")) {
+            const el = new DOMParser().parseFromString(
+                prompt_text,
+                "text/html",
+            );
+            let span = el.querySelector("span[data-loaded=false]");
+            const id = span.id;
+            const generated = JSON.parse(
+                sessionStorage.getItem("generated"),
+            );
+            if (generated?.[id]) {
+                span.replaceWith(generated[id]);
+                prompt_text = el.firstChild.children[1].innerHTML;
+            }
+        }
+        
         let nonce = uuid();
         let loadingSpan = '<span id="' + nonce + '" data-loaded=false></span>';
-        content = [{
-            text: loadingSpan,
-            tags: []
-        }]
-        content.forEach(this.events.addContent, this);
+        this.events.addContent.bind(this)({ text: loadingSpan, tags: [] });
+
         data = await this.api.generate(prompt_text, [], this.aiSeed)
         console.log(data)
-        let el = document.getElementById(nonce);
+
         let generated = JSON.parse(
             sessionStorage.getItem("generated") ?? "{}",
         );
@@ -147,12 +160,15 @@ InkPlayer.prototype = {
             "generated",
             JSON.stringify(generated),
         );
-        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
+
+        let el = document.getElementById(nonce);
         if (el) {
             el.innerHTML = data.result;
         } else {
             console.log("Could not find element " + nonce);
         }
+
+        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
         this.generateInProgress = false;
     },
     continueStory: async function() {
@@ -168,16 +184,16 @@ InkPlayer.prototype = {
             try {
                 var text = this.story.Continue()
                 var tags = this.story.currentTags.slice()
+                if (this.generateInProgress) {
+                    console.log("wohooooooooo");
+                    console.log(text)
+                    await this.blockingGenerate(text);
+                    continue;
+                }
                 content.push({
                     tags: tags,
                     text: text
                 });
-                if (this.generateInProgress) {
-                    console.log("wohooooooooo");
-                    console.log(text)
-                    // here we need to do our blocking generate work
-                    await this.blockingGenerate(text);
-                }
                 if (tags.includes('context')){
                     this.story.state.context.push(text);
                 }
@@ -387,6 +403,8 @@ InkPlayer.prototype = {
         return knotData;
     },
     api: {
+        // All the api calls below return a Promise, let's keep it consistent for any new calls too
+
         generate: function(prompt_text, contextArray, aiSeed) {
             const requestData = {
                 prompt: prompt_text,
@@ -405,7 +423,7 @@ InkPlayer.prototype = {
         },
 
         getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotData){
-            requestData = {
+            const requestData = {
                 "user_input": userInput,
                 "story_play_instance_uuid": storyPlayInstanceUUID,
                 "target_knot_data": targetKnotData,
@@ -422,7 +440,7 @@ InkPlayer.prototype = {
         },
 
         createStoryPlayInstance: function(storyID){
-            requestData = {
+            const requestData = {
                 "story_id": storyID,
             }
             return $.ajax("/story_play_instance/new/", {
@@ -436,7 +454,7 @@ InkPlayer.prototype = {
         },
 
         createStoryPlayRecord: function(storyPlayInstanceUUID, data_type, data, currentStoryPoint){
-            requestData = {
+            const requestData = {
                 "story_play_instance_uuid": storyPlayInstanceUUID,
                 "data_type": data_type,
                 "data": data,
