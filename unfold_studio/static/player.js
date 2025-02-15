@@ -350,9 +350,9 @@ InkPlayer.prototype = {
     api: {
         // All the api calls below return a Promise, let's keep it consistent for any new calls too
 
-        generate: function(prompt_text, contextArray, aiSeed) {
+        generate: function(promptText, contextArray, aiSeed) {
             const requestData = {
-                prompt: prompt_text,
+                prompt: promptText,
                 context_array: contextArray,
                 ai_seed: aiSeed,
             };
