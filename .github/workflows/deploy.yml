@@ -76,11 +76,10 @@ jobs:
           ${{ env.SSH_PRIVATE_KEY }}
           EOF
           chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ env.SSH_HOST }} >> ~/.ssh/known_hosts
 
       - name: SSH and Deploy
         run: |
-          ssh ${{ env.SSH_USER }}@${{ env.SSH_HOST }} \
+          ssh -o StrictHostKeyChecking=no ${{ env.SSH_USER }}@${{ env.SSH_HOST }} \
             " cd ${{ env.REMOTE_DIR }} && \
             git pull && \
             . env/bin/activate && \
