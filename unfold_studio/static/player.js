@@ -13,6 +13,7 @@ function InkPlayer(containerSelector) {
     this.timeouts = [];
     this.currentStoryPoint = 0;
     this.aiSeed = null;
+    this.generateInProgress = false;
 }
 
 InkPlayer.prototype = {
@@ -63,51 +64,8 @@ InkPlayer.prototype = {
         // fine, but it is possible that the ajax query could return before 
         // the DOM update, in which case it will not find the span to update. 
         story.BindExternalFunction("generate", function (prompt_text) {
-            // If the prompt contains a placeholder span, replace it with
-            // the appropriate text if possible
-            if (prompt_text.includes("data-loaded")) {
-                const el = new DOMParser().parseFromString(
-                    prompt_text,
-                    "text/html",
-                );
-                let span = el.querySelector("span[data-loaded=false]");
-                const id = span.id;
-                const generated = JSON.parse(
-                    sessionStorage.getItem("generated"),
-                );
-                if (generated?.[id]) {
-                    span.replaceWith(generated[id]);
-                    prompt_text = el.firstChild.children[1].innerHTML;
-                }
-            }
-            let nonce = uuid();
-            const contextArray = story.state.context
-            request_data = {
-                prompt: prompt_text,
-                context_array: contextArray,
-                ai_seed: this.aiSeed,
-            }
-
-            this.api.generate(prompt_text, contextArray, this.aiSeed)
-            .done((data) => {
-                let el = document.getElementById(nonce);
-                let generated = JSON.parse(
-                    sessionStorage.getItem("generated") ?? "{}",
-                );
-                generated[nonce] = data.result;
-                sessionStorage.setItem(
-                    "generated",
-                    JSON.stringify(generated),
-                );
-                this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
-                if (el) {
-                    el.innerHTML = data.result;
-                } else {
-                    console.log("Could not find element " + nonce);
-                }
-            });
-
-            return '<span id="' + nonce + '" data-loaded=false></span>';
+            this.generateInProgress = true;
+            return prompt_text;
         }.bind(this));
     },
     play: function(content) {
@@ -123,42 +81,83 @@ InkPlayer.prototype = {
         this.running = true;
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
-    continueStory: function() {
+    generateAndInsertInDOM: async function(prompt_text) {
+        if (prompt_text.includes("data-loaded")) {
+            const el = new DOMParser().parseFromString(
+                prompt_text,
+                "text/html",
+            );
+            let span = el.querySelector("span[data-loaded=false]");
+            const id = span.id;
+            const generated = JSON.parse(
+                sessionStorage.getItem("generated"),
+            );
+            if (generated?.[id]) {
+                span.replaceWith(generated[id]);
+                prompt_text = el.firstChild.children[1].innerHTML;
+            }
+        }
+
+        let nonce = uuid();
+        let loadingSpan = '<span id="' + nonce + '" data-loaded="false">Loading...</span>';
+        this.events.addContent.bind(this)({ text: loadingSpan, tags: [] });
+
+        data = await this.api.generate(prompt_text, [], this.aiSeed)
+
+        let generated = JSON.parse(
+            sessionStorage.getItem("generated") ?? "{}",
+        );
+        generated[nonce] = data.result;
+        sessionStorage.setItem(
+            "generated",
+            JSON.stringify(generated),
+        );
+
+        let el = document.getElementById(nonce);
+        if (el) {
+            el.innerHTML = data.result;
+        } else {
+            console.log("Could not find element " + nonce);
+        }
+
+        this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
+        this.generateInProgress = false;
+    },
+    continueStory: async function() {
         const storyPlayInstanceUUID = this.getStoryPlayInstanceUUID();
         const self = this;
         this.events.renderWillStart.bind(this)();
         if (!this.running) {
             return;
         }
-        var content = [];
+
         this.story.state.context = [];
         while (this.story.canContinue) { 
             try {
                 var text = this.story.Continue()
                 var tags = this.story.currentTags.slice()
-                content.push({
-                    tags: tags,
-                    text: text
-                });
+                if (this.generateInProgress) {
+                    await this.generateAndInsertInDOM(text);
+                    continue;
+                }
                 if (tags.includes('context')){
                     this.story.state.context.push(text);
                 }
+                
+                content = { text: text, tags: tags }
+                this.events.addContent.bind(this)(content);
+                self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
             }
             catch (err) {
                 this.events.reportError.bind(this)(err.message);
             }
         }
         if (!this.running) return;
-
-        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
-
-        const choices = this.story.currentChoices.map(choice => choice.text);
-        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
-
-        content.forEach(this.events.addContent, this);
         
         this.events.renderScheduledInputBox.bind(this)();
 
+        const choices = this.story.currentChoices.map(choice => choice.text);
+        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
         if (this.story.currentChoices.length > 0) {
             this.story.currentChoices.forEach(function(choice, i) {
                 this.events.addChoice.bind(self)(choice);
@@ -228,7 +227,7 @@ InkPlayer.prototype = {
         );
         this.inputBoxToInsert = formContainer;
     },
-    scheduleInputBoxForContinue: function(placeholder = "What would you like to do next?") {
+    scheduleInputBoxForContinue: function(placeholder = "what would you like to do next?") {
         const eventHandler = (userInput) => {
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
@@ -349,9 +348,11 @@ InkPlayer.prototype = {
         return knotData;
     },
     api: {
-        generate: function(prompt_text, contextArray, aiSeed) {
+        // All the api calls below return a Promise, let's keep it consistent for any new calls too
+
+        generate: function(promptText, contextArray, aiSeed) {
             const requestData = {
-                prompt: prompt_text,
+                prompt: promptText,
                 context_array: contextArray,
                 ai_seed: aiSeed,
             };
@@ -367,7 +368,7 @@ InkPlayer.prototype = {
         },
 
         getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotData){
-            requestData = {
+            const requestData = {
                 "user_input": userInput,
                 "story_play_instance_uuid": storyPlayInstanceUUID,
                 "target_knot_data": targetKnotData,
@@ -384,7 +385,7 @@ InkPlayer.prototype = {
         },
 
         createStoryPlayInstance: function(storyID){
-            requestData = {
+            const requestData = {
                 "story_id": storyID,
             }
             return $.ajax("/story_play_instance/new/", {
@@ -398,7 +399,7 @@ InkPlayer.prototype = {
         },
 
         createStoryPlayRecord: function(storyPlayInstanceUUID, data_type, data, currentStoryPoint){
-            requestData = {
+            const requestData = {
                 "story_play_instance_uuid": storyPlayInstanceUUID,
                 "data_type": data_type,
                 "data": data,

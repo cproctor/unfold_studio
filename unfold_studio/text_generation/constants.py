@@ -1,7 +1,4 @@
-class BaseConstant:
-    @classmethod
-    def values(cls):
-        return [v for k, v in vars(cls).items() if k.isupper() and not callable(v)]
+from commons.base.constants import BaseConstant
 
 class StoryContinueDirections(BaseConstant):
     DIRECT_CONTINUE = "DIRECT_CONTINUE"
