@@ -4,6 +4,7 @@ class StoryContinueDirections(BaseConstant):
     DIRECT_CONTINUE = "DIRECT_CONTINUE"
     BRIDGE_AND_CONTINUE = "BRIDGE_AND_CONTINUE"
     NEEDS_INPUT = "NEEDS_INPUT"
+    INVALID_USER_INPUT = "INVALID_USER_INPUT"
 
 
 CONTINUE_STORY_SYSTEM_PROMPT = """
@@ -12,6 +13,7 @@ You are a story transition analyst. Analyze how user input leads to target story
 DIRECT_CONTINUE: Input directly matches target conditions chronologically
 BRIDGE_AND_CONTINUE: Requires narrative to connect input to target timeline
 NEEDS_INPUT: Needs clarification to maintain chronological consistency
+INVALID_USER_INPUT: User input is gibberish, nonsensical, or completely unrelated
 
 Consider temporal relationships: user input must precede target node events.
 Also the guidance_text/bridge_text you give should not include details of the target knot. 
@@ -32,7 +34,8 @@ Follow this JSON format:
     "probabilities": {
         "DIRECT_CONTINUE": 0.0-1.0,
         "BRIDGE_AND_CONTINUE": 0.0-1.0,
-        "NEEDS_INPUT": 0.0-1.0
+        "NEEDS_INPUT": 0.0-1.0,
+        "INVALID_USER_INPUT": 0.0-1.0
     },
     "direct_continue": {
         "reason": "..."
@@ -44,15 +47,19 @@ Follow this JSON format:
     "needs_input": {
         "reason": "...",
         "guidance_text": "..." // Question/prompt for next input from user
+    },
+    "invalid_user_input": {
+        "reason": "..."
     }
 }
 
 Example:
 {
     "probabilities": {
-        "DIRECT_CONTINUE": 0.3,
-        "BRIDGE_AND_CONTINUE": 0.5,
-        "NEEDS_INPUT": 0.2
+        "DIRECT_CONTINUE": 0.25,
+        "BRIDGE_AND_CONTINUE": 0.25,
+        "NEEDS_INPUT": 0.25,
+        "INVALID_USER_INPUT": 0.25 
     },
     "direct_continue": {
         "reason": "User specified exact target location"
@@ -64,8 +71,13 @@ Example:
     "needs_input": {
         "reason": "Requires specific investigation focus",
         "guidance_text": "What part of the wall will you examine?"
+    },
+    "invalid_user_input": {
+        "reason": "Users input does not correlate with the story"
     }
 }"""
+
+
 
 
 CONTINUE_STORY_USER_PROMPT_TEMPLATE = """

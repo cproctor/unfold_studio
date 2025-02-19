@@ -302,6 +302,7 @@ InkPlayer.prototype = {
                 this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
+
             case 'BRIDGE_AND_CONTINUE':
                 content = [{
                     text: nextDirectionJson.content.bridge_text,
@@ -317,8 +318,13 @@ InkPlayer.prototype = {
                 
                 this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
-
                 break;
+
+            case 'INVALID_USER_INPUT':
+                this.scheduleInputBoxForContinue("Input was not valid... Tell again");
+                this.events.renderScheduledInputBox.bind(this)();
+                break;
+
             default:
                 console.error("Unexpected direction:", nextDirectionJson);
                 break;

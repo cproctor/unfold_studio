@@ -114,13 +114,8 @@ class GetNextDirectionView(AuthenticatedView):
             if total_probability != 1:
                 raise ValueError(f"Total probability does not equal 1")
 
-            if "bridge_text" not in parsed_data.get(StoryContinueDirections.BRIDGE_AND_CONTINUE.lower()):
-                raise ValueError("Missing bridge_text for BRIDGE_AND_CONTINUE")
-                    
-            if "guidance_text" not in parsed_data.get(StoryContinueDirections.NEEDS_INPUT.lower()):
-                raise ValueError("Missing guidance_text for NEEDS_INPUT")
-
             return parsed_data
+            
         except json.JSONDecodeError as e:
             print(f"JSON decode error in data: {str(e)}")
             raise
