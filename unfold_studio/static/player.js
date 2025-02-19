@@ -319,6 +319,10 @@ InkPlayer.prototype = {
                 this.continueStory();
 
                 break;
+            case 'INVALID_USER_INPUT':
+                this.scheduleInputBoxForContinue("Input was not valid... Tell again");
+                this.events.renderScheduledInputBox.bind(this)();
+                break;
             default:
                 console.error("Unexpected direction:", nextDirectionJson);
                 break;
