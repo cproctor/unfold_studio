@@ -1,7 +1,5 @@
 from django.db import models
 
-# Create your models here.
-
 
 class TextGenerationRecord(models.Model):
     seed = models.PositiveIntegerField()
@@ -20,4 +18,5 @@ class ContinueDecisionRecord(models.Model):
     target_knot_data = models.JSONField()
     user_input = models.CharField(max_length=256)
     ai_decision = models.JSONField()
+    # ai_evaluation = models.JSONField(null=True)
     created_at = models.DateTimeField(auto_now_add=True)

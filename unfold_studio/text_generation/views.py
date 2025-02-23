@@ -158,7 +158,6 @@ class GetNextDirectionView(AuthenticatedView):
             backend = TextGenerationFactory.create(backend_config)
 
             system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
-            print(user_prompt)
             response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt)
             print(response)
 
@@ -172,7 +171,6 @@ class GetNextDirectionView(AuthenticatedView):
             return default_direction, default_content
 
     def save_continue_decision_record(self, story_play_instance_uuid, previous_story_timeline, target_knot_data, user_input, ai_decision):
-        print(len(previous_story_timeline.get('timeline')))
         ContinueDecisionRecord.objects.create(
             story_play_instance_uuid=story_play_instance_uuid,
             previous_story_timeline=previous_story_timeline,

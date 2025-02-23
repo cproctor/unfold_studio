@@ -91,3 +91,31 @@ User Input: %(user_input)s
 2. Action parameters
 3. Brief reasoning
 """
+
+
+
+EVALUATION_SYSTEM_PROMPT = """You're a story continuity expert. Analyze these key aspects:
+1. Logical consistency with previous timeline
+2. Temporal coherence (chronological flow)
+3. Character action plausibility
+4. Narrative flow preservation
+5. Appropriate transition type selection
+
+Provide detailed analysis and rate smoothness 1-5 (5=perfect)."""
+
+EVALUATION_USER_PROMPT_TEMPLATE = """
+### Story Context ###
+Previous Timeline: %(previous_timeline)s
+User Input: %(user_input)s
+Target Knot: %(target_knot)s
+
+### AI Decision ###
+Direction: %(direction)s
+Decision Content: %(decision_content)s
+
+### Evaluation Request ###
+Respond in JSON format:
+{
+    "score": 1-5,
+    "reason": "detailed analysis"
+}"""

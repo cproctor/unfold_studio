@@ -75,6 +75,7 @@ class OpenAIBackend(TextGenerationBackendInterface):
                 messages=messages,
                 model=self.model, 
                 temperature=self.temperature,
+                response_format={"type": "json_object"},
             )
             return result.choices[0].message.content
         except APIError as err:
