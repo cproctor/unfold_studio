@@ -16,9 +16,6 @@ class StoryTransitionEvaluator:
         self.backend = TextGenerationFactory.create(backend_config)
 
     def get_records(self, story_play_instance_uuids):
-        # return ContinueDecisionRecord.objects.filter(
-        #     story_play_instance_uuid__in=story_play_instance_uuids
-        # ).exclude(ai_evaluation__isnull=False)
         return ContinueDecisionRecord.objects.filter(
             story_play_instance_uuid__in=story_play_instance_uuids
         )
@@ -29,18 +26,18 @@ class StoryTransitionEvaluator:
             "total_processed": 0,
             "success_count": 0,
             "error_count": 0,
-            "errors": []
+            "errors": [],
         }
 
         for record in records:
             try:
                 evaluation = self._generate_evaluation(record)
                 print(evaluation)
-                # record.ai_evaluation = {
-                #     "smoothness_score": evaluation['score'],
-                #     "analysis": evaluation['reason'],
-                # }
-                # record.save(update_fields=['ai_evaluation'])
+                record.ai_evaluation = {
+                    "smoothness_score": evaluation['score'],
+                    "analysis": evaluation['reason'],
+                }
+                record.save(update_fields=['ai_evaluation'])
                 results["success_count"] += 1
             except Exception as e:
                 results["errors"].append({
@@ -48,6 +45,10 @@ class StoryTransitionEvaluator:
                     "error": str(e)
                 })
                 results["error_count"] += 1
+                record.ai_evaluation = {
+                    "failure_reason": str(e)
+                }
+                record.save(update_fields=['ai_evaluation'])
             finally:
                 results["total_processed"] += 1
 
@@ -62,6 +63,7 @@ class StoryTransitionEvaluator:
     def _generate_evaluation(self, record):
         prompt_params = self._get_prompt_parameters(record)
         system_prompt, user_prompt = self._build_system_and_user_prompt(prompt_params)
+        print("==================================================================================================================================================================")
         print(system_prompt)
         print(user_prompt)
         
@@ -69,6 +71,7 @@ class StoryTransitionEvaluator:
             system_prompt=EVALUATION_SYSTEM_PROMPT,
             user_prompt=user_prompt
         )
+        print(response)
 
         return self._parse_response(response)
 
@@ -79,9 +82,9 @@ class StoryTransitionEvaluator:
                 indent=2
             ),
             'user_input': record.user_input,
-            'target_knot': record.target_knot_data.get('knotName', 'Unknown'),
-            'direction': record.ai_decision.get('direction', 'NO_DIRECTION'),
-            'decision_content': json.dumps(
+            'target_knot_data': record.target_knot_data.get('knotContents', 'Unknown'),
+            'ai_decision_direction': record.ai_decision.get('direction', 'NO_DIRECTION'),
+            'ai_decision_content': json.dumps(
                 record.ai_decision.get('content', {}), 
                 indent=2
             )
@@ -97,8 +100,5 @@ class StoryTransitionEvaluator:
                 "score": data['score'],
                 "reason": data['reason'],
             }
-        except json.JSONDecodeError:
-            return {
-                "score": 0,
-                "reason": "Invalid JSON response from AI model",
-            }
+        except Exception as e:
+            raise e

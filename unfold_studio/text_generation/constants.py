@@ -107,11 +107,11 @@ EVALUATION_USER_PROMPT_TEMPLATE = """
 ### Story Context ###
 Previous Timeline: %(previous_timeline)s
 User Input: %(user_input)s
-Target Knot: %(target_knot)s
+Target Knot: %(target_knot_data)s
 
 ### AI Decision ###
-Direction: %(direction)s
-Decision Content: %(decision_content)s
+AI Decision Direction: %(ai_decision_direction)s
+AI Decision Content: %(ai_decision_content)s
 
 ### Evaluation Request ###
 Respond in JSON format:
