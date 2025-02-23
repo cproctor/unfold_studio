@@ -3,7 +3,7 @@ from text_generation.backends import TextGenerationFactory
 from django.conf import settings
 from django.http import JsonResponse
 from commons.base.views import AuthenticatedView
-from .models import TextGenerationRecord
+from .models import TextGenerationRecord, ContinueDecisionRecord
 import hashlib
 from .services.unfold_studio import UnfoldStudioService
 from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
@@ -158,6 +158,7 @@ class GetNextDirectionView(AuthenticatedView):
             backend = TextGenerationFactory.create(backend_config)
 
             system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
+            print(user_prompt)
             response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt)
             print(response)
 
@@ -169,6 +170,16 @@ class GetNextDirectionView(AuthenticatedView):
         except Exception as e:
             print(f"Exception occoured in get_next_direction_details_for_story: {str(e)}")
             return default_direction, default_content
+
+    def save_continue_decision_record(self, story_play_instance_uuid, previous_story_timeline, target_knot_data, user_input, ai_decision):
+        print(len(previous_story_timeline.get('timeline')))
+        ContinueDecisionRecord.objects.create(
+            story_play_instance_uuid=story_play_instance_uuid,
+            previous_story_timeline=previous_story_timeline,
+            target_knot_data=target_knot_data,
+            user_input=user_input,
+            ai_decision=ai_decision,
+        )
 
 
     def post(self, request):
@@ -192,6 +203,12 @@ class GetNextDirectionView(AuthenticatedView):
                 "direction": direction,
                 "content": content,
             }
+
+            timeline = story_play_history.get("timeline", [])
+            latest_10_timeline_entries = timeline[-5:]
+            truncated_history = {"timeline": latest_10_timeline_entries}
+
+            self.save_continue_decision_record(story_play_instance_uuid, truncated_history, target_knot_data, user_input, result)
             
             return JsonResponse({"result": result}, status=200)
 

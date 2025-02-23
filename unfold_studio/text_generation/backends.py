@@ -19,10 +19,6 @@ class TextGenerationBackendInterface(ABC):
         pass
 
     @abstractmethod
-    def get_prompt_context(self):
-        pass
-
-    @abstractmethod
     def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt):
         pass
 

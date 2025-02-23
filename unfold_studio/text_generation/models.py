@@ -12,3 +12,12 @@ class TextGenerationRecord(models.Model):
     backend_config = models.JSONField()
     backend_config_hash = models.CharField(max_length=64)
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class ContinueDecisionRecord(models.Model):
+    story_play_instance_uuid = models.UUIDField()
+    previous_story_timeline = models.JSONField()
+    target_knot_data = models.JSONField()
+    user_input = models.CharField(max_length=256)
+    ai_decision = models.JSONField()
+    created_at = models.DateTimeField(auto_now_add=True)
