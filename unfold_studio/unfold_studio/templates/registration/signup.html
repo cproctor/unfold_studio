@@ -7,15 +7,8 @@
     keep your email private, and only use it if you need to reset your password or for account-related stuff.</p>
 
 <div class="registration-container">
-    <div class="right">
+    <div>
         {% if form.errors %}
-        {% for field in form %}
-        {% for error in field.errors %}
-        <div class="alert alert-danger">
-            <strong>{{ error|escape }}</strong>
-        </div>
-        {% endfor %}
-        {% endfor %}
         {% for error in form.non_field_errors %}
         <div class="alert alert-danger">
             <strong>{{ error|escape }}</strong>
@@ -28,16 +21,16 @@
             <div class="form-group">
                 <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
                 {{ field }}
-                {% for error in field.errors %}
-                <div class="alert alert-danger">
-                    <strong>&#9888; {{ error|escape }}</strong>
-                </div>
-                {% endfor %}
             </div>
+            {% for error in field.errors %}
+            <div class="alert alert-danger">
+                <strong>&#9888; {{ error|escape }}</strong>
+            </div>
+            {% endfor %}
             {% endfor %}
             <input type="submit" value="sign up" />
         </form>
-        <p>Or</p>
+        <p style="align-self: center;">Or</p>
         <!-- <a href="{% url 'social:begin' 'google-oauth2' %}">Sign up using Google</a> -->
         <!-- https://developers.google.com/identity/branding-guidelines -->
         <button class="gsi-material-button" onclick="location.href='{% url 'social:begin' 'google-oauth2' %}'">
@@ -67,11 +60,13 @@
         </button>
     </div>
     <hr>
-    <div class="left">
+    <div>
         <p><strong>Password Requirements:</strong></p>
         <ul>
             <li>Must use at least 8 characters</li>
-        </ul>´
+            <li>Cannot be too similar to e-mail</li>
+            <li>Cannot be too similar to username</li>
+        </ul>
     </div>
 </div>
 {% endblock %}

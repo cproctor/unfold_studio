@@ -110,10 +110,6 @@ pre {
     margin: 0 30px;
 }
 
-.registration-container > .right {
-    text-align: center;
-}
-
 form > input[value='login'], input[value='sign up'] {
     width: 100%;
     margin-top: 10px;
@@ -132,7 +128,7 @@ p.description {
     word-wrap: break-word;
 }
 
-.love {
+.love, .alert-danger {
     color: #c0392b;
 }
 
@@ -272,7 +268,7 @@ table.story-history th {
     vertical-align: middle;
     white-space: nowrap;
     width: auto;
-    max-width: 400px;
+    /* max-width: 400px; */
     min-width: min-content;
   }
   

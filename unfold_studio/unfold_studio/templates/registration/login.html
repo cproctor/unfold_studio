@@ -17,7 +17,7 @@
 {% endif %}
 
 <div class="registration-container">
-    <div class="right">
+    <div>
         <form method="post" action="{% url 'login' %}" class="registration">
             {% csrf_token %}
             {% for field in form %}
@@ -30,7 +30,7 @@
             <input type="submit" value="login" />
             <input type="hidden" name="next" value="{{ next }}" />
         </form>
-        <p>Or</p>
+        <p style="align-self: center;">Or</p>
         <!-- <a href="{% url 'social:begin' 'google-oauth2' %}">Login with Google</a> -->
 
         <!-- https://developers.google.com/identity/branding-guidelines -->
@@ -61,7 +61,7 @@
         </button>
     </div>
     <hr>
-    <div class="left">
+    <div>
         <p><a href="{% url 'password_reset' %}">Forgot your password?</a></p>
     </div>
 </div>
