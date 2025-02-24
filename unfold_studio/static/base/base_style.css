@@ -74,8 +74,6 @@ body {
     flex-grow: 4;
 }
 
-textarea {}
-
 #container {
     width: 1000px;
     margin: 0 auto;
@@ -319,3 +317,15 @@ table.story-history th {
     background-color: #001d35;
     opacity: 8%;
   }
+
+/* NEW STORY */
+form.new_story_form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px
+}
+
+form.new_story_form > div {
+    display: flex;
+    flex-direction: column;
+}
