@@ -8,14 +8,7 @@
 {% endblock %}
 
 {% block content %}
-    <h2>Name your story</h2>
-    <!-- <form action="{% url 'new_story' %}" method="POST">
-        {% csrf_token %}
-        <table>
-        {{form.as_table}}
-        </table>
-        <input type="submit" value="Submit">
-    </form> -->
+    <h1>Create New Story</h1>
     <form action="{% url 'new_story' %}" method="POST" class="new_story_form">
         {% csrf_token %}
 
@@ -26,9 +19,10 @@
 
         <div>
             <label for="{{ form.description.id_for_label }}">Description:</label>
-            <textarea name="description" id="{{ form.description.id_for_label }}" rows="4" cols="40">{{ form.description.value|default_if_none:'' }}</textarea>
+            <textarea name="description" id="{{ form.description.id_for_label }}" rows="4" cols="40" style="resize: vertical;">{{ form.description.value|default_if_none:'' }}</textarea>
         </div>
 
-        <button type="submit">Submit</button>
+        <!-- <button type="submit">Submit</button> -->
+        <input type="submit" value="Create Story" />
     </form>
 {% endblock %}
