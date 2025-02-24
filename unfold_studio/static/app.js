@@ -63,6 +63,9 @@ define(
                     await story.save();
                 }
 
+                // autosave story before refresh/leaving page
+                window.addEventListener('beforeunload', presave_story);
+
                 $('#save_story').click(function() {
                     story.save();
                     return false;
