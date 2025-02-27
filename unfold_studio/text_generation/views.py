@@ -203,8 +203,8 @@ class GetNextDirectionView(AuthenticatedView):
             }
 
             timeline = story_play_history.get("timeline", [])
-            latest_10_timeline_entries = timeline[-5:]
-            truncated_history = {"timeline": latest_10_timeline_entries}
+            latest_timeline_entries = timeline[-5:]
+            truncated_history = {"timeline": latest_timeline_entries}
 
             self.save_story_transition_record(story_play_instance_uuid, truncated_history, target_knot_data, user_input, result)
             
