@@ -94,14 +94,27 @@ User Input: %(user_input)s
 
 
 
-EVALUATION_SYSTEM_PROMPT = """You're a story continuity expert. Analyze these key aspects:
-1. Logical consistency with previous timeline
-2. Temporal coherence (chronological flow)
-3. Character action plausibility
-4. Narrative flow preservation
-5. Appropriate transition type selection
+EVALUATION_SYSTEM_PROMPT = """You're a story continuity expert. First understand these decision types:
 
-Provide detailed analysis and rate smoothness 1-5 (5=perfect)."""
+1. DIRECT_CONTINUE: User input chronologically/precisely matches target node requirements
+2. BRIDGE_AND_CONTINUE: Requires narrative transition to connect input to later target events
+3. NEEDS_INPUT: User action breaks chronology or requires clarification to proceed
+4. INVALID_USER_INPUT: Gibberish/nonsense or completely unrelated to story
+
+Now analyze these aspects:
+1. Logical consistency with previous timeline
+2. Temporal coherence (correct event ordering)
+3. Decision type appropriateness for context
+4. Bridge/guidance quality (no target spoilers, maintains flow)
+5. Character action plausibility
+
+Verify:
+- Bridges maintain cause->effect sequence
+- Direct continues have immediate chronological connection
+- Needs_input cases truly require user clarification
+- Invalid classification isn't overused for simple mistakes
+
+Rate transition smoothness 1-5 (5=flawless) considering all factors."""
 
 EVALUATION_USER_PROMPT_TEMPLATE = """
 ### Story Context ###
