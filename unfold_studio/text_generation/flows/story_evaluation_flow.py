@@ -1,7 +1,7 @@
 from django.conf import settings
 from datetime import datetime
 import json
-from ..models import ContinueDecisionRecord
+from ..models import StoryTransitionRecord
 from ..backends import TextGenerationFactory
 from ..constants import (
     EVALUATION_SYSTEM_PROMPT,
@@ -15,13 +15,9 @@ class StoryTransitionEvaluator:
         backend_config = settings.TEXT_GENERATION
         self.backend = TextGenerationFactory.create(backend_config)
 
-    def get_records(self, story_play_instance_uuids):
-        return ContinueDecisionRecord.objects.filter(
-            story_play_instance_uuid__in=story_play_instance_uuids
-        )
-
-    def evaluate_and_update_records(self, story_play_instance_uuids):
-        records = self.get_records(story_play_instance_uuids)
+    def execute_flow(self, story_play_instance_uuids):
+        print("hi")
+        records = self._get_records(story_play_instance_uuids)
         results = {
             "total_processed": 0,
             "success_count": 0,
@@ -53,6 +49,11 @@ class StoryTransitionEvaluator:
                 results["total_processed"] += 1
 
         return results
+
+    def _get_records(self, story_play_instance_uuids):
+        return StoryTransitionRecord.objects.filter(
+            story_play_instance_uuid__in=story_play_instance_uuids
+        )
 
     def _build_system_and_user_prompt(self, prompt_params):
         system_prompt = EVALUATION_SYSTEM_PROMPT

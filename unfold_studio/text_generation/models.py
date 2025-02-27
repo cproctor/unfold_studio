@@ -12,7 +12,7 @@ class TextGenerationRecord(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
 
-class ContinueDecisionRecord(models.Model):
+class StoryTransitionRecord(models.Model):
     story_play_instance_uuid = models.UUIDField()
     previous_story_timeline = models.JSONField()
     target_knot_data = models.JSONField()

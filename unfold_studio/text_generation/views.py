@@ -3,7 +3,7 @@ from text_generation.backends import TextGenerationFactory
 from django.conf import settings
 from django.http import JsonResponse
 from commons.base.views import AuthenticatedView
-from .models import TextGenerationRecord, ContinueDecisionRecord
+from .models import TextGenerationRecord, StoryTransitionRecord
 import hashlib
 from .services.unfold_studio import UnfoldStudioService
 from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
@@ -170,8 +170,8 @@ class GetNextDirectionView(AuthenticatedView):
             print(f"Exception occoured in get_next_direction_details_for_story: {str(e)}")
             return default_direction, default_content
 
-    def save_continue_decision_record(self, story_play_instance_uuid, previous_story_timeline, target_knot_data, user_input, ai_decision):
-        ContinueDecisionRecord.objects.create(
+    def save_story_transition_record(self, story_play_instance_uuid, previous_story_timeline, target_knot_data, user_input, ai_decision):
+        StoryTransitionRecord.objects.create(
             story_play_instance_uuid=story_play_instance_uuid,
             previous_story_timeline=previous_story_timeline,
             target_knot_data=target_knot_data,
@@ -206,7 +206,7 @@ class GetNextDirectionView(AuthenticatedView):
             latest_10_timeline_entries = timeline[-5:]
             truncated_history = {"timeline": latest_10_timeline_entries}
 
-            self.save_continue_decision_record(story_play_instance_uuid, truncated_history, target_knot_data, user_input, result)
+            self.save_story_transition_record(story_play_instance_uuid, truncated_history, target_knot_data, user_input, result)
             
             return JsonResponse({"result": result}, status=200)
 
