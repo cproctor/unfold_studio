@@ -16,33 +16,6 @@ class GenerateTextView(AuthenticatedView):
             return False, "Prompt cannot be empty"
         return True, None
 
-    def get_prompt_and_context_hash(self, prompt, context):
-        combined = prompt + '|' + json.dumps(context, separators=(',', ':'))
-        return hashlib.sha256(combined.encode('utf-8')).hexdigest()
-
-    def get_text_generation_backend_config_hash(self, config):
-        config_str = json.dumps(config, separators=(',', ':'), sort_keys=True)
-        return hashlib.sha256(config_str.encode('utf-8')).hexdigest()
-
-
-    def get_cached_response(self, seed, hashed_key, backend_config_hash):
-        cache_entry = TextGenerationRecord.objects.filter(seed=seed, hashed_key=hashed_key, backend_config_hash=backend_config_hash)
-        if cache_entry.exists():
-            return cache_entry.first().result
-        else:
-            return None
-
-    def save_to_cache(self, seed, hashed_key, prompt, context, result, backend_config, backend_config_hash):
-        TextGenerationRecord.objects.create(
-            seed=seed,
-            hashed_key=hashed_key,
-            prompt=prompt,
-            context=context,
-            result=result,
-            backend_config=backend_config,
-            backend_config_hash=backend_config_hash,
-        )
-
     def post(self, request):
         try: 
             request_body = json.loads(request.body)
@@ -54,18 +27,15 @@ class GenerateTextView(AuthenticatedView):
             if not validation_successful:
                 return JsonResponse({"error": failure_reason}, status=400)
 
-            hashed_key = self.get_prompt_and_context_hash(prompt, context_array)
-
             backend_config = settings.TEXT_GENERATION
             backend = TextGenerationFactory.create(backend_config)
-            backend_config_hash = self.get_text_generation_backend_config_hash(backend_config)
 
-            cached_result = self.get_cached_response(seed, hashed_key, backend_config_hash)
-            if cached_result:
-                return JsonResponse({"result": cached_result}, status=200)
-
-            result = backend.generate(prompt, context_array)
-            self.save_to_cache(seed, hashed_key, prompt, context_array, result, backend_config, backend_config_hash)
+            result = backend.generate(
+                prompt=prompt,
+                context_array=context_array,
+                seed=seed,
+                hit_cache=True
+            )
 
             return JsonResponse({"result": result}, status=200)
 
@@ -146,7 +116,7 @@ class GetNextDirectionView(AuthenticatedView):
         return selected_direction, selected_direction_content
 
 
-    def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input):
+    def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input, seed):
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
             "guidance_text": "What would you like to do next?",
@@ -158,7 +128,7 @@ class GetNextDirectionView(AuthenticatedView):
             backend = TextGenerationFactory.create(backend_config)
 
             system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
-            response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt)
+            response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt, seed, hit_cache=True)
             print(response)
 
             parsed_response = self.parse_and_validate_ai_response(response)
@@ -183,6 +153,7 @@ class GetNextDirectionView(AuthenticatedView):
     def post(self, request):
         try: 
             request_body = json.loads(request.body)
+            seed = request_body.get('ai_seed') or settings.DEFAULT_AI_SEED
             user_input = request_body.get('user_input')
             target_knot_data = request_body.get('target_knot_data')
             story_play_instance_uuid = request_body.get('story_play_instance_uuid')
@@ -195,7 +166,7 @@ class GetNextDirectionView(AuthenticatedView):
 
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
 
-            direction, content = self.get_next_direction_details_for_story(target_knot_data, story_play_history, user_input)
+            direction, content = self.get_next_direction_details_for_story(target_knot_data, story_play_history, user_input, seed)
 
             result = {
                 "direction": direction,

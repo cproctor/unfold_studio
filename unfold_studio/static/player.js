@@ -284,7 +284,7 @@ InkPlayer.prototype = {
     },
     handleUserInputForContinue: async function(userInput){
         targetKnotData = this.getKnotData(this.currentTargetKnot);
-        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotData)
+        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotData, this.aiSeed)
         nextDirectionJson = response.result
 
         switch(nextDirectionJson.direction) {
@@ -373,11 +373,12 @@ InkPlayer.prototype = {
             });
         },
 
-        getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotData){
+        getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotData, ai_seed){
             const requestData = {
                 "user_input": userInput,
                 "story_play_instance_uuid": storyPlayInstanceUUID,
                 "target_knot_data": targetKnotData,
+                "ai_seed": ai_seed
             }
 
             return $.ajax("/get_next_direction", {
