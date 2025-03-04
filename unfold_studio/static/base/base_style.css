@@ -93,13 +93,40 @@ pre {
     border: 1px solid #444;
 }
 
+/* login/register */
+.registration-container {
+    display: flex;
+}
+
+.registration-container > div {
+    display: flex;
+    flex-direction: column;
+}
+
+.registration-container > hr {
+    flex-shrink: 3;
+    margin: 0 30px;
+}
+
+form > input[value='login'], input[value='sign up'] {
+    width: 100%;
+    margin-top: 10px;
+    padding: 3px;
+}
+
+.form-group {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+}
+
 p.description {
     color: black;
     opacity: 1;
     word-wrap: break-word;
 }
 
-.love {
+.love, .alert-danger {
     color: #c0392b;
 }
 
@@ -239,7 +266,7 @@ table.story-history th {
     vertical-align: middle;
     white-space: nowrap;
     width: auto;
-    max-width: 400px;
+    /* max-width: 400px; */
     min-width: min-content;
   }
   
