@@ -70,6 +70,10 @@ MIDDLEWARE = [
     "django_structlog.middlewares.RequestMiddleware",
 ]
 
+if DEBUG:
+    INSTALLED_APPS += ['silk']
+    MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
+
 ROOT_URLCONF = 'unfold_studio.urls.base'
 
 TEMPLATES = [
