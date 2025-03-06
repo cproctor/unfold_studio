@@ -2,13 +2,13 @@ import json
 from text_generation.backends import TextGenerationFactory
 from django.conf import settings
 from django.http import JsonResponse
-from commons.base.views import AuthenticatedView
+from commons.base.views import BaseView
 from .models import TextGenerationRecord, StoryTransitionRecord
 import hashlib
 from .services.unfold_studio import UnfoldStudioService
 from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
 
-class GenerateTextView(AuthenticatedView):
+class GenerateTextView(BaseView):
 
     def validate_request(self, request_body):
         prompt = request_body.get('prompt')
@@ -45,7 +45,7 @@ class GenerateTextView(AuthenticatedView):
             return JsonResponse({"error": str(e)}, status=500)
 
 
-class GetNextDirectionView(AuthenticatedView):
+class GetNextDirectionView(BaseView):
 
 
     def validate_request(self, request_body):
