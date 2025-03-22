@@ -47,13 +47,11 @@ def home(request):
     if request.user.is_authenticated:
         for g in request.user.groups.filter(id__in=s.GROUP_HOMEPAGE_MESSAGES.keys()).all():
             messages.warning(request, s.GROUP_HOMEPAGE_MESSAGES[g.id])
-        stories = Story.objects.for_site_user(site, request.user)
+        stories = Story.objects.for_home_page(site, request.user)
         stories = stories.select_related('author').prefetch_related('loves')
     else:
-        site = get_current_site(request)
-        stories = Story.objects.for_site_anonymous_user(site)
+        stories = Story.objects.for_home_page(site, None)
 
-    stories = stories[:s.STORIES_ON_HOMEPAGE]
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
 def browse(request):

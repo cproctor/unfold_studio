@@ -64,6 +64,26 @@ class StoryManager(models.Manager):
             Q(public=True) | 
             Q(shared=True)
         )
+    
+    def for_home_page(self, site, user):
+        if user:
+            literacy_groups = LiteracyGroup.objects.filter(
+            leaders=user
+            )
+            return self.filter(
+                Q(sites=site),
+                Q(deleted=False),
+                Q(author=user) |
+                Q(shared=True) | 
+                Q(public=True) |
+                Q(prompts_submitted__literacy_group=Subquery(literacy_groups.values('id')))
+            ).order_by('id').distinct()[:settings.STORIES_ON_HOMEPAGE]
+        else:
+            return self.filter(
+                Q(sites=site),
+                Q(public=True) | 
+                Q(shared=True)
+            ).order_by('id')[:settings.STORIES_ON_HOMEPAGE]
 
     def editable_for_request(self, request):
         "Returns stories which are visible to the current request"
