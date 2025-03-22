@@ -77,12 +77,17 @@ class StoryManager(models.Manager):
                 Q(shared=True) | 
                 Q(public=True) |
                 Q(prompts_submitted__literacy_group=Subquery(literacy_groups.values('id')))
-            ).order_by('id').distinct()[:settings.STORIES_ON_HOMEPAGE]
+            ).select_related('author').values('id', 'title', 'author_id', 'shared', 
+                                              'public', 'featured', 
+                                              'parent_id', 'deleted', 'priority', 'author__username'
+            ).order_by('priority').distinct()[:settings.STORIES_ON_HOMEPAGE]
         else:
             return self.filter(
                 Q(sites=site),
                 Q(public=True) | 
                 Q(shared=True)
+            ).select_related('author').values('id', 'title', 'author_id', 'shared', 'public', 'featured', 
+                     'parent_id', 'deleted', 'priority'
             ).order_by('id')[:settings.STORIES_ON_HOMEPAGE]
 
     def editable_for_request(self, request):

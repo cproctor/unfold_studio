@@ -48,9 +48,11 @@ def home(request):
         for g in request.user.groups.filter(id__in=s.GROUP_HOMEPAGE_MESSAGES.keys()).all():
             messages.warning(request, s.GROUP_HOMEPAGE_MESSAGES[g.id])
         stories = Story.objects.for_home_page(site, request.user)
-        stories = stories.select_related('author').prefetch_related('loves')
+        print(stories)
+ #       stories = stories.select_related('author').prefetch_related('loves')
     else:
         stories = Story.objects.for_home_page(site, None)
+ #       stories = stories.select_related('author')
 
     return render(request, 'unfold_studio/home.html', {'stories': stories})
 
