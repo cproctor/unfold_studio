@@ -6,12 +6,13 @@ class Command(BaseCommand):
     help = "🔥 Run Locust load testing for the Django project."
 
     def add_arguments(self, parser):
-        # parser.add_argument(
-        #     '--host',
-        #     type=str,
-        #     default='http://localhost:8000',
-        #     help='🌐 Host URL to run Locust against (default: http://localhost:8000)'
-        # )
+        parser.add_argument(
+            '--host',
+            type=str,
+            default='http://localhost:8000',
+            help='🌐 Host URL to run Locust against (default: http://localhost:8000)'
+        )
+        
         parser.add_argument(
             '--locustfile',
             type=str,
