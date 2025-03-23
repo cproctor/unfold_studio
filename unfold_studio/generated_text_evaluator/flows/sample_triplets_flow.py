@@ -1,5 +1,5 @@
-from ..models import StoryPlayInstance
-from ..choices import StoryPlayRecordDataType
+from unfold_studio.models import StoryPlayInstance
+from unfold_studio.choices import StoryPlayRecordDataType
 
 class TripletType:
     DIRECT_CONTINUE = "DIRECT_CONTINUE"
