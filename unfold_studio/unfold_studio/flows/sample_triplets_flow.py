@@ -11,8 +11,10 @@ class TripletType:
 class SampleTripletsFlow:
 
     def __init__(self):
-        needs_input_range = 5
-        needs_input_difference_threshold = 2
+        self.needs_input_range = 5  # Maximum number of texts to collect
+        self.needs_input_difference_threshold = 2  # Number of texts to skip
+        self.invalid_input_range = 5  # Maximum number of texts to collect for invalid inputs
+        self.invalid_input_difference_threshold = 2  # Number of texts to skip for invalid inputs
         pass
 
     def execute_flow(self, story_play_instance_uuids):
@@ -38,6 +40,8 @@ class SampleTripletsFlow:
             needs_input_triplets = self.get_needs_input_triplets(records)
             print(needs_input_triplets)
 
+            invalid_user_input_triplets = self.get_invalid_user_input_triplets(records)
+            print(invalid_user_input_triplets)
 
         return triplets
     
@@ -101,9 +105,9 @@ class SampleTripletsFlow:
                 authors_texts = []
                 j = i + 4
                 skipped_authors_text = 0
-                while j < len(records) and len(authors_texts) < 5:
+                while j < len(records) and len(authors_texts) < self.needs_input_range:
                     if records[j].data_type == StoryPlayRecordDataType.AUTHORS_TEXT:
-                        if skipped_authors_text < 2:
+                        if skipped_authors_text < self.needs_input_difference_threshold:
                             skipped_authors_text += 1
                         else:
                             authors_texts.append(records[j])
@@ -115,6 +119,41 @@ class SampleTripletsFlow:
                         'chosen_choice': records[i+2].data,
                         'next_text': text_record.data['text'],
                         'triplet_type': TripletType.NEEDS_INPUT,
+                    })
+                
+                i = j
+            else:
+                i += 1
+        return triplets
+
+    def get_invalid_user_input_triplets(self, records):
+        triplets = []
+        i = 0
+        while i <= len(records) - 4:
+            if (records[i].data_type == StoryPlayRecordDataType.AUTHORS_TEXT and
+                records[i+1].data_type == StoryPlayRecordDataType.AUTHORS_CHOICE_LIST and
+                records[i+2].data_type == StoryPlayRecordDataType.READERS_CHOSEN_CHOICE and 
+                records[i+3].data_type == StoryPlayRecordDataType.AUTHORS_TEXT):
+                
+                authors_texts = []
+                j = i + 4
+                skipped_authors_text = 0
+                while j < len(records) and len(authors_texts) < self.invalid_input_range:
+                    if records[j].data_type == StoryPlayRecordDataType.AUTHORS_TEXT:
+                        if skipped_authors_text < self.invalid_input_difference_threshold:
+                            skipped_authors_text += 1
+                        else:
+                            authors_texts.append(records[j])
+                    j += 1
+
+                random_action = "RANDOM_INVALID_ACTION"
+
+                for text_record in authors_texts:
+                    triplets.append({
+                        'initial_text': records[i].data['text'],
+                        'chosen_choice': random_action,
+                        'next_text': text_record.data['text'],
+                        'triplet_type': TripletType.INVALID_USER_INPUT,
                     })
                 
                 i = j
