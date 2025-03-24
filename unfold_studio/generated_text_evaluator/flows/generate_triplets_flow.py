@@ -1,13 +1,18 @@
+from typing import List, Dict, Any
+from generated_text_evaluator.models import TripletType
 from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
+from unfold_studio.choices import StoryPlayRecordDataType
 
-class TripletType:
-    DIRECT_CONTINUE = "DIRECT_CONTINUE"
-    BRIDGE_AND_CONTINUE = "BRIDGE_AND_CONTINUE"
-    NEEDS_INPUT = "NEEDS_INPUT"
-    INVALID_USER_INPUT = "INVALID_USER_INPUT"
-    
-
-class SampleTripletsFlow:
+class GenerateTripletsFlow:
+    """
+    Flow for generating triplets from story play instances.
+    A triplet consists of:
+    - initial_text: The text before the user's action
+    - chosen_choice: The action taken by the user
+    - next_text: The text that follows the action
+    - triplet_type: The type of interaction pattern this triplet represents
+    - matching_score: A score indicating how well the chosen_choice matches the next_text
+    """
 
     def __init__(self):
         self.needs_input_range = 5  # Maximum number of texts to collect

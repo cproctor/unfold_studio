@@ -1,7 +1,7 @@
 import os
 import json
 from django.core.management.base import BaseCommand
-from generated_text_evaluator.flows.sample_triplets_flow import SampleTripletsFlow
+from generated_text_evaluator.flows.generate_triplets_flow import GenerateTripletsFlow
 
 class Command(BaseCommand):
     """
@@ -53,7 +53,7 @@ class Command(BaseCommand):
         return os.path.join(output_dir, filename)
 
     def process_story_play_instances(self, uuids):
-        flow = SampleTripletsFlow()
+        flow = GenerateTripletsFlow()
         all_triplets = []
         
         for uuid in uuids:
