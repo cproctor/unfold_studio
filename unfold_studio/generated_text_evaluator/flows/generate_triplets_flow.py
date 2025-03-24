@@ -4,16 +4,7 @@ from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
 from unfold_studio.choices import StoryPlayRecordDataType
 
 class GenerateTripletsFlow:
-    """
-    Flow for generating triplets from story play instances.
-    A triplet consists of:
-    - initial_text: The text before the user's action
-    - chosen_choice: The action taken by the user
-    - next_text: The text that follows the action
-    - triplet_type: The type of interaction pattern this triplet represents
-    - matching_score: A score indicating how well the chosen_choice matches the next_text
-    """
-
+    
     def __init__(self):
         self.needs_input_range = 5  # Maximum number of texts to collect
         self.needs_input_difference_threshold = 2  # Number of texts to skip
