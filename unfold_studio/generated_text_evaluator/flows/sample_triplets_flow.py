@@ -1,5 +1,4 @@
-from unfold_studio.models import StoryPlayInstance
-from unfold_studio.choices import StoryPlayRecordDataType
+from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
 
 class TripletType:
     DIRECT_CONTINUE = "DIRECT_CONTINUE"
@@ -15,33 +14,31 @@ class SampleTripletsFlow:
         self.needs_input_difference_threshold = 2  # Number of texts to skip
         self.invalid_input_range = 5  # Maximum number of texts to collect for invalid inputs
         self.invalid_input_difference_threshold = 2  # Number of texts to skip for invalid inputs
-        pass
+        self.invalid_input_matching_score_threshold = 0.3  # Threshold below which we consider the action invalid
+        self.invalid_input_max_attempts_per_triplet = 5    # Maximum attempts to generate an invalid action
 
     def execute_flow(self, story_play_instance_uuids):
         triplets = []
         for story_play_instance_uuid in story_play_instance_uuids:
             try:
-                instance = StoryPlayInstance.objects.get(uuid=story_play_instance_uuid)
+                instance = UnfoldStudioService.get_story_play_instance(story_play_instance_uuid)
+                records = UnfoldStudioService.get_ordered_records(instance)
+
+                direct_continue_triplets = self.get_direct_continue_triplets(records)
+                triplets.extend(direct_continue_triplets)
+
+                bridge_and_continue_triplets = self.get_bridge_and_continue_triplets(records)
+                triplets.extend(bridge_and_continue_triplets)
+
+                needs_input_triplets = self.get_needs_input_triplets(records)
+                triplets.extend(needs_input_triplets)
+
+                invalid_user_input_triplets = self.get_invalid_user_input_triplets(records)
+                triplets.extend(invalid_user_input_triplets)
+
             except Exception as e:
                 print(str(e))
                 continue
-            records = list(instance.records.order_by('story_point'))
-
-            direct_continue_triplets = self.get_direct_continue_triplets(records)
-            print(direct_continue_triplets)
-
-            print("=========================================================================================================================================================================================================")
-
-            bridge_and_continue_triplets = self.get_bridge_and_continue_triplets(records)
-            print(bridge_and_continue_triplets)
-
-            print("=========================================================================================================================================================================================================")
-
-            needs_input_triplets = self.get_needs_input_triplets(records)
-            print(needs_input_triplets)
-
-            invalid_user_input_triplets = self.get_invalid_user_input_triplets(records)
-            print(invalid_user_input_triplets)
 
         return triplets
     
@@ -49,12 +46,7 @@ class SampleTripletsFlow:
         triplets = []
         i = 0
         while i <= len(records) - 5:
-            if (records[i].data_type == StoryPlayRecordDataType.AUTHORS_TEXT and
-                records[i+1].data_type == StoryPlayRecordDataType.AUTHORS_CHOICE_LIST and
-                records[i+2].data_type == StoryPlayRecordDataType.READERS_CHOSEN_CHOICE and
-                records[i+3].data_type == StoryPlayRecordDataType.AUTHORS_TEXT and 
-                records[i+4].data_type == StoryPlayRecordDataType.AUTHORS_TEXT):
-                
+            if UnfoldStudioService.is_valid_record_sequence_for_direct_continue(records, i):
                 triplet = {
                     'initial_text': records[i].data['text'],
                     'chosen_choice': records[i+2].data,
@@ -65,20 +57,13 @@ class SampleTripletsFlow:
                 i += 3
             else:
                 i += 1
-
         return triplets
     
     def get_bridge_and_continue_triplets(self, records):
         triplets = []
         i = 0
         while i <= len(records) - 6:
-            if (records[i].data_type == StoryPlayRecordDataType.AUTHORS_TEXT and
-                records[i+1].data_type == StoryPlayRecordDataType.AUTHORS_CHOICE_LIST and
-                records[i+2].data_type == StoryPlayRecordDataType.READERS_CHOSEN_CHOICE and
-                records[i+3].data_type == StoryPlayRecordDataType.AUTHORS_TEXT and
-                records[i+4].data_type == StoryPlayRecordDataType.AUTHORS_TEXT and 
-                records[i+5].data_type == StoryPlayRecordDataType.AUTHORS_TEXT):
-                
+            if UnfoldStudioService.is_valid_record_sequence_for_bridge_and_continue(records, i):
                 triplet = {
                     'initial_text': records[i].data['text'],
                     'chosen_choice': records[i+2].data,
@@ -89,7 +74,6 @@ class SampleTripletsFlow:
                 i += 4
             else:
                 i += 1
-
         return triplets
     
 
@@ -97,16 +81,12 @@ class SampleTripletsFlow:
         triplets = []
         i = 0
         while i <= len(records) - 4:
-            if (records[i].data_type == StoryPlayRecordDataType.AUTHORS_TEXT and
-                records[i+1].data_type == StoryPlayRecordDataType.AUTHORS_CHOICE_LIST and
-                records[i+2].data_type == StoryPlayRecordDataType.READERS_CHOSEN_CHOICE and 
-                records[i+3].data_type == StoryPlayRecordDataType.AUTHORS_TEXT):
-                
+            if UnfoldStudioService.is_valid_record_sequence_for_needs_input(records, i):
                 authors_texts = []
                 j = i + 4
                 skipped_authors_text = 0
                 while j < len(records) and len(authors_texts) < self.needs_input_range:
-                    if records[j].data_type == StoryPlayRecordDataType.AUTHORS_TEXT:
+                    if UnfoldStudioService.is_authors_text(records[j]):
                         if skipped_authors_text < self.needs_input_difference_threshold:
                             skipped_authors_text += 1
                         else:
@@ -120,41 +100,68 @@ class SampleTripletsFlow:
                         'next_text': text_record.data['text'],
                         'triplet_type': TripletType.NEEDS_INPUT,
                     })
-                
                 i = j
             else:
                 i += 1
         return triplets
 
+    def generate_random_action(self, initial_text):
+        """
+        Generate a random action that could potentially be invalid for the given context.
+        This should be replaced with actual model-based generation.
+        """
+        # TODO: Replace with actual model-based generation
+        # For now, returning a placeholder
+        return "PLACEHOLDER: Should use a model to generate action"
+
+    def calculate_matching_score(self, initial_text, chosen_choice, next_text):
+        """
+        Calculate how well the chosen_choice fits between initial_text and next_text.
+        This should use an embedding model to calculate similarity/coherence.
+        Returns a score between 0 and 1.
+        """
+        # TODO: Replace with actual embedding model-based calculation
+        # For now, returning a placeholder score
+        return 0.2
+
     def get_invalid_user_input_triplets(self, records):
         triplets = []
         i = 0
         while i <= len(records) - 4:
-            if (records[i].data_type == StoryPlayRecordDataType.AUTHORS_TEXT and
-                records[i+1].data_type == StoryPlayRecordDataType.AUTHORS_CHOICE_LIST and
-                records[i+2].data_type == StoryPlayRecordDataType.READERS_CHOSEN_CHOICE and 
-                records[i+3].data_type == StoryPlayRecordDataType.AUTHORS_TEXT):
-                
+            if UnfoldStudioService.is_valid_record_sequence_for_invalid_input(records, i):
                 authors_texts = []
                 j = i + 4
                 skipped_authors_text = 0
                 while j < len(records) and len(authors_texts) < self.invalid_input_range:
-                    if records[j].data_type == StoryPlayRecordDataType.AUTHORS_TEXT:
+                    if UnfoldStudioService.is_authors_text(records[j]):
                         if skipped_authors_text < self.invalid_input_difference_threshold:
                             skipped_authors_text += 1
                         else:
                             authors_texts.append(records[j])
                     j += 1
 
-                random_action = "RANDOM_INVALID_ACTION"
-
+                initial_text = records[i].data['text']
+                
                 for text_record in authors_texts:
-                    triplets.append({
-                        'initial_text': records[i].data['text'],
-                        'chosen_choice': random_action,
-                        'next_text': text_record.data['text'],
-                        'triplet_type': TripletType.INVALID_USER_INPUT,
-                    })
+                    next_text = text_record.data['text']
+                    
+                    for _ in range(self.invalid_input_max_attempts_per_triplet):
+                        random_action = self.generate_random_action(initial_text)
+                        matching_score = self.calculate_matching_score(
+                            initial_text=initial_text,
+                            chosen_choice=random_action,
+                            next_text=next_text
+                        )
+                        
+                        if matching_score < self.invalid_input_matching_score_threshold:
+                            triplets.append({
+                                'initial_text': initial_text,
+                                'chosen_choice': random_action,
+                                'next_text': next_text,
+                                'triplet_type': TripletType.INVALID_USER_INPUT,
+                                'matching_score': matching_score
+                            })
+                            break
                 
                 i = j
             else:
