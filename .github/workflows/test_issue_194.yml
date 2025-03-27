@@ -29,4 +29,4 @@ jobs:
         
       - name: Run tests
         run: |
-          poetry run pytest unfold_studio/generated_text_evaluator/tests -v 
+          poetry run pytest unfold_studio/*/tests -v 
