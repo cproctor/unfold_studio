@@ -154,25 +154,25 @@ def test_get_needs_input_triplets(flow, mock_records):
     assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
     assert triplets[0]['next_text'] == 'Second knot text 2'
 
-# def test_get_invalid_user_input_triplets(flow, mock_records):
-#     # Set thresholds to 0 for simpler testing
-#     flow.invalid_input_range = 1
-#     flow.invalid_input_difference_threshold = 0
-#     flow.invalid_input_max_attempts_per_triplet = 1
+def test_get_invalid_user_input_triplets(flow, mock_records):
+    # Set thresholds to 0 for simpler testing
+    flow.invalid_input_range = 1
+    flow.invalid_input_difference_threshold = 1
+    flow.invalid_input_max_attempts_per_triplet = 1
     
-#     # We still need to patch the random action and matching score since they're placeholders
-#     flow.generate_random_action = lambda initial_text: 'Random action'
-#     flow.calculate_matching_score = lambda initial_text, chosen_choice, next_text: 0.1
+    # We still need to patch the random action and matching score since they're placeholders
+    flow.generate_random_action = lambda initial_text: 'Random action'
+    flow.calculate_matching_score = lambda initial_text, chosen_choice, next_text: 0.1
     
-#     triplets = flow.get_invalid_user_input_triplets(mock_records)
+    triplets = flow.get_invalid_user_input_triplets(mock_records)
     
-#     assert len(triplets) > 0
-#     assert isinstance(triplets[0], dict)
-#     assert triplets[0]['triplet_type'] == TripletType.INVALID_USER_INPUT
-#     assert triplets[0]['initial_text'] == 'Initial knot text'
-#     assert triplets[0]['chosen_choice'] == 'Random action'
-#     assert triplets[0]['next_text'] == 'Bridge text'
-#     assert triplets[0]['matching_score'] == 0.1
+    assert len(triplets) == 1
+    assert isinstance(triplets[0], dict)
+    assert triplets[0]['triplet_type'] == TripletType.INVALID_USER_INPUT
+    assert triplets[0]['initial_text'] == 'Initial knot text'
+    assert triplets[0]['chosen_choice'] == 'Random action'
+    assert triplets[0]['next_text'] == 'Second knot text 2'
+    assert triplets[0]['matching_score'] == 0.1
 
 def test_generate_random_action():
     flow = GenerateTripletsFlow()
