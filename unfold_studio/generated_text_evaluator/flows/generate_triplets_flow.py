@@ -1,7 +1,6 @@
 from typing import List, Dict, Any
 from generated_text_evaluator.constants import TripletType
 from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
-from unfold_studio.choices import StoryPlayRecordDataType
 
 class GenerateTripletsFlow:
     
