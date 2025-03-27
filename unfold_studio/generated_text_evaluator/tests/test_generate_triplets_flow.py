@@ -171,7 +171,7 @@ def test_get_invalid_user_input_triplets(flow, mock_records):
     assert triplets[0]['triplet_type'] == TripletType.INVALID_USER_INPUT
     assert triplets[0]['initial_text'] == 'Initial knot text'
     assert triplets[0]['chosen_choice'] == 'Random action'
-    assert triplets[0]['next_text'] == 'Second knot text '
+    assert triplets[0]['next_text'] == 'Second knot text 2'
     assert triplets[0]['matching_score'] == 0.1
 
 def test_generate_random_action():
