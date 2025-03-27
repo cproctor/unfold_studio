@@ -3,17 +3,11 @@ from unittest.mock import Mock, patch
 import pytest
 from generated_text_evaluator.flows.generate_triplets_flow import GenerateTripletsFlow
 from generated_text_evaluator.constants import TripletType
-from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
 
-# Mock Django models before importing our code
-mock_story_play_instance = Mock()
-mock_story_play_record = Mock()
-mock_story_play_record.AUTHORS_TEXT = "AUTHORS_TEXT"
-mock_story_play_record.AUTHORS_CHOICE_LIST = "AUTHORS_CHOICE_LIST"
-mock_story_play_record.READERS_CHOSEN_CHOICE = "READERS_CHOSEN_CHOICE"
-
-sys.modules['unfold_studio.models'] = Mock(StoryPlayInstance=mock_story_play_instance)
-sys.modules['unfold_studio.choices'] = Mock(StoryPlayRecordDataType=mock_story_play_record)
+mock_story_play_record_data_type = Mock()
+mock_story_play_record_data_type.AUTHORS_TEXT = "AUTHORS_TEXT"
+mock_story_play_record_data_type.AUTHORS_CHOICE_LIST = "AUTHORS_CHOICE_LIST"
+mock_story_play_record_data_type.READERS_CHOSEN_CHOICE = "READERS_CHOSEN_CHOICE"
 
 @pytest.fixture
 def flow():
@@ -25,88 +19,88 @@ def mock_records():
     
     # Knot 1
     record0 = Mock()
-    record0.data_type = mock_story_play_record.AUTHORS_TEXT
+    record0.data_type = mock_story_play_record_data_type.AUTHORS_TEXT
     record0.data = {'text': 'Initial knot text'}
     record0.id = 0
     records.append(record0)
 
     record1 = Mock()
-    record1.data_type = mock_story_play_record.AUTHORS_CHOICE_LIST
+    record1.data_type = mock_story_play_record_data_type.AUTHORS_CHOICE_LIST
     record1.data = {'text': 'First choice list'}
     record1.id = 1
     records.append(record1)
 
     record2 = Mock()
-    record2.data_type = mock_story_play_record.READERS_CHOSEN_CHOICE
+    record2.data_type = mock_story_play_record_data_type.READERS_CHOSEN_CHOICE
     record2.data = {'text': 'First chosen choice'}
     record2.id = 2
     records.append(record2)
 
     record3 = Mock()
-    record3.data_type = mock_story_play_record.AUTHORS_TEXT
+    record3.data_type = mock_story_play_record_data_type.AUTHORS_TEXT
     record3.data = {'text': 'First chosen choice'}
     record3.id = 3
     records.append(record3)
 
     # Knot 2
     record4 = Mock()
-    record4.data_type = mock_story_play_record.AUTHORS_TEXT
+    record4.data_type = mock_story_play_record_data_type.AUTHORS_TEXT
     record4.data = {'text': 'Second knot text'}
     record4.id = 4
     records.append(record4)
 
     record4b = Mock()
-    record4b.data_type = mock_story_play_record.AUTHORS_TEXT
+    record4b.data_type = mock_story_play_record_data_type.AUTHORS_TEXT
     record4b.data = {'text': 'Second knot text 2'}
     record4b.id = 5
     records.append(record4b)
 
     record5 = Mock()
-    record5.data_type = mock_story_play_record.AUTHORS_CHOICE_LIST
+    record5.data_type = mock_story_play_record_data_type.AUTHORS_CHOICE_LIST
     record5.data = {'text': 'Second choice list'}
     record5.id = 6
     records.append(record5)
 
     record6 = Mock()
-    record6.data_type = mock_story_play_record.READERS_CHOSEN_CHOICE
+    record6.data_type = mock_story_play_record_data_type.READERS_CHOSEN_CHOICE
     record6.data = {'text': 'Second chosen choice'}
     record6.id = 7
     records.append(record6)
 
     record7 = Mock()
-    record7.data_type = mock_story_play_record.AUTHORS_TEXT
+    record7.data_type = mock_story_play_record_data_type.AUTHORS_TEXT
     record7.data = {'text': 'Second chosen choice'}
     record7.id = 8
     records.append(record7)
 
     # Knot 3
     record8 = Mock()
-    record8.data_type = mock_story_play_record.AUTHORS_TEXT
+    record8.data_type = mock_story_play_record_data_type.AUTHORS_TEXT
     record8.data = {'text': 'Third knot text'}
     record8.id = 9
     records.append(record8)
 
     record9 = Mock()
-    record9.data_type = mock_story_play_record.AUTHORS_CHOICE_LIST
+    record9.data_type = mock_story_play_record_data_type.AUTHORS_CHOICE_LIST
     record9.data = {'text': 'Third choice list'}
     record9.id = 10
     records.append(record9)
 
     record10 = Mock()
-    record10.data_type = mock_story_play_record.READERS_CHOSEN_CHOICE
+    record10.data_type = mock_story_play_record_data_type.READERS_CHOSEN_CHOICE
     record10.data = {'text': 'Third chosen choice'}
     record10.id = 11
     records.append(record10)
 
     record11 = Mock()
-    record11.data_type = mock_story_play_record.AUTHORS_TEXT
+    record11.data_type = mock_story_play_record_data_type.AUTHORS_TEXT
     record11.data = {'text': 'Third chosen choice'}
     record11.id = 12
     records.append(record11)
 
     # Final Knot
     record12 = Mock()
-    record12.data_type = mock_story_play_record.AUTHORS_TEXT
+    record12.data_type = mock_story_play_record_data_type.AUTHORS_TEXT
     record12.data = {'text': 'Ending knot text'}
     record12.id = 13
     records.append(record12)
