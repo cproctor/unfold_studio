@@ -29,4 +29,4 @@ jobs:
         
       - name: Run tests
         run: |
-          poetry run pytest unfold_studio/generated_text_evaluator/tests/test_generate_triplets_flow.py -v 
+          poetry run pytest unfold_studio/generated_text_evaluator/tests -v 
