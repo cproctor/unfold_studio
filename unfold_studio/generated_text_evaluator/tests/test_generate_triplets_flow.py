@@ -55,54 +55,60 @@ def mock_records():
     record4.id = 4
     records.append(record4)
 
+    record4b = Mock()
+    record4b.data_type = mock_story_play_record.AUTHORS_TEXT
+    record4b.data = {'text': 'Second knot text 2'}
+    record4b.id = 5
+    records.append(record4b)
+
     record5 = Mock()
     record5.data_type = mock_story_play_record.AUTHORS_CHOICE_LIST
     record5.data = {'text': 'Second choice list'}
-    record5.id = 5
+    record5.id = 6
     records.append(record5)
 
     record6 = Mock()
     record6.data_type = mock_story_play_record.READERS_CHOSEN_CHOICE
     record6.data = {'text': 'Second chosen choice'}
-    record6.id = 6
+    record6.id = 7
     records.append(record6)
 
     record7 = Mock()
     record7.data_type = mock_story_play_record.AUTHORS_TEXT
     record7.data = {'text': 'Second chosen choice'}
-    record7.id = 7
+    record7.id = 8
     records.append(record7)
 
     # Knot 3
     record8 = Mock()
     record8.data_type = mock_story_play_record.AUTHORS_TEXT
     record8.data = {'text': 'Third knot text'}
-    record8.id = 8
+    record8.id = 9
     records.append(record8)
 
     record9 = Mock()
     record9.data_type = mock_story_play_record.AUTHORS_CHOICE_LIST
     record9.data = {'text': 'Third choice list'}
-    record9.id = 9
+    record9.id = 10
     records.append(record9)
 
     record10 = Mock()
     record10.data_type = mock_story_play_record.READERS_CHOSEN_CHOICE
     record10.data = {'text': 'Third chosen choice'}
-    record10.id = 10
+    record10.id = 11
     records.append(record10)
 
     record11 = Mock()
     record11.data_type = mock_story_play_record.AUTHORS_TEXT
     record11.data = {'text': 'Third chosen choice'}
-    record11.id = 11
+    record11.id = 12
     records.append(record11)
 
     # Final Knot
     record12 = Mock()
     record12.data_type = mock_story_play_record.AUTHORS_TEXT
     record12.data = {'text': 'Ending knot text'}
-    record12.id = 12
+    record12.id = 13
     records.append(record12)
 
     return records
@@ -117,7 +123,7 @@ def test_get_direct_continue_triplets(flow, mock_records):
     assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
     assert triplets[0]['next_text'] == 'Second knot text'
     
-    assert triplets[1]['initial_text'] == 'Second knot text'
+    assert triplets[1]['initial_text'] == 'Second knot text 2'
     assert triplets[1]['chosen_choice'] == {'text': 'Second chosen choice'}
     assert triplets[1]['next_text'] == 'Third knot text'
     
@@ -125,15 +131,15 @@ def test_get_direct_continue_triplets(flow, mock_records):
     assert triplets[2]['chosen_choice'] == {'text': 'Third chosen choice'}
     assert triplets[2]['next_text'] == 'Ending knot text'
 
-# def test_get_bridge_and_continue_triplets(flow, mock_records):
-#     triplets = flow.get_bridge_and_continue_triplets(mock_records)
+def test_get_bridge_and_continue_triplets(flow, mock_records):
+    triplets = flow.get_bridge_and_continue_triplets(mock_records)
     
-#     assert len(triplets) > 0
-#     assert isinstance(triplets[0], dict)
-#     assert triplets[0]['triplet_type'] == TripletType.BRIDGE_AND_CONTINUE
-#     assert triplets[0]['initial_text'] == 'Initial knot text'
-#     assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
-#     assert triplets[0]['next_text'] == 'Second knot text'
+    assert len(triplets) == 1
+    assert isinstance(triplets[0], dict)
+    assert triplets[0]['triplet_type'] == TripletType.BRIDGE_AND_CONTINUE
+    assert triplets[0]['initial_text'] == 'Initial knot text'
+    assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
+    assert triplets[0]['next_text'] == 'Second knot text 2'
 
 # def test_get_needs_input_triplets(flow, mock_records):
 #     # Set thresholds to 0 for simpler testing
