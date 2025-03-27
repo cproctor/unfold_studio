@@ -141,19 +141,18 @@ def test_get_bridge_and_continue_triplets(flow, mock_records):
     assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
     assert triplets[0]['next_text'] == 'Second knot text 2'
 
-# def test_get_needs_input_triplets(flow, mock_records):
-#     # Set thresholds to 0 for simpler testing
-#     flow.needs_input_range = 1
-#     flow.needs_input_difference_threshold = 0
+def test_get_needs_input_triplets(flow, mock_records):
+    flow.needs_input_range = 1
+    flow.needs_input_difference_threshold = 1
     
-#     triplets = flow.get_needs_input_triplets(mock_records)
+    triplets = flow.get_needs_input_triplets(mock_records)
     
-#     assert len(triplets) > 0
-#     assert isinstance(triplets[0], dict)
-#     assert triplets[0]['triplet_type'] == TripletType.NEEDS_INPUT
-#     assert triplets[0]['initial_text'] == 'Initial knot text'
-#     assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
-#     assert triplets[0]['next_text'] == 'Bridge text'
+    assert len(triplets) == 1
+    assert isinstance(triplets[0], dict)
+    assert triplets[0]['triplet_type'] == TripletType.NEEDS_INPUT
+    assert triplets[0]['initial_text'] == 'Initial knot text'
+    assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
+    assert triplets[0]['next_text'] == 'Second knot text 2'
 
 # def test_get_invalid_user_input_triplets(flow, mock_records):
 #     # Set thresholds to 0 for simpler testing
