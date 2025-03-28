@@ -36,7 +36,6 @@ settings.configure(
     'prompts',
     'comments',
     'text_generation',
-    'generated_text_evaluator'
     ],
     SITE_ID=1,
     TEXT_GENERATION={},
