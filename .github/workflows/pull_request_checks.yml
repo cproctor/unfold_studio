@@ -1,4 +1,4 @@
-name: Unit Tests Job
+name: Pull Request Checks
 
 on:
   pull_request:
@@ -8,7 +8,7 @@ on:
 
 jobs:
   run_unit_tests:
-    name: Run Python Unit Tests
+    name: Run Unit Tests
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
