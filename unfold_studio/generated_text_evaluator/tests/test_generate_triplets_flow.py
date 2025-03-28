@@ -4,10 +4,14 @@ import pytest
 from generated_text_evaluator.flows.generate_triplets_flow import GenerateTripletsFlow
 from generated_text_evaluator.constants import TripletType
 
-mock_story_play_record_data_type = Mock()
-mock_story_play_record_data_type.AUTHORS_TEXT = "AUTHORS_TEXT"
-mock_story_play_record_data_type.AUTHORS_CHOICE_LIST = "AUTHORS_CHOICE_LIST"
-mock_story_play_record_data_type.READERS_CHOSEN_CHOICE = "READERS_CHOSEN_CHOICE"
+@pytest.fixture(autouse=True, scope="session")
+def init_mock_story_play_record_data_type():
+    global mock_story_play_record_data_type
+    mock_story_play_record_data_type = Mock()
+    mock_story_play_record_data_type.AUTHORS_TEXT = "AUTHORS_TEXT"
+    mock_story_play_record_data_type.AUTHORS_CHOICE_LIST = "AUTHORS_CHOICE_LIST"
+    mock_story_play_record_data_type.READERS_CHOSEN_CHOICE = "READERS_CHOSEN_CHOICE"
+
 
 @pytest.fixture
 def flow():
