@@ -4,7 +4,7 @@ on:
   pull_request:
     types: [opened, synchronize]
     branches:
-      - iss_demo
+      - development
 
 jobs:
   run_unit_tests:
