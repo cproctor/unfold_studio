@@ -12,11 +12,6 @@ def init_mock_story_play_record_data_type():
     mock_story_play_record_data_type.AUTHORS_CHOICE_LIST = "AUTHORS_CHOICE_LIST"
     mock_story_play_record_data_type.READERS_CHOSEN_CHOICE = "READERS_CHOSEN_CHOICE"
 
-
-@pytest.fixture
-def flow():
-    return GenerateTripletsFlow()
-
 @pytest.fixture
 def mock_records():
     records = []
@@ -111,79 +106,82 @@ def mock_records():
 
     return records
 
-def test_get_direct_continue_triplets(flow, mock_records):
-    triplets = flow.get_direct_continue_triplets(mock_records)
-    
-    assert len(triplets) == 3
-    assert isinstance(triplets[0], dict)
-    assert triplets[0]['triplet_type'] == TripletType.DIRECT_CONTINUE
-    assert triplets[0]['initial_text'] == 'Initial knot text'
-    assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
-    assert triplets[0]['next_text'] == 'Second knot text'
-    
-    assert triplets[1]['initial_text'] == 'Second knot text 2'
-    assert triplets[1]['chosen_choice'] == {'text': 'Second chosen choice'}
-    assert triplets[1]['next_text'] == 'Third knot text'
-    
-    assert triplets[2]['initial_text'] == 'Third knot text'
-    assert triplets[2]['chosen_choice'] == {'text': 'Third chosen choice'}
-    assert triplets[2]['next_text'] == 'Ending knot text'
+class TestGenerateTripletsFlow:
+    @pytest.fixture(autouse=True)
+    def setup(self):
+        self.flow = GenerateTripletsFlow()
 
-def test_get_bridge_and_continue_triplets(flow, mock_records):
-    triplets = flow.get_bridge_and_continue_triplets(mock_records)
-    
-    assert len(triplets) == 1
-    assert isinstance(triplets[0], dict)
-    assert triplets[0]['triplet_type'] == TripletType.BRIDGE_AND_CONTINUE
-    assert triplets[0]['initial_text'] == 'Initial knot text'
-    assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
-    assert triplets[0]['next_text'] == 'Second knot text 2'
+    def test_get_direct_continue_triplets(self, mock_records):
+        triplets = self.flow.get_direct_continue_triplets(mock_records)
+        
+        assert len(triplets) == 3
+        assert isinstance(triplets[0], dict)
+        assert triplets[0]['triplet_type'] == TripletType.DIRECT_CONTINUE
+        assert triplets[0]['initial_text'] == 'Initial knot text'
+        assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
+        assert triplets[0]['next_text'] == 'Second knot text'
+        
+        assert triplets[1]['initial_text'] == 'Second knot text 2'
+        assert triplets[1]['chosen_choice'] == {'text': 'Second chosen choice'}
+        assert triplets[1]['next_text'] == 'Third knot text'
+        
+        assert triplets[2]['initial_text'] == 'Third knot text'
+        assert triplets[2]['chosen_choice'] == {'text': 'Third chosen choice'}
+        assert triplets[2]['next_text'] == 'Ending knot text'
 
-def test_get_needs_input_triplets(flow, mock_records):
-    flow.needs_input_range = 1
-    flow.needs_input_difference_threshold = 1
-    
-    triplets = flow.get_needs_input_triplets(mock_records)
-    
-    assert len(triplets) == 1
-    assert isinstance(triplets[0], dict)
-    assert triplets[0]['triplet_type'] == TripletType.NEEDS_INPUT
-    assert triplets[0]['initial_text'] == 'Initial knot text'
-    assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
-    assert triplets[0]['next_text'] == 'Second knot text 2'
+    def test_get_bridge_and_continue_triplets(self, mock_records):
+        triplets = self.flow.get_bridge_and_continue_triplets(mock_records)
+        
+        assert len(triplets) == 1
+        assert isinstance(triplets[0], dict)
+        assert triplets[0]['triplet_type'] == TripletType.BRIDGE_AND_CONTINUE
+        assert triplets[0]['initial_text'] == 'Initial knot text'
+        assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
+        assert triplets[0]['next_text'] == 'Second knot text 2'
 
-def test_get_invalid_user_input_triplets(flow, mock_records):
-    # Set thresholds to 0 for simpler testing
-    flow.invalid_input_range = 1
-    flow.invalid_input_difference_threshold = 1
-    flow.invalid_input_max_attempts_per_triplet = 1
-    
-    # We still need to patch the random action and matching score since they're placeholders
-    flow.generate_random_action = lambda initial_text: 'Random action'
-    flow.calculate_matching_score = lambda initial_text, chosen_choice, next_text: 0.1
-    
-    triplets = flow.get_invalid_user_input_triplets(mock_records)
-    
-    assert len(triplets) == 1
-    assert isinstance(triplets[0], dict)
-    assert triplets[0]['triplet_type'] == TripletType.INVALID_USER_INPUT
-    assert triplets[0]['initial_text'] == 'Initial knot text'
-    assert triplets[0]['chosen_choice'] == 'Random action'
-    assert triplets[0]['next_text'] == 'Second knot text 2'
-    assert triplets[0]['matching_score'] == 0.1
+    def test_get_needs_input_triplets(self, mock_records):
+        self.flow.needs_input_range = 1
+        self.flow.needs_input_difference_threshold = 1
+        
+        triplets = self.flow.get_needs_input_triplets(mock_records)
+        
+        assert len(triplets) == 1
+        assert isinstance(triplets[0], dict)
+        assert triplets[0]['triplet_type'] == TripletType.NEEDS_INPUT
+        assert triplets[0]['initial_text'] == 'Initial knot text'
+        assert triplets[0]['chosen_choice'] == {'text': 'First chosen choice'}
+        assert triplets[0]['next_text'] == 'Second knot text 2'
 
-def test_generate_random_action():
-    flow = GenerateTripletsFlow()
-    initial_text = "Test initial text"
-    action = flow.generate_random_action(initial_text)
-    assert isinstance(action, str)
-    assert len(action) > 0
+    def test_get_invalid_user_input_triplets(self, mock_records):
+        # Set thresholds to 0 for simpler testing
+        self.flow.invalid_input_range = 1
+        self.flow.invalid_input_difference_threshold = 1
+        self.flow.invalid_input_max_attempts_per_triplet = 1
+        
+        # We still need to patch the random action and matching score since they're placeholders
+        self.flow.generate_random_action = lambda initial_text: 'Random action'
+        self.flow.calculate_matching_score = lambda initial_text, chosen_choice, next_text: 0.1
+        
+        triplets = self.flow.get_invalid_user_input_triplets(mock_records)
+        
+        assert len(triplets) == 1
+        assert isinstance(triplets[0], dict)
+        assert triplets[0]['triplet_type'] == TripletType.INVALID_USER_INPUT
+        assert triplets[0]['initial_text'] == 'Initial knot text'
+        assert triplets[0]['chosen_choice'] == 'Random action'
+        assert triplets[0]['next_text'] == 'Second knot text 2'
+        assert triplets[0]['matching_score'] == 0.1
 
-def test_calculate_matching_score():
-    flow = GenerateTripletsFlow()
-    initial_text = "Test initial text"
-    chosen_choice = "Test choice"
-    next_text = "Test next text"
-    score = flow.calculate_matching_score(initial_text, chosen_choice, next_text)
-    assert isinstance(score, float)
-    assert 0 <= score <= 1 
+    def test_generate_random_action(self):
+        initial_text = "Test initial text"
+        action = self.flow.generate_random_action(initial_text)
+        assert isinstance(action, str)
+        assert len(action) > 0
+
+    def test_calculate_matching_score(self):
+        initial_text = "Test initial text"
+        chosen_choice = "Test choice"
+        next_text = "Test next text"
+        score = self.flow.calculate_matching_score(initial_text, chosen_choice, next_text)
+        assert isinstance(score, float)
+        assert 0 <= score <= 1 
