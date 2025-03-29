@@ -112,27 +112,6 @@ class GenerateTripletsFlow:
             else:
                 i += 1
         return triplets
-    
-
-    def generate_random_action(self) -> str:
-        return random.choice(self.actions)
-
-    def calculate_matching_score(self, initial_text: str, chosen_choice: str, next_text: str) -> float:
-        # Create the context by combining initial and next text
-        context = f"{initial_text} {next_text}"
-        
-        # Get embeddings for context and chosen choice and move to CPU
-        context_embedding = self.model.encode(context, convert_to_tensor=True).cpu()
-        choice_embedding = self.model.encode(chosen_choice, convert_to_tensor=True).cpu()
-        
-        # Calculate cosine similarity between context and choice
-        similarity = np.dot(context_embedding, choice_embedding) / (
-            np.linalg.norm(context_embedding) * np.linalg.norm(choice_embedding)
-        )
-        
-        # Convert to float and ensure it's between 0 and 1
-        score = float(similarity)
-        return max(0.0, min(1.0, score))
 
     def get_invalid_user_input_triplets(self, records):
         triplets = []
@@ -177,3 +156,24 @@ class GenerateTripletsFlow:
             else:
                 i += 1
         return triplets
+    
+    def generate_random_action(self) -> str:
+        return random.choice(self.actions)
+
+    def calculate_matching_score(self, initial_text: str, chosen_choice: str, next_text: str) -> float:
+        # Create the context by combining initial and next text
+        context = f"{initial_text} {next_text}"
+        
+        # Get embeddings for context and chosen choice and move to CPU
+        context_embedding = self.model.encode(context, convert_to_tensor=True).cpu()
+        choice_embedding = self.model.encode(chosen_choice, convert_to_tensor=True).cpu()
+        
+        # Calculate cosine similarity between context and choice
+        similarity = np.dot(context_embedding, choice_embedding) / (
+            np.linalg.norm(context_embedding) * np.linalg.norm(choice_embedding)
+        )
+        
+        # Convert to float and ensure it's between 0 and 1
+        score = float(similarity)
+        return max(0.0, min(1.0, score))
+    
