@@ -158,8 +158,8 @@ class TestGenerateTripletsFlow:
         self.flow.invalid_input_difference_threshold = 1
         self.flow.invalid_input_max_attempts_per_triplet = 1
         
-        # We still need to patch the random action and matching score since they're placeholders
-        self.flow.generate_random_action = lambda initial_text: 'Random action'
+        # Mock the random action and matching score
+        self.flow.generate_random_action = lambda: 'Random action'
         self.flow.calculate_matching_score = lambda initial_text, chosen_choice, next_text: 0.1
         
         triplets = self.flow.get_invalid_user_input_triplets(mock_records)
@@ -173,8 +173,7 @@ class TestGenerateTripletsFlow:
         assert triplets[0]['matching_score'] == 0.1
 
     def test_generate_random_action(self):
-        initial_text = "Test initial text"
-        action = self.flow.generate_random_action(initial_text)
+        action = self.flow.generate_random_action()
         assert isinstance(action, str)
         assert len(action) > 0
 

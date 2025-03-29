@@ -3,6 +3,8 @@ import random
 from typing import List, Dict, Any
 from generated_text_evaluator.constants import TripletType
 from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
+from sentence_transformers import SentenceTransformer
+import numpy as np
 
 class GenerateTripletsFlow:
     
@@ -19,9 +21,9 @@ class GenerateTripletsFlow:
         actions_file = os.path.join(current_dir, 'actions.txt')
         with open(actions_file, 'r') as f:
             self.actions = [line.strip() for line in f if line.strip()]
-
-    def generate_random_action(self, initial_text: str) -> str:
-        return random.choice(self.actions)
+            
+        # Initialize the sentence transformer model
+        self.model = SentenceTransformer('all-MiniLM-L6-v2')
 
     def execute_flow(self, story_play_instance_uuids):
         triplets = []
@@ -110,16 +112,27 @@ class GenerateTripletsFlow:
             else:
                 i += 1
         return triplets
+    
 
-    def calculate_matching_score(self, initial_text, chosen_choice, next_text):
-        """
-        Calculate how well the chosen_choice fits between initial_text and next_text.
-        This should use an embedding model to calculate similarity/coherence.
-        Returns a score between 0 and 1.
-        """
-        # TODO: Replace with actual embedding model-based calculation
-        # For now, returning a placeholder score
-        return 0.2
+    def generate_random_action(self) -> str:
+        return random.choice(self.actions)
+
+    def calculate_matching_score(self, initial_text: str, chosen_choice: str, next_text: str) -> float:
+        # Create the context by combining initial and next text
+        context = f"{initial_text} {next_text}"
+        
+        # Get embeddings for context and chosen choice and move to CPU
+        context_embedding = self.model.encode(context, convert_to_tensor=True).cpu()
+        choice_embedding = self.model.encode(chosen_choice, convert_to_tensor=True).cpu()
+        
+        # Calculate cosine similarity between context and choice
+        similarity = np.dot(context_embedding, choice_embedding) / (
+            np.linalg.norm(context_embedding) * np.linalg.norm(choice_embedding)
+        )
+        
+        # Convert to float and ensure it's between 0 and 1
+        score = float(similarity)
+        return max(0.0, min(1.0, score))
 
     def get_invalid_user_input_triplets(self, records):
         triplets = []
@@ -143,7 +156,7 @@ class GenerateTripletsFlow:
                     next_text = text_record.data['text']
                     
                     for _ in range(self.invalid_input_max_attempts_per_triplet):
-                        random_action = self.generate_random_action(initial_text)
+                        random_action = self.generate_random_action()
                         matching_score = self.calculate_matching_score(
                             initial_text=initial_text,
                             chosen_choice=random_action,
