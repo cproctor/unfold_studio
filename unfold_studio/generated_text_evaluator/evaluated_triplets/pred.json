@@ -1,0 +1,196 @@
+[
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "There's a lumpy mattress and some threadbare sheets.\n",
+    "triplet_type": "DIRECT_CONTINUE",
+    "get_next_direction_prediction": {
+      "direction": "DIRECT_CONTINUE",
+      "content": {
+        "reason": "The action 'Inspect the bed' logically leads to noticing the bed's condition."
+      }
+    }
+  },
+  {
+    "initial_text": "There's a lumpy mattress and some threadbare sheets.\n",
+    "chosen_choice": "Inspect the window.",
+    "next_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
+    "triplet_type": "DIRECT_CONTINUE",
+    "get_next_direction_prediction": {
+      "direction": "DIRECT_CONTINUE",
+      "content": {
+        "reason": "Inspecting the window logically leads to noticing the external view and any features related to the window such as its lock and the ledge."
+      }
+    }
+  },
+  {
+    "initial_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
+    "chosen_choice": "Climb out the window.",
+    "next_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "triplet_type": "DIRECT_CONTINUE",
+    "get_next_direction_prediction": {
+      "direction": "DIRECT_CONTINUE",
+      "content": {
+        "reason": "User input directly leads to the target node action of climbing out the window."
+      }
+    }
+  },
+  {
+    "initial_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "chosen_choice": "Want to try again?",
+    "next_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "triplet_type": "DIRECT_CONTINUE",
+    "get_next_direction_prediction": {
+      "direction": "NEEDS_INPUT",
+      "content": {
+        "reason": "The input 'Want to try again?' is vague and does not provide enough context to proceed.",
+        "guidance_text": "Could you explain what you want to try again? Climbing out of the window or something else?"
+      }
+    }
+  },
+  {
+    "initial_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "chosen_choice": "Want to try again?",
+    "next_text": "This all seems weirdly familiar, like you aren't doing this for the first time...\n",
+    "triplet_type": "BRIDGE_AND_CONTINUE",
+    "get_next_direction_prediction": {
+      "direction": "BRIDGE_AND_CONTINUE",
+      "content": {
+        "reason": "Needs narrative to link the attempt with the feeling of familiarity.",
+        "bridge_text": "You muster your courage and decide to try climbing out of the window again. As you do, a strange sense of d\u00e9j\u00e0 vu washes over you. This all seems weirdly familiar, like you aren't doing this for the first time..."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
+    "triplet_type": "NEEDS_INPUT",
+    "get_next_direction_prediction": {
+      "direction": "BRIDGE_AND_CONTINUE",
+      "content": {
+        "reason": "A narrative bridge can connect inspecting the bed to eventually looking out the window.",
+        "bridge_text": "After carefully inspecting the bed and finding nothing unusual, your eyes wander to the window. You decide to take a closer look. As you approach, you notice..."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "Climb out the window.\n",
+    "triplet_type": "NEEDS_INPUT",
+    "get_next_direction_prediction": {
+      "direction": "BRIDGE_AND_CONTINUE",
+      "content": {
+        "reason": "Inspecting the bed can be a part of the narrative, leading to further actions.",
+        "bridge_text": "As you inspect the bed, you find nothing unusual about it. Realizing the bed offers no clues, you turn your attention back to the room. You decide to..."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "triplet_type": "NEEDS_INPUT",
+    "get_next_direction_prediction": {
+      "direction": "BRIDGE_AND_CONTINUE",
+      "content": {
+        "reason": "Inspecting the bed could lead to events that cause you to climb out of the window.",
+        "bridge_text": "You inspect the bed thoroughly but find nothing unusual. Your attention then shifts to the window, offering what seems like a potential escape..."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "Want to try again?\n",
+    "triplet_type": "NEEDS_INPUT",
+    "get_next_direction_prediction": {
+      "direction": "BRIDGE_AND_CONTINUE",
+      "content": {
+        "reason": "Inspecting the bed could lead to a series of events that eventually culminates in a scenario where the user wants to try again.",
+        "bridge_text": "You carefully inspect the bed, finding that it\u2019s surprisingly plain. As you continue to search, you find nothing of importance. Frustration begins to build as you realize you might need to try something else..."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "triplet_type": "NEEDS_INPUT",
+    "get_next_direction_prediction": {
+      "direction": "BRIDGE_AND_CONTINUE",
+      "content": {
+        "reason": "Inspecting the bed naturally follows from the context of waking up in an unfamiliar room.",
+        "bridge_text": "You decide to take a closer look at the bed. The sheets are plain and unremarkable, but you notice something odd about the mattress..."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Underline the sentence",
+    "next_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.06503076106309891,
+    "get_next_direction_prediction": {
+      "direction": "INVALID_USER_INPUT",
+      "content": {
+        "reason": "The action of underlining a sentence does not fit the context of the story and fails to lead logically to any continuation."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Sign out of the system",
+    "next_text": "Climb out the window.\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.25184670090675354,
+    "get_next_direction_prediction": {
+      "direction": "INVALID_USER_INPUT",
+      "content": {
+        "reason": "The input 'sign out of the system' is not relevant or sensible in the given context of waking up in an unfamiliar room."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Open the drawer",
+    "next_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.23016268014907837,
+    "get_next_direction_prediction": {
+      "direction": "BRIDGE_AND_CONTINUE",
+      "content": {
+        "reason": "Opening the drawer can lead you to eventually interact with the window.",
+        "bridge_text": "You open the drawer and find it empty. As you ponder what to do next, your gaze falls upon the window once more..."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Record the actions",
+    "next_text": "Want to try again?\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.12016178667545319,
+    "get_next_direction_prediction": {
+      "direction": "NEEDS_INPUT",
+      "content": {
+        "reason": "The user input 'Record the actions' is vague and needs clarification to ensure continuity in the story.",
+        "guidance_text": "What specific actions do you want to record in the room? Please take an action such as examining the window, door, or the room itself."
+      }
+    }
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Turn off the TV",
+    "next_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.20741872489452362,
+    "get_next_direction_prediction": {
+      "direction": "INVALID_USER_INPUT",
+      "content": {
+        "reason": "User input is not consistent with the current setting."
+      }
+    }
+  }
+]

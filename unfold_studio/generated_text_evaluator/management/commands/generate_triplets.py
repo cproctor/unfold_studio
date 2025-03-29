@@ -2,6 +2,7 @@ import os
 import json
 from django.core.management.base import BaseCommand
 from generated_text_evaluator.flows.generate_triplets_flow import GenerateTripletsFlow
+from generated_text_evaluator.constants import GENERATED_TRIPLETS_DIR
 
 class Command(BaseCommand):
     """
@@ -29,7 +30,7 @@ class Command(BaseCommand):
             '--output-filename',
             type=str,
             required=True,
-            help='Name of the output JSON file where triplets will be saved'
+            help=f'Name of the output JSON file where triplets will be saved in {GENERATED_TRIPLETS_DIR} directory'
         )
 
     def read_uuids_from_file(self, file_path):
@@ -48,7 +49,7 @@ class Command(BaseCommand):
     def get_output_filepath(self, filename):
         current_file = os.path.abspath(__file__)
         app_dir = os.path.dirname(os.path.dirname(os.path.dirname(current_file)))
-        output_dir = os.path.join(app_dir, 'triplet_samples_files')
+        output_dir = os.path.join(app_dir, GENERATED_TRIPLETS_DIR)
         os.makedirs(output_dir, exist_ok=True)
         return os.path.join(output_dir, filename)
 

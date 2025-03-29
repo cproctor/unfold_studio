@@ -61,37 +61,37 @@
   },
   {
     "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
-    "chosen_choice": "PLACEHOLDER: Should use a model to generate action",
+    "chosen_choice": "Underline the sentence",
     "next_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
     "triplet_type": "INVALID_USER_INPUT",
-    "matching_score": 0.2
+    "matching_score": 0.06503076106309891
   },
   {
     "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
-    "chosen_choice": "PLACEHOLDER: Should use a model to generate action",
+    "chosen_choice": "Sign out of the system",
     "next_text": "Climb out the window.\n",
     "triplet_type": "INVALID_USER_INPUT",
-    "matching_score": 0.2
+    "matching_score": 0.25184670090675354
   },
   {
     "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
-    "chosen_choice": "PLACEHOLDER: Should use a model to generate action",
+    "chosen_choice": "Open the drawer",
     "next_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
     "triplet_type": "INVALID_USER_INPUT",
-    "matching_score": 0.2
+    "matching_score": 0.23016268014907837
   },
   {
     "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
-    "chosen_choice": "PLACEHOLDER: Should use a model to generate action",
+    "chosen_choice": "Record the actions",
     "next_text": "Want to try again?\n",
     "triplet_type": "INVALID_USER_INPUT",
-    "matching_score": 0.2
+    "matching_score": 0.12016178667545319
   },
   {
     "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
-    "chosen_choice": "PLACEHOLDER: Should use a model to generate action",
+    "chosen_choice": "Turn off the TV",
     "next_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
     "triplet_type": "INVALID_USER_INPUT",
-    "matching_score": 0.2
+    "matching_score": 0.20741872489452362
   }
 ]
