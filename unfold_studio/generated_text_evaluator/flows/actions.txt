@@ -1,0 +1,456 @@
+Look around the room
+Open the door
+Close the window
+Pick up the book
+Put down the pen
+Walk to the corner
+Run to the exit
+Jump over the puddle
+Climb the stairs
+Sit on the chair
+Stand up from the couch
+Turn on the light
+Turn off the TV
+Open the drawer
+Close the cabinet
+Take out your phone
+Put away your keys
+Check your watch
+Look at the clock
+Read the newspaper
+Write in your journal
+Draw on the paper
+Paint the wall
+Clean the table
+Wash the dishes
+Make the bed
+Fold the clothes
+Hang up your coat
+Take off your shoes
+Put on your jacket
+Brush your teeth
+Comb your hair
+Tie your shoes
+Untie the knot
+Cut the rope
+Tie the string
+Open the box
+Close the lid
+Push the button
+Pull the lever
+Turn the knob
+Press the switch
+Flip the coin
+Roll the dice
+Shuffle the cards
+Deal the hand
+Stack the blocks
+Build the tower
+Knock down the wall
+Break the glass
+Fix the chair
+Repair the clock
+Clean the window
+Sweep the floor
+Mop the ground
+Vacuum the carpet
+Water the plants
+Feed the cat
+Walk the dog
+Brush the horse
+Pet the rabbit
+Feed the birds
+Clean the cage
+Open the cage
+Close the gate
+Lock the door
+Unlock the safe
+Check the mail
+Send the letter
+Open the envelope
+Close the package
+Wrap the gift
+Unwrap the present
+Tie the ribbon
+Cut the paper
+Fold the letter
+Seal the envelope
+Address the package
+Stamp the letter
+Mail the postcard
+Send the email
+Type the message
+Delete the file
+Save the document
+Print the paper
+Scan the image
+Copy the text
+Paste the content
+Cut the text
+Select the word
+Highlight the phrase
+Underline the sentence
+Bold the title
+Italicize the text
+Center the paragraph
+Align the text
+Format the document
+Spell check the text
+Grammar check the content
+Translate the words
+Look up the meaning
+Search for the answer
+Find the solution
+Solve the puzzle
+Complete the task
+Finish the work
+Start the project
+Begin the journey
+End the chapter
+Close the book
+Open the map
+Fold the paper
+Unfold the sheet
+Roll up the scroll
+Unroll the parchment
+Spread out the cloth
+Gather the materials
+Collect the items
+Organize the supplies
+Sort the objects
+Arrange the pieces
+Stack the items
+Pack the bag
+Unpack the suitcase
+Load the car
+Unload the truck
+Fill the container
+Empty the bucket
+Pour the water
+Spill the drink
+Clean up the mess
+Pick up the trash
+Throw away the garbage
+Recycle the paper
+Compost the waste
+Sort the recycling
+Separate the items
+Group the objects
+Categorize the things
+Label the boxes
+Mark the spots
+Sign the form
+Initial the document
+Date the paper
+Time the event
+Schedule the meeting
+Plan the party
+Organize the event
+Prepare the food
+Cook the meal
+Bake the cake
+Fry the eggs
+Boil the water
+Steam the vegetables
+Grill the meat
+Roast the chicken
+Slice the bread
+Chop the vegetables
+Peel the fruit
+Core the apple
+Seed the watermelon
+Shell the nuts
+Crack the eggs
+Beat the cream
+Whip the cream
+Mix the ingredients
+Stir the soup
+Blend the smoothie
+Pour the juice
+Fill the glass
+Empty the cup
+Clean the plate
+Wash the bowl
+Dry the dishes
+Put away the utensils
+Set the table
+Clear the table
+Wipe the counter
+Scrub the sink
+Clean the stove
+Sweep the floor
+Mop the tiles
+Vacuum the rug
+Dust the furniture
+Polish the wood
+Wax the floor
+Clean the window
+Wash the curtains
+Iron the clothes
+Fold the laundry
+Sort the socks
+Match the pairs
+Hang the clothes
+Put away the shoes
+Organize the closet
+Clean the room
+Straighten the bed
+Fluff the pillows
+Arrange the books
+Stack the magazines
+Sort the papers
+File the documents
+Organize the desk
+Clean the computer
+Update the software
+Back up the files
+Save the data
+Delete the cache
+Clear the history
+Reset the settings
+Change the password
+Lock the screen
+Unlock the device
+Turn on the computer
+Shut down the system
+Restart the machine
+Update the apps
+Install the program
+Uninstall the software
+Download the file
+Upload the document
+Share the content
+Send the message
+Receive the email
+Read the notification
+Check the updates
+View the alerts
+Clear the inbox
+Sort the messages
+Archive the email
+Delete the spam
+Block the sender
+Report the issue
+Flag the message
+Star the email
+Mark as read
+Mark as unread
+Reply to the message
+Forward the email
+Copy the text
+Paste the content
+Format the message
+Attach the file
+Remove the attachment
+Save the draft
+Send the email
+Cancel the send
+Schedule the message
+Set the reminder
+Create the event
+Add to calendar
+Set the alarm
+Check the time
+Set the timer
+Start the stopwatch
+Reset the clock
+Change the timezone
+Update the date
+Set the date
+Check the weather
+Look at the forecast
+Read the news
+Watch the video
+Listen to music
+Play the song
+Pause the music
+Skip the track
+Repeat the song
+Shuffle the playlist
+Volume up
+Volume down
+Mute the sound
+Unmute the audio
+Connect the device
+Disconnect the cable
+Plug in the charger
+Unplug the cord
+Turn on the light
+Turn off the fan
+Adjust the temperature
+Set the thermostat
+Open the blinds
+Close the curtains
+Lock the door
+Unlock the gate
+Arm the alarm
+Disarm the system
+Set the code
+Change the password
+Enter the pin
+Verify the identity
+Check the security
+Monitor the camera
+Review the footage
+Save the recording
+Delete the video
+Export the file
+Import the data
+Sync the device
+Back up the files
+Restore the data
+Reset the settings
+Update the firmware
+Install the update
+Run the program
+Execute the command
+Process the data
+Analyze the results
+Generate the report
+Create the document
+Edit the file
+Save the changes
+Close the program
+Exit the application
+Shut down the system
+Restart the computer
+Sleep the device
+Wake up the system
+Hibernate the computer
+Resume the session
+Switch the user
+Log in to the account
+Sign out of the system
+Create the account
+Delete the profile
+Update the settings
+Change the preferences
+Customize the interface
+Modify the layout
+Adjust the display
+Calibrate the screen
+Test the connection
+Check the network
+Configure the router
+Set up the firewall
+Enable the security
+Disable the feature
+Allow the access
+Block the traffic
+Filter the content
+Monitor the activity
+Track the usage
+Log the events
+Record the actions
+Save the history
+Clear the cache
+Delete the cookies
+Reset the browser
+Update the plugins
+Install the extension
+Enable the add-on
+Disable the tool
+Configure the settings
+Optimize the performance
+Scan for viruses
+Check for updates
+Run the diagnostic
+Test the system
+Verify the integrity
+Repair the files
+Fix the errors
+Resolve the issues
+Address the problems
+Handle the exceptions
+Manage the resources
+Allocate the memory
+Free the space
+Compress the files
+Decompress the data
+Encrypt the information
+Decrypt the message
+Secure the connection
+Protect the data
+Back up the files
+Restore the system
+Recover the data
+Retrieve the information
+Access the files
+Open the documents
+Read the content
+Write the text
+Edit the file
+Save the changes
+Close the program
+Exit the application
+Shut down the system
+Restart the computer
+Sleep the device
+Wake up the system
+Hibernate the computer
+Resume the session
+Switch the user
+Log in to the account
+Sign out of the system
+Create the account
+Delete the profile
+Update the settings
+Change the preferences
+Customize the interface
+Modify the layout
+Adjust the display
+Calibrate the screen
+Test the connection
+Check the network
+Configure the router
+Set up the firewall
+Enable the security
+Disable the feature
+Allow the access
+Block the traffic
+Filter the content
+Monitor the activity
+Track the usage
+Log the events
+Record the actions
+Save the history
+Clear the cache
+Delete the cookies
+Reset the browser
+Update the plugins
+Install the extension
+Enable the add-on
+Disable the tool
+Configure the settings
+Optimize the performance
+Scan for viruses
+Check for updates
+Run the diagnostic
+Test the system
+Verify the integrity
+Repair the files
+Fix the errors
+Resolve the issues
+Address the problems
+Handle the exceptions
+Manage the resources
+Allocate the memory
+Free the space
+Compress the files
+Decompress the data
+Encrypt the information
+Decrypt the message
+Secure the connection
+Protect the data
+Back up the files
+Restore the system
+Recover the data
+Retrieve the information
+Access the files
+Open the documents
+Read the content
+Write the text
+Edit the file
+Save the changes
+Close the program
+Exit the application 

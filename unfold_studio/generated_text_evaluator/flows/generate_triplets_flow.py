@@ -1,3 +1,5 @@
+import os
+import random
 from typing import List, Dict, Any
 from generated_text_evaluator.constants import TripletType
 from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
@@ -11,6 +13,15 @@ class GenerateTripletsFlow:
         self.invalid_input_difference_threshold = 2  # Number of texts to skip for invalid inputs
         self.invalid_input_matching_score_threshold = 0.3  # Threshold below which we consider the action invalid
         self.invalid_input_max_attempts_per_triplet = 5    # Maximum attempts to generate an invalid action
+        
+        # Load actions from file during initialization
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        actions_file = os.path.join(current_dir, 'actions.txt')
+        with open(actions_file, 'r') as f:
+            self.actions = [line.strip() for line in f if line.strip()]
+
+    def generate_random_action(self, initial_text: str) -> str:
+        return random.choice(self.actions)
 
     def execute_flow(self, story_play_instance_uuids):
         triplets = []
@@ -99,15 +110,6 @@ class GenerateTripletsFlow:
             else:
                 i += 1
         return triplets
-
-    def generate_random_action(self, initial_text):
-        """
-        Generate a random action that could potentially be invalid for the given context.
-        This should be replaced with actual model-based generation.
-        """
-        # TODO: Replace with actual model-based generation
-        # For now, returning a placeholder
-        return "PLACEHOLDER: Should use a model to generate action"
 
     def calculate_matching_score(self, initial_text, chosen_choice, next_text):
         """
