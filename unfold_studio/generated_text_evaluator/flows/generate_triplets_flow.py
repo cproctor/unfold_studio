@@ -1,6 +1,5 @@
 import os
 import random
-from typing import List, Dict, Any
 from generated_text_evaluator.constants import TripletType
 from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
 from sentence_transformers import SentenceTransformer
