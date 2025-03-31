@@ -35,8 +35,10 @@ editor.setOptions({
     enableBasicAutocompletion: true,
     enableLiveAutocompletion: true,
 });
+
 editor.on("change", () => {
     events.change();
+    clearErrors();
 });
 
 // Exclude language_tools.textCompleter but add the Ink completer
