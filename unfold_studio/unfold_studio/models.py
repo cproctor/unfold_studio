@@ -391,8 +391,10 @@ class Story(models.Model):
             "compiled": json.loads(self.json) if self.json else None,
             "ink": self.ink,
             "status": "error" if self.errors.exists() else "ok",
-            "error": "; ".join(e.message for e in self.errors.all()),
-            "error_line": self.errors.first().line if self.errors.exists()  and self.errors.first() else 0,
+            "error": "\n".join(e.message for e in self.errors.all()),
+            # "errors": [e.message for e in self.errors.all()],
+            # "error_line": self.errors.first().line if self.errors.exists()  and self.errors.first() else 0,
+            "error_line": [e.line for e in self.errors.all() if e.line is not None] if self.errors.exists() else [0],
             "author": self.author.username if self.author else None
         }
 

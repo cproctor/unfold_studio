@@ -13,6 +13,7 @@ define([
 function(ace, InkMode, fetch_story, save_story) {
     const Document = ace.require('ace/document').Document;
     const EditSession = ace.require('ace/edit_session').EditSession;
+
     function Story(id, events) {
         this.aceDocument = new Document("");
         this.aceSession = null;

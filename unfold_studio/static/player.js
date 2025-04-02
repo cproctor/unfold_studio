@@ -522,7 +522,7 @@ InkPlayer.prototype = {
         },
         reportError: function(message) {
             this.stop.bind(this)();
-            var p = document.createElement('p');
+            var p = document.createElement('pre');
             p.classList.add("error");
             p.innerHTML = message;
             this.container.appendChild(p);

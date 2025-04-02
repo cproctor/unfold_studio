@@ -89,8 +89,8 @@ h1 {
 pre {
     padding: 3px;
     font-size: 1em;
-    background-color: #ddd;
-    border: 1px solid #444;
+    background-color: #ececec;
+    /* border: 1px solid #444; */
 }
 
 /* login/register */
