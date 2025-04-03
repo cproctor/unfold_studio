@@ -60,10 +60,13 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-browser chromium-chromedriver
+          sudo ln -s /usr/bin/chromium-browser /usr/bin/google-chrome
           
       - name: Run integration tests
         run: |
           poetry run python unfold_studio/integration_tests/test_input_generate.py
         env:
           PYTHONPATH: ${{ github.workspace }}
+          CHROME_BIN: /usr/bin/chromium-browser
+          CHROMEDRIVER_PATH: /usr/bin/chromedriver
           
