@@ -84,6 +84,13 @@ jobs:
                   'PORT': '5432',
               }
           }" >> unfold_studio/settings.py
+          echo "INK_DIR = os.path.join(BASE_DIR, 'ink')" >> unfold_studio/settings.py
+          
+      - name: Create ink directory
+        run: |
+          cd unfold_studio
+          mkdir -p ink
+          chmod 777 ink
           
       - name: Start Django server
         env:
@@ -129,7 +136,7 @@ jobs:
           
           # Create test story
           story = Story.objects.create(
-              id=29,
+              id=299,
               title='Test Story',
               ink='This is a test story for input and generate functionality.\nLet\'s start with a simple input.',
               author=user,
