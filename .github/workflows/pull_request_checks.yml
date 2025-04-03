@@ -139,7 +139,13 @@ jobs:
               description='Test story for integration tests'
           )
           story.sites.add(site)
+          
+          # Compile the story
+          story.compile()
+          story.save()
+          
           print(f'Created test story with ID: {story.id}')
+          print(f'Story JSON: {story.json}')
           "
           
       - name: Run integration tests
