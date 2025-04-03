@@ -86,11 +86,36 @@ jobs:
           }" >> unfold_studio/settings.py
           echo "INK_DIR = os.path.join(BASE_DIR, 'ink')" >> unfold_studio/settings.py
           
-      - name: Create ink directory
+      - name: Create required directories
         run: |
           cd unfold_studio
+          # Create ink directory for story compilation
           mkdir -p ink
           chmod 777 ink
+          
+          # Create media directory for file uploads
+          mkdir -p media
+          chmod 777 media
+          
+          # Create static directory for static files
+          mkdir -p static
+          chmod 777 static
+          
+          # Create logs directory
+          mkdir -p logs
+          chmod 777 logs
+          
+          # Create temp directory
+          mkdir -p temp
+          chmod 777 temp
+          
+      - name: Install inklecate
+        run: |
+          cd unfold_studio
+          wget https://github.com/inkle/ink/releases/download/v1.2.0/inklecate_linux.zip
+          unzip inklecate_linux.zip -d inklecate_1.2.0
+          chmod +x inklecate_1.2.0/inklecate
+          echo "INKLECATE = os.path.join(BASE_DIR, 'inklecate_1.2.0', 'inklecate')" >> unfold_studio/settings.py
           
       - name: Start Django server
         env:
