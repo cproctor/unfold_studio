@@ -142,43 +142,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
-          poetry run python -c "
-          import os
-          import django
-          from django.utils import timezone
-          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
-          django.setup()
-          
-          from django.contrib.auth.models import User
-          from django.contrib.sites.models import Site
-          from unfold_studio.models import Story
-          
-          # Create test user
-          user = User.objects.create_user('testuser', 'test@example.com', 'testpass')
-          
-          # Get the default site
-          site = Site.objects.get(id=1)
-          
-          # Create test story
-          story = Story.objects.create(
-              id=29,
-              title='Test Story',
-              ink='This is a test story for input and generate functionality.\nLet\'s start with a simple input.',
-              author=user,
-              public=True,
-              creation_date=timezone.now(),
-              edit_date=timezone.now(),
-              description='Test story for integration tests'
-          )
-          story.sites.add(site)
-          
-          # Compile the story
-          story.compile()
-          story.save()
-          
-          print(f'Created test story with ID: {story.id}')
-          print(f'Story JSON: {story.json}')
-          "
+          poetry run python integration_tests/initialization.py
           
       - name: Run integration tests
         env:
