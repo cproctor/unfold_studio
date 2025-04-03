@@ -61,6 +61,12 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y chromium-browser chromium-chromedriver
           
+      - name: Start Django server
+        run: |
+          poetry run python manage.py migrate
+          poetry run python manage.py runserver 8000 &
+          sleep 5  # Wait for server to start
+          
       - name: Run integration tests
         run: |
           poetry run python unfold_studio/integration_tests/test_input_generate.py
@@ -68,4 +74,6 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           CHROME_BIN: /usr/bin/chromium-browser
           CHROMEDRIVER_PATH: /usr/bin/chromedriver
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
+          TEST_URL: http://localhost:8000/stories/29/
           
