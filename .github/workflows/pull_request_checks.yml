@@ -111,6 +111,11 @@ jobs:
         run: |
           cd unfold_studio
           poetry run python -c "
+          import os
+          import django
+          os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
+          django.setup()
+          
           from django.contrib.auth.models import User
           from unfold_studio.models import Story
           
