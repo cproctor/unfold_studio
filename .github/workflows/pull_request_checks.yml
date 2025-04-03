@@ -161,7 +161,7 @@ jobs:
           
           # Create test story
           story = Story.objects.create(
-              id=299,
+              id=29,
               title='Test Story',
               ink='This is a test story for input and generate functionality.\nLet\'s start with a simple input.',
               author=user,
