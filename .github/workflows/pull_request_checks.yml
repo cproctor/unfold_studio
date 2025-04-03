@@ -95,6 +95,15 @@ jobs:
           poetry run python manage.py runserver 8000 &
           sleep 5  # Wait for server to start
           
+      - name: Verify Django server is running
+        run: |
+          echo "Checking Django server response..."
+          response=$(curl -s http://localhost:8000/)
+          echo "Server response:"
+          echo "$response"
+          echo "$response" | grep -q "Django" || (echo "Django server is not running" && exit 1)
+          echo "Django server is running successfully"
+          
       # - name: Run integration tests
       #   env:
       #     PYTHONPATH: ${{ github.workspace }}
