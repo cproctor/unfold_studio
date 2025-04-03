@@ -44,11 +44,13 @@ InkPlayer.prototype = {
             return "";
         }.bind(this));
         story.BindExternalFunction("continue", function(targetKnot) {
+            this.continueFunctionCalled = true;
             this.currentTargetKnot = targetKnot
             this.scheduleInputBoxForContinue()
             return '';
         }.bind(this));
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
+            this.inputFunctionCalled = true;
             this.scheduleInputBox(placeholder, variableName);
             return '';
         }.bind(this));
@@ -65,7 +67,8 @@ InkPlayer.prototype = {
         // the DOM update, in which case it will not find the span to update. 
         story.BindExternalFunction("generate", function (prompt_text) {
             this.generateInProgress = true;
-            return prompt_text;
+            this.generatePrompt = prompt_text;
+            return 'abcd';
         }.bind(this));
     },
     play: function(content) {
@@ -79,6 +82,7 @@ InkPlayer.prototype = {
         this.story = new inkjs.Story(content.compiled);
         this.bindExternalFunctions(this.story);
         this.running = true;
+        this.story.buffer = [];
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
     generateAndInsertInDOM: async function(prompt_text) {
@@ -136,15 +140,35 @@ InkPlayer.prototype = {
             try {
                 var text = this.story.Continue()
                 var tags = this.story.currentTags.slice()
-                if (this.generateInProgress) {
-                    await this.generateAndInsertInDOM(text);
-                    continue;
+                content = { text: text, tags: tags }
+                if (this.inputFunctionCalled) {
+                    this.story.buffer.push(content)
+                    this.events.renderScheduledInputBox.bind(this)();
+                    return;
                 }
+                if(this.continueFunctionCalled){
+                    this.events.renderScheduledInputBox.bind(this)();
+                    return;
+                }
+                if (this.generateInProgress) {
+                    await this.generateAndInsertInDOM(this.generatePrompt);
+                }
+
                 if (tags.includes('context')){
                     this.story.state.context.push(text);
                 }
+
+                // Display any buffered content first
+                if (this.story.buffer && this.story.buffer.length > 0) {
+                    for (let bufferedContent of this.story.buffer) {
+                        this.events.addContent.bind(this)(bufferedContent);
+                        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", bufferedContent)
+                    }
+                    // Clear the buffer after displaying its contents
+                    this.story.buffer = [];
+                }
                 
-                content = { text: text, tags: tags }
+                // Display current content
                 this.events.addContent.bind(this)(content);
                 self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
             }
@@ -154,7 +178,6 @@ InkPlayer.prototype = {
         }
         if (!this.running) return;
         
-        this.events.renderScheduledInputBox.bind(this)();
 
         const choices = this.story.currentChoices.map(choice => choice.text);
         self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_CHOICE_LIST", choices)
@@ -209,6 +232,7 @@ InkPlayer.prototype = {
     },
     scheduleInputBox: function(placeholder, variableName) {
         const eventHandler = (userInput) => {
+            this.inputFunctionCalled = false;
             this.story.variablesState[variableName] = userInput;
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
@@ -229,6 +253,7 @@ InkPlayer.prototype = {
     },
     scheduleInputBoxForContinue: function(placeholder = "what would you like to do next?") {
         const eventHandler = (userInput) => {
+            this.continueFunctionCalled = false;
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
                 "READERS_CONTINUE_ENTERED_TEXT", 
