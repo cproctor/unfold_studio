@@ -54,7 +54,7 @@ jobs:
         run: poetry lock
         
       - name: Install dependencies
-        run: poetry install
+        run: poetry install --with dev,docs,admin
         
       - name: Install Chrome
         run: |
