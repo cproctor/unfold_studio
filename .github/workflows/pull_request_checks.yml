@@ -64,8 +64,8 @@ jobs:
       - name: Start Django server
         run: |
           cd unfold_studio
-          poetry run python manage.py migrate
-          poetry run python manage.py runserver 8000 &
+          PYTHONPATH=$PYTHONPATH:$(pwd) poetry run python manage.py migrate
+          PYTHONPATH=$PYTHONPATH:$(pwd) poetry run python manage.py runserver 8000 &
           sleep 5  # Wait for server to start
           
       - name: Run integration tests
@@ -75,6 +75,6 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           CHROME_BIN: /usr/bin/chromium-browser
           CHROMEDRIVER_PATH: /usr/bin/chromedriver
-          DJANGO_SETTINGS_MODULE: unfold_studio.settings
+          DJANGO_SETTINGS_MODULE: unfold_studio.unfold_studio.settings
           TEST_URL: http://localhost:8000/stories/29/
           
