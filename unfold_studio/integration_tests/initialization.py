@@ -1,6 +1,12 @@
 import os
 import django
 from django.utils import timezone
+
+# Set up Django environment first
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
+django.setup()
+
+# Now import Django models after setup
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from unfold_studio.models import Story
@@ -10,10 +16,6 @@ def initialize_test_environment():
     Initialize the test environment by creating necessary test data.
     Returns the created story ID.
     """
-    # Set up Django
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
-    django.setup()
-    
     # Create test user
     user = User.objects.create_user('testuser', 'test@example.com', 'testpass')
     
