@@ -5,6 +5,9 @@ on:
     types: [opened, synchronize]
     branches:
       - development
+  push:
+    branches:
+      - issue_211
 
 jobs:
   run_unit_tests:
@@ -31,4 +34,36 @@ jobs:
       - name: Run tests
         run: |
           poetry run pytest unfold_studio/*/tests -v 
+
+  run_integration_tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          
+      - name: Update lock file
+        run: poetry lock
+        
+      - name: Install dependencies
+        run: poetry install
+        
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
+          
+      - name: Run integration tests
+        run: |
+          poetry run python unfold_studio/integration_tests/test_input_generate.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}
           
