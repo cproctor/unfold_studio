@@ -104,6 +104,30 @@ jobs:
           echo "$response" | grep -q "Django" || (echo "Django server is not running" && exit 1)
           echo "Django server is running successfully"
           
+      - name: Create test story
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
+        run: |
+          cd unfold_studio
+          poetry run python -c "
+          from django.contrib.auth.models import User
+          from unfold_studio.models import Story
+          
+          # Create test user
+          user = User.objects.create_user('testuser', 'test@example.com', 'testpass')
+          
+          # Create test story
+          story = Story.objects.create(
+              id=29,
+              title='Test Story',
+              ink='This is a test story for input and generate functionality.\nLet\'s start with a simple input.',
+              owner=user,
+              public=True
+          )
+          print(f'Created test story with ID: {story.id}')
+          "
+          
       - name: Run integration tests
         env:
           PYTHONPATH: ${{ github.workspace }}
