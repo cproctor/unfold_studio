@@ -112,8 +112,8 @@ jobs:
       - name: Install inklecate
         run: |
           cd unfold_studio
-          wget https://github.com/inkle/ink/releases/download/v1.2.0/inklecate_linux.zip
-          unzip inklecate_linux.zip -d inklecate_1.2.0
+          wget https://github.com/inkle/ink/releases/download/v1.2.0/inklecate_linux_x86_64.zip
+          unzip inklecate_linux_x86_64.zip -d inklecate_1.2.0
           chmod +x inklecate_1.2.0/inklecate
           echo "INKLECATE = os.path.join(BASE_DIR, 'inklecate_1.2.0', 'inklecate')" >> unfold_studio/settings.py
           
