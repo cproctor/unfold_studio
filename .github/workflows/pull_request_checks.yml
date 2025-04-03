@@ -61,12 +61,29 @@ jobs:
       #     sudo apt-get update
       #     sudo apt-get install -y chromium-browser chromium-chromedriver
           
+      - name: Set up PostgreSQL
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '14'
+          postgresql db: unfold_studio
+          postgresql user: postgres
+          postgresql password: postgres
+          
       - name: Create CI settings file
         run: |
           cd unfold_studio
           cp unfold_studio/base_settings.py unfold_studio/settings.py
           echo "ALLOWED_HOSTS = ['localhost', '127.0.0.1']" >> unfold_studio/settings.py
-          echo "DATABASES = {'default': {'ENGINE': 'django.db.backends.sqlite3', 'NAME': ':memory:'}}" >> unfold_studio/settings.py
+          echo "DATABASES = {
+              'default': {
+                  'ENGINE': 'django.db.backends.postgresql',
+                  'NAME': 'unfold_studio',
+                  'USER': 'postgres',
+                  'PASSWORD': 'postgres',
+                  'HOST': 'localhost',
+                  'PORT': '5432',
+              }
+          }" >> unfold_studio/settings.py
           
       - name: Start Django server
         env:
