@@ -104,13 +104,13 @@ jobs:
           echo "$response" | grep -q "Django" || (echo "Django server is not running" && exit 1)
           echo "Django server is running successfully"
           
-      # - name: Run integration tests
-      #   env:
-      #     PYTHONPATH: ${{ github.workspace }}
-      #     CHROME_BIN: /usr/bin/chromium-browser
-      #     CHROMEDRIVER_PATH: /usr/bin/chromedriver
-      #     DJANGO_SETTINGS_MODULE: unfold_studio.settings
-      #     TEST_URL: http://localhost:8000/stories/29/
-      #   run: |
-      #     poetry run python unfold_studio/integration_tests/test_input_generate.py
+      - name: Run integration tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          CHROME_BIN: /usr/bin/chromium-browser
+          CHROMEDRIVER_PATH: /usr/bin/chromedriver
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
+          TEST_URL: http://localhost:8000/stories/29/
+        run: |
+          poetry run python unfold_studio/integration_tests/test_input_generate.py
           
