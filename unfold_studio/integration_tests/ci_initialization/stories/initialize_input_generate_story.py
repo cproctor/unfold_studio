@@ -21,7 +21,7 @@ Nice to meet you, {name}!
 Now let's test generate with some context.
 ~ generate("Write a short greeting for {name}")
 
-Let's try input after generate
+Let's try input after generate.
 ~ input("What's your favorite food?", "food")
 BUG
 I see you like {food}. Let's generate something about that.
