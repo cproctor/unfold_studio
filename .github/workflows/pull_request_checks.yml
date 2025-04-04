@@ -99,25 +99,24 @@ jobs:
       - name: Create required directories
         run: |
           cd unfold_studio
-          # Create ink directory for story compilation
           mkdir -p ink
           chmod 777 ink
           
-          # Create media directory for file uploads
-          mkdir -p media
-          chmod 777 media
+          # # Create media directory for file uploads
+          # mkdir -p media
+          # chmod 777 media
           
-          # Create static directory for static files
-          mkdir -p static
-          chmod 777 static
+          # # Create static directory for static files
+          # mkdir -p static
+          # chmod 777 static
           
-          # Create logs directory
-          mkdir -p logs
-          chmod 777 logs
+          # # Create logs directory
+          # mkdir -p logs
+          # chmod 777 logs
           
-          # Create temp directory
-          mkdir -p temp
-          chmod 777 temp
+          # # Create temp directory
+          # mkdir -p temp
+          # chmod 777 temp
           
       - name: Install inklecate
         run: |
@@ -153,10 +152,8 @@ jobs:
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
-          # Run migrations again to ensure all apps are properly initialized
           poetry run python manage.py makemigrations
           poetry run python manage.py migrate
-          # Create test story
           poetry run python -m integration_tests.initialization.initialize_test_environment
           
       - name: Run integration tests
