@@ -3,7 +3,11 @@ from unfold_studio.models import Story
 import django.utils.timezone as timezone
 from .initialize_story import create_story
 
-INPUT_GENERATE_STORY_TEMPLATE = '''
+STORY_TITLE = 'Input/Generate Test Story'
+STORY_DESCRIPTION = 'Test story to check input/generate functionality'
+STORY_ID = 1
+
+STORY_TEMPLATE = '''
 VAR name = ""
 VAR food = ""
 VAR color = ""
@@ -77,10 +81,10 @@ def create_input_generate_story(user, site):
     story_id = create_story(
         user=user,
         site=site,
-        story_id=29,
-        title='Input/Generate Test Story',
-        ink_content=INPUT_GENERATE_STORY_TEMPLATE,
-        description='Test story to check input/generate functionality'
+        story_id=STORY_ID,
+        title=STORY_TITLE,
+        ink_content=STORY_TEMPLATE,
+        description=STORY_DESCRIPTION
     )
     print(f'Successfully created input/generate test story with ID: {story_id}')
     return story_id 
