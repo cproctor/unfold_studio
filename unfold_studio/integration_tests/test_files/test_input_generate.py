@@ -3,7 +3,7 @@ from unfold_studio.integration_tests.test_files.test_utils import (
     print_green,
     wait_for_story_text,
     assert_exact_choices,
-    assert_exact_texts,
+    assert_exact_texts_in_order,
     initialize_chrome_driver,
     type_input,
     submit_input,
@@ -26,7 +26,7 @@ def test_story_path(driver, choices):
         assert driver.current_url == url, f"URL mismatch. Expected: {url}, Got: {driver.current_url}"
         print_green("✓ Initial page loaded successfully")
 
-        assert_exact_texts(driver, [
+        assert_exact_texts_in_order(driver, [
             "This is a test story for input and generate functionality.",
             "Let's start with a simple input."
         ])
@@ -38,7 +38,7 @@ def test_story_path(driver, choices):
         
         wait_for_story_text(driver, "Let's try input after generate.")
         
-        assert_exact_texts(driver, [
+        assert_exact_texts_in_order(driver, [
             "Let's start with a simple input.",
             f"Nice to meet you, {choices['name']}!",
             "Now let's test generate with some context.",
@@ -52,7 +52,7 @@ def test_story_path(driver, choices):
         
         wait_for_story_text(driver, "What would you like to do next?")
         
-        assert_exact_texts(driver, [
+        assert_exact_texts_in_order(driver, [
             f"I see you like {choices['food']}. Let's generate something about that.",
             "Now let's test input with choices.",
             "What would you like to do next?"
@@ -69,7 +69,7 @@ def test_story_path(driver, choices):
         
         click_choice(driver, choices['choice1'])
         
-        assert_exact_texts(driver, [
+        assert_exact_texts_in_order(driver, [
             "What would you like to do next?",
             choices['choice1']
         ])
@@ -80,7 +80,7 @@ def test_story_path(driver, choices):
             type_input(driver, choices['color'])
             submit_input(driver)
             
-            assert_exact_texts(driver, [
+            assert_exact_texts_in_order(driver, [
                 f"{choices['color']} is a great choice!",
                 "What would you like to do with this color?"
             ])
@@ -94,7 +94,7 @@ def test_story_path(driver, choices):
             
             wait_for_story_text(driver, "The end!")
             
-            assert_exact_texts(driver, [
+            assert_exact_texts_in_order(driver, [
                 choices['choice2'],
                 "The end!"
             ])
@@ -106,7 +106,7 @@ def test_story_path(driver, choices):
             type_input(driver, choices['number'])
             submit_input(driver)
             
-            assert_exact_texts(driver, [
+            assert_exact_texts_in_order(driver, [
                 f"You chose {choices['number']}.",
                 "What would you like to do with this number?"
             ])
@@ -120,7 +120,7 @@ def test_story_path(driver, choices):
             
             wait_for_story_text(driver, "The end!")
             
-            assert_exact_texts(driver, [
+            assert_exact_texts_in_order(driver, [
                 choices['choice2'],
                 "The end!"
             ])
@@ -129,7 +129,7 @@ def test_story_path(driver, choices):
         
         else:
             print("\nStep 4: Handling skip path...")
-            assert_exact_texts(driver, [
+            assert_exact_texts_in_order(driver, [
                 "Alright, let's move on.",
                 "The end!"
             ])

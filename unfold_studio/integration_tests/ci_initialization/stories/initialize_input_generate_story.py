@@ -2,7 +2,7 @@ from .initialize_story import create_story
 
 STORY_TITLE = 'Input/Generate Test Story'
 STORY_DESCRIPTION = 'Test story to check input/generate functionality'
-STORY_ID = 1
+STORY_ID = 29
 
 STORY_TEMPLATE = '''
 VAR name = ""

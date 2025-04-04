@@ -199,7 +199,7 @@ def assert_exact_choices(driver, expected_choices):
         print(f"✗ Failed to verify choices: {str(e)}")
         raise
 
-def assert_exact_texts(driver, expected_texts, timeout=10):
+def assert_exact_texts_in_order(driver, expected_texts, timeout=10):
     """
     Verify that the expected texts appear in order within the story history.
     Checks the entire story text and ensures texts appear in the specified sequence.
