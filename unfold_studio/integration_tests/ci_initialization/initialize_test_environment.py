@@ -1,6 +1,7 @@
 import os
 import django
 from django.utils import timezone
+from integration_tests.ci_initialization.text_generation.initialize_text_generation_records import initialize_text_generation_records
 
 def setup_django():
     """Set up Django environment and ensure apps are ready."""
@@ -39,13 +40,21 @@ def initialize_test_environment():
     site = get_default_site()
     
     # Import and call story creation functions
-    from integration_tests.initialization.stories.input_generate_story import create_input_generate_story
+    from integration_tests.ci_initialization.stories.initialize_input_generate_story import create_input_generate_story
     
     # Create stories
     story_ids = []
     story_ids.append(create_input_generate_story(user, site))
     
-    print(f'Initialized test environment with {len(story_ids)} stories')
+    # Initialize text generation records
+    try:
+        text_gen_records = initialize_text_generation_records()
+        print(f'Created {len(text_gen_records)} text generation records')
+    except Exception as e:
+        print(f'Failed to create text generation records: {str(e)}')
+        raise
+    
+    print(f'Initialized test environment with {len(story_ids)} stories and {len(text_gen_records)} text generation records')
     return story_ids
 
 if __name__ == '__main__':
