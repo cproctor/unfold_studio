@@ -20,7 +20,8 @@ from unfold_studio.integration_tests.test_files.test_utils import (
     wait_for_story_text,
     assert_input_state,
     assert_exact_choices,
-    assert_exact_texts
+    assert_exact_texts,
+    initialize_chrome_driver
 )
 
 def test_story_path(driver, choices):
@@ -246,27 +247,7 @@ def test_all_paths():
     """Run comprehensive tests for all possible story paths"""
     print("Starting comprehensive story testing...")
     
-    # Chrome setup
-    chrome_options = Options()
-    chrome_options.add_argument('--ignore-certificate-errors')
-    chrome_options.add_argument('--allow-running-insecure-content')
-    chrome_options.add_argument('--no-sandbox')
-    chrome_options.add_argument('--disable-dev-shm-usage')
-    chrome_options.add_argument('--headless=new')
-    chrome_options.add_argument('--disable-gpu')
-    chrome_options.add_argument('--disable-extensions')
-    chrome_options.add_argument('--disable-infobars')
-    chrome_options.add_argument('--remote-debugging-port=9222')
-    chrome_options.add_argument('--disable-browser-side-navigation')
-    chrome_options.add_argument('--disable-features=VizDisplayCompositor')
-    chrome_options.add_argument('--window-size=1920,1080')
-    
-    # Use system Chrome binary if available
-    if os.environ.get('CHROME_BIN'):
-        chrome_options.binary_location = os.environ.get('CHROME_BIN')
-    
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
-    driver.maximize_window()
+    driver = initialize_chrome_driver()
     
     # Test paths covering all possible story branches
     test_paths = [
