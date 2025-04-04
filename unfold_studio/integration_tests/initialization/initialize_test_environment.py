@@ -39,7 +39,7 @@ def initialize_test_environment():
     site = get_default_site()
     
     # Import and call story creation functions
-    from .stories.input_generate_story import create_input_generate_story
+    from integration_tests.initialization.stories.input_generate_story import create_input_generate_story
     
     # Create stories
     story_ids = []

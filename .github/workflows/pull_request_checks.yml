@@ -123,6 +123,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
+          poetry run python manage.py makemigrations
           poetry run python manage.py migrate
           poetry run python manage.py runserver 8000 &
           sleep 5  # Wait for server to start
@@ -143,9 +144,10 @@ jobs:
         run: |
           cd unfold_studio
           # Run migrations again to ensure all apps are properly initialized
+          poetry run python manage.py makemigrations
           poetry run python manage.py migrate
           # Create test story
-          poetry run python integration_tests/initialization/initialize_test_environment.py
+          poetry run python -m integration_tests.initialization.initialize_test_environment
           
       - name: Run integration tests
         env:
