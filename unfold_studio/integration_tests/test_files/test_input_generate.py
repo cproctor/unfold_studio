@@ -7,7 +7,8 @@ from unfold_studio.integration_tests.test_files.test_utils import (
     initialize_chrome_driver,
     type_input,
     submit_input,
-    click_choice
+    click_choice,
+    assert_input_box_exists
 )
 
 def test_story_path(driver, choices):
@@ -16,23 +17,25 @@ def test_story_path(driver, choices):
         port = os.environ.get('DJANGO_PORT', '8000')
         story_id = 29
         url = f"http://{host}:{port}/stories/{story_id}/"
-        print(f"\nTesting path with choices: {choices}")
+
         print(f"Attempting to load URL: {url}")
         
         driver.get(url)
-        
-        wait_for_story_text(driver, "This is a test story for input and generate functionality.")
-        
         assert driver.current_url == url, f"URL mismatch. Expected: {url}, Got: {driver.current_url}"
         print_green("✓ Initial page loaded successfully")
+
+        wait_for_story_text(driver, "This is a test story for input and generate functionality.")
 
         assert_exact_texts_in_order(driver, [
             "This is a test story for input and generate functionality.",
             "Let's start with a simple input."
         ])
         print_green("✓ Initial texts verified successfully")
-        
+
+
         print("\nStep 1: Entering name...")
+
+        assert_input_box_exists(driver, "What's your name?")
         type_input(driver, choices['name'])
         submit_input(driver)
         
@@ -47,6 +50,8 @@ def test_story_path(driver, choices):
         print_green("✓ Name step completed successfully")
         
         print("\nStep 2: Entering food...")
+
+        assert_input_box_exists(driver, "What's your favorite food?")
         type_input(driver, choices['food'])
         submit_input(driver)
         
@@ -60,12 +65,12 @@ def test_story_path(driver, choices):
         print_green("✓ Food step completed successfully")
         
         print("\nStep 3: Selecting path...")
-        path_choices = [
+
+        assert_exact_choices(driver, [
             "Choose a color",
             "Choose a number",
             "Skip both"
-        ]
-        assert_exact_choices(driver, path_choices)
+        ])
         
         click_choice(driver, choices['choice1'])
         
@@ -77,6 +82,8 @@ def test_story_path(driver, choices):
         
         if 'color' in choices:
             print("\nStep 4: Handling color path...")
+
+            assert_input_box_exists(driver, "What's your favorite color?")
             type_input(driver, choices['color'])
             submit_input(driver)
             
@@ -103,6 +110,8 @@ def test_story_path(driver, choices):
             
         elif 'number' in choices:
             print("\nStep 4: Handling number path...")
+
+            assert_input_box_exists(driver, "Pick a number between 1 and 10")
             type_input(driver, choices['number'])
             submit_input(driver)
             
@@ -129,6 +138,7 @@ def test_story_path(driver, choices):
         
         else:
             print("\nStep 4: Handling skip path...")
+
             assert_exact_texts_in_order(driver, [
                 "Alright, let's move on.",
                 "The end!"
@@ -147,11 +157,11 @@ def test_story_path(driver, choices):
         raise e
 
 def test_all_paths():
-    print("Starting comprehensive story testing...")
+    print("Starting input/generate story testing...")
     
     test_paths = [
         {
-            'name': 'Asif11',
+            'name': 'Asif1',
             'food': 'pizza',
             'choice1': 'Choose a color',
             'color': 'blue',
@@ -188,8 +198,13 @@ def test_all_paths():
     driver = None
     try:
         driver = initialize_chrome_driver()
-        for path in test_paths:
+        for i, path in enumerate(test_paths, 1):
+            print(f"\n{'='*50}")
+            print(f"Running test path {i} of {len(test_paths)}")
+            print(f"Test path details: {path}")
+            print(f"{'='*50}\n")
             test_story_path(driver, path)
+            print(f"\n✓ Test path {i} completed successfully\n")
     finally:
         if driver:
             driver.quit()

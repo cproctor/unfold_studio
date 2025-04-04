@@ -132,6 +132,27 @@ def wait_for_story_text(driver, text, timeout=10):
             f"Timeout waiting for text: '{text}'\n"
             f"Current story text: '{current_text}'"
         )
+    
+def wait_for_input_box_with_placeholder(driver, placeholder):
+    """Wait for and return an input box with the specified placeholder."""
+    start_time = time.time()
+    timeout = 10
+    
+    while time.time() - start_time < timeout:
+        try:
+            input_boxes = driver.find_elements(By.CSS_SELECTOR, 'input[type="text"]')
+            if not input_boxes:
+                time.sleep(0.1)
+                continue
+            latest_input = input_boxes[-1]
+            if (latest_input.is_displayed() and 
+                latest_input.is_enabled() and 
+                latest_input.get_attribute('placeholder') == placeholder):
+                return latest_input
+        except:
+            pass
+        time.sleep(0.5)
+    raise TimeoutException(f"Input box with placeholder '{placeholder}' not found or not enabled within {timeout} seconds")
 
 
 
@@ -233,4 +254,11 @@ def assert_exact_texts_in_order(driver, expected_texts, timeout=10):
         return True
     except Exception as e:
         print(f"✗ Failed to verify texts: {str(e)}")
-        raise 
+        raise
+
+
+def assert_input_box_exists(driver, placeholder):
+    """Assert that an enabled input box with the specified placeholder exists."""
+    input_box = wait_for_input_box_with_placeholder(driver, placeholder)
+    print_green(f"✓ Found input box with placeholder: '{placeholder}'")
+    return input_box 
