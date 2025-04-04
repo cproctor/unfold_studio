@@ -15,11 +15,12 @@ env:
   POSTGRES_PASSWORD: postgres
   POSTGRES_HOST: localhost
   POSTGRES_PORT: '5432'
-  TEST_URL: http://localhost:8000/stories/29/
-  HEALTH_CHECK_URL: http://localhost:8000/
+  DJANGO_HOST: localhost
+  DJANGO_PORT: '8000'
   CHROME_BIN: /usr/bin/chromium-browser
   CHROMEDRIVER_PATH: /usr/bin/chromedriver
   INK_VERSION: 1.2.0
+  INTEGRATION_TEST_FILES_PATH: unfold_studio/integration_tests/test_files
 
 jobs:
   run_unit_tests:
@@ -120,13 +121,13 @@ jobs:
           cd unfold_studio
           poetry run python manage.py makemigrations
           poetry run python manage.py migrate
-          poetry run python manage.py runserver 8000 &
+          poetry run python manage.py runserver ${{ env.DJANGO_PORT }} &
           sleep 5  # Wait for server to start
           
       - name: Verify Django server is running
         run: |
           echo "Checking Django server response..."
-          response=$(curl -s ${{ env.HEALTH_CHECK_URL }})
+          response=$(curl -s http://${{ env.DJANGO_HOST }}:${{ env.DJANGO_PORT }}/)
           echo "Server response:"
           echo "$response"
           echo "$response" | grep -q "Django" || (echo "Django server is not running" && exit 1)
@@ -145,7 +146,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
-          for test_file in unfold_studio/integration_tests/test_files/*.py; do
+          for test_file in ${{ env.INTEGRATION_TEST_FILES_PATH }}/*.py; do
             if [ -f "$test_file" ]; then
               echo "Running test file: $test_file"
               poetry run python "$test_file"
