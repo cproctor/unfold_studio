@@ -69,7 +69,16 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev,docs,admin
         
+      - name: Cache Chrome installation
+        uses: actions/cache@v4
+        with:
+          path: /usr/bin/chromium-browser
+          key: ${{ runner.os }}-chrome-${{ env.INK_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-chrome-
+            
       - name: Install Chrome
+        if: steps.cache-chrome.outputs.cache-hit != 'true'
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-browser chromium-chromedriver
@@ -105,7 +114,16 @@ jobs:
           mkdir -p ink
           chmod 777 ink
           
+      - name: Cache inklecate
+        uses: actions/cache@v4
+        with:
+          path: unfold_studio/inklecate_${{ env.INK_VERSION }}
+          key: ${{ runner.os }}-inklecate-${{ env.INK_VERSION }}
+          restore-keys: |
+            ${{ runner.os }}-inklecate-
+            
       - name: Install inklecate
+        if: steps.cache-inklecate.outputs.cache-hit != 'true'
         run: |
           cd unfold_studio
           wget https://github.com/inkle/ink/releases/download/v.${{ env.INK_VERSION }}/inklecate_linux.zip
