@@ -7,7 +7,7 @@ if not os.environ.get('DJANGO_SETTINGS_MODULE'):
     django.setup()
 
 from django.utils import timezone
-from unfold_studio.models import TextGenerationRecord
+from text_generation.models import TextGenerationRecord
 
 def initialize_text_generation_records():
     """Initialize test records in the TextGenerationRecord model."""
