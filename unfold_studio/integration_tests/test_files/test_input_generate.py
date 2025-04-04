@@ -63,12 +63,13 @@ def test_story_path(driver, choices):
         submit_button = wait_for_enabled_submit(driver)
         submit_button.click()
         
-        # Wait for name response
-        if not wait_for_story_text(driver, f"Nice to meet you, {choices['name']}!"):
-            raise AssertionError("Name response not found after submission")
+        # Wait for Let's try input after generate.
+        if not wait_for_story_text(driver, "Let's try input after generate."):
+            raise AssertionError("Let's try input after generate. not found after submission")
         
         # Verify texts appear in order
         assert_exact_texts(driver, [
+            "Let's start with a simple input.",
             f"Nice to meet you, {choices['name']}!",
             "Now let's test generate with some context.",
             "Let's try input after generate."
@@ -86,9 +87,9 @@ def test_story_path(driver, choices):
         submit_button = wait_for_enabled_submit(driver)
         submit_button.click()
         
-        # Wait for food response
-        if not wait_for_story_text(driver, f"I see you like {choices['food']}"):
-            raise AssertionError("Food response not found after submission")
+        # Wait for What would you like to do next?
+        if not wait_for_story_text(driver, "What would you like to do next?"):
+            raise AssertionError("What would you like to do next? not found after submission")
         
         # Verify texts appear in order
         assert_exact_texts(driver, [
@@ -152,6 +153,9 @@ def test_story_path(driver, choices):
             )
             choice.click()
             time.sleep(2)
+
+            if not wait_for_story_text(driver, "The end!"):
+                raise AssertionError("The end! not found after submission")
             
             if choices['generate_color']:
                 # Verify texts appear in order
@@ -201,6 +205,9 @@ def test_story_path(driver, choices):
             )
             choice.click()
             time.sleep(2)
+
+            if not wait_for_story_text(driver, "The end!"):
+                raise AssertionError("The end! not found after submission")
             
             if choices['generate_number']:
                 # Verify texts appear in order
