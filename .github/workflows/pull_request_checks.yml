@@ -130,8 +130,11 @@ jobs:
           response=$(curl -s http://${{ env.DJANGO_HOST }}:${{ env.DJANGO_PORT }}/)
           echo "Server response:"
           echo "$response"
-          echo "$response" | grep -q "Django" || (echo "Django server is not running" && exit 1)
-          echo "Django server is running successfully"
+          if ! echo "$response" | grep -q "Log in" || ! echo "$response" | grep -q "Sign up"; then
+            echo "Django server response does not contain expected texts"
+            exit 1
+          fi
+          echo "Django server is running successfully with correct response"
           
       - name: Initialize test environment
         env:

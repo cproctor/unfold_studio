@@ -161,7 +161,9 @@ def test_story_path(driver, choices):
     """
     try:
         # Initial setup and navigation
-        url = os.environ.get('TEST_URL', "http://localhost:8000/stories/29/")
+        host = os.environ.get('DJANGO_HOST', 'localhost')
+        port = os.environ.get('DJANGO_PORT', '8000')
+        url = f"http://{host}:{port}/stories/29/"
         print(f"\nTesting path with choices: {choices}")
         print(f"Attempting to load URL: {url}")
         
