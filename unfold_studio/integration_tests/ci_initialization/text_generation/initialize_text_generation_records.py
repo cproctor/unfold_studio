@@ -8,7 +8,7 @@ if not os.environ.get('DJANGO_SETTINGS_MODULE'):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
     django.setup()
 
-from unfold_studio.text_generation.models import TextGenerationRecord
+from text_generation.models import TextGenerationRecord
 
 def initialize_text_generation_records():
     """Initialize test records in the TextGenerationRecord model."""
