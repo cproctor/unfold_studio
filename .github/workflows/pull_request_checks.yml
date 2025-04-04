@@ -139,7 +139,7 @@ jobs:
         run: |
           cd unfold_studio
           wget https://github.com/inkle/ink/releases/download/v.${{ env.INK_VERSION }}/inklecate_linux.zip
-          unzip inklecate_linux.zip -d inklecate_${{ env.INK_VERSION }}
+          unzip -o inklecate_linux.zip -d inklecate_${{ env.INK_VERSION }}
           chmod +x inklecate_${{ env.INK_VERSION }}/inklecate
           echo "INKLECATE = os.path.join(BASE_DIR, 'inklecate_${{ env.INK_VERSION }}', 'inklecate')" >> unfold_studio/settings.py
           
