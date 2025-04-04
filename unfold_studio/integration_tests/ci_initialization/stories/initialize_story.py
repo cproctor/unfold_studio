@@ -12,8 +12,10 @@ def create_story(user, site, story_id, title, ink_content, description, is_publi
         creation_date=timezone.now(),
         edit_date=timezone.now(),
         description=description,
-        sites=[site],
     )
+
+    story.sites.set([site])
+    
     
     # Save the story first to get a version
     story.save()
