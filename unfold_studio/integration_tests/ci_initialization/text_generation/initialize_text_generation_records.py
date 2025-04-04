@@ -55,7 +55,7 @@ def initialize_text_generation_records():
     ]
 
     # Clear existing test records
-    TextGenerationRecord.objects.all().delete()
+    # TextGenerationRecord.objects.all().delete()
 
     # Create new records
     created_records = []
