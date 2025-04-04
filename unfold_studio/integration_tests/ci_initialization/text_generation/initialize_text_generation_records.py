@@ -11,7 +11,8 @@ if not os.environ.get('DJANGO_SETTINGS_MODULE'):
 from text_generation.models import TextGenerationRecord
 
 def initialize_text_generation_records():
-    """Initialize test records in the TextGenerationRecord model."""
+    print("Initializing text generation records...")
+    
     test_records = [
         {
             'seed': 12345,
@@ -54,21 +55,25 @@ def initialize_text_generation_records():
         }
     ]
 
-    # Clear existing test records
-    # TextGenerationRecord.objects.all().delete()
+    TextGenerationRecord.objects.all().delete()
 
-    # Create new records
     created_records = []
-    for record in test_records:
-        # Generate hashes for messages and backend_config
-        messages_json = json.dumps(record['messages'], sort_keys=True)
-        backend_config_json = json.dumps(record['backend_config'], sort_keys=True)
+    try:
+        for i, record in enumerate(test_records, 1):
+            # Generate hashes for messages and backend_config
+            messages_json = json.dumps(record['messages'], sort_keys=True)
+            backend_config_json = json.dumps(record['backend_config'], sort_keys=True)
+            
+            record['messages_hash'] = hashlib.sha256(messages_json.encode()).hexdigest()
+            record['backend_config_hash'] = hashlib.sha256(backend_config_json.encode()).hexdigest()
+            
+            created_record = TextGenerationRecord.objects.create(**record)
+            created_records.append(created_record)
+            print(f"Created text generation record {i}/{len(test_records)} - ID: {created_record.id}")
         
-        record['messages_hash'] = hashlib.sha256(messages_json.encode()).hexdigest()
-        record['backend_config_hash'] = hashlib.sha256(backend_config_json.encode()).hexdigest()
-        
-        created_record = TextGenerationRecord.objects.create(**record)
-        created_records.append(created_record)
-        print(f"Created text generation record with ID: {created_record.id}")
+        print(f"Successfully created {len(created_records)} text generation records")
+    except Exception as e:
+        print(f"Error: Failed to create text generation records: {str(e)}")
+        raise
 
     return created_records 
