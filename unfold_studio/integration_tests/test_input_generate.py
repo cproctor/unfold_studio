@@ -304,7 +304,8 @@ def test_story_path(driver, choices):
             
             # Verify texts appear in order
             assert_exact_texts(driver, [
-                f"You chose {choices['number']}."
+                f"You chose {choices['number']}.",
+                "What would you like to do with this number?"
             ])
             
             # Handle number generation choice
