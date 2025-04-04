@@ -15,8 +15,6 @@ env:
   POSTGRES_PASSWORD: postgres
   POSTGRES_HOST: localhost
   POSTGRES_PORT: '5432'
-  DJANGO_SETTINGS_MODULE: unfold_studio.settings
-  PYTHONPATH: ${{ github.workspace }}
   TEST_URL: http://localhost:8000/stories/29/
   CHROME_BIN: /usr/bin/chromium-browser
   CHROMEDRIVER_PATH: /usr/bin/chromedriver
@@ -130,6 +128,9 @@ jobs:
           echo "INKLECATE = os.path.join(BASE_DIR, 'inklecate_1.2.0', 'inklecate')" >> unfold_studio/settings.py
           
       - name: Start Django server
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
           poetry run python manage.py makemigrations
@@ -147,6 +148,9 @@ jobs:
           echo "Django server is running successfully"
           
       - name: Create test story
+        env:
+          PYTHONPATH: ${{ github.workspace }}/unfold_studio:${{ github.workspace }}
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
           # Run migrations again to ensure all apps are properly initialized
@@ -156,6 +160,9 @@ jobs:
           poetry run python -m integration_tests.initialization.initialize_test_environment
           
       - name: Run integration tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           poetry run python unfold_studio/integration_tests/test_input_generate.py
           
