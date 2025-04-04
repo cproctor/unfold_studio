@@ -69,6 +69,13 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev,docs,admin
             
+      - name: Download Chrome from previous run
+        uses: actions/download-artifact@v4
+        with:
+          name: chrome-files
+          path: ~/chrome
+        continue-on-error: true
+            
       - name: Set up Chrome
         run: |
           if [ -f ~/chrome/chromium-browser ]; then
@@ -85,6 +92,13 @@ jobs:
             cp /usr/bin/chromium-browser ~/chrome/
             cp /usr/bin/chromedriver ~/chrome/
           fi
+          
+      - name: Upload Chrome files for next run
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-files
+          path: ~/chrome
+          retention-days: 7
           
       - name: Set up PostgreSQL
         uses: harmon758/postgresql-action@v1
