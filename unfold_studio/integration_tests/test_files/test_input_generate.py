@@ -1,71 +1,43 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, StaleElementReferenceException
-from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.keys import Keys
-from webdriver_manager.chrome import ChromeDriverManager
-import time
-import re
 import os
 from unfold_studio.integration_tests.test_files.test_utils import (
     print_green,
-    print_bright_green,
-    wait_for_enabled_input,
-    wait_for_enabled_submit,
-    get_story_text,
     wait_for_story_text,
-    assert_input_state,
     assert_exact_choices,
     assert_exact_texts,
     initialize_chrome_driver,
     type_input,
-    submit_input
+    submit_input,
+    click_choice
 )
 
 def test_story_path(driver, choices):
-    """
-    Test a complete story path with the given choices or inputs.
-    Verifies all inputs, choices, and story text at each step.
-    """
     try:
-        # Initial setup and navigation
         host = os.environ.get('DJANGO_HOST', 'localhost')
         port = os.environ.get('DJANGO_PORT', '8000')
-        story_id = 1
+        story_id = 29
         url = f"http://{host}:{port}/stories/{story_id}/"
         print(f"\nTesting path with choices: {choices}")
         print(f"Attempting to load URL: {url}")
         
         driver.get(url)
         
-        # Wait for initial story text
         wait_for_story_text(driver, "This is a test story for input and generate functionality.")
         
-        # Verify initial page load
         assert driver.current_url == url, f"URL mismatch. Expected: {url}, Got: {driver.current_url}"
         print_green("✓ Initial page loaded successfully")
 
-        # Verify initial texts  
         assert_exact_texts(driver, [
             "This is a test story for input and generate functionality.",
             "Let's start with a simple input."
         ])
         print_green("✓ Initial texts verified successfully")
         
-        # Enter name
         print("\nStep 1: Entering name...")
         type_input(driver, choices['name'])
         submit_input(driver)
         
-        # Wait for Let's try input after generate.
-        if not wait_for_story_text(driver, "Let's try input after generate."):
-            raise AssertionError("Let's try input after generate. not found after submission")
+        wait_for_story_text(driver, "Let's try input after generate.")
         
-        # Verify texts appear in order
         assert_exact_texts(driver, [
             "Let's start with a simple input.",
             f"Nice to meet you, {choices['name']}!",
@@ -74,16 +46,12 @@ def test_story_path(driver, choices):
         ])
         print_green("✓ Name step completed successfully")
         
-        # Enter food
         print("\nStep 2: Entering food...")
         type_input(driver, choices['food'])
         submit_input(driver)
         
-        # Wait for What would you like to do next?
-        if not wait_for_story_text(driver, "What would you like to do next?"):
-            raise AssertionError("What would you like to do next? not found after submission")
+        wait_for_story_text(driver, "What would you like to do next?")
         
-        # Verify texts appear in order
         assert_exact_texts(driver, [
             f"I see you like {choices['food']}. Let's generate something about that.",
             "Now let's test input with choices.",
@@ -91,117 +59,76 @@ def test_story_path(driver, choices):
         ])
         print_green("✓ Food step completed successfully")
         
-        # Select path
         print("\nStep 3: Selecting path...")
         path_choices = [
             "Choose a color",
             "Choose a number",
             "Skip both"
         ]
-        # Verify the exact order of choices
         assert_exact_choices(driver, path_choices)
         
-        # Select the specified path
-        choice_text = path_choices[['color', 'number', 'skip'].index(choices['path'])]
-        choice = WebDriverWait(driver, 10).until(
-            EC.element_to_be_clickable((By.XPATH, f"//a[contains(text(), '{choice_text}')]"))
-        )
-        choice.click()
-        time.sleep(2)
-        # Verify texts appear in order
+        click_choice(driver, choices['choice1'])
+        
         assert_exact_texts(driver, [
             "What would you like to do next?",
-            choice_text
+            choices['choice1']
         ])
-        print_green(f"✓ Selected path: {choice_text}")
+        print_green(f"✓ Selected path: {choices['choice1']}")
         
-        # Handle specific path
-        if choices['path'] == 'color':
+        if 'color' in choices:
             print("\nStep 4: Handling color path...")
             type_input(driver, choices['color'])
             submit_input(driver)
-            time.sleep(2)
-            # Verify texts appear in order
+            
             assert_exact_texts(driver, [
                 f"{choices['color']} is a great choice!",
                 "What would you like to do with this color?"
             ])
             
-            # Handle color generation choice
-            choice_text = "Generate something about the color" if choices['generate_color'] else "Skip generation"
-            # Replace individual assertions with exact list check
             assert_exact_choices(driver, [
                 "Generate something about the color",
                 "Skip generation"
             ])
-            choice = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, f"//a[contains(text(), '{choice_text}')]"))
-            )
-            choice.click()
-
-            if not wait_for_story_text(driver, "The end!"):
-                raise AssertionError("The end! not found after submission")
             
-            if choices['generate_color']:
-                # Verify texts appear in order
-                assert_exact_texts(driver, [
-                    "Generate something about the color",
-                    "The end!"
-                ])
-            else:
-                # Verify texts appear in order
-                assert_exact_texts(driver, [
-                    "Skip generation",
-                    "The end!"
-                ])
+            click_choice(driver, choices['choice2'])
             
-            print_green(f"✓ Color path completed - Generation: {choices['generate_color']}")
+            wait_for_story_text(driver, "The end!")
             
-        elif choices['path'] == 'number':
+            assert_exact_texts(driver, [
+                choices['choice2'],
+                "The end!"
+            ])
+            
+            print_green(f"✓ Color path completed - Choice: {choices['choice2']}")
+            
+        elif 'number' in choices:
             print("\nStep 4: Handling number path...")
             type_input(driver, choices['number'])
             submit_input(driver)
-            time.sleep(2)
             
-            # Verify texts appear in order
             assert_exact_texts(driver, [
                 f"You chose {choices['number']}.",
                 "What would you like to do with this number?"
             ])
             
-            # Handle number generation choice
-            choice_text = "Generate something about the number" if choices['generate_number'] else "Skip generation"
-            # Replace individual assertions with exact list check
             assert_exact_choices(driver, [
                 "Generate something about the number",
                 "Skip generation"
             ])
-            choice = WebDriverWait(driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, f"//a[contains(text(), '{choice_text}')]"))
-            )
-            choice.click()
-
-            if not wait_for_story_text(driver, "The end!"):
-                raise AssertionError("The end! not found after submission")
             
-            if choices['generate_number']:
-                # Verify texts appear in order
-                assert_exact_texts(driver, [
-                    "Generate something about the number",
-                    "The end!"
-                ])
-            else:
-                # Verify texts appear in order
-                assert_exact_texts(driver, [
-                    "Skip generation",
-                    "The end!"
-                ])
+            click_choice(driver, choices['choice2'])
             
-            print_green(f"✓ Number path completed - Generation: {choices['generate_number']}")
+            wait_for_story_text(driver, "The end!")
+            
+            assert_exact_texts(driver, [
+                choices['choice2'],
+                "The end!"
+            ])
+            
+            print_green(f"✓ Number path completed - Choice: {choices['choice2']}")
         
-        elif choices['path'] == 'skip':
+        else:
             print("\nStep 4: Handling skip path...")
-            # Verify texts appear in order
             assert_exact_texts(driver, [
                 "Alright, let's move on.",
                 "The end!"
@@ -216,52 +143,45 @@ def test_story_path(driver, choices):
         import traceback
         traceback.print_exc()
         print("\nCurrent page source:")
-        print(driver.page_source[:1000])  # Print first 1000 chars for debugging
+        print(driver.page_source[:1000])
         raise e
 
 def test_all_paths():
-    """Run comprehensive tests for all possible story paths"""
     print("Starting comprehensive story testing...")
     
-    # Test paths
     test_paths = [
-        # Color path with generation
         {
             'name': 'Asif11',
             'food': 'pizza',
-            'path': 'color',
+            'choice1': 'Choose a color',
             'color': 'blue',
-            'generate_color': True
+            'choice2': 'Generate something about the color'
         },
-        # Color path without generation
         {
             'name': 'Asif2',
             'food': 'sushi',
-            'path': 'color',
+            'choice1': 'Choose a color',
             'color': 'red',
-            'generate_color': False
+            'choice2': 'Skip generation'
         },
-        # Number path with generation
         {
             'name': 'Asif3',
             'food': 'tacos',
-            'path': 'number',
+            'choice1': 'Choose a number',
             'number': '7',
-            'generate_number': True
+            'choice2': 'Generate something about the number'
         },
-        # Number path without generation
         {
             'name': 'Asif4',
             'food': 'pasta',
-            'path': 'number',
+            'choice1': 'Choose a number',
             'number': '3',
-            'generate_number': False
+            'choice2': 'Skip generation'
         },
-        # Skip path
         {
             'name': 'Asif5',
             'food': 'burger',
-            'path': 'skip'
+            'choice1': 'Skip both'
         }
     ]
     
@@ -275,4 +195,4 @@ def test_all_paths():
             driver.quit()
 
 if __name__ == "__main__":
-    test_all_paths() 
+    test_all_paths()

@@ -46,6 +46,7 @@ def print_bright_green(message):
     """Print a message in bright green color."""
     print(f"\033[1;{LIGHT_GREEN}{message}{RESET}")
 
+
 def type_input(driver, text):
     """Type text into the most recent input field."""
     input_box = wait_for_enabled_input(driver)
@@ -57,7 +58,14 @@ def submit_input(driver):
     """Submit the current input."""
     submit_button = wait_for_enabled_submit(driver)
     submit_button.click()
-    time.sleep(0.5)  # Short sleep to ensure submission is processed
+    time.sleep(0.5)
+
+def click_choice(driver, choice_text):
+    """Click a choice link with the given text."""
+    choice = wait_for_choice(driver, choice_text)
+    choice.click()
+    time.sleep(0.5)
+
 
 def wait_for_enabled_input(driver, timeout=10):
     """Wait for and return the most recent enabled input field"""
@@ -93,6 +101,40 @@ def wait_for_enabled_submit(driver, timeout=10):
         time.sleep(0.5)
     raise TimeoutException("Submit button did not become enabled within timeout period")
 
+def wait_for_choice(driver, choice_text):
+    """Wait for and return a clickable choice link with the given text."""
+    start_time = time.time()
+    timeout = 10  # Use same default timeout as other functions
+    
+    while time.time() - start_time < timeout:
+        try:
+            choices = driver.find_elements(By.XPATH, f"//a[contains(text(), '{choice_text}')]")
+            if not choices:
+                time.sleep(0.1)
+                continue
+            for choice in choices:
+                if choice.is_displayed() and choice.is_enabled():
+                    return choice
+        except:
+            pass
+        time.sleep(0.5)
+    raise TimeoutException(f"Choice '{choice_text}' not found or not clickable within {timeout} seconds")
+
+def wait_for_story_text(driver, text, timeout=10):
+    """Wait for specific text to appear in the story. Raises TimeoutException if text is not found."""
+    try:
+        WebDriverWait(driver, timeout).until(
+            lambda d: text in get_story_text(d)
+        )
+    except TimeoutException:
+        current_text = get_story_text(driver)
+        raise TimeoutException(
+            f"Timeout waiting for text: '{text}'\n"
+            f"Current story text: '{current_text}'"
+        )
+
+
+
 def get_story_text(driver):
     """Return the current story text from the page"""
     try:
@@ -102,17 +144,7 @@ def get_story_text(driver):
         print(f"Failed to get story text: {str(e)}")
         return ""
 
-def wait_for_story_text(driver, text, timeout=10):
-    """Wait for specific text to appear in the story."""
-    try:
-        WebDriverWait(driver, timeout).until(
-            lambda d: text in get_story_text(d)
-        )
-        return True
-    except TimeoutException:
-        print(f"✗ Timeout waiting for text: '{text}'")
-        print(f"Current story text: '{get_story_text(driver)}'")
-        return False
+
 
 def assert_input_state(driver, expected_value="", should_be_enabled=True):
     """Verify the state and value of the most recent input box"""
