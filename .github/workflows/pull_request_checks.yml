@@ -72,7 +72,7 @@ jobs:
       - name: Cache Chrome installation
         uses: actions/cache@v4
         with:
-          path: /usr/bin/chromium-browser
+          path: ~/chrome
           key: ${{ runner.os }}-chrome-${{ env.INK_VERSION }}
           restore-keys: |
             ${{ runner.os }}-chrome-
@@ -82,6 +82,18 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y chromium-browser chromium-chromedriver
+          mkdir -p ~/chrome
+          cp /usr/bin/chromium-browser ~/chrome/
+          cp /usr/bin/chromedriver ~/chrome/
+          
+      - name: Set up Chrome
+        run: |
+          if [ -f ~/chrome/chromium-browser ]; then
+            sudo cp ~/chrome/chromium-browser /usr/bin/
+            sudo cp ~/chrome/chromedriver /usr/bin/
+            sudo chmod +x /usr/bin/chromium-browser
+            sudo chmod +x /usr/bin/chromedriver
+          fi
           
       - name: Set up PostgreSQL
         uses: harmon758/postgresql-action@v1
