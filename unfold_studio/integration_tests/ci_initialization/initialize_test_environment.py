@@ -18,12 +18,13 @@ def get_default_site():
     return Site.objects.get(id=1)
 
 def initialize_test_environment():
+    print("Initializing test environment...")
     user = create_test_user()
     site = get_default_site()
     
     create_input_generate_story(user, site)
     initialize_text_generation_records()
-    
+    print("Test environment initialized successfully")
 
 if __name__ == '__main__':
     initialize_test_environment() 

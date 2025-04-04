@@ -73,7 +73,6 @@ The end!
 '''
 
 def create_input_generate_story(user, site):
-    """Create the input/generate test story."""
     print("Creating input/generate story...")
     story_id = create_story(
         user=user,
