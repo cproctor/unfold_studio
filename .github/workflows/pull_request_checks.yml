@@ -160,7 +160,7 @@ jobs:
             echo "Django server response does not contain expected texts"
             exit 1
           fi
-          echo "Django Server is running successfully with correct response!"
+          echo "Django server is running successfully with correct response!"
           
       - name: Initialize test environment
         env:
