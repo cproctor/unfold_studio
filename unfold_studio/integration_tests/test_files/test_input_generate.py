@@ -297,6 +297,7 @@ def test_all_paths():
             test_story_path(driver, path)
             print_bright_green(f"=== Test #{index} Completed ===\n")
             driver.delete_all_cookies()
+            time.sleep(2)
     finally:
         driver.quit()
 
