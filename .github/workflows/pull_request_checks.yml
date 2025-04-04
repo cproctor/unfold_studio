@@ -146,14 +146,14 @@ jobs:
           echo "$response" | grep -q "Django" || (echo "Django server is not running" && exit 1)
           echo "Django server is running successfully"
           
-      - name: Create test story
+      - name: Initialize test environment
         env:
           PYTHONPATH: ${{ github.workspace }}/unfold_studio:${{ github.workspace }}
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
-          poetry run python manage.py makemigrations
-          poetry run python manage.py migrate
+          # poetry run python manage.py makemigrations
+          # poetry run python manage.py migrate
           poetry run python -m integration_tests.initialization.initialize_test_environment
           
       - name: Run integration tests
