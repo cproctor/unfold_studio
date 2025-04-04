@@ -20,7 +20,7 @@ def create_test_user():
     return User.objects.create_user('testuser', 'test@example.com', 'testpass')
 
 def get_default_site():
-    """Get the default site for the application."""
+    """Get the default site for the application"""
     _, Site, _ = setup_django()
     return Site.objects.get(id=1)
 
