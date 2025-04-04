@@ -126,16 +126,7 @@ jobs:
           mkdir -p ink
           chmod 777 ink
           
-      - name: Cache inklecate
-        uses: actions/cache@v4
-        with:
-          path: unfold_studio/inklecate_${{ env.INK_VERSION }}
-          key: ${{ runner.os }}-inklecate-${{ env.INK_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-inklecate-
-            
       - name: Install inklecate
-        if: steps.cache-inklecate.outputs.cache-hit != 'true'
         run: |
           cd unfold_studio
           wget https://github.com/inkle/ink/releases/download/v.${{ env.INK_VERSION }}/inklecate_linux.zip
