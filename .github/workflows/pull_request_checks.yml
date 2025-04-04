@@ -9,6 +9,18 @@ on:
     branches:
       - issue_211
 
+env:
+  POSTGRES_DB: unfold_studio
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_HOST: localhost
+  POSTGRES_PORT: '5432'
+  DJANGO_SETTINGS_MODULE: unfold_studio.settings
+  PYTHONPATH: ${{ github.workspace }}
+  TEST_URL: http://localhost:8000/stories/29/
+  CHROME_BIN: /usr/bin/chromium-browser
+  CHROMEDRIVER_PATH: /usr/bin/chromedriver
+
 jobs:
   run_unit_tests:
     name: Run Unit Tests
@@ -65,9 +77,9 @@ jobs:
         uses: harmon758/postgresql-action@v1
         with:
           postgresql version: '14'
-          postgresql db: unfold_studio
-          postgresql user: postgres
-          postgresql password: postgres
+          postgresql db: ${{ env.POSTGRES_DB }}
+          postgresql user: ${{ env.POSTGRES_USER }}
+          postgresql password: ${{ env.POSTGRES_PASSWORD }}
           
       - name: Create CI settings file
         run: |
@@ -77,11 +89,11 @@ jobs:
           echo "DATABASES = {
               'default': {
                   'ENGINE': 'django.db.backends.postgresql',
-                  'NAME': 'unfold_studio',
-                  'USER': 'postgres',
-                  'PASSWORD': 'postgres',
-                  'HOST': 'localhost',
-                  'PORT': '5432',
+                  'NAME': '${{ env.POSTGRES_DB }}',
+                  'USER': '${{ env.POSTGRES_USER }}',
+                  'PASSWORD': '${{ env.POSTGRES_PASSWORD }}',
+                  'HOST': '${{ env.POSTGRES_HOST }}',
+                  'PORT': '${{ env.POSTGRES_PORT }}',
               }
           }" >> unfold_studio/settings.py
           echo "INK_DIR = os.path.join(BASE_DIR, 'ink')" >> unfold_studio/settings.py
@@ -118,9 +130,6 @@ jobs:
           echo "INKLECATE = os.path.join(BASE_DIR, 'inklecate_1.2.0', 'inklecate')" >> unfold_studio/settings.py
           
       - name: Start Django server
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-          DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
           poetry run python manage.py makemigrations
@@ -138,9 +147,6 @@ jobs:
           echo "Django server is running successfully"
           
       - name: Create test story
-        env:
-          PYTHONPATH: ${{ github.workspace }}/unfold_studio:${{ github.workspace }}
-          DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
           # Run migrations again to ensure all apps are properly initialized
@@ -150,12 +156,6 @@ jobs:
           poetry run python -m integration_tests.initialization.initialize_test_environment
           
       - name: Run integration tests
-        env:
-          PYTHONPATH: ${{ github.workspace }}
-          CHROME_BIN: /usr/bin/chromium-browser
-          CHROMEDRIVER_PATH: /usr/bin/chromedriver
-          DJANGO_SETTINGS_MODULE: unfold_studio.settings
-          TEST_URL: http://localhost:8000/stories/29/
         run: |
           poetry run python unfold_studio/integration_tests/test_input_generate.py
           
