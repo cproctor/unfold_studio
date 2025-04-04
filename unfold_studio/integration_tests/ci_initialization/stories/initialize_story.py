@@ -18,9 +18,9 @@ def create_story(user, site, story_id, title, ink_content, description, is_publi
     # Save the story first to get a version
     story.save()
     
-    # Register the story with reversion
-    with reversion.create_revision():
-        reversion.add_to_revision(story)
+    # # Register the story with reversion
+    # with reversion.create_revision():
+    #     reversion.add_to_revision(story)
     
     # Now compile the story
     story.compile()
