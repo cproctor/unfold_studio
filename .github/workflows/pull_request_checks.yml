@@ -161,5 +161,5 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
-          poetry run python unfold_studio/integration_tests/test_input_generate.py
+          poetry run pytest unfold_studio/integration_tests/tests -v
           
