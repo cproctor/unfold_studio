@@ -142,7 +142,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
-          poetry run python integration_tests/initialization.py
+          poetry run python integration_tests/initialization/initialize_test_environment.py
           
       - name: Run integration tests
         env:
