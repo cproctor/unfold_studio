@@ -152,7 +152,6 @@ def test_story_path(driver, choices):
                 EC.element_to_be_clickable((By.XPATH, f"//a[contains(text(), '{choice_text}')]"))
             )
             choice.click()
-            time.sleep(2)
 
             if not wait_for_story_text(driver, "The end!"):
                 raise AssertionError("The end! not found after submission")
@@ -204,7 +203,6 @@ def test_story_path(driver, choices):
                 EC.element_to_be_clickable((By.XPATH, f"//a[contains(text(), '{choice_text}')]"))
             )
             choice.click()
-            time.sleep(2)
 
             if not wait_for_story_text(driver, "The end!"):
                 raise AssertionError("The end! not found after submission")
@@ -318,9 +316,7 @@ def test_all_paths():
             test_story_path(driver, path)
             print_bright_green(f"=== Test #{index} Completed ===\n")
             driver.delete_all_cookies()
-            time.sleep(2)
     finally:
-        time.sleep(5)
         driver.quit()
 
 
