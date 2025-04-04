@@ -1,6 +1,3 @@
-import reversion
-from unfold_studio.models import Story
-import django.utils.timezone as timezone
 from .initialize_story import create_story
 
 STORY_TITLE = 'Input/Generate Test Story'
