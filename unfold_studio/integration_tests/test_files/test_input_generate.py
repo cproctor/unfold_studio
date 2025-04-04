@@ -60,10 +60,22 @@ def get_story_text(driver):
     """Return the current story text from the page"""
     try:
         story_div = driver.find_element(By.CLASS_NAME, "innerText")
-        return story_div.text.strip()
+        return story_div.text.replace("Submit", "").strip()
     except Exception as e:
         print(f"Failed to get story text: {str(e)}")
         return ""
+
+def wait_for_story_text(driver, text, timeout=10):
+    """Wait for specific text to appear in the story."""
+    try:
+        WebDriverWait(driver, timeout).until(
+            lambda d: text in get_story_text(d)
+        )
+        return True
+    except TimeoutException:
+        print(f"✗ Timeout waiting for text: '{text}'")
+        print(f"Current story text: '{get_story_text(driver)}'")
+        return False
 
 def assert_input_state(driver, expected_value="", should_be_enabled=True):
     """Verify the state and value of the most recent input box"""
@@ -168,7 +180,9 @@ def test_story_path(driver, choices):
         print(f"Attempting to load URL: {url}")
         
         driver.get(url)
-        time.sleep(2)
+        
+        # Wait for initial story text
+        wait_for_story_text(driver, "This is a test story for input and generate functionality.")
         
         # Verify initial page load
         assert driver.current_url == url, f"URL mismatch. Expected: {url}, Got: {driver.current_url}"
@@ -191,10 +205,14 @@ def test_story_path(driver, choices):
         assert_input_state(driver, choices['name'], True)
         submit_button = wait_for_enabled_submit(driver)
         submit_button.click()
-        time.sleep(2)
+        
+        # Wait for name response
+        if not wait_for_story_text(driver, f"Nice to meet you, {choices['name']}!"):
+            raise AssertionError("Name response not found after submission")
+        
         # Verify texts appear in order
         assert_exact_texts(driver, [
-            "Nice to meet you, "+ choices['name'] + "!",
+            f"Nice to meet you, {choices['name']}!",
             "Now let's test generate with some context.",
             "Let's try input after generate."
         ])
@@ -210,10 +228,14 @@ def test_story_path(driver, choices):
         assert_input_state(driver, choices['food'], True)
         submit_button = wait_for_enabled_submit(driver)
         submit_button.click()
-        time.sleep(2)
+        
+        # Wait for food response
+        if not wait_for_story_text(driver, f"I see you like {choices['food']}"):
+            raise AssertionError("Food response not found after submission")
+        
         # Verify texts appear in order
         assert_exact_texts(driver, [
-            "I see you like " + choices['food'] + ". Let's generate something about that.",
+            f"I see you like {choices['food']}. Let's generate something about that.",
             "Now let's test input with choices.",
             "What would you like to do next?"
         ])
