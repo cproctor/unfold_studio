@@ -1,46 +1,56 @@
 import os
 import django
+import hashlib
+import json
 
 # Set up Django environment first if not already set up
 if not os.environ.get('DJANGO_SETTINGS_MODULE'):
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
     django.setup()
 
-from django.utils import timezone
-from text_generation.models import TextGenerationRecord
+from unfold_studio.text_generation.models import TextGenerationRecord
 
 def initialize_text_generation_records():
     """Initialize test records in the TextGenerationRecord model."""
     test_records = [
         {
-            'prompt': 'Generate a fun fact about pizza',
-            'response': 'The world\'s largest pizza was made in Rome, Italy, in 2012, measuring 13,580 square feet!',
-            'record_type': 'fact',
-            'timestamp': timezone.now()
+            'seed': 12345,
+            'messages': [
+                {"role": "user", "content": "Generate a fun fact about pizza"},
+                {"role": "assistant", "content": "The world's largest pizza was made in Rome, Italy, in 2012, measuring 13,580 square feet!"}
+            ],
+            'backend_config': {
+                "model": "gpt-3.5-turbo",
+                "temperature": 0.7,
+                "max_tokens": 100
+            },
+            'result': "The world's largest pizza was made in Rome, Italy, in 2012, measuring 13,580 square feet!"
         },
         {
-            'prompt': 'Write a short story about blue',
-            'response': 'In a world of endless skies, the color blue danced through clouds like a gentle whisper, touching everything with its serene beauty.',
-            'record_type': 'story',
-            'timestamp': timezone.now()
+            'seed': 67890,
+            'messages': [
+                {"role": "user", "content": "Write a short story about blue"},
+                {"role": "assistant", "content": "In a world of endless skies, the color blue danced through clouds like a gentle whisper, touching everything with its serene beauty."}
+            ],
+            'backend_config': {
+                "model": "gpt-3.5-turbo",
+                "temperature": 0.8,
+                "max_tokens": 150
+            },
+            'result': "In a world of endless skies, the color blue danced through clouds like a gentle whisper, touching everything with its serene beauty."
         },
         {
-            'prompt': 'Create a poem about the number 7',
-            'response': 'Lucky seven, standing tall\nMagic number heard in call\nSeven days to make a week\nSeven colors rainbows seek',
-            'record_type': 'poem',
-            'timestamp': timezone.now()
-        },
-        {
-            'prompt': 'Make a plan for eating sushi',
-            'response': '1. Start with lighter fish\n2. Use wasabi sparingly\n3. Dip fish-side down\n4. Eat in one bite\n5. Cleanse palate with ginger',
-            'record_type': 'plan',
-            'timestamp': timezone.now()
-        },
-        {
-            'prompt': 'Generate a quote about red',
-            'response': '"Red is the color of passion, of love, and of the fire that burns within our hearts to achieve greatness."',
-            'record_type': 'quote',
-            'timestamp': timezone.now()
+            'seed': 11111,
+            'messages': [
+                {"role": "user", "content": "Create a poem about the number 7"},
+                {"role": "assistant", "content": "Lucky seven, standing tall\nMagic number heard in call\nSeven days to make a week\nSeven colors rainbows seek"}
+            ],
+            'backend_config': {
+                "model": "gpt-3.5-turbo",
+                "temperature": 0.9,
+                "max_tokens": 100
+            },
+            'result': "Lucky seven, standing tall\nMagic number heard in call\nSeven days to make a week\nSeven colors rainbows seek"
         }
     ]
 
@@ -50,8 +60,15 @@ def initialize_text_generation_records():
     # Create new records
     created_records = []
     for record in test_records:
+        # Generate hashes for messages and backend_config
+        messages_json = json.dumps(record['messages'], sort_keys=True)
+        backend_config_json = json.dumps(record['backend_config'], sort_keys=True)
+        
+        record['messages_hash'] = hashlib.sha256(messages_json.encode()).hexdigest()
+        record['backend_config_hash'] = hashlib.sha256(backend_config_json.encode()).hexdigest()
+        
         created_record = TextGenerationRecord.objects.create(**record)
         created_records.append(created_record)
-        print(f"Created {record['record_type']} record with ID: {created_record.id}")
+        print(f"Created text generation record with ID: {created_record.id}")
 
     return created_records 
