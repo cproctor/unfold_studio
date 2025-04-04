@@ -388,7 +388,7 @@ def test_all_paths():
     test_paths = [
         # Color path with generation
         {
-            'name': 'Asif1',
+            'name': 'Asif11',
             'food': 'pizza',
             'path': 'color',
             'color': 'blue',
