@@ -68,31 +68,22 @@ jobs:
         
       - name: Install dependencies
         run: poetry install --with dev,docs,admin
-        
-      - name: Cache Chrome installation
-        uses: actions/cache@v4
-        with:
-          path: ~/chrome
-          key: ${{ runner.os }}-chrome-${{ env.INK_VERSION }}
-          restore-keys: |
-            ${{ runner.os }}-chrome-
             
-      - name: Install Chrome
-        if: steps.cache-chrome.outputs.cache-hit != 'true'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y chromium-browser chromium-chromedriver
-          mkdir -p ~/chrome
-          cp /usr/bin/chromium-browser ~/chrome/
-          cp /usr/bin/chromedriver ~/chrome/
-          
       - name: Set up Chrome
         run: |
           if [ -f ~/chrome/chromium-browser ]; then
+            echo "Using cached Chrome installation"
             sudo cp ~/chrome/chromium-browser /usr/bin/
             sudo cp ~/chrome/chromedriver /usr/bin/
             sudo chmod +x /usr/bin/chromium-browser
             sudo chmod +x /usr/bin/chromedriver
+          else
+            echo "Installing Chrome fresh"
+            sudo apt-get update
+            sudo apt-get install -y chromium-browser chromium-chromedriver
+            mkdir -p ~/chrome
+            cp /usr/bin/chromium-browser ~/chrome/
+            cp /usr/bin/chromedriver ~/chrome/
           fi
           
       - name: Set up PostgreSQL
