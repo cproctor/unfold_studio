@@ -16,8 +16,10 @@ env:
   POSTGRES_HOST: localhost
   POSTGRES_PORT: '5432'
   TEST_URL: http://localhost:8000/stories/29/
+  HEALTH_CHECK_URL: http://localhost:8000/
   CHROME_BIN: /usr/bin/chromium-browser
   CHROMEDRIVER_PATH: /usr/bin/chromedriver
+  INK_VERSION: 1.2.0
 
 jobs:
   run_unit_tests:
@@ -102,29 +104,13 @@ jobs:
           mkdir -p ink
           chmod 777 ink
           
-          # # Create media directory for file uploads
-          # mkdir -p media
-          # chmod 777 media
-          
-          # # Create static directory for static files
-          # mkdir -p static
-          # chmod 777 static
-          
-          # # Create logs directory
-          # mkdir -p logs
-          # chmod 777 logs
-          
-          # # Create temp directory
-          # mkdir -p temp
-          # chmod 777 temp
-          
       - name: Install inklecate
         run: |
           cd unfold_studio
-          wget https://github.com/inkle/ink/releases/download/v.1.2.0/inklecate_linux.zip
-          unzip inklecate_linux.zip -d inklecate_1.2.0
-          chmod +x inklecate_1.2.0/inklecate
-          echo "INKLECATE = os.path.join(BASE_DIR, 'inklecate_1.2.0', 'inklecate')" >> unfold_studio/settings.py
+          wget https://github.com/inkle/ink/releases/download/v.${{ env.INK_VERSION }}/inklecate_linux.zip
+          unzip inklecate_linux.zip -d inklecate_${{ env.INK_VERSION }}
+          chmod +x inklecate_${{ env.INK_VERSION }}/inklecate
+          echo "INKLECATE = os.path.join(BASE_DIR, 'inklecate_${{ env.INK_VERSION }}', 'inklecate')" >> unfold_studio/settings.py
           
       - name: Start Django server
         env:
@@ -140,7 +126,7 @@ jobs:
       - name: Verify Django server is running
         run: |
           echo "Checking Django server response..."
-          response=$(curl -s http://localhost:8000/)
+          response=$(curl -s ${{ env.HEALTH_CHECK_URL }})
           echo "Server response:"
           echo "$response"
           echo "$response" | grep -q "Django" || (echo "Django server is not running" && exit 1)
@@ -152,8 +138,6 @@ jobs:
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
-          # poetry run python manage.py makemigrations
-          # poetry run python manage.py migrate
           poetry run python -m integration_tests.initialization.initialize_test_environment
           
       - name: Run integration tests
@@ -161,7 +145,7 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
-          for test_file in unfold_studio/integration_tests/tests/*.py; do
+          for test_file in unfold_studio/integration_tests/test_files/*.py; do
             if [ -f "$test_file" ]; then
               echo "Running test file: $test_file"
               poetry run python "$test_file"
