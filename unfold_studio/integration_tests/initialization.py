@@ -78,7 +78,7 @@ What would you like to do with this color?
 BUG
 You chose {number}.
 
-What would you like to do with this number
+What would you like to do with this number?
 
 + Generate something about the number
     ~ generate("Write a short story about the number {number} in 20 words")
