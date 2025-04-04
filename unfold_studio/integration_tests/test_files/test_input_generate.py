@@ -21,7 +21,9 @@ from unfold_studio.integration_tests.test_files.test_utils import (
     assert_input_state,
     assert_exact_choices,
     assert_exact_texts,
-    initialize_chrome_driver
+    initialize_chrome_driver,
+    type_input,
+    submit_input
 )
 
 def test_story_path(driver, choices):
@@ -56,14 +58,8 @@ def test_story_path(driver, choices):
         
         # Enter name
         print("\nStep 1: Entering name...")
-        # Verify input is empty and enabled
-        assert_input_state(driver, "", True)
-        input_box = wait_for_enabled_input(driver)
-        input_box.send_keys(choices['name'])
-        # Verify input contains name
-        assert_input_state(driver, choices['name'], True)
-        submit_button = wait_for_enabled_submit(driver)
-        submit_button.click()
+        type_input(driver, choices['name'])
+        submit_input(driver)
         
         # Wait for Let's try input after generate.
         if not wait_for_story_text(driver, "Let's try input after generate."):
@@ -80,14 +76,8 @@ def test_story_path(driver, choices):
         
         # Enter food
         print("\nStep 2: Entering food...")
-        # Verify new input is empty and enabled
-        assert_input_state(driver, "", True)
-        input_box = wait_for_enabled_input(driver)
-        input_box.send_keys(choices['food'])
-        # Verify input contains food
-        assert_input_state(driver, choices['food'], True)
-        submit_button = wait_for_enabled_submit(driver)
-        submit_button.click()
+        type_input(driver, choices['food'])
+        submit_input(driver)
         
         # Wait for What would you like to do next?
         if not wait_for_story_text(driver, "What would you like to do next?"):
@@ -128,14 +118,8 @@ def test_story_path(driver, choices):
         # Handle specific path
         if choices['path'] == 'color':
             print("\nStep 4: Handling color path...")
-            # Verify color input is available
-            assert_input_state(driver, "", True)
-            input_box = wait_for_enabled_input(driver)
-            input_box.send_keys(choices['color'])
-            # Verify input contains color
-            assert_input_state(driver, choices['color'], True)
-            submit_button = wait_for_enabled_submit(driver)
-            submit_button.click()
+            type_input(driver, choices['color'])
+            submit_input(driver)
             time.sleep(2)
             # Verify texts appear in order
             assert_exact_texts(driver, [
@@ -175,18 +159,9 @@ def test_story_path(driver, choices):
             
         elif choices['path'] == 'number':
             print("\nStep 4: Handling number path...")
-            # Verify number input is available
-            assert_input_state(driver, "", True)
-            input_box = wait_for_enabled_input(driver)
-            input_box.send_keys(choices['number'])
-            
-            # Verify input contains number
-            assert_input_state(driver, choices['number'], True)
-            
-            # Find and click the submit button
-            submit_button = wait_for_enabled_submit(driver)
-            submit_button.click()
-            time.sleep(2)  # Wait for submission
+            type_input(driver, choices['number'])
+            submit_input(driver)
+            time.sleep(2)
             
             # Verify texts appear in order
             assert_exact_texts(driver, [
@@ -248,9 +223,7 @@ def test_all_paths():
     """Run comprehensive tests for all possible story paths"""
     print("Starting comprehensive story testing...")
     
-    driver = initialize_chrome_driver()
-    
-    # Test paths covering all possible story branches
+    # Test paths
     test_paths = [
         # Color path with generation
         {
@@ -292,16 +265,14 @@ def test_all_paths():
         }
     ]
     
+    driver = None
     try:
-        for index, path in enumerate(test_paths, 1):
-            print_bright_green(f"\n=== Running Test #{index} ===")
+        driver = initialize_chrome_driver()
+        for path in test_paths:
             test_story_path(driver, path)
-            print_bright_green(f"=== Test #{index} Completed ===\n")
-            driver.delete_all_cookies()
-            time.sleep(2)
     finally:
-        driver.quit()
-
+        if driver:
+            driver.quit()
 
 if __name__ == "__main__":
     test_all_paths() 

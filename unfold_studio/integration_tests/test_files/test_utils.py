@@ -46,6 +46,19 @@ def print_bright_green(message):
     """Print a message in bright green color."""
     print(f"\033[1;{LIGHT_GREEN}{message}{RESET}")
 
+def type_input(driver, text):
+    """Type text into the most recent input field."""
+    input_box = wait_for_enabled_input(driver)
+    input_box.clear()
+    input_box.send_keys(text)
+    return input_box
+
+def submit_input(driver):
+    """Submit the current input."""
+    submit_button = wait_for_enabled_submit(driver)
+    submit_button.click()
+    time.sleep(0.5)  # Short sleep to ensure submission is processed
+
 def wait_for_enabled_input(driver, timeout=10):
     """Wait for and return the most recent enabled input field"""
     start_time = time.time()
