@@ -1,12 +1,5 @@
-# import os
-# import django
 import hashlib
 import json
-
-# # Set up Django environment first if not already set up
-# if not os.environ.get('DJANGO_SETTINGS_MODULE'):
-#     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
-#     django.setup()
 
 from text_generation.models import TextGenerationRecord
 

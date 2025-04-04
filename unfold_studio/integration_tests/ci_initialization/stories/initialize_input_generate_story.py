@@ -1,13 +1,9 @@
 import reversion
 from unfold_studio.models import Story
 import django.utils.timezone as timezone
+from .initialize_story import create_story
 
-def create_input_generate_story(user, site):
-    print("Creating input/generate_story...")
-    story = Story.objects.create(
-        id=29,
-        title='Input/Generate Test Story',
-        ink='''
+INPUT_GENERATE_STORY_TEMPLATE = '''
 VAR name = ""
 VAR food = ""
 VAR color = ""
@@ -73,25 +69,18 @@ Alright, let's move on.
 === end ===
 The end!
 -> END
-        ''',
-        author=user,
-        public=True,
-        creation_date=timezone.now(),
-        edit_date=timezone.now(),
+'''
+
+def create_input_generate_story(user, site):
+    """Create the input/generate test story."""
+    print("Creating input/generate story...")
+    story_id = create_story(
+        user=user,
+        site=site,
+        story_id=29,
+        title='Input/Generate Test Story',
+        ink_content=INPUT_GENERATE_STORY_TEMPLATE,
         description='Test story to check input/generate functionality'
     )
-    story.sites.add(site)
-    
-    # Save the story first to get a version
-    story.save()
-    
-    # Register the story with reversion
-    with reversion.create_revision():
-        reversion.add_to_revision(story)
-    
-    # Now compile the story
-    story.compile()
-    story.save()
-    
-    print(f'Successfully created input/generate test story with ID: {story.id}')
-    return story.id 
+    print(f'Successfully created input/generate test story with ID: {story_id}')
+    return story_id 

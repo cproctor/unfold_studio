@@ -128,8 +128,6 @@ jobs:
         run: |
           echo "Checking Django server response..."
           response=$(curl -s http://${{ env.DJANGO_HOST }}:${{ env.DJANGO_PORT }}/)
-          echo "Server response:"
-          echo "$response"
           if ! echo "$response" | grep -q "Log in" || ! echo "$response" | grep -q "Sign up"; then
             echo "Django server response does not contain expected texts"
             exit 1
