@@ -4,9 +4,6 @@ from unfold_studio.integration_tests.utils import print_green
 from unfold_studio.integration_tests.constants import DEFAULT_GENERATE_RESPONSE_TEXT
 
 class InputGenerateTester2(BaseStoryTester):
-    
-    def __init__(self, test_paths, story_id, driver):
-        super().__init__(test_paths, story_id, driver)
         
     def test_story_path(self, path):
         self.load_story()
@@ -154,6 +151,4 @@ if __name__ == "__main__":
         print(f"\nTest execution failed: {str(e)}")
         raise
     finally:
-        if tester and hasattr(tester, 'driver') and tester.driver:
-            tester.tearDown()
-            
+        tester.teardown()
