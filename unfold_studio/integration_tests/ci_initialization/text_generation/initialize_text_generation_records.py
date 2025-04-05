@@ -2,79 +2,59 @@ import hashlib
 import json
 from text_generation.models import TextGenerationRecord
 
+DEFAULT_RESULT = "cached gen text yayyyyyyyy"
+DEFAULT_SEED = 45
+DEFAULT_BACKEND_CONFIG = {
+    "backend": "OpenAI",
+    "api_key": "...",
+    "temperature": 1.0,
+    "model": "gpt-4o-2024-05-13",
+    "memoize": False,
+}
+
 def initialize_text_generation_records():
     print("Creating text generation records...")
     
     test_records = [
         {
-            'seed': 45,
+            'seed': DEFAULT_SEED,
             'messages': [
                 {"role": "user", "content": "Write a short greeting for Asif1"}
             ],
-            'backend_config': {
-                "backend": "OpenAI",
-                "api_key": "...",
-                "temperature": 1.0,
-                "model": "gpt-4o-2024-05-13",
-                "memoize": False,
-            },
-            'result': "cached gen text yayyyyyyyy"
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_RESULT
         },
         {
-            'seed': 45,
+            'seed': DEFAULT_SEED,
             'messages': [
                 {"role": "user", "content": "Write a short greeting for Asif2"}
             ],
-            'backend_config': {
-                "backend": "OpenAI",
-                "api_key": "...",
-                "temperature": 1.0,
-                "model": "gpt-4o-2024-05-13",
-                "memoize": False,
-            },
-            'result': "cached gen text yayyyyyyyy"
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_RESULT
         },
         {
-            'seed': 45,
+            'seed': DEFAULT_SEED,
             'messages': [
                 {"role": "user", "content": "Write a short greeting for Asif3"}
             ],
-            'backend_config': {
-                "backend": "OpenAI",
-                "api_key": "...",
-                "temperature": 1.0,
-                "model": "gpt-4o-2024-05-13",
-                "memoize": False,
-            },
-            'result': "cached gen text yayyyyyyyy"
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_RESULT
         },
         {
-            'seed': 45,
+            'seed': DEFAULT_SEED,
             'messages': [
                 {"role": "user", "content": "Write a short greeting for Asif4"}
             ],
-            'backend_config': {
-                "backend": "OpenAI",
-                "api_key": "...",
-                "temperature": 1.0,
-                "model": "gpt-4o-2024-05-13",
-                "memoize": False,
-            },
-            'result': "cached gen text yayyyyyyyy"
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_RESULT
         },
         {
-            'seed': 45,
+            'seed': DEFAULT_SEED,
             'messages': [
                 {"role": "user", "content": "Write a short greeting for Asif5"}
             ],
-            'backend_config': {
-                "backend": "OpenAI",
-                "api_key": "...",
-                "temperature": 1.0,
-                "model": "gpt-4o-2024-05-13",
-                "memoize": False,
-            },
-            'result': "cached gen text yayyyyyyyy"
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_RESULT
         },
     ]
 
