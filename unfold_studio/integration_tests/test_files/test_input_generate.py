@@ -1,6 +1,4 @@
-import os
 from unfold_studio.integration_tests.test_files.base_story_tester import BaseStoryTester
-import time
 from unfold_studio.integration_tests.utils import initialize_chrome_driver
 from unfold_studio.integration_tests.utils import print_green
 
