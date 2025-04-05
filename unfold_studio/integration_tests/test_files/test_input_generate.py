@@ -84,8 +84,8 @@ class InputGenerateTester(BaseStoryTester):
                 self.wait_for_story_text("The end!")
                 
                 expected_texts = [choices['choice2']]
-                # if choices['choice2'] == "Generate something about the color":
-                #     expected_texts.append(DEFAULT_GENERATE_RESPONSE_TEXT)
+                if choices['choice2'] == "Generate something about the color":
+                    expected_texts.append(DEFAULT_GENERATE_RESPONSE_TEXT)
                 expected_texts.append("The end!")
                 self.assert_exact_texts_in_order(expected_texts)
                 
