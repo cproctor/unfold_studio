@@ -21,6 +21,7 @@ env:
   CHROMEDRIVER_PATH: /usr/bin/chromedriver
   INK_VERSION: 1.2.0
   INTEGRATION_TEST_FILES_PATH: unfold_studio/integration_tests/test_files
+  FORCE_COLOR: 1
 
 jobs:
   run_unit_tests:
