@@ -60,6 +60,12 @@ def initialize_text_generation_records():
             created_record = TextGenerationRecord.objects.create(**record)
             created_records.append(created_record)
             print(f"Created text generation record {i}/{len(test_records)} - ID: {created_record.id}")
+            print(f"  seed: {created_record.seed}")
+            print(f"  messages: {created_record.messages}")
+            print(f"  messages_hash: {created_record.messages_hash}")
+            print(f"  backend_config: {created_record.backend_config}")
+            print(f"  backend_config_hash: {created_record.backend_config_hash}")
+            print(f"  result: {created_record.result}")
         
         print(f"Successfully created {len(created_records)} text generation records")
     except Exception as e:
