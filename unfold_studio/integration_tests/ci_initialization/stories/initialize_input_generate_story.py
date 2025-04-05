@@ -25,7 +25,7 @@ Let's try input after generate.
 ~ input("What's your favorite food?", "food")
 BUG
 I see you like {food}. Let's generate something about that.
-~ generate("Write a short description about why {name} might like {food} in 20 words")
+~ generate("Write a short description about why he might like {food} in 20 words")
 
 Now let's test input with choices.
 What would you like to do next?

@@ -47,6 +47,46 @@ def initialize_text_generation_records():
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short description about why he might like pizza in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short description about why he might like sushi in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short description about why he might like tacos in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short description about why he might like pasta in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short description about why he might like burger in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
     ]
 
     created_records = []
