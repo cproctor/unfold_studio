@@ -35,7 +35,7 @@ def initialize_text_generation_records():
         {
             'seed': 45,
             'messages': [
-                {"role": "user", "content": "Write a short greeting for Asif1"}
+                {"role": "user", "content": "Write a short greeting for Asif11"}
             ],
             'backend_config': {
                 "backend": "OpenAI",
@@ -52,10 +52,10 @@ def initialize_text_generation_records():
     try:
         for i, record in enumerate(test_records, 1):
             messages_json = json.dumps(record['messages'], sort_keys=True)
+            messages_str = ''.join(messages_json.split())
+            
             backend_config_json = json.dumps(record['backend_config'], sort_keys=True)
-
-            messages_str = ''.join(json.dumps(messages_json).split())
-            config_str = ''.join(json.dumps(backend_config_json).split())
+            config_str = ''.join(backend_config_json.split())
             
             record['messages_hash'] = hashlib.sha256(messages_str.encode()).hexdigest()
             record['backend_config_hash'] = hashlib.sha256(config_str.encode()).hexdigest()
