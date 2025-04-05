@@ -167,28 +167,7 @@ def get_story_text(driver):
 
 
 
-def assert_input_state(driver, expected_value="", should_be_enabled=True):
-    """Verify the state and value of the most recent input box"""
-    try:
-        input_boxes = driver.find_elements(By.CSS_SELECTOR, "input[type='text']")
-        if not input_boxes:
-            raise AssertionError("No input boxes found")
-        
-        latest_input = input_boxes[-1]
-        actual_value = latest_input.get_attribute("value")
-        is_enabled = not latest_input.get_attribute("disabled")
-        
-        if actual_value != expected_value:
-            raise AssertionError(f"Input value mismatch. Expected: '{expected_value}', Got: '{actual_value}'")
-        
-        if is_enabled != should_be_enabled:
-            raise AssertionError(f"Input enabled state mismatch. Expected: {should_be_enabled}, Got: {is_enabled}")
-            
-        print_green(f"✓ Input state verified - Value: '{actual_value}', Enabled: {is_enabled}")
-        return True
-    except Exception as e:
-        print(f"✗ Failed to verify input state: {str(e)}")
-        raise
+
 
 def assert_exact_choices(driver, expected_choices):
     """
