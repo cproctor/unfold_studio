@@ -27,6 +27,7 @@ class InputGenerateTester(BaseStoryTester):
                 "Let's start with a simple input.",
                 f"Nice to meet you, {choices['name']}!",
                 "Now let's test generate with some context.",
+                "cached gen text yayyyyyyyy"
                 "Let's try input after generate."
             ])
             print_green("✓ Name step completed successfully")

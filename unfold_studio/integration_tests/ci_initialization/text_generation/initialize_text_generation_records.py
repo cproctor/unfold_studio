@@ -33,17 +33,18 @@ def initialize_text_generation_records():
             'result': "In a world of endless skies, the color blue danced through clouds like a gentle whisper, touching everything with its serene beauty."
         },
         {
-            'seed': 11111,
+            'seed': 45,
             'messages': [
-                {"role": "user", "content": "Create a poem about the number 7"},
-                {"role": "assistant", "content": "Lucky seven, standing tall\nMagic number heard in call\nSeven days to make a week\nSeven colors rainbows seek"}
+                {"role": "user", "content": "Write a short greeting for Asif1"}
             ],
             'backend_config': {
-                "model": "gpt-3.5-turbo",
-                "temperature": 0.9,
-                "max_tokens": 100
+                "backend": "OpenAI",
+                "api_key": "...",
+                "temperature": 1.0,
+                "model": "gpt-4o-2024-05-13",
+                "memoize": False,
             },
-            'result': "Lucky seven, standing tall\nMagic number heard in call\nSeven days to make a week\nSeven colors rainbows seek"
+            'result': "cached gen text yayyyyyyyy"
         }
     ]
 
