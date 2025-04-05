@@ -7,6 +7,8 @@ def initialize_text_generation_records():
     print("Creating text generation records...")
     
     test_records = [
+
+        # Text generation for all paths for story 29
         {
             'seed': DEFAULT_SEED,
             'messages': [
@@ -115,6 +117,156 @@ def initialize_text_generation_records():
             'seed': DEFAULT_SEED,
             'messages': [
                 {"role": "user", "content": "Write a short story about the number 3 in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+
+
+
+        # Text generation for all paths for story 31
+
+
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a fun fact about being 25 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a fun fact about being 30 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a fun fact about being 20 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a fun fact about being 35 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a fun fact about being 28 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short story about someone who loves painting in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short poem about painting in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short story about someone who loves gaming in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short poem about gaming in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a 3-step plan to achieve the dream of becoming an astronaut in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a motivational quote about pursuing the dream of becoming an astronaut in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a 3-step plan to achieve the dream of opening a cafe in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a motivational quote about pursuing the dream of opening a cafe in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a farewell message for Alice who is 25 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a farewell message for Bob who is 30 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a farewell message for Charlie who is 20 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a farewell message for Diana who is 35 years old in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a farewell message for Eve who is 28 years old in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': DEFAULT_GENERATE_RESPONSE_TEXT

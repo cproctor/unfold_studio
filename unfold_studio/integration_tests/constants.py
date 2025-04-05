@@ -1,4 +1,4 @@
-DEFAULT_GENERATE_RESPONSE_TEXT = "cached gen text yayyyyyyyy"
+DEFAULT_GENERATE_RESPONSE_TEXT = "default gen text"
 DEFAULT_SEED = 45
 DEFAULT_BACKEND_CONFIG = {
     "backend": "OpenAI",
