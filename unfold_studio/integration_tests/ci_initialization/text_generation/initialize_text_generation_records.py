@@ -1,7 +1,7 @@
 import hashlib
 import json
 from text_generation.models import TextGenerationRecord
-from constants import DEFAULT_GENERATE_RESPONSE_TEXT, DEFAULT_SEED, DEFAULT_BACKEND_CONFIG
+from integration_tests.constants import DEFAULT_GENERATE_RESPONSE_TEXT, DEFAULT_SEED, DEFAULT_BACKEND_CONFIG
 
 def initialize_text_generation_records():
     print("Creating text generation records...")
