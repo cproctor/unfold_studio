@@ -155,7 +155,5 @@ if __name__ == "__main__":
         raise
     finally:
         if tester and hasattr(tester, 'driver') and tester.driver:
-            try:
-                tester.driver.quit()
-            except:
-                pass 
+            tester.tearDown()
+            
