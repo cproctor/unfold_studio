@@ -73,7 +73,6 @@ Thank you for participating!
 """
 
 def create_input_generate_story2(user, site):
-    print(f"Creating {STORY_TITLE} story...")
     story_id = create_story(
         user=user,
         site=site,
@@ -82,5 +81,5 @@ def create_input_generate_story2(user, site):
         ink_content=STORY_TEMPLATE,
         description=STORY_DESCRIPTION
     )
-    print(f'Successfully created {STORY_TITLE} test story with ID: {story_id}')
+
     return story_id 

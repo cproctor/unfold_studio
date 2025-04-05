@@ -2,6 +2,7 @@ from unfold_studio.models import Story
 import django.utils.timezone as timezone
 
 def create_story(user, site, story_id, title, ink_content, description, is_public=True):
+    print(f"Creating {title} story...")
     story = Story.objects.create(
         id=story_id,
         title=title,
@@ -17,5 +18,6 @@ def create_story(user, site, story_id, title, ink_content, description, is_publi
     story.compile()
 
     story.save()
+    print(f'Successfully created {title} test story with ID: {story_id}')
     
     return story.id 
