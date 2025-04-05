@@ -4,7 +4,6 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
 django.setup()
 
-from django.utils import timezone
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 
