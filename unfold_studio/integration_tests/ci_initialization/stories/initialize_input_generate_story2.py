@@ -1,6 +1,9 @@
 from .initialize_story import create_story
 
-INPUT_GENERATE_STORY2_TEMPLATE = """
+STORY_TITLE = 'Input/Generate Test Story 2'
+STORY_DESCRIPTION = 'Test story to check input/generate functionality 2'
+STORY_ID = 31
+STORY_TEMPLATE = """
 VAR name = ""
 VAR age = ""
 VAR hobby = ""
@@ -68,24 +71,15 @@ Thank you for participating!
 -> END
 """
 
-def create_input_generate_story2():
-    """Create a new input/generate story for testing."""
-    from django.contrib.auth.models import User
-    from django.contrib.sites.models import Site
-    
-    # Get or create test user and site
-    user = User.objects.create_user('testuser2', 'test2@example.com', 'testpass')
-    site = Site.objects.get(id=1)
-    
-    # Create the story
-    story = create_story(
+def create_input_generate_story2(user, site):
+    print(f"Creating {STORY_TITLE} story...")
+    story_id = create_story(
         user=user,
         site=site,
-        story_id=30,  # Using a different ID than the first story
-        title="Input/Generate Story Test 2",
-        ink_content=INPUT_GENERATE_STORY2_TEMPLATE,
-        description="Test story for input and generate functionality with multiple paths",
-        is_public=True
+        story_id=STORY_ID,
+        title=STORY_TITLE,
+        ink_content=STORY_TEMPLATE,
+        description=STORY_DESCRIPTION
     )
-    
-    return story.id 
+    print(f'Successfully created {STORY_TITLE} test story with ID: {story_id}')
+    return story_id 
