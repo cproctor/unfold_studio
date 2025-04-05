@@ -12,7 +12,8 @@ def print_green(message):
     print(f"{DEEP_GREEN}{message}{RESET}")
 
 def print_bright_green(message):
-    print(f"\033[1;{LIGHT_GREEN}{message}{RESET}") 
+    # Use a single, complete ANSI code for bright green
+    print(f"\033[1;32m{message}{RESET}")  # or \033[92m for bright green
 
 def initialize_chrome_driver():
     """Initialize and return a configured Chrome WebDriver instance."""
