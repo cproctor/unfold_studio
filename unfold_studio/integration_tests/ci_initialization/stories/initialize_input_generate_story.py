@@ -1,4 +1,4 @@
-from .initialize_story import create_story
+from integration_tests.ci_initialization.stories.initialize_story import create_story
 
 STORY_TITLE = 'Input/Generate Test Story'
 STORY_DESCRIPTION = 'Test story to check input/generate functionality'
