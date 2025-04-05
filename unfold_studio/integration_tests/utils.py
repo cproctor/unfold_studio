@@ -4,15 +4,12 @@ from selenium.webdriver.chrome.options import Options
 from webdriver_manager.chrome import ChromeDriverManager
 import os
 
-LIGHT_GREEN = '\033[38;5;120m'
-DEEP_GREEN = '\033[32m'
-RESET = '\033[0m'
 
 def print_green(message):
-    print(f"{DEEP_GREEN}{message}{RESET}")
+    print(f"\033[32m{message}\033[0m")
 
 def print_bright_green(message):
-    print(f"\033[1;32m{message}{RESET}")
+    print(f"\033[1;92m{message}\033[0m")
 
 def initialize_chrome_driver():
     """Initialize and return a configured Chrome WebDriver instance."""
