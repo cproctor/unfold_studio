@@ -54,8 +54,8 @@ def initialize_text_generation_records():
             messages_json = json.dumps(record['messages'], sort_keys=True)
             backend_config_json = json.dumps(record['backend_config'], sort_keys=True)
 
-            messages_str = json.dumps(messages_json, sort_keys=True, separators=(',', ':'))
-            config_str = json.dumps(backend_config_json, sort_keys=True, separators=(',', ':'))
+            messages_str = ''.join(json.dumps(messages_json).split())
+            config_str = ''.join(json.dumps(backend_config_json).split())
             
             record['messages_hash'] = hashlib.sha256(messages_str.encode()).hexdigest()
             record['backend_config_hash'] = hashlib.sha256(config_str.encode()).hexdigest()

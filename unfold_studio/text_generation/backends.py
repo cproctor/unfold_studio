@@ -33,11 +33,11 @@ class OpenAIBackend(TextGenerationBackendInterface):
         self.temperature = config['temperature']
     
     def _get_messages_hash(self, messages):
-        messages_str = json.dumps(messages, sort_keys=True, separators=(',', ':'))
+        messages_str = ''.join(json.dumps(messages).split())
         return hashlib.sha256(messages_str.encode()).hexdigest()
 
     def _get_backend_config_hash(self):
-        config_str = json.dumps(self.config, sort_keys=True, separators=(',', ':'))
+        config_str = ''.join(json.dumps(self.config).split())
         return hashlib.sha256(config_str.encode()).hexdigest()
 
     def _get_cached_response(self, seed, messages_hash, backend_config_hash):
