@@ -1,7 +1,8 @@
 import os
 from unfold_studio.integration_tests.test_files.base_story_tester import BaseStoryTester
 import time
-from unfold_studio.integration_tests.test_files.test_utils import initialize_chrome_driver
+from unfold_studio.integration_tests.utils import initialize_chrome_driver
+from unfold_studio.integration_tests.utils import print_green
 
 class InputGenerateTester(BaseStoryTester):
         
@@ -15,7 +16,7 @@ class InputGenerateTester(BaseStoryTester):
                 "This is a test story for input and generate functionality.",
                 "Let's start with a simple input."
             ])
-            self.print_green("✓ Initial texts verified successfully")
+            print_green("✓ Initial texts verified successfully")
 
             print("\nStep 1: Entering name...")
             self.assert_input_box_exists("What's your name?")
@@ -30,7 +31,7 @@ class InputGenerateTester(BaseStoryTester):
                 "Now let's test generate with some context.",
                 "Let's try input after generate."
             ])
-            self.print_green("✓ Name step completed successfully")
+            print_green("✓ Name step completed successfully")
             
             print("\nStep 2: Entering food...")
             self.assert_input_box_exists("What's your favorite food?")
@@ -44,7 +45,7 @@ class InputGenerateTester(BaseStoryTester):
                 "Now let's test input with choices.",
                 "What would you like to do next?"
             ])
-            self.print_green("✓ Food step completed successfully")
+            print_green("✓ Food step completed successfully")
             
             print("\nStep 3: Selecting path...")
             self.assert_exact_choices([
@@ -59,7 +60,7 @@ class InputGenerateTester(BaseStoryTester):
                 "What would you like to do next?",
                 choices['choice1']
             ])
-            self.print_green(f"✓ Selected path: {choices['choice1']}")
+            print_green(f"✓ Selected path: {choices['choice1']}")
             
             if 'color' in choices:
                 print("\nStep 4: Handling color path...")
@@ -86,7 +87,7 @@ class InputGenerateTester(BaseStoryTester):
                     "The end!"
                 ])
                 
-                self.print_green(f"✓ Color path completed - Choice: {choices['choice2']}")
+                print_green(f"✓ Color path completed - Choice: {choices['choice2']}")
                 
             elif 'number' in choices:
                 print("\nStep 4: Handling number path...")
@@ -113,7 +114,7 @@ class InputGenerateTester(BaseStoryTester):
                     "The end!"
                 ])
                 
-                self.print_green(f"✓ Number path completed - Choice: {choices['choice2']}")
+                print_green(f"✓ Number path completed - Choice: {choices['choice2']}")
             
             else:
                 print("\nStep 4: Handling skip path...")
@@ -121,9 +122,9 @@ class InputGenerateTester(BaseStoryTester):
                     "Alright, let's move on.",
                     "The end!"
                 ])
-                self.print_green("✓ Skip path completed")
+                print_green("✓ Skip path completed")
             
-            self.print_green("\n✓ Path completed successfully with all assertions passed!")
+            print_green("\n✓ Path completed successfully with all assertions passed!")
             
         except Exception as e:
             print(f"\n✗ Test failed: {str(e)}")

@@ -12,6 +12,7 @@ from selenium.common.exceptions import TimeoutException
 from webdriver_manager.chrome import ChromeDriverManager
 import time
 import os
+from unfold_studio.integration_tests.utils import print_green, print_bright_green
 
 
 
@@ -36,18 +37,18 @@ class BaseStoryTester:
         print(f"Loading story from {self.url}")
         self.driver.get(self.url)
         assert self.driver.current_url == self.url, f"URL mismatch. Expected: {self.url}, Got: {self.driver.current_url}"
-        self.print_green("✓ Initial page loaded successfully")
+        print_green("✓ Initial page loaded successfully")
 
     def run_all_tests(self):
         print(f"Starting {self.__class__.__name__} testing...")
         
         for i, path in enumerate(self.test_paths, 1):
             print(f"\n{'='*50}")
-            self.print_bright_green(f"Running test path {i} of {len(self.test_paths)}")
-            self.print_bright_green(f"Test path details: {path}")
-            self.print_bright_green(f"{'='*50}\n")
+            print_bright_green(f"Running test path {i} of {len(self.test_paths)}")
+            print_bright_green(f"Test path details: {path}")
+            print_bright_green(f"{'='*50}\n")
             self.test_story_path(path)
-            self.print_bright_green(f"\n✓ Test path {i} completed successfully\n")
+            print_bright_green(f"\n✓ Test path {i} completed successfully\n")
 
         
     def teardown(self):
@@ -58,12 +59,6 @@ class BaseStoryTester:
                 print("Driver quit")
             except Exception as e:
                 print(f"Error quitting driver: {str(e)}")
-
-    def print_green(self, message):
-        print(f"{DEEP_GREEN}{message}{RESET}")
-
-    def print_bright_green(self, message):
-        print(f"\033[1;{LIGHT_GREEN}{message}{RESET}")
 
     def _get_story_text(self):
         try:
@@ -90,7 +85,7 @@ class BaseStoryTester:
 
     def assert_input_box_exists(self, placeholder):
         input_box = self._wait_for_input_box_with_placeholder(placeholder)
-        self.print_green(f"✓ Found input box with placeholder: '{placeholder}'")
+        print_green(f"✓ Found input box with placeholder: '{placeholder}'")
         return input_box 
     
     def assert_exact_choices(self, expected_choices):
@@ -109,9 +104,9 @@ class BaseStoryTester:
                     print(f"✗ Choice mismatch at position {i+1}. Expected: '{expected}', Got: '{actual_text}'")
                     print(f"All choices found: {[c.text.strip() for c in choices]}")
                     raise AssertionError(f"Choice mismatch at position {i+1}")
-                self.print_green(f"✓ Choice verified at position {i+1}: '{actual_text}'")
+                print_green(f"✓ Choice verified at position {i+1}: '{actual_text}'")
                 
-            self.print_green("✓ All choices verified in exact order")
+            print_green("✓ All choices verified in exact order")
             return True
         except Exception as e:
             print(f"✗ Failed to verify choices: {str(e)}")
@@ -142,7 +137,7 @@ class BaseStoryTester:
                 print(f"Story lines: {lines}")
                 raise AssertionError(f"Expected texts not found in correct order: {missing_texts}")
                 
-            self.print_green("✓ Found all expected texts in correct order in story history")
+            print_green("✓ Found all expected texts in correct order in story history")
             return True
         except Exception as e:
             print(f"✗ Failed to verify texts: {str(e)}")
