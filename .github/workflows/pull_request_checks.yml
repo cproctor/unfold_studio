@@ -136,7 +136,7 @@ jobs:
           
       - name: Initialize test environment
         env:
-          PYTHONPATH: ${{ github.workspace }}/unfold_studio:${{ github.workspace }}
+          PYTHONPATH: ${{ github.workspace }}
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
