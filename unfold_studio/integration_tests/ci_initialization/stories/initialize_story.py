@@ -1,4 +1,4 @@
-from unfold_studio.unfold_studio.models import Story
+from unfold_studio.models import Story
 import django.utils.timezone as timezone
 
 def create_story(user, site, story_id, title, ink_content, description, is_public=True):

@@ -1,6 +1,6 @@
 import hashlib
 import json
-from unfold_studio.text_generation.models import TextGenerationRecord
+from text_generation.models import TextGenerationRecord
 
 def initialize_text_generation_records():
     print("Creating text generation records...")
