@@ -35,7 +35,7 @@ def initialize_text_generation_records():
         {
             'seed': 45,
             'messages': [
-                {"role": "user", "content": "Write a short greeting for Asif11"}
+                {"role": "user", "content": "Write a short greeting for Asif1"}
             ],
             'backend_config': {
                 "backend": "OpenAI",
