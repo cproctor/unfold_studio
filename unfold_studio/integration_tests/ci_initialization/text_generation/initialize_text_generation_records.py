@@ -7,32 +7,6 @@ def initialize_text_generation_records():
     
     test_records = [
         {
-            'seed': 12345,
-            'messages': [
-                {"role": "user", "content": "Generate a fun fact about pizza"},
-                {"role": "assistant", "content": "The world's largest pizza was made in Rome, Italy, in 2012, measuring 13,580 square feet!"}
-            ],
-            'backend_config': {
-                "model": "gpt-3.5-turbo",
-                "temperature": 0.7,
-                "max_tokens": 100
-            },
-            'result': "The world's largest pizza was made in Rome, Italy, in 2012, measuring 13,580 square feet!"
-        },
-        {
-            'seed': 67890,
-            'messages': [
-                {"role": "user", "content": "Write a short story about blue"},
-                {"role": "assistant", "content": "In a world of endless skies, the color blue danced through clouds like a gentle whisper, touching everything with its serene beauty."}
-            ],
-            'backend_config': {
-                "model": "gpt-3.5-turbo",
-                "temperature": 0.8,
-                "max_tokens": 150
-            },
-            'result': "In a world of endless skies, the color blue danced through clouds like a gentle whisper, touching everything with its serene beauty."
-        },
-        {
             'seed': 45,
             'messages': [
                 {"role": "user", "content": "Write a short greeting for Asif1"}
@@ -45,7 +19,63 @@ def initialize_text_generation_records():
                 "memoize": False,
             },
             'result': "cached gen text yayyyyyyyy"
-        }
+        },
+        {
+            'seed': 45,
+            'messages': [
+                {"role": "user", "content": "Write a short greeting for Asif2"}
+            ],
+            'backend_config': {
+                "backend": "OpenAI",
+                "api_key": "...",
+                "temperature": 1.0,
+                "model": "gpt-4o-2024-05-13",
+                "memoize": False,
+            },
+            'result': "cached gen text yayyyyyyyy"
+        },
+        {
+            'seed': 45,
+            'messages': [
+                {"role": "user", "content": "Write a short greeting for Asif3"}
+            ],
+            'backend_config': {
+                "backend": "OpenAI",
+                "api_key": "...",
+                "temperature": 1.0,
+                "model": "gpt-4o-2024-05-13",
+                "memoize": False,
+            },
+            'result': "cached gen text yayyyyyyyy"
+        },
+        {
+            'seed': 45,
+            'messages': [
+                {"role": "user", "content": "Write a short greeting for Asif4"}
+            ],
+            'backend_config': {
+                "backend": "OpenAI",
+                "api_key": "...",
+                "temperature": 1.0,
+                "model": "gpt-4o-2024-05-13",
+                "memoize": False,
+            },
+            'result': "cached gen text yayyyyyyyy"
+        },
+        {
+            'seed': 45,
+            'messages': [
+                {"role": "user", "content": "Write a short greeting for Asif5"}
+            ],
+            'backend_config': {
+                "backend": "OpenAI",
+                "api_key": "...",
+                "temperature": 1.0,
+                "model": "gpt-4o-2024-05-13",
+                "memoize": False,
+            },
+            'result': "cached gen text yayyyyyyyy"
+        },
     ]
 
     created_records = []
