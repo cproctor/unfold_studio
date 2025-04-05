@@ -52,7 +52,7 @@ Would you like to:
 === dream_path ===
 ~ input("What's your biggest dream?", "dream")
 BUG
-That's an amazing dream!
+That's an amazing dream! {dream} is inspiring.
 
 Would you like to:
 + Generate a plan to achieve it
