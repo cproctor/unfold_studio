@@ -1,6 +1,7 @@
 from unfold_studio.integration_tests.test_files.base_story_tester import BaseStoryTester
 from unfold_studio.integration_tests.utils import initialize_chrome_driver
 from unfold_studio.integration_tests.utils import print_green
+from unfold_studio.integration_tests.constants import DEFAULT_GENERATE_RESPONSE_TEXT
 
 class InputGenerateTester(BaseStoryTester):
         
@@ -27,7 +28,7 @@ class InputGenerateTester(BaseStoryTester):
                 "Let's start with a simple input.",
                 f"Nice to meet you, {choices['name']}!",
                 "Now let's test generate with some context.",
-                "cached gen text yayyyyyyyy",
+                DEFAULT_GENERATE_RESPONSE_TEXT,
                 "Let's try input after generate."
             ])
             print_green("✓ Name step completed successfully")
@@ -41,6 +42,7 @@ class InputGenerateTester(BaseStoryTester):
             
             self.assert_exact_texts_in_order([
                 f"I see you like {choices['food']}. Let's generate something about that.",
+                DEFAULT_GENERATE_RESPONSE_TEXT,
                 "Now let's test input with choices.",
                 "What would you like to do next?"
             ])
