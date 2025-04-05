@@ -35,12 +35,12 @@ class OpenAIBackend(TextGenerationBackendInterface):
     def _get_messages_hash(self, messages):
         messages_string = json.dumps(messages, sort_keys=True)
         messages_string_no_whitespace = ''.join(messages_string.split())
-        hash= hashlib.sha256(messages_string_no_whitespace.encode()).hexdigest()
-        return hash
+        return hashlib.sha256(messages_string_no_whitespace.encode()).hexdigest()
 
     def _get_backend_config_hash(self):
-        config_str = ''.join(json.dumps(self.config).split())
-        return hashlib.sha256(config_str.encode()).hexdigest()
+        config_string = json.dumps(self.config, sort_keys=True)
+        config_string_no_whitespace = ''.join(config_string.split())
+        return hashlib.sha256(config_string_no_whitespace.encode()).hexdigest()
 
     def _get_cached_response(self, seed, messages_hash, backend_config_hash):
         return TextGenerationRecord.objects.filter(

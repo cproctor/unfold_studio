@@ -3,6 +3,7 @@ import json
 from text_generation.models import TextGenerationRecord
 
 DEFAULT_RESULT = "cached gen text yayyyyyyyy"
+# Below two variables should match with the ones in base_settings.py file
 DEFAULT_SEED = 45
 DEFAULT_BACKEND_CONFIG = {
     "backend": "OpenAI",
