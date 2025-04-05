@@ -44,7 +44,7 @@ class OpenAIBackend(TextGenerationBackendInterface):
         return TextGenerationRecord.objects.filter(
             seed=seed,
             # messages_hash=messages_hash,
-            # backend_config_hash=backend_config_hash
+            backend_config_hash=backend_config_hash,
         ).values_list('result', flat=True).first()
 
     def _save_to_cache(self, seed, messages_hash, messages, result, backend_config_hash):
