@@ -1,17 +1,7 @@
 import hashlib
 import json
 from text_generation.models import TextGenerationRecord
-
-DEFAULT_RESULT = "cached gen text yayyyyyyyy"
-# Below two variables should match with the ones in base_settings.py file
-DEFAULT_SEED = 45
-DEFAULT_BACKEND_CONFIG = {
-    "backend": "OpenAI",
-    "api_key": "...",
-    "temperature": 1.0,
-    "model": "gpt-4o-2024-05-13",
-    "memoize": False,
-}
+from constants import DEFAULT_GENERATE_RESPONSE_TEXT, DEFAULT_SEED, DEFAULT_BACKEND_CONFIG
 
 def initialize_text_generation_records():
     print("Creating text generation records...")
@@ -23,7 +13,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short greeting for Asif1"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_RESULT
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
         {
             'seed': DEFAULT_SEED,
@@ -31,7 +21,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short greeting for Asif2"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_RESULT
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
         {
             'seed': DEFAULT_SEED,
@@ -39,7 +29,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short greeting for Asif3"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_RESULT
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
         {
             'seed': DEFAULT_SEED,
@@ -47,7 +37,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short greeting for Asif4"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_RESULT
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
         {
             'seed': DEFAULT_SEED,
@@ -55,7 +45,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short greeting for Asif5"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_RESULT
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
     ]
 
