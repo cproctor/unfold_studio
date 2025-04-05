@@ -51,6 +51,7 @@ Would you like to:
 
 === dream_path ===
 ~ input("What's your biggest dream?", "dream")
+BUG
 That's an amazing dream!
 
 Would you like to:
