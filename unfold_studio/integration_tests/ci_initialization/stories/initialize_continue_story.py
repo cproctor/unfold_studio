@@ -27,7 +27,7 @@ This is the final knot text.
 -> DONE
 '''
 
-def create_input_generate_story(user, site):
+def create_continue_story(user, site):
     story_id = create_story(
         user=user,
         site=site,
