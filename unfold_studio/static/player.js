@@ -144,6 +144,8 @@ InkPlayer.prototype = {
                 if (this.inputFunctionCalled) {
                     this.story.buffer.push(content)
                     this.events.renderScheduledInputBox.bind(this)();
+                    console.log("buffer")
+                    console.log(this.story.buffer)
                     return;
                 }
                 if(this.continueFunctionCalled){
