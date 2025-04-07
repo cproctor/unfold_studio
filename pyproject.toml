@@ -23,6 +23,8 @@ openai = "^1.35.13"
 django-structlog = "^9.0.0"
 pytz = "^2024.2"
 django-silk = "^5.3.2"
+sentence-transformers = "^2.5.1"
+numpy = "^1.26.0"
 
 
 [tool.poetry.group.docs.dependencies]
