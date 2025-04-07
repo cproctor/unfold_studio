@@ -1,0 +1,97 @@
+[
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "There's a lumpy mattress and some threadbare sheets.\n",
+    "triplet_type": "DIRECT_CONTINUE"
+  },
+  {
+    "initial_text": "There's a lumpy mattress and some threadbare sheets.\n",
+    "chosen_choice": "Inspect the window.",
+    "next_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
+    "triplet_type": "DIRECT_CONTINUE"
+  },
+  {
+    "initial_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
+    "chosen_choice": "Climb out the window.",
+    "next_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "triplet_type": "DIRECT_CONTINUE"
+  },
+  {
+    "initial_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "chosen_choice": "Want to try again?",
+    "next_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "triplet_type": "DIRECT_CONTINUE"
+  },
+  {
+    "initial_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "chosen_choice": "Want to try again?",
+    "next_text": "This all seems weirdly familiar, like you aren't doing this for the first time...\n",
+    "triplet_type": "BRIDGE_AND_CONTINUE"
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
+    "triplet_type": "NEEDS_INPUT"
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "Climb out the window.\n",
+    "triplet_type": "NEEDS_INPUT"
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "triplet_type": "NEEDS_INPUT"
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "Want to try again?\n",
+    "triplet_type": "NEEDS_INPUT"
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Inspect the bed.",
+    "next_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "triplet_type": "NEEDS_INPUT"
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Underline the sentence",
+    "next_text": "You look out the window and see that you are way up in the air, maybe 7 or 8 stories. The window is not locked, and you see a narrow ledge.\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.06503076106309891
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Sign out of the system",
+    "next_text": "Climb out the window.\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.25184670090675354
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Open the drawer",
+    "next_text": "You climb out of the window and stand on the ledge. The ledge crumbles beneath your weight.\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.23016268014907837
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Record the actions",
+    "next_text": "Want to try again?\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.12016178667545319
+  },
+  {
+    "initial_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "chosen_choice": "Turn off the TV",
+    "next_text": "You wake up lying on a bed in a room. You don't recognize your surroundings. There is a window, a door, and not much else.\n",
+    "triplet_type": "INVALID_USER_INPUT",
+    "matching_score": 0.20741872489452362
+  }
+]
