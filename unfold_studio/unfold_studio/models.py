@@ -243,6 +243,7 @@ class Story(models.Model):
         )
         
         inkText = self.inject_input_call_indicators(inkText)
+        inkText = self.inject_generate_call_indicators(inkText)
 
         offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))
@@ -258,6 +259,19 @@ class Story(models.Model):
             processed_lines.append(line)
             if input_pattern.match(line):
                 processed_lines.append('Input was called above #context')
+
+        return '\n'.join(processed_lines)
+    
+    def inject_generate_call_indicators(self, inkText):
+        """
+        Injects generate call indicators into the ink text.
+        """
+        input_pattern = re.compile(r'^\s*~\s*.*\bgenerate\s*\(.*\)')
+        processed_lines = []
+        for line in inkText.split('\n'):
+            processed_lines.append(line)
+            if input_pattern.match(line):
+                processed_lines.append('Generate was called above #context')
 
         return '\n'.join(processed_lines)
 
