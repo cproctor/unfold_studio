@@ -14,7 +14,10 @@ from unfold_studio.integration_tests.ci_initialization.stories.initialize_input_
 from unfold_studio.integration_tests.ci_initialization.stories.initialize_continue_story import create_continue_story
 
 def create_test_user():
-    return User.objects.create_user('testuser', 'test@example.com', 'testpass')
+    try:
+        return User.objects.get(username='testuser4')
+    except User.DoesNotExist:
+        return User.objects.create_user('testuser4', 'test@example.com', 'testpass')
 
 def get_default_site():
     return Site.objects.get(id=1)

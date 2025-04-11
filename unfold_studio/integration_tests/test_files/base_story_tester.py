@@ -7,7 +7,7 @@ from selenium.common.exceptions import TimeoutException
 import time
 import os
 from unfold_studio.integration_tests.utils import print_green, print_bright_green
-
+from unfold_studio.integration_tests.constants import STORY_ID_PREFIX
 
 
 LIGHT_GREEN = '\033[38;5;120m'
@@ -19,7 +19,7 @@ class BaseStoryTester:
     
     def __init__(self, test_paths, story_id, driver):
         self.test_paths = test_paths
-        self.story_id = story_id
+        self.story_id = STORY_ID_PREFIX + story_id
         self.driver = driver
 
     def setup(self):

@@ -1,8 +1,9 @@
 from .initialize_story import create_story
+from integration_tests.constants import STORY_ID_PREFIX
 
 STORY_TITLE = 'Input/Generate Test Story 2'
 STORY_DESCRIPTION = 'Test story to check input/generate functionality 2'
-STORY_ID = 31
+STORY_ID = STORY_ID_PREFIX + 2
 STORY_TEMPLATE = """
 VAR name = ""
 VAR age = ""

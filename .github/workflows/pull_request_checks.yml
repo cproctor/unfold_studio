@@ -148,10 +148,6 @@ jobs:
           PYTHONPATH: ${{ github.workspace }}
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
-          for test_file in ${{ env.INTEGRATION_TEST_FILES_PATH }}/test_*.py; do
-            if [ -f "$test_file" ]; then
-              echo "Running test file: $test_file"
-              poetry run python "$test_file"
-            fi
-          done
+          cd unfold_studio
+          poetry run python -m integration_tests.test_files.run_all_tests
           

@@ -1,9 +1,9 @@
 from integration_tests.ci_initialization.stories.initialize_story import create_story
-
+from integration_tests.constants import STORY_ID_PREFIX
 
 STORY_TITLE = 'Continue Test Story'
 STORY_DESCRIPTION = 'Test story to check continue functionality'
-STORY_ID = 33
+STORY_ID = STORY_ID_PREFIX + 0
 
 STORY_TEMPLATE = '''
 This is a integration test story for continue.

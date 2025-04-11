@@ -16,3 +16,5 @@ DEFAULT_BACKEND_CONFIG = {
     "model": "gpt-4o-2024-05-13",
     "memoize": False,
 }   
+
+STORY_ID_PREFIX = 100000

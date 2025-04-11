@@ -1,7 +1,6 @@
 from unfold_studio.integration_tests.test_files.base_story_tester import BaseStoryTester
 from unfold_studio.integration_tests.utils import initialize_chrome_driver
 from unfold_studio.integration_tests.utils import print_green
-from unfold_studio.integration_tests.constants import DEFAULT_GENERATE_RESPONSE_TEXT
 
 class ContinueTester(BaseStoryTester):
         
@@ -27,9 +26,9 @@ if __name__ == "__main__":
     
     try:
         driver = initialize_chrome_driver()
-        tester = ContinueTester(test_paths, 33, driver)
+        tester = ContinueTester(test_paths, 0, driver)
         tester.setup()
-        # tester.run_all_tests()
+        tester.run_all_tests()
     except Exception as e:
         print(f"\nTest execution failed: {str(e)}")
         raise
