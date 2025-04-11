@@ -270,7 +270,70 @@ def initialize_text_generation_records():
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': DEFAULT_GENERATE_RESPONSE_TEXT
-        }
+        },
+
+        # Text generation for all paths for story 45
+
+
+
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short greeting for Asif in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Generate a random food suggestion"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short poem about the color {color} in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a fun fact about the number {number} in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Generate a random adjective"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Generate a random noun"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short story in 20 words combining {season} season and {weather} weather in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+        },
+
+
     ]
 
     created_records = []
