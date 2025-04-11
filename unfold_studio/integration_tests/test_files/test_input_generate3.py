@@ -25,7 +25,7 @@ class InputGenerateTester3(BaseStoryTester):
         self.wait_for_story_text("Now, let's test generate followed by input.")
         self.assert_exact_texts_in_order([
             f"First, let's test input followed by generate.",
-            DEFAULT_GENERATE_RESPONSE_TEXT,
+            GENERATE_RESPONSE_TEXT_1,
             "Now, let's test generate followed by input."
         ])
         print_green("✓ Input followed by generate test completed")
@@ -38,7 +38,7 @@ class InputGenerateTester3(BaseStoryTester):
 
         self.assert_exact_texts_in_order([
             "Now, let's test generate followed by input.",
-            DEFAULT_GENERATE_RESPONSE_TEXT,
+            GENERATE_RESPONSE_TEXT_2,
             "Let's test multiple inputs in sequence."
         ])
 
@@ -55,8 +55,8 @@ class InputGenerateTester3(BaseStoryTester):
         print("\nStep 5: Testing multiple generates in sequence")
         self.wait_for_story_text("Let's test input after multiple generates.")
         self.assert_exact_texts_in_order([
-            DEFAULT_GENERATE_RESPONSE_TEXT,
-            DEFAULT_GENERATE_RESPONSE_TEXT,
+            GENERATE_RESPONSE_TEXT_3,
+            GENERATE_RESPONSE_TEXT_4,
             "Let's test input after multiple generates."
         ])
         print_green("✓ Multiple generates test completed")
@@ -65,8 +65,8 @@ class InputGenerateTester3(BaseStoryTester):
         self.assert_input_box_exists("What's your favorite animal?")
         self.assert_exact_texts_in_order([
             "Let's test input after multiple generates.",
-            DEFAULT_GENERATE_RESPONSE_TEXT,
-            DEFAULT_GENERATE_RESPONSE_TEXT,
+            GENERATE_RESPONSE_TEXT_5,
+            GENERATE_RESPONSE_TEXT_6,
         ])
         self.type_input(path['animal'])
         self.submit_input()
@@ -83,7 +83,7 @@ class InputGenerateTester3(BaseStoryTester):
         
         self.wait_for_story_text("Here's a summary of your inputs:")
         self.assert_exact_texts_in_order([
-            GENERATE_RESPONSE_TEXT_8,
+            GENERATE_RESPONSE_TEXT_7,
             "Here's a summary of your inputs:",
             f"Name: {path['name']}",
             f"Food: {path['food']}",

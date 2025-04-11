@@ -293,7 +293,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short greeting for Asif in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+            'result': GENERATE_RESPONSE_TEXT_1
         },
         {
             'seed': DEFAULT_SEED,
@@ -301,7 +301,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Generate a random food suggestion"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+            'result': GENERATE_RESPONSE_TEXT_2
         },
         {
             'seed': DEFAULT_SEED,
@@ -309,7 +309,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short poem about the color blue in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+            'result': GENERATE_RESPONSE_TEXT_3
         },
         {
             'seed': DEFAULT_SEED,
@@ -317,7 +317,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a fun fact about the number 7 in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+            'result': GENERATE_RESPONSE_TEXT_4
         },
         {
             'seed': DEFAULT_SEED,
@@ -325,7 +325,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Generate a random adjective"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+            'result': GENERATE_RESPONSE_TEXT_5
         },
         {
             'seed': DEFAULT_SEED,
@@ -333,7 +333,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Generate a random noun"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+            'result': GENERATE_RESPONSE_TEXT_6
         },
         {
             'seed': DEFAULT_SEED,
@@ -341,7 +341,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short story in 20 words combining summer season and sunny weather in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT
+            'result': GENERATE_RESPONSE_TEXT_7
         },
 
 
