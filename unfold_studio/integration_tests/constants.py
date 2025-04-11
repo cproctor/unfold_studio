@@ -1,4 +1,13 @@
 DEFAULT_GENERATE_RESPONSE_TEXT = "default gen text"
+GENERATE_RESPONSE_TEXT_1 = "gen result 1"
+GENERATE_RESPONSE_TEXT_2 = "gen result 2"
+GENERATE_RESPONSE_TEXT_3 = "gen result 3"
+GENERATE_RESPONSE_TEXT_4 = "gen result 4"
+GENERATE_RESPONSE_TEXT_5 = "gen result 5"
+GENERATE_RESPONSE_TEXT_6 = "gen result 6"
+GENERATE_RESPONSE_TEXT_7 = "gen result 7"
+GENERATE_RESPONSE_TEXT_8 = "gen result 8"
+
 DEFAULT_SEED = 45
 DEFAULT_BACKEND_CONFIG = {
     "backend": "OpenAI",

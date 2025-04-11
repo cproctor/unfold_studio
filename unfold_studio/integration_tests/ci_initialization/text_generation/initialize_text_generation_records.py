@@ -1,7 +1,18 @@
 import hashlib
 import json
 from text_generation.models import TextGenerationRecord
-from integration_tests.constants import DEFAULT_GENERATE_RESPONSE_TEXT, DEFAULT_SEED, DEFAULT_BACKEND_CONFIG
+from integration_tests.constants import (
+    DEFAULT_GENERATE_RESPONSE_TEXT, 
+    DEFAULT_SEED, DEFAULT_BACKEND_CONFIG, 
+    GENERATE_RESPONSE_TEXT_1, 
+    GENERATE_RESPONSE_TEXT_2, 
+    GENERATE_RESPONSE_TEXT_3, 
+    GENERATE_RESPONSE_TEXT_4, 
+    GENERATE_RESPONSE_TEXT_5, 
+    GENERATE_RESPONSE_TEXT_6, 
+    GENERATE_RESPONSE_TEXT_7, 
+    GENERATE_RESPONSE_TEXT_8
+)
 
 def initialize_text_generation_records():
     print("Creating text generation records...")
@@ -330,7 +341,7 @@ def initialize_text_generation_records():
                 {"role": "user", "content": "Write a short story in 20 words combining summer season and sunny weather in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': "gen result 8"
+            'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
 
 

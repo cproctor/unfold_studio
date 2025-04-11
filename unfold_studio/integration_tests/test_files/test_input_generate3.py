@@ -1,7 +1,7 @@
 from unfold_studio.integration_tests.test_files.base_story_tester import BaseStoryTester
 from unfold_studio.integration_tests.utils import initialize_chrome_driver
 from unfold_studio.integration_tests.utils import print_green
-from unfold_studio.integration_tests.constants import DEFAULT_GENERATE_RESPONSE_TEXT
+from unfold_studio.integration_tests.constants import *
 
 class InputGenerateTester3(BaseStoryTester):
         
@@ -83,7 +83,7 @@ class InputGenerateTester3(BaseStoryTester):
         
         self.wait_for_story_text("Here's a summary of your inputs:")
         self.assert_exact_texts_in_order([
-            DEFAULT_GENERATE_RESPONSE_TEXT,
+            GENERATE_RESPONSE_TEXT_8,
             "Here's a summary of your inputs:",
             f"Name: {path['name']}",
             f"Food: {path['food']}",
