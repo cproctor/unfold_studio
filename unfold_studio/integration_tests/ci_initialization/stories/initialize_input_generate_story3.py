@@ -38,7 +38,7 @@ Let's test multiple inputs in sequence.
 
 === test4 ===
 Now let's test multiple generates in sequence.
-~generate("Write a short poem about the color {color} in 20 words")
+~generate("Write a short poem about the color: {color} in 20 words")
 ~generate("Write a fun fact about the number {number} in 20 words")
 -> test5
 

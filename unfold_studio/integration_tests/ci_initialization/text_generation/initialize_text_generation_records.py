@@ -306,7 +306,7 @@ def initialize_text_generation_records():
         {
             'seed': DEFAULT_SEED,
             'messages': [
-                {"role": "user", "content": "Write a short poem about the color blue in 20 words"}
+                {"role": "user", "content": "Write a short poem about the color: blue in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': GENERATE_RESPONSE_TEXT_3
