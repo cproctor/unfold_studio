@@ -324,14 +324,14 @@ def initialize_text_generation_records():
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
-        # {
-        #     'seed': DEFAULT_SEED,
-        #     'messages': [
-        #         {"role": "user", "content": "Write a short story in 20 words combining summer season and sunny weather in 20 words"}
-        #     ],
-        #     'backend_config': DEFAULT_BACKEND_CONFIG,
-        #     'result': DEFAULT_GENERATE_RESPONSE_TEXT
-        # },
+        {
+            'seed': DEFAULT_SEED,
+            'messages': [
+                {"role": "user", "content": "Write a short story in 20 words combining summer season and sunny weather in 20 words"}
+            ],
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': "gen result 8"
+        },
 
 
     ]

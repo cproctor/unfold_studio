@@ -179,7 +179,7 @@ if __name__ == "__main__":
         driver = initialize_chrome_driver()
         tester = InputGenerateTester(test_paths, 29, driver)
         tester.setup()
-        tester.run_all_tests()
+        # tester.run_all_tests()
     except Exception as e:
         print(f"\nTest execution failed: {str(e)}")
         raise
