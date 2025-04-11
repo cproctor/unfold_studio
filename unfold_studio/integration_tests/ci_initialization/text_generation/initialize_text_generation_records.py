@@ -295,7 +295,7 @@ def initialize_text_generation_records():
         {
             'seed': DEFAULT_SEED,
             'messages': [
-                {"role": "user", "content": "Write a short poem about the color {color} in 20 words"}
+                {"role": "user", "content": "Write a short poem about the color blue in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': DEFAULT_GENERATE_RESPONSE_TEXT
@@ -303,7 +303,7 @@ def initialize_text_generation_records():
         {
             'seed': DEFAULT_SEED,
             'messages': [
-                {"role": "user", "content": "Write a fun fact about the number {number} in 20 words"}
+                {"role": "user", "content": "Write a fun fact about the number 7 in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': DEFAULT_GENERATE_RESPONSE_TEXT
@@ -327,7 +327,7 @@ def initialize_text_generation_records():
         {
             'seed': DEFAULT_SEED,
             'messages': [
-                {"role": "user", "content": "Write a short story in 20 words combining {season} season and {weather} weather in 20 words"}
+                {"role": "user", "content": "Write a short story in 20 words combining summer season and sunny weather in 20 words"}
             ],
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': DEFAULT_GENERATE_RESPONSE_TEXT
