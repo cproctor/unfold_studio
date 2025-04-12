@@ -297,7 +297,6 @@ InkPlayer.prototype = {
     },
     handleUserInputForContinue: async function(userInput){
         targetKnotData = this.getKnotData(this.currentTargetKnot);
-        console.log("targetKnotData", targetKnotData);
         response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotData, this.aiSeed)
         nextDirectionJson = response.result
 
