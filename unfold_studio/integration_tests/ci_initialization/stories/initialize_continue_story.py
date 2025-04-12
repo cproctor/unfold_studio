@@ -17,7 +17,6 @@ Let's call the continue function now.
  
 === continue_knot === 
 You are inside continue function knot
-~ continue("final_knot")
 -> DONE
 
 
