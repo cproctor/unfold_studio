@@ -15,7 +15,6 @@ This is a test story for input and generate functionality.
 
 Let's start with a simple input.
 ~ input("What's your name?", "name")
-BUG
 Nice to meet you, {name}!
 
 Now let's test generate with some context.
@@ -23,7 +22,6 @@ Now let's test generate with some context.
 
 Let's try input after generate.
 ~ input("What's your favorite food?", "food")
-BUG
 I see you like {food}. Let's generate something about that.
 ~ generate("Write a short description about why he might like {food} in 20 words")
 
@@ -39,7 +37,6 @@ What would you like to do next?
 
 === color_choice ===
 ~ input("What's your favorite color?", "color")
-BUG
 {color} is a great choice!
 
 What would you like to do with this color?
@@ -52,7 +49,6 @@ What would you like to do with this color?
 
 === number_choice ===
 ~ input("Pick a number between 1 and 10", "number")
-BUG
 You chose {number}.
 
 What would you like to do with this number?

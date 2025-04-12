@@ -43,9 +43,10 @@ InkPlayer.prototype = {
             this.aiSeed = seed;
             return "";
         }.bind(this));
-        story.BindExternalFunction("continue", function(targetKnot) {
+        story.BindExternalFunction("continue_function", function(targetKnot) {
+            var targetKnotName = targetKnot._componentsString;
             this.continueFunctionCalled = true;
-            this.currentTargetKnot = targetKnot
+            this.currentTargetKnot = targetKnotName
             this.scheduleInputBoxForContinue()
             return '';
         }.bind(this));
@@ -296,6 +297,7 @@ InkPlayer.prototype = {
     },
     handleUserInputForContinue: async function(userInput){
         targetKnotData = this.getKnotData(this.currentTargetKnot);
+        console.log("targetKnotData", targetKnotData);
         response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotData, this.aiSeed)
         nextDirectionJson = response.result
 

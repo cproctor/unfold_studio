@@ -15,12 +15,10 @@ Welcome to the Interactive Story Test!
 
 Let's start with some basic information.
 ~ input("What's your name?", "name")
-BUG
 Hello {name}!
 
 Now, let's get to know you better.
 ~ input("How old are you?", "age")
-BUG
 {age} is a great age!
 
 Let's generate something about your age.
@@ -37,7 +35,6 @@ What would you like to do next?
 
 === hobby_path ===
 ~ input("What's your favorite hobby?", "hobby")
-BUG
 I love {hobby} too!
 
 Would you like to:
@@ -52,7 +49,6 @@ Would you like to:
 
 === dream_path ===
 ~ input("What's your biggest dream?", "dream")
-BUG
 That's an amazing dream! {dream} is inspiring.
 
 Would you like to:

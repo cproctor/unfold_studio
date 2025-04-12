@@ -244,10 +244,23 @@ class Story(models.Model):
         
         inkText = self.inject_input_call_indicators(inkText)
         inkText = self.inject_generate_call_indicators(inkText)
+        inkText = self.inject_static_continue_knot(inkText)
+        print(f"inkText: {inkText}")
 
         offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))
         return inkText, inclusions, variables, knots, offset
+    
+    def inject_static_continue_knot(self, inkText):
+        """
+        Injects static continue knot text into the ink text.
+        """
+        continue_knot = """
+        === continue(target_knot) ===
+        ~ continue_function(target_knot)
+        -> DONE
+        """
+        return inkText + continue_knot
     
     def inject_input_call_indicators(self, inkText):
         """
@@ -291,7 +304,7 @@ class Story(models.Model):
             "EXTERNAL generate(a)",
             "EXTERNAL input(a,b)",
             "EXTERNAL SEED_AI(a)",
-            "EXTERNAL continue(a)",
+            "EXTERNAL continue_function(a)",
         ]
 
     def ink_to_json(self, ink, offset=0):
