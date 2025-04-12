@@ -5,9 +5,6 @@ on:
     types: [opened, synchronize]
     branches:
       - development
-  push:
-    branches:
-      - issue_211
 
 env:
   POSTGRES_DB: unfold_studio
@@ -70,10 +67,10 @@ jobs:
       - name: Install dependencies
         run: poetry install --with dev,docs,admin
             
-      # - name: Install Chrome
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y chromium-browser chromium-chromedriver
+      - name: Install Chrome
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser chromium-chromedriver
           
       - name: Set up PostgreSQL
         uses: harmon758/postgresql-action@v1

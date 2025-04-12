@@ -82,7 +82,6 @@ InkPlayer.prototype = {
         this.story = new inkjs.Story(content.compiled);
         this.bindExternalFunctions(this.story);
         this.running = true;
-        this.story.buffer = [];
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
     generateAndInsertInDOM: async function(prompt_text) {
@@ -142,10 +141,7 @@ InkPlayer.prototype = {
                 var tags = this.story.currentTags.slice()
                 content = { text: text, tags: tags }
                 if (this.inputFunctionCalled) {
-                    this.story.buffer.push(content)
                     this.events.renderScheduledInputBox.bind(this)();
-                    console.log("buffer")
-                    console.log(this.story.buffer)
                     return;
                 }
                 if(this.continueFunctionCalled){
@@ -159,18 +155,7 @@ InkPlayer.prototype = {
                 if (tags.includes('context')){
                     this.story.state.context.push(text);
                 }
-
-                // Display any buffered content first
-                if (this.story.buffer && this.story.buffer.length > 0) {
-                    for (let bufferedContent of this.story.buffer) {
-                        this.events.addContent.bind(this)(bufferedContent);
-                        self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", bufferedContent)
-                    }
-                    // Clear the buffer after displaying its contents
-                    this.story.buffer = [];
-                }
                 
-                // Display current content
                 this.events.addContent.bind(this)(content);
                 self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
             }
