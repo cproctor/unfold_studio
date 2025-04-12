@@ -68,7 +68,7 @@ InkPlayer.prototype = {
         story.BindExternalFunction("generate", function (prompt_text) {
             this.generateInProgress = true;
             this.generatePrompt = prompt_text;
-            return 'abcd';
+            return '';
         }.bind(this));
     },
     play: function(content) {
@@ -155,7 +155,7 @@ InkPlayer.prototype = {
                 if (tags.includes('context')){
                     this.story.state.context.push(text);
                 }
-                
+
                 this.events.addContent.bind(this)(content);
                 self.createStoryPlayRecord(storyPlayInstanceUUID, "AUTHORS_TEXT", content)
             }
