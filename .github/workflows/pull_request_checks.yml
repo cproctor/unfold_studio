@@ -6,6 +6,20 @@ on:
     branches:
       - development
 
+env:
+  POSTGRES_DB: unfold_studio
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: postgres
+  POSTGRES_HOST: localhost
+  POSTGRES_PORT: '5432'
+  DJANGO_HOST: localhost
+  DJANGO_PORT: '8000'
+  CHROME_BIN: /usr/bin/chromium-browser
+  CHROMEDRIVER_PATH: /usr/bin/chromedriver
+  INK_VERSION: 1.2.0
+  INTEGRATION_TEST_FILES_PATH: unfold_studio/integration_tests/test_files
+  FORCE_COLOR: 1
+
 jobs:
   run_unit_tests:
     name: Run Unit Tests
@@ -26,9 +40,111 @@ jobs:
         run: poetry lock
         
       - name: Install dependencies
-        run: poetry install
+        run: poetry install --with dev,docs,admin
         
       - name: Run tests
         run: |
           poetry run pytest unfold_studio/*/tests -v 
+
+  run_integration_tests:
+    name: Run Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          
+      - name: Install Poetry
+        run: |
+          curl -sSL https://install.python-poetry.org | python3 -
+          
+      - name: Update lock file
+        run: poetry lock
+        
+      - name: Install dependencies
+        run: poetry install --with dev,docs,admin
+            
+      # - name: Install Chrome
+      #   run: |
+      #     sudo apt-get update
+      #     sudo apt-get install -y chromium-browser chromium-chromedriver
+          
+      - name: Set up PostgreSQL
+        uses: harmon758/postgresql-action@v1
+        with:
+          postgresql version: '14'
+          postgresql db: ${{ env.POSTGRES_DB }}
+          postgresql user: ${{ env.POSTGRES_USER }}
+          postgresql password: ${{ env.POSTGRES_PASSWORD }}
+          
+      - name: Create CI settings file
+        run: |
+          cd unfold_studio
+          cp unfold_studio/base_settings.py unfold_studio/settings.py
+          echo "ALLOWED_HOSTS = ['localhost', '127.0.0.1']" >> unfold_studio/settings.py
+          echo "DATABASES = {
+              'default': {
+                  'ENGINE': 'django.db.backends.postgresql',
+                  'NAME': '${{ env.POSTGRES_DB }}',
+                  'USER': '${{ env.POSTGRES_USER }}',
+                  'PASSWORD': '${{ env.POSTGRES_PASSWORD }}',
+                  'HOST': '${{ env.POSTGRES_HOST }}',
+                  'PORT': '${{ env.POSTGRES_PORT }}',
+              }
+          }" >> unfold_studio/settings.py
+          echo "INK_DIR = os.path.join(BASE_DIR, 'ink')" >> unfold_studio/settings.py
+          
+      - name: Create required directories
+        run: |
+          cd unfold_studio
+          mkdir -p ink
+          chmod 777 ink
+          
+      - name: Install inklecate
+        run: |
+          cd unfold_studio
+          wget https://github.com/inkle/ink/releases/download/v.${{ env.INK_VERSION }}/inklecate_linux.zip
+          unzip -o inklecate_linux.zip -d inklecate_${{ env.INK_VERSION }}
+          chmod +x inklecate_${{ env.INK_VERSION }}/inklecate
+          echo "INKLECATE = os.path.join(BASE_DIR, 'inklecate_${{ env.INK_VERSION }}', 'inklecate')" >> unfold_studio/settings.py
+          
+      - name: Start Django server
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
+        run: |
+          cd unfold_studio
+          poetry run python manage.py makemigrations
+          poetry run python manage.py migrate
+          poetry run python manage.py runserver ${{ env.DJANGO_PORT }} &
+          sleep 5  # Wait for server to start
+          
+      - name: Verify Django server is running
+        run: |
+          echo "Checking Django server response..."
+          response=$(curl -s http://${{ env.DJANGO_HOST }}:${{ env.DJANGO_PORT }}/)
+          if ! echo "$response" | grep -q "Log in" || ! echo "$response" | grep -q "Sign up"; then
+            echo "Django server response does not contain expected texts"
+            exit 1
+          fi
+          echo "Django server is running successfully with correct response!"
+          
+      - name: Initialize test environment
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
+        run: |
+          cd unfold_studio
+          poetry run python -m integration_tests.ci_initialization.initialize_test_environment
+          
+      - name: Run integration tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+          DJANGO_SETTINGS_MODULE: unfold_studio.settings
+        run: |
+          cd unfold_studio
+          poetry run python -m integration_tests.test_files.run_all_tests
           

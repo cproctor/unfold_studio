@@ -108,6 +108,7 @@ class GetNextDirectionView(BaseView):
         # selected_direction = "NEEDS_INPUT"
         # selected_direction = "DIRECT_CONTINUE"
         # selected_direction = "BRIDGE_AND_CONTINUE"
+        # selected_direction = "INVALID_USER_INPUT"
         if selected_direction not in StoryContinueDirections.values():
             raise ValueError("Invalid direction received")
 

@@ -235,17 +235,45 @@ class Story(models.Model):
             include(variables, iVars)
             include(knots, iKnots)
 
-        
-
         inkText = "\n".join(
             self.external_function_declarations() +  # call-outs to javascript
             [l for i, l in variables.values()] +    # lifted variable initializations
             self.get_ink_preamble().split('\n') +   # Any remaining preamble (stripped)
             [k for i, k in knots.values()]          # The text of the story's knots
         )
+        
+        inkText = self.inject_input_call_indicators(inkText)
+        inkText = self.inject_generate_call_indicators(inkText)
+
         offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))
         return inkText, inclusions, variables, knots, offset
+    
+    def inject_input_call_indicators(self, inkText):
+        """
+        Injects input call indicators into the ink text.
+        """
+        input_pattern = re.compile(r'^\s*~\s*.*\binput\s*\(.*\)')
+        processed_lines = []
+        for line in inkText.split('\n'):
+            processed_lines.append(line)
+            if input_pattern.match(line):
+                processed_lines.append('Input was called above #context')
+
+        return '\n'.join(processed_lines)
+    
+    def inject_generate_call_indicators(self, inkText):
+        """
+        Injects generate call indicators into the ink text.
+        """
+        input_pattern = re.compile(r'^\s*~\s*.*\bgenerate\s*\(.*\)')
+        processed_lines = []
+        for line in inkText.split('\n'):
+            processed_lines.append(line)
+            if input_pattern.match(line):
+                processed_lines.append('Generate was called above #context')
+
+        return '\n'.join(processed_lines)
 
     def external_function_declarations(self):
         """
