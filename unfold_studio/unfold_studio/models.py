@@ -256,9 +256,10 @@ class Story(models.Model):
         Injects static continue knot text into the ink text.
         """
         continue_knot = """
-        === continue(target_knot) ===
+        === continue(->target_knot) ===
         ~ continue_function(target_knot)
-        -> DONE
+        Continue was called above
+        -> target_knot
         """
         return inkText + continue_knot
     

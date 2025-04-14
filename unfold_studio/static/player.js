@@ -147,6 +147,7 @@ InkPlayer.prototype = {
                 }
                 if(this.continueFunctionCalled){
                     this.events.renderScheduledInputBox.bind(this)();
+                    this.continueFunctionCalled = false;
                     return;
                 }
                 if (this.generateInProgress) {
@@ -241,7 +242,6 @@ InkPlayer.prototype = {
     },
     scheduleInputBoxForContinue: function(placeholder = "what would you like to do next?") {
         const eventHandler = (userInput) => {
-            this.continueFunctionCalled = false;
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
                 "READERS_CONTINUE_ENTERED_TEXT", 
@@ -296,7 +296,11 @@ InkPlayer.prototype = {
         return formContainer
     },
     handleUserInputForContinue: async function(userInput){
-        targetKnotData = this.getKnotData(this.currentTargetKnot);
+        // targetKnotData = this.getKnotData(this.currentTargetKnot);
+        targetKnotData = {
+            "knotContents": ["blah1", "blah2", "blah3"],
+            "knotChoices": ["blah4", "blah5", "blah6"]
+        }
         response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotData, this.aiSeed)
         nextDirectionJson = response.result
 
@@ -312,7 +316,7 @@ InkPlayer.prototype = {
                 break;
     
             case 'DIRECT_CONTINUE':
-                this.story.ChoosePathString(this.currentTargetKnot);
+                // this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
 
@@ -329,7 +333,7 @@ InkPlayer.prototype = {
                     nextDirectionJson.content.bridge_text
                 );
                 
-                this.story.ChoosePathString(this.currentTargetKnot);
+                // this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
 
