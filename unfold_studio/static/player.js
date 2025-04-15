@@ -147,6 +147,7 @@ InkPlayer.prototype = {
                 }
                 if(this.continueFunctionCalled){
                     this.events.renderScheduledInputBox.bind(this)();
+                    this.continueFunctionCalled = false;
                     return;
                 }
                 if (this.generateInProgress) {
@@ -241,7 +242,6 @@ InkPlayer.prototype = {
     },
     scheduleInputBoxForContinue: function(placeholder = "what would you like to do next?") {
         const eventHandler = (userInput) => {
-            this.continueFunctionCalled = false;
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
                 "READERS_CONTINUE_ENTERED_TEXT", 
@@ -296,8 +296,8 @@ InkPlayer.prototype = {
         return formContainer
     },
     handleUserInputForContinue: async function(userInput){
-        targetKnotData = this.getKnotData(this.currentTargetKnot);
-        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotData, this.aiSeed)
+        targetKnotName = this.currentTargetKnot;
+        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotName, this.aiSeed)
         nextDirectionJson = response.result
 
         switch(nextDirectionJson.direction) {
@@ -312,7 +312,7 @@ InkPlayer.prototype = {
                 break;
     
             case 'DIRECT_CONTINUE':
-                this.story.ChoosePathString(this.currentTargetKnot);
+                // this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
 
@@ -329,7 +329,7 @@ InkPlayer.prototype = {
                     nextDirectionJson.content.bridge_text
                 );
                 
-                this.story.ChoosePathString(this.currentTargetKnot);
+                // this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
 
@@ -345,26 +345,6 @@ InkPlayer.prototype = {
     },
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
-    },
-    getKnotData: function(knotName){
-        const savedState = this.story.state.toJson();
-        this.story.ChoosePathString(knotName);
-
-        let knotContents = [];
-        while (this.story.canContinue) {
-            knotContents.push(this.story.Continue());
-        }
-        let knotChoices = this.story.currentChoices.map(choice => choice.text);
-
-        this.story.state.LoadJson(savedState);
-        this.currentTargetKnot = knotName;
-
-        knotData = {
-            "knotContents": knotContents,
-            "knotChoices": knotChoices,
-        }
-
-        return knotData;
     },
     api: {
         // All the api calls below return a Promise, let's keep it consistent for any new calls too
@@ -386,11 +366,11 @@ InkPlayer.prototype = {
             });
         },
 
-        getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotData, ai_seed){
+        getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotName, ai_seed){
             const requestData = {
                 "user_input": userInput,
                 "story_play_instance_uuid": storyPlayInstanceUUID,
-                "target_knot_data": targetKnotData,
+                "target_knot_name": targetKnotName,
                 "ai_seed": ai_seed
             }
 

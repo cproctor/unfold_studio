@@ -256,9 +256,10 @@ class Story(models.Model):
         Injects static continue knot text into the ink text.
         """
         continue_knot = """
-        === continue(target_knot) ===
+        === continue(->target_knot) ===
         ~ continue_function(target_knot)
-        -> DONE
+        Continue was called above
+        -> target_knot
         """
         return inkText + continue_knot
     
@@ -406,7 +407,42 @@ class Story(models.Model):
     def get_knots(self, with_preamble=False):
         return OrderedDict((name, (lineNum, knot)) for (lineNum, name, knot) 
                 in self.knot_reader(with_preamble=with_preamble))
-                
+
+    def get_knot_data(self, knot_name):
+        """
+        Gets the processed data for a specific knot, including its contents and choices.
+        Returns a dictionary with 'knotContents' and 'knotChoices' keys.
+        """
+        knots = self.get_knots()
+        if knot_name not in knots:
+            return None
+            
+        _, content = knots[knot_name]
+        content = content.split('\n', 1)[1] if '\n' in content else ''
+        content = content.strip()
+        
+        if not content:
+            return None
+            
+        lines = content.split('\n')
+        knot_contents = []
+        knot_choices = []
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith('+'):
+                choice_text = line[1:].strip()
+                knot_choices.append(choice_text)
+            else:
+                knot_contents.append(line)
+        
+        return {
+            'knotContents': knot_contents,
+            'knotChoices': knot_choices
+        }
+
     # Using Hacker News gravity algorithm: 
     # https://medium.com/hacking-and-gonzo/how-hacker-news-ranking-algorithm-works-1d9b0cf2c08d
     def update_priority(self):
