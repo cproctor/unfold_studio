@@ -3,8 +3,7 @@ from text_generation.backends import TextGenerationFactory
 from django.conf import settings
 from django.http import JsonResponse
 from commons.base.views import BaseView
-from .models import TextGenerationRecord, StoryTransitionRecord
-import hashlib
+from .models import StoryTransitionRecord
 from .services.unfold_studio import UnfoldStudioService
 from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
 
@@ -47,9 +46,8 @@ class GenerateTextView(BaseView):
 
 class GetNextDirectionView(BaseView):
 
-
     def validate_request(self, request_body):
-        required_fields = ['user_input', 'target_knot_data', 'story_play_instance_uuid']
+        required_fields = ['user_input', 'target_knot_name', 'story_play_instance_uuid']
         for field in required_fields:
             if not request_body.get(field):
                 return False, f"Missing required field: {field}"
@@ -118,6 +116,10 @@ class GetNextDirectionView(BaseView):
 
 
     def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input, seed):
+        print("target_knot_data", target_knot_data)
+        print("story_history", story_history)
+        print("user_input", user_input)
+        print("seed", seed)
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
             "guidance_text": "What would you like to do next?",
@@ -156,8 +158,12 @@ class GetNextDirectionView(BaseView):
             request_body = json.loads(request.body)
             seed = request_body.get('ai_seed') or settings.DEFAULT_AI_SEED
             user_input = request_body.get('user_input')
-            target_knot_data = request_body.get('target_knot_data')
+            target_knot_name = request_body.get('target_knot_name')
             story_play_instance_uuid = request_body.get('story_play_instance_uuid')
+            print("target_knot_name", target_knot_name)
+            print("story_play_instance_uuid", story_play_instance_uuid)
+            print("user_input", user_input)
+            print("seed", seed)
 
             result = {}
 
@@ -165,6 +171,8 @@ class GetNextDirectionView(BaseView):
             if not validation_successful:
                 return JsonResponse({"error": failure_reason}, status=400)
 
+            story_id = UnfoldStudioService.get_story_id_from_play_instance_uuid(story_play_instance_uuid)
+            target_knot_data = UnfoldStudioService.get_knot_data(story_id, target_knot_name)
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
 
             direction, content = self.get_next_direction_details_for_story(target_knot_data, story_play_history, user_input, seed)

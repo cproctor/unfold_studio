@@ -296,12 +296,8 @@ InkPlayer.prototype = {
         return formContainer
     },
     handleUserInputForContinue: async function(userInput){
-        // targetKnotData = this.getKnotData(this.currentTargetKnot);
-        targetKnotData = {
-            "knotContents": ["blah1", "blah2", "blah3"],
-            "knotChoices": ["blah4", "blah5", "blah6"]
-        }
-        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotData, this.aiSeed)
+        targetKnotName = this.currentTargetKnot;
+        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotName, this.aiSeed)
         nextDirectionJson = response.result
 
         switch(nextDirectionJson.direction) {
@@ -350,26 +346,6 @@ InkPlayer.prototype = {
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
     },
-    getKnotData: function(knotName){
-        const savedState = this.story.state.toJson();
-        this.story.ChoosePathString(knotName);
-
-        let knotContents = [];
-        while (this.story.canContinue) {
-            knotContents.push(this.story.Continue());
-        }
-        let knotChoices = this.story.currentChoices.map(choice => choice.text);
-
-        this.story.state.LoadJson(savedState);
-        this.currentTargetKnot = knotName;
-
-        knotData = {
-            "knotContents": knotContents,
-            "knotChoices": knotChoices,
-        }
-
-        return knotData;
-    },
     api: {
         // All the api calls below return a Promise, let's keep it consistent for any new calls too
 
@@ -390,11 +366,11 @@ InkPlayer.prototype = {
             });
         },
 
-        getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotData, ai_seed){
+        getNextDirection: function(userInput, storyPlayInstanceUUID, targetKnotName, ai_seed){
             const requestData = {
                 "user_input": userInput,
                 "story_play_instance_uuid": storyPlayInstanceUUID,
-                "target_knot_data": targetKnotData,
+                "target_knot_name": targetKnotName,
                 "ai_seed": ai_seed
             }
 

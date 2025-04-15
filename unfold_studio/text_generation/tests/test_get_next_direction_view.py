@@ -9,7 +9,7 @@ import json
 def valid_request_data():
     return {
         'user_input': 'Test input',
-        'target_knot_data': {'knotContents': ['Content 1', 'Content 2']},
+        'target_knot_name': 'test_knot',
         'story_play_instance_uuid': 'test-uuid',
         'ai_seed': 42
     }
@@ -21,6 +21,13 @@ def mock_story_history():
             {'role': 'system', 'content': 'System message 1'},
             {'role': 'user', 'content': 'User message 1'}
         ]
+    }
+
+@pytest.fixture
+def mock_knot_data():
+    return {
+        'knotContents': ['Content 1', 'Content 2'],
+        'knotChoices': ['Choice 1', 'Choice 2']
     }
 
 @pytest.fixture
@@ -63,10 +70,10 @@ class TestGetNextDirectionView:
         assert not is_valid
         assert 'Missing required field' in error
 
-    def test_build_system_and_user_prompt(self, valid_request_data, mock_story_history):
+    def test_build_system_and_user_prompt(self, valid_request_data, mock_story_history, mock_knot_data):
         view = GetNextDirectionView()
         system_prompt, user_prompt = view.build_system_and_user_prompt(
-            valid_request_data['target_knot_data'],
+            mock_knot_data,
             mock_story_history,
             valid_request_data['user_input']
         )
@@ -120,7 +127,7 @@ class TestGetNextDirectionView:
     @patch('text_generation.views.UnfoldStudioService')
     @patch('text_generation.views.TextGenerationFactory')
     def test_get_next_direction_details_for_story_success(
-        self, mock_factory, mock_unfold_service, valid_request_data, mock_story_history, mock_ai_response
+        self, mock_factory, mock_unfold_service, valid_request_data, mock_story_history, mock_ai_response, mock_knot_data
     ):
         view = GetNextDirectionView()
         mock_unfold_service.get_story_play_history.return_value = mock_story_history
@@ -130,7 +137,7 @@ class TestGetNextDirectionView:
         mock_factory.create.return_value = mock_backend
 
         direction, content = view.get_next_direction_details_for_story(
-            valid_request_data['target_knot_data'],
+            mock_knot_data,
             mock_story_history,
             valid_request_data['user_input'],
             valid_request_data['ai_seed']
@@ -143,7 +150,7 @@ class TestGetNextDirectionView:
     @patch('text_generation.views.UnfoldStudioService')
     @patch('text_generation.views.TextGenerationFactory')
     def test_get_next_direction_details_for_story_error(
-        self, mock_factory, mock_unfold_service, valid_request_data, mock_story_history
+        self, mock_factory, mock_unfold_service, valid_request_data, mock_story_history, mock_knot_data
     ):
         view = GetNextDirectionView()
         mock_unfold_service.get_story_play_history.return_value = mock_story_history
@@ -153,7 +160,7 @@ class TestGetNextDirectionView:
         mock_factory.create.return_value = mock_backend
 
         direction, content = view.get_next_direction_details_for_story(
-            valid_request_data['target_knot_data'],
+            mock_knot_data,
             mock_story_history,
             valid_request_data['user_input'],
             valid_request_data['ai_seed']
@@ -164,7 +171,7 @@ class TestGetNextDirectionView:
         assert content['reason'] == 'System failure'
 
     @patch('text_generation.views.StoryTransitionRecord')
-    def test_save_story_transition_record(self, mock_story_transition_record, valid_request_data):
+    def test_save_story_transition_record(self, mock_story_transition_record, valid_request_data, mock_knot_data):
         view = GetNextDirectionView()
         previous_timeline = {'timeline': ['entry1', 'entry2']}
         ai_decision = {'direction': 'DIRECT_CONTINUE', 'content': {'next_knot': 'knot1'}}
@@ -172,7 +179,7 @@ class TestGetNextDirectionView:
         view.save_story_transition_record(
             valid_request_data['story_play_instance_uuid'],
             previous_timeline,
-            valid_request_data['target_knot_data'],
+            mock_knot_data,
             valid_request_data['user_input'],
             ai_decision
         )
@@ -180,7 +187,7 @@ class TestGetNextDirectionView:
         mock_story_transition_record.objects.create.assert_called_once_with(
             story_play_instance_uuid=valid_request_data['story_play_instance_uuid'],
             previous_story_timeline=previous_timeline,
-            target_knot_data=valid_request_data['target_knot_data'],
+            target_knot_data=mock_knot_data,
             user_input=valid_request_data['user_input'],
             ai_decision=ai_decision
         )
@@ -190,10 +197,12 @@ class TestGetNextDirectionView:
     @patch('text_generation.views.StoryTransitionRecord')
     def test_post_success(
         self, mock_story_transition_record, mock_factory, mock_unfold_service,
-        valid_request_data, mock_story_history, mock_ai_response
+        valid_request_data, mock_story_history, mock_ai_response, mock_knot_data
     ):
         view = GetNextDirectionView()
         mock_unfold_service.get_story_play_history.return_value = mock_story_history
+        mock_unfold_service.get_story_id_from_play_instance_uuid.return_value = 1
+        mock_unfold_service.get_knot_data.return_value = mock_knot_data
         
         mock_backend = Mock()
         mock_backend.get_ai_response_by_system_and_user_prompt.return_value = json.dumps(mock_ai_response)
@@ -231,3 +240,4 @@ class TestGetNextDirectionView:
         assert isinstance(response, JsonResponse)
         assert response.status_code == 400
         assert 'Missing required field' in response.content.decode() 
+        
