@@ -1,7 +1,7 @@
 from unfold_studio.integration_tests.test_files.base_story_tester import BaseStoryTester
 from unfold_studio.integration_tests.utils import initialize_chrome_driver
 from unfold_studio.integration_tests.utils import print_green
-from unfold_studio.integration_tests.constants import CONTINUE_INPUT_BOX_PLACEHOLDER
+from unfold_studio.integration_tests.constants import CONTINUE_INPUT_BOX_PLACEHOLDER, INVALID_USER_INPUT_TEXT
 class ContinueTester(BaseStoryTester):
         
     def test_story_path(self, path):
@@ -50,7 +50,10 @@ class ContinueTester(BaseStoryTester):
                 "Could you please specify what action you would like to take next?",
             ])
         elif path["choice_1"] == "Go to invalid user input knot":
-            self.wait_for_story_text("This is the invalid user input knot text.")
+            self.assert_input_box_exists(INVALID_USER_INPUT_TEXT)
+            self.assert_exact_texts_in_order([
+                "You are inside invalid_user_input_knot",
+            ])
 
 
 if __name__ == "__main__":

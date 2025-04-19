@@ -67,6 +67,35 @@ def initialize_text_generation_records_for_continue():
             },
             'messages': [{}]
         },
+        {
+            'seed': DEFAULT_SEED,
+            'messages_hash': 'a35b12d17114d3ea938e276ce72df3b4cab0494b0ee7b1330ef3099757e38e4f',
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': {
+                "probabilities": {
+                    "DIRECT_CONTINUE": 0.05,
+                    "BRIDGE_AND_CONTINUE": 0.15,
+                    "NEEDS_INPUT": 0.75,
+                    "INVALID_USER_INPUT": 0.05
+                },
+                "direct_continue": {
+                    "reason": "The user input 'needs_input_input' does not directly match the final knot conditions."
+                },
+                "bridge_and_continue": {
+                    "reason": "While a bridge could be created to lead to the final knot, the user input is too vague to create a coherent narrative bridge.",
+                    "bridge_text": "..."
+                },
+                "needs_input": {
+                    "reason": "The user input 'needs_input_input' is too vague and requires more specific actions or decisions to proceed logically.",
+                    "guidance_text": "Could you please specify what action you would like to take next?"
+                },
+                "invalid_user_input": {
+                    "reason": "The input is not completely nonsensical but lacks clarity for progressing the story."
+                }
+            },
+            'messages': [{}]
+        },
+
     ]
 
     created_records = []
