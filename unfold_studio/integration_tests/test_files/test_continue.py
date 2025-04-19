@@ -39,7 +39,7 @@ if __name__ == "__main__":
     
     try:
         driver = initialize_chrome_driver()
-        tester = ContinueTester(test_paths, 54, driver)
+        tester = ContinueTester(test_paths, 0, driver)
         tester.setup()
         tester.run_all_tests()
     except Exception as e:
