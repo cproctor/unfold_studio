@@ -2,42 +2,41 @@ import hashlib
 import json
 from text_generation.models import TextGenerationRecord
 from integration_tests.constants import (
-    DEFAULT_GENERATE_RESPONSE_TEXT, 
-    DEFAULT_SEED, DEFAULT_BACKEND_CONFIG, 
+    DEFAULT_SEED, 
+    DEFAULT_BACKEND_CONFIG, 
 )
 
 def initialize_text_generation_records_for_continue():
     print("Creating text generation records for continue...")
     
     test_records = [
-
-        # Text generation for all story id 54
+        # Text generation for all story id 0
         {
             'seed': DEFAULT_SEED,
             'messages_hash': '2f173ebf039c4e422c08cedaa19fb3e0c837c2177a579e0fd9d28ff18f425c50',
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': {
-    "probabilities": {
-        "DIRECT_CONTINUE": 1.0,
-        "BRIDGE_AND_CONTINUE": 0.0,
-        "NEEDS_INPUT": 0.0,
-        "INVALID_USER_INPUT": 0.0
-    },
-    "direct_continue": {
-        "reason": "User input 'nothing' indicates acceptance of story conclusion without further action"
-    },
-    "bridge_and_continue": {
-        "reason": "Not applicable - direct continuation is sufficient",
-        "bridge_text": ""
-    },
-    "needs_input": {
-        "reason": "Not required - user explicitly chose no action",
-        "guidance_text": ""
-    },
-    "invalid_user_input": {
-        "reason": "'nothing' is a valid and meaningful input in this context"
-    }
-},
+                "probabilities": {
+                    "DIRECT_CONTINUE": 1.0,
+                    "BRIDGE_AND_CONTINUE": 0.0,
+                    "NEEDS_INPUT": 0.0,
+                    "INVALID_USER_INPUT": 0.0
+                },
+                "direct_continue": {
+                    "reason": "User input 'nothing' indicates acceptance of story conclusion without further action"
+                },
+                "bridge_and_continue": {
+                    "reason": "Not applicable - direct continuation is sufficient",
+                    "bridge_text": ""
+                },
+                "needs_input": {
+                    "reason": "Not required - user explicitly chose no action",
+                    "guidance_text": ""
+                },
+                "invalid_user_input": {
+                    "reason": "'nothing' is a valid and meaningful input in this context"
+                }
+            },
             'messages': [{}]
         },
         {
@@ -45,30 +44,29 @@ def initialize_text_generation_records_for_continue():
             'messages_hash': 'c7a0635a369636fc0507eebfa2345d2a8ac6cb5bfcd56e3c54b83e32683717e5',
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': {
-    "probabilities": {
-        "DIRECT_CONTINUE": 1.0,
-        "BRIDGE_AND_CONTINUE": 0.0,
-        "NEEDS_INPUT": 0.0,
-        "INVALID_USER_INPUT": 0.0
-    },
-    "direct_continue": {
-        "reason": "User input 'nothing' indicates acceptance of story conclusion without further action"
-    },
-    "bridge_and_continue": {
-        "reason": "Not applicable - direct continuation is sufficient",
-        "bridge_text": ""
-    },
-    "needs_input": {
-        "reason": "Not required - user explicitly chose no action",
-        "guidance_text": ""
-    },
-    "invalid_user_input": {
-        "reason": "'nothing' is a valid and meaningful input in this context"
-    }
-},
+                "probabilities": {
+                    "DIRECT_CONTINUE": 1.0,
+                    "BRIDGE_AND_CONTINUE": 0.0,
+                    "NEEDS_INPUT": 0.0,
+                    "INVALID_USER_INPUT": 0.0
+                },
+                "direct_continue": {
+                    "reason": "User input 'nothing' indicates acceptance of story conclusion without further action"
+                },
+                "bridge_and_continue": {
+                    "reason": "Not applicable - direct continuation is sufficient",
+                    "bridge_text": ""
+                },
+                "needs_input": {
+                    "reason": "Not required - user explicitly chose no action",
+                    "guidance_text": ""
+                },
+                "invalid_user_input": {
+                    "reason": "'nothing' is a valid and meaningful input in this context"
+                }
+            },
             'messages': [{}]
-        },
-
+        }
     ]
 
     created_records = []
@@ -109,4 +107,4 @@ def initialize_text_generation_records_for_continue():
         print(f"Error: Failed to create text generation records for continue: {str(e)}")
         raise
 
-    return created_records 
+    return created_records
