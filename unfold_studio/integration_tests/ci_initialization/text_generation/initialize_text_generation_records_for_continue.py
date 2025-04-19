@@ -39,6 +39,34 @@ def initialize_text_generation_records_for_continue():
             },
             'messages': [{}]
         },
+        {
+            'seed': DEFAULT_SEED,
+            'messages_hash': '1105131f5aec4e91c018844b1fb72822961e7d31421c9da808c4acc471b4cbd4',
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': {
+                "probabilities": {
+                    "DIRECT_CONTINUE": 0.1,
+                    "BRIDGE_AND_CONTINUE": 0.8,
+                    "NEEDS_INPUT": 0.05,
+                    "INVALID_USER_INPUT": 0.05
+                },
+                "direct_continue": {
+                    "reason": "The user input 'nothing' doesn't provide direct action matching the final knot conditions"
+                },
+                "bridge_and_continue": {
+                    "reason": "A narrative bridge can naturally transition from inaction to story conclusion",
+                    "bridge_text": "After following through with your input, the journey continues, leading you closer to the final destination..."
+                },
+                "needs_input": {
+                    "reason": "The input is minimal but clear enough to proceed",
+                    "guidance_text": ""
+                },
+                "invalid_user_input": {
+                    "reason": "'nothing' is a valid response indicating passive progression"
+                }
+            },
+            'messages': [{}]
+        },
     ]
 
     created_records = []
