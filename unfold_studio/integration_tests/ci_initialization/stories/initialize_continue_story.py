@@ -17,6 +17,8 @@ Let's call the continue function now.
  -> bridge_and_continue_knot
  + Go to needs input knot
  -> needs_input_knot
+ + Go to invalid user input knot
+ -> invalid_user_input_knot
  
  
 === direct_continue_knot === 
@@ -31,6 +33,11 @@ You are inside bridge_and_continue_knot
 
 === needs_input_knot === 
 You are inside needs_input_knot
+-> continue(->final_knot)
+-> DONE
+
+=== invalid_user_input_knot ===
+You are inside invalid_user_input_knot
 -> continue(->final_knot)
 -> DONE
 

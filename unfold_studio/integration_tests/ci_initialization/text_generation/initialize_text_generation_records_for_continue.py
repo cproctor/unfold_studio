@@ -11,9 +11,10 @@ def initialize_text_generation_records_for_continue():
     
     test_records = [
         # Text generation for all story id 0
+        # 1. Direct continue
         {
             'seed': DEFAULT_SEED,
-            'messages_hash': '7e6d0490cbc05ac1b14dfc3e4074ebd3e2baad9d06fce6e8313b437e5af2c0bf',
+            'messages_hash': "2771a5b04e1d5353438ad3feb4ca0fbb0d6c4a35e1a64309f79ffc2cce607699",
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': {
                 "probabilities": {
@@ -39,16 +40,17 @@ def initialize_text_generation_records_for_continue():
             },
             'messages': [{}]
         },
+        # 2. Bridge and continue
         {
             'seed': DEFAULT_SEED,
-            'messages_hash': '1105131f5aec4e91c018844b1fb72822961e7d31421c9da808c4acc471b4cbd4',
+            'messages_hash': "a422c767397fa827190715f80b91a7f0da05992c842a755a569bc15ff4850f3f",
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': {
                 "probabilities": {
-                    "DIRECT_CONTINUE": 0.1,
-                    "BRIDGE_AND_CONTINUE": 0.8,
-                    "NEEDS_INPUT": 0.05,
-                    "INVALID_USER_INPUT": 0.05
+                    "DIRECT_CONTINUE": 0.0,
+                    "BRIDGE_AND_CONTINUE": 1.0,
+                    "NEEDS_INPUT": 0.0,
+                    "INVALID_USER_INPUT": 0.0
                 },
                 "direct_continue": {
                     "reason": "The user input 'nothing' doesn't provide direct action matching the final knot conditions"
@@ -67,16 +69,17 @@ def initialize_text_generation_records_for_continue():
             },
             'messages': [{}]
         },
+        # 3. Needs input
         {
             'seed': DEFAULT_SEED,
-            'messages_hash': 'a35b12d17114d3ea938e276ce72df3b4cab0494b0ee7b1330ef3099757e38e4f',
+            'messages_hash': "e5896b0798d2bd3db2b5b8ce9564ab3055937dcd84b0b04fe4bad15606a16c8d",
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': {
                 "probabilities": {
-                    "DIRECT_CONTINUE": 0.05,
-                    "BRIDGE_AND_CONTINUE": 0.15,
-                    "NEEDS_INPUT": 0.75,
-                    "INVALID_USER_INPUT": 0.05
+                    "DIRECT_CONTINUE": 0.0,
+                    "BRIDGE_AND_CONTINUE": 0.0,
+                    "NEEDS_INPUT": 1.0,
+                    "INVALID_USER_INPUT": 0.0
                 },
                 "direct_continue": {
                     "reason": "The user input 'needs_input_input' does not directly match the final knot conditions."
@@ -91,6 +94,35 @@ def initialize_text_generation_records_for_continue():
                 },
                 "invalid_user_input": {
                     "reason": "The input is not completely nonsensical but lacks clarity for progressing the story."
+                }
+            },
+            'messages': [{}]
+        },
+        # 4. Invalid user input
+        {
+            'seed': DEFAULT_SEED,
+            'messages_hash': "3122cf68ee1cf9c375fc7df6e23d5c56beea44e2179fe1baa5eb510bd1c148f5",
+            'backend_config': DEFAULT_BACKEND_CONFIG,
+            'result': {
+                "probabilities": {
+                    "DIRECT_CONTINUE": 0.0,
+                    "BRIDGE_AND_CONTINUE": 0.0,
+                    "NEEDS_INPUT": 0.0,
+                    "INVALID_USER_INPUT": 1.0
+                },
+                "direct_continue": {
+                    "reason": "User input does not provide any actionable content to continue the story directly."
+                },
+                "bridge_and_continue": {
+                    "reason": "Transitioning is not possible because user input lacks coherence or relevance.",
+                    "bridge_text": ""
+                },
+                "needs_input": {
+                    "reason": "User input is not actionable and requires clarification to proceed.",
+                    "guidance_text": ""
+                },
+                "invalid_user_input": {
+                    "reason": "User input is gibberish, nonsensical or completely unrelated to the story context."
                 }
             },
             'messages': [{}]

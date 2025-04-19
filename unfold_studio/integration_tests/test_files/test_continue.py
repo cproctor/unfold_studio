@@ -70,10 +70,10 @@ if __name__ == "__main__":
             "choice_1": "Go to needs input knot",
             "continue_1_input": "needs_input_input"
         },
-        # {
-        #     "choice_1": "Go to invalid user input knot",
-        #     "continue_1_input": "invalid_user_input"
-        # }
+        {
+            "choice_1": "Go to invalid user input knot",
+            "continue_1_input": "invalid_user_input"
+        }
 
     ]
     
