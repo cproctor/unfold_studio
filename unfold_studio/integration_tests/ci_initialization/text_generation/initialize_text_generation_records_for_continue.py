@@ -13,7 +13,7 @@ def initialize_text_generation_records_for_continue():
         # Text generation for all story id 0
         {
             'seed': DEFAULT_SEED,
-            'messages_hash': 'f824b3122e0af31e37d7478e4a80219aa2e5740ad93c5837669bfc4e648da0f5',
+            'messages_hash': '7e6d0490cbc05ac1b14dfc3e4074ebd3e2baad9d06fce6e8313b437e5af2c0bf',
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': {
                 "probabilities": {
@@ -39,34 +39,6 @@ def initialize_text_generation_records_for_continue():
             },
             'messages': [{}]
         },
-        {
-            'seed': DEFAULT_SEED,
-            'messages_hash': 'c7a0635a369636fc0507eebfa2345d2a8ac6cb5bfcd56e3c54b83e32683717e5',
-            'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': {
-                "probabilities": {
-                    "DIRECT_CONTINUE": 1.0,
-                    "BRIDGE_AND_CONTINUE": 0.0,
-                    "NEEDS_INPUT": 0.0,
-                    "INVALID_USER_INPUT": 0.0
-                },
-                "direct_continue": {
-                    "reason": "User input 'nothing' indicates acceptance of story conclusion without further action"
-                },
-                "bridge_and_continue": {
-                    "reason": "Not applicable - direct continuation is sufficient",
-                    "bridge_text": ""
-                },
-                "needs_input": {
-                    "reason": "Not required - user explicitly chose no action",
-                    "guidance_text": ""
-                },
-                "invalid_user_input": {
-                    "reason": "'nothing' is a valid and meaningful input in this context"
-                }
-            },
-            'messages': [{}]
-        }
     ]
 
     created_records = []

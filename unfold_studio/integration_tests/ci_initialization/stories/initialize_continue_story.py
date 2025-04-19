@@ -11,12 +11,19 @@ Let's call the continue function now.
 
  + Go to final knot
  -> final_knot
- + Go to continue function call knot
- -> continue_knot
+ + Go to direct continue knot
+ -> direct_continue_knot
+ + Go to bridge and continue knot
+ -> bridge_and_continue_knot
  
  
-=== continue_knot === 
-You are inside continue function knot
+=== direct_continue_knot === 
+You are inside direct_continue_knot
+-> continue(->final_knot)
+-> DONE
+
+=== bridge_and_continue_knot ===
+You are inside bridge_and_continue_knot
 -> continue(->final_knot)
 -> DONE
 

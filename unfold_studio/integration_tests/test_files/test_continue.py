@@ -35,9 +35,22 @@ class ContinueTester(BaseStoryTester):
 if __name__ == "__main__":
     test_paths = [
         {
-            "choice_1": "Go to continue function call knot",
+            "choice_1": "Go to direct continue knot",
             "continue_1_input": "direct_continue_input"
-        }
+        },
+        # {   
+        #     "choice_1": "Go to bridge and continue knot",
+        #     "continue_1_input": "bridge_and_continue_input"
+        # },
+        # {
+        #     "choice_1": "Go to needs input knot",
+        #     "continue_1_input": "needs_input_input"
+        # },
+        # {
+        #     "choice_1": "Go to invalid user input knot",
+        #     "continue_1_input": "invalid_user_input"
+        # }
+
     ]
     
     try:
