@@ -16,9 +16,9 @@ def run_test_file(file_path):
 def main():
     test_files_dir = os.path.dirname(os.path.abspath(__file__))
     test_files = [
-        # 'test_input_generate.py',
-        # 'test_input_generate2.py',
-        # 'test_input_generate3.py',
+        'test_input_generate.py',
+        'test_input_generate2.py',
+        'test_input_generate3.py',
         'test_continue.py'
     ]
     

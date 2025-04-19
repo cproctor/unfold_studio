@@ -206,7 +206,6 @@ class BaseStoryTester:
         while time.time() - start_time < timeout:
             try:
                 input_boxes = self.driver.find_elements(By.CSS_SELECTOR, 'input[type="text"]')
-                print(input_boxes)
                 if not input_boxes:
                     time.sleep(0.1)
                     continue
