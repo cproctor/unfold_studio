@@ -39,7 +39,7 @@ class ContinueTester(BaseStoryTester):
             self.wait_for_story_text("This is the final knot text.")
             self.assert_exact_texts_in_order([
                 "You are inside bridge_and_continue_knot",
-                "After following through with your input, the journey continues, leading you closer to the final destination...",
+                "After following through with your input, the journey continues, leading you closer to the final destination..",
                 "This is the final knot text.",
             ])
         elif path["choice_1"] == "Go to needs input knot":
