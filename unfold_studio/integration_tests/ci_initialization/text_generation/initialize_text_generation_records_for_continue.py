@@ -16,14 +16,56 @@ def initialize_text_generation_records_for_continue():
             'seed': DEFAULT_SEED,
             'messages_hash': '2f173ebf039c4e422c08cedaa19fb3e0c837c2177a579e0fd9d28ff18f425c50',
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT,
+            'result': {
+    "probabilities": {
+        "DIRECT_CONTINUE": 1.0,
+        "BRIDGE_AND_CONTINUE": 0.0,
+        "NEEDS_INPUT": 0.0,
+        "INVALID_USER_INPUT": 0.0
+    },
+    "direct_continue": {
+        "reason": "User input 'nothing' indicates acceptance of story conclusion without further action"
+    },
+    "bridge_and_continue": {
+        "reason": "Not applicable - direct continuation is sufficient",
+        "bridge_text": ""
+    },
+    "needs_input": {
+        "reason": "Not required - user explicitly chose no action",
+        "guidance_text": ""
+    },
+    "invalid_user_input": {
+        "reason": "'nothing' is a valid and meaningful input in this context"
+    }
+},
             'messages': [{}]
         },
         {
             'seed': DEFAULT_SEED,
             'messages_hash': 'c7a0635a369636fc0507eebfa2345d2a8ac6cb5bfcd56e3c54b83e32683717e5',
             'backend_config': DEFAULT_BACKEND_CONFIG,
-            'result': DEFAULT_GENERATE_RESPONSE_TEXT,
+            'result': {
+    "probabilities": {
+        "DIRECT_CONTINUE": 1.0,
+        "BRIDGE_AND_CONTINUE": 0.0,
+        "NEEDS_INPUT": 0.0,
+        "INVALID_USER_INPUT": 0.0
+    },
+    "direct_continue": {
+        "reason": "User input 'nothing' indicates acceptance of story conclusion without further action"
+    },
+    "bridge_and_continue": {
+        "reason": "Not applicable - direct continuation is sufficient",
+        "bridge_text": ""
+    },
+    "needs_input": {
+        "reason": "Not required - user explicitly chose no action",
+        "guidance_text": ""
+    },
+    "invalid_user_input": {
+        "reason": "'nothing' is a valid and meaningful input in this context"
+    }
+},
             'messages': [{}]
         },
 
