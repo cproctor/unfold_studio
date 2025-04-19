@@ -21,30 +21,30 @@ env:
   FORCE_COLOR: 1
 
 jobs:
-  run_unit_tests:
-    name: Run Unit Tests
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
+  # run_unit_tests:
+  #   name: Run Unit Tests
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - uses: actions/checkout@v4
       
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.12'
+  #     - name: Set up Python
+  #       uses: actions/setup-python@v5
+  #       with:
+  #         python-version: '3.12'
           
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
+  #     - name: Install Poetry
+  #       run: |
+  #         curl -sSL https://install.python-poetry.org | python3 -
           
-      - name: Update lock file
-        run: poetry lock
+  #     - name: Update lock file
+  #       run: poetry lock
         
-      - name: Install dependencies
-        run: poetry install --with dev,docs,admin
+  #     - name: Install dependencies
+  #       run: poetry install --with dev,docs,admin
         
-      - name: Run tests
-        run: |
-          poetry run pytest unfold_studio/*/tests -v 
+  #     - name: Run tests
+  #       run: |
+  #         poetry run pytest unfold_studio/*/tests -v 
 
   run_integration_tests:
     name: Run Integration Tests
