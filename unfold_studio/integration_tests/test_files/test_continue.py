@@ -39,11 +39,16 @@ class ContinueTester(BaseStoryTester):
             self.wait_for_story_text("This is the final knot text.")
             self.assert_exact_texts_in_order([
                 "You are inside bridge_and_continue_knot",
-                "After following through with your input, the journey continues, leading you closer to the final destination..",
+                "After following through with your input, the journey continues, leading you closer to the final destination...",
                 "This is the final knot text.",
             ])
         elif path["choice_1"] == "Go to needs input knot":
-            self.wait_for_story_text("This is the needs input knot text.")
+            self.wait_for_story_text("Could you please specify what action you would like to take next?")
+            self.assert_input_box_exists(CONTINUE_INPUT_BOX_PLACEHOLDER)
+            self.assert_exact_texts_in_order([
+                "You are inside needs_input_knot",
+                "Could you please specify what action you would like to take next?",
+            ])
         elif path["choice_1"] == "Go to invalid user input knot":
             self.wait_for_story_text("This is the invalid user input knot text.")
 
@@ -58,10 +63,10 @@ if __name__ == "__main__":
             "choice_1": "Go to bridge and continue knot",
             "continue_1_input": "bridge_and_continue_input"
         },
-        # {
-        #     "choice_1": "Go to needs input knot",
-        #     "continue_1_input": "needs_input_input"
-        # },
+        {
+            "choice_1": "Go to needs input knot",
+            "continue_1_input": "needs_input_input"
+        },
         # {
         #     "choice_1": "Go to invalid user input knot",
         #     "continue_1_input": "invalid_user_input"
