@@ -23,6 +23,6 @@ def create_story(user, site, story_id, title, ink_content, description, is_publi
         story.compile()
 
         story.save()
-        print(f'Successfully created {title} test story with ID: {story_id}')
+        print(f'Successfully created {title} test story with ID: {story_id} and ink content: {story.ink}')
         
         return story.id
