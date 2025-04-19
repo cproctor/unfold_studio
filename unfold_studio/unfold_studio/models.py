@@ -576,7 +576,7 @@ class StoryPlayInstance(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='story_play_instances')
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='story_play_instances')
     story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='story_play_instances')
     state = models.CharField(max_length=32, choices=StoryPlayInstanceState.choices(), default=StoryPlayInstanceState.IN_PROGRESS)
 

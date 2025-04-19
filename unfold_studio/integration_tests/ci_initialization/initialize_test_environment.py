@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 
 from unfold_studio.integration_tests.ci_initialization.text_generation.initialize_text_generation_records import initialize_text_generation_records
+from unfold_studio.integration_tests.ci_initialization.text_generation.initialize_text_generation_records_for_continue import initialize_text_generation_records_for_continue
 from unfold_studio.integration_tests.ci_initialization.stories.initialize_input_generate_story import create_input_generate_story
 from unfold_studio.integration_tests.ci_initialization.stories.initialize_input_generate_story2 import create_input_generate_story2
 from unfold_studio.integration_tests.ci_initialization.stories.initialize_input_generate_story3 import create_input_generate_story3
@@ -34,6 +35,7 @@ def initialize_test_environment():
     create_continue_story(user, site)
 
     initialize_text_generation_records()
+    initialize_text_generation_records_for_continue()
     
     print("Test environment initialized successfully")
 

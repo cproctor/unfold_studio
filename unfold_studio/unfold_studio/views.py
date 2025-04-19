@@ -531,26 +531,26 @@ class RemoveStoryFromBookView(LoginRequiredMixin, StoryMixin, DetailView):
         )
         return redirect('show_book', book.id)
 
-class CreateStoryPlayInstanceView(LoginRequiredMixin, CreateView):
+class CreateStoryPlayInstanceView(CreateView):
 
     def post(self, request, *args, **kwargs):
-        user = request.user
+        user = request.user if request.user.is_authenticated else None
+        user_id = user.id if user else None
         request_body = json.loads(request.body)
 
         story_id = request_body['story_id']
 
         story_play_instance = StoryPlayInstance.objects.create(
-            user_id=user.id,
+            user_id=user_id,
             story_id=story_id
         )
 
         return JsonResponse({"story_play_instance_uuid": str(story_play_instance.uuid)})
 
 
-class CreateStoryPlayRecordView(LoginRequiredMixin, CreateView):
+class CreateStoryPlayRecordView(CreateView):
 
     def post(self, request, *args, **kwargs):
-        user = request.user
         request_body = json.loads(request.body)
 
         story_play_instance_uuid = request_body['story_play_instance_uuid']

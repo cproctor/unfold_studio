@@ -19,7 +19,7 @@ def initialize_text_generation_records():
     
     test_records = [
 
-        # Text generation for all paths for story 29
+        # Text generation for all paths for story 1
         {
             'seed': DEFAULT_SEED,
             'messages': [
@@ -135,7 +135,7 @@ def initialize_text_generation_records():
 
 
 
-        # Text generation for all paths for story 31
+        # Text generation for all paths for story 2
 
 
         {
@@ -283,7 +283,7 @@ def initialize_text_generation_records():
             'result': DEFAULT_GENERATE_RESPONSE_TEXT
         },
 
-        # Text generation for all paths for story 45
+        # Text generation for all paths for story 3
 
 
 
