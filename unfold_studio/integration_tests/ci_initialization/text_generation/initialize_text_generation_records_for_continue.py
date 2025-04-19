@@ -13,7 +13,7 @@ def initialize_text_generation_records_for_continue():
         # Text generation for all story id 0
         {
             'seed': DEFAULT_SEED,
-            'messages_hash': '2f173ebf039c4e422c08cedaa19fb3e0c837c2177a579e0fd9d28ff18f425c50',
+            'messages_hash': 'f824b3122e0af31e37d7478e4a80219aa2e5740ad93c5837669bfc4e648da0f5',
             'backend_config': DEFAULT_BACKEND_CONFIG,
             'result': {
                 "probabilities": {

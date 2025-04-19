@@ -18,3 +18,4 @@ DEFAULT_BACKEND_CONFIG = {
 }   
 
 STORY_ID_PREFIX = 100000
+CONTINUE_INPUT_BOX_PLACEHOLDER = "what would you like to do next?"
