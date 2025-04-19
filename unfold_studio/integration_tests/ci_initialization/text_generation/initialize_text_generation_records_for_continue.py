@@ -93,6 +93,7 @@ def initialize_text_generation_records_for_continue():
             else:
                 record['messages_hash'] = messages_hash
                 record['backend_config_hash'] = backend_config_hash
+                record['result'] = json.dumps(record['result'])
                 created_record = TextGenerationRecord.objects.create(**record)
                 created_records.append(created_record)
                 print(f"Created new text generation record {i}/{len(test_records)} - ID: {created_record.id}")
