@@ -21,8 +21,7 @@ class ContinueTester(BaseStoryTester):
         self.assert_exact_texts_in_order([
             "This is a integration test story for continue.",
             "Let's call the continue function now.",
-            "Go to continue function call knot",
-            "You are inside continue function knot"
+            path["choice_1"],
         ])
 
         self.assert_input_box_exists(CONTINUE_INPUT_BOX_PLACEHOLDER)
