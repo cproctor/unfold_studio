@@ -1,5 +1,5 @@
 from django.db import models 
-from django.db.models import Q, OuterRef, Subquery, Exists
+from django.db.models import Q, OuterRef, Subquery, Exists, Case, When, Value, CharField
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
 from django.contrib.sites.shortcuts import get_current_site
@@ -22,6 +22,7 @@ from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 import uuid
 from .choices import StoryPlayInstanceState, StoryPlayRecordDataType
+from django.core.serializers.json import DjangoJSONEncoder
 
 log = structlog.get_logger(__name__)
 
@@ -234,17 +235,59 @@ class Story(models.Model):
             include(variables, iVars)
             include(knots, iKnots)
 
-        
-
         inkText = "\n".join(
             self.external_function_declarations() +  # call-outs to javascript
             [l for i, l in variables.values()] +    # lifted variable initializations
             self.get_ink_preamble().split('\n') +   # Any remaining preamble (stripped)
             [k for i, k in knots.values()]          # The text of the story's knots
         )
+        
+        inkText = self.inject_input_call_indicators(inkText)
+        inkText = self.inject_generate_call_indicators(inkText)
+        inkText = self.inject_static_continue_knot(inkText)
+        print(f"inkText: {inkText}")
+
         offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))
         return inkText, inclusions, variables, knots, offset
+    
+    def inject_static_continue_knot(self, inkText):
+        """
+        Injects static continue knot text into the ink text.
+        """
+        continue_knot = """
+        === continue(->target_knot) ===
+        ~ continue_function(target_knot)
+        Continue was called above
+        -> target_knot
+        """
+        return inkText + continue_knot
+    
+    def inject_input_call_indicators(self, inkText):
+        """
+        Injects input call indicators into the ink text.
+        """
+        input_pattern = re.compile(r'^\s*~\s*.*\binput\s*\(.*\)')
+        processed_lines = []
+        for line in inkText.split('\n'):
+            processed_lines.append(line)
+            if input_pattern.match(line):
+                processed_lines.append('Input was called above #context')
+
+        return '\n'.join(processed_lines)
+    
+    def inject_generate_call_indicators(self, inkText):
+        """
+        Injects generate call indicators into the ink text.
+        """
+        input_pattern = re.compile(r'^\s*~\s*.*\bgenerate\s*\(.*\)')
+        processed_lines = []
+        for line in inkText.split('\n'):
+            processed_lines.append(line)
+            if input_pattern.match(line):
+                processed_lines.append('Generate was called above #context')
+
+        return '\n'.join(processed_lines)
 
     def external_function_declarations(self):
         """
@@ -262,7 +305,7 @@ class Story(models.Model):
             "EXTERNAL generate(a)",
             "EXTERNAL input(a,b)",
             "EXTERNAL SEED_AI(a)",
-            "EXTERNAL continue(a)",
+            "EXTERNAL continue_function(a)",
         ]
 
     def ink_to_json(self, ink, offset=0):
@@ -364,7 +407,42 @@ class Story(models.Model):
     def get_knots(self, with_preamble=False):
         return OrderedDict((name, (lineNum, knot)) for (lineNum, name, knot) 
                 in self.knot_reader(with_preamble=with_preamble))
-                
+
+    def get_knot_data(self, knot_name):
+        """
+        Gets the processed data for a specific knot, including its contents and choices.
+        Returns a dictionary with 'knotContents' and 'knotChoices' keys.
+        """
+        knots = self.get_knots()
+        if knot_name not in knots:
+            return None
+            
+        _, content = knots[knot_name]
+        content = content.split('\n', 1)[1] if '\n' in content else ''
+        content = content.strip()
+        
+        if not content:
+            return None
+            
+        lines = content.split('\n')
+        knot_contents = []
+        knot_choices = []
+        
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+            if line.startswith('+'):
+                choice_text = line[1:].strip()
+                knot_choices.append(choice_text)
+            else:
+                knot_contents.append(line)
+        
+        return {
+            'knotContents': knot_contents,
+            'knotChoices': knot_choices
+        }
+
     # Using Hacker News gravity algorithm: 
     # https://medium.com/hacking-and-gonzo/how-hacker-news-ranking-algorithm-works-1d9b0cf2c08d
     def update_priority(self):
@@ -390,8 +468,10 @@ class Story(models.Model):
             "compiled": json.loads(self.json) if self.json else None,
             "ink": self.ink,
             "status": "error" if self.errors.exists() else "ok",
-            "error": "; ".join(e.message for e in self.errors.all()),
-            "error_line": self.errors.first().line if self.errors.exists()  and self.errors.first() else 0,
+            "error": "\n".join(e.message for e in self.errors.all()),
+            # "errors": [e.message for e in self.errors.all()],
+            # "error_line": self.errors.first().line if self.errors.exists()  and self.errors.first() else 0,
+            "error_line": [e.line for e in self.errors.all() if e.line is not None] if self.errors.exists() else [0],
             "author": self.author.username if self.author else None
         }
 
@@ -496,9 +576,36 @@ class StoryPlayInstance(models.Model):
     uuid = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
     created_on = models.DateTimeField(auto_now_add=True)
     modified_on = models.DateTimeField(auto_now=True)
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='story_play_instances')
+    user = models.ForeignKey(User, null=True, blank=True, on_delete=models.CASCADE, related_name='story_play_instances')
     story = models.ForeignKey(Story, on_delete=models.CASCADE, related_name='story_play_instances')
     state = models.CharField(max_length=32, choices=StoryPlayInstanceState.choices(), default=StoryPlayInstanceState.IN_PROGRESS)
+
+    def get_history(self):
+        records = self.records.annotate(
+            record_type=Case(
+                When(data_type='AUTHORS_TEXT', then=Value('narrative')),
+                When(data_type='AI_GENERATED_TEXT', then=Value('narrative')),
+                When(data_type='AUTHORS_CHOICE_LIST', then=Value('offered_choices')),
+                When(data_type='READERS_CHOSEN_CHOICE', then=Value('chosen_choice')),
+                When(data_type='AUTHORS_INPUT_BOX', then=Value('input_prompt')),
+                When(data_type='AUTHORS_CONTINUE_INPUT_BOX', then=Value('input_prompt')),
+                When(data_type='READERS_ENTERED_TEXT', then=Value('user_input')),
+                When(data_type='READERS_CONTINUE_ENTERED_TEXT', then=Value('user_input')),
+                default=Value('other'),
+                output_field=CharField()
+            )
+        ).order_by('story_point')
+
+        return self._format_history(records)
+
+    def _format_history(self, records):
+        history = {'timeline': []}
+        for record in records:
+            history['timeline'].append({
+                'type': record.record_type,
+                'content': record.data,
+            })
+        return json.dumps(history, cls=DjangoJSONEncoder)
 
     def __str__(self):
         return f"StoryPlayInstance {self.uuid} - id: {self.id}"
@@ -511,6 +618,9 @@ class StoryPlayRecord(models.Model):
     story_point = models.IntegerField()
     data_type = models.CharField(max_length=30, choices=StoryPlayRecordDataType.choices())
     data = models.JSONField()
+
+    class Meta:
+        ordering = ['story_point']
 
     def __str__(self):
         return f"StoryPlayRecord {self.uuid} - id: {self.id}"

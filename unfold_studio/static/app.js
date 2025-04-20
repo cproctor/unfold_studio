@@ -31,17 +31,34 @@ define(
         init: function() {
             const player = new InkPlayer('.innerText');
 
+            // parse errors from story object for use with ace editor
+            // returns list of error objects
+            function parseErrors(storyObj) {
+                const errors = storyObj.error.split("\n")
+                const errList = []
+                
+                for (err of errors) {
+                    const errObj = {};
+                    errObj.message = err.slice(err.indexOf(":") + 1).trim();
+                    errObj.lineNumber = Number(err[err.indexOf(":") - 1]);
+                    errList.push(errObj);
+                }
+                return errList;
+            }
+
             Story.setEvents({
                 newStory: function(story) {
                 },
                 storyFetched: function(story) {
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
+                    EditorView.setErrors(parseErrors(story));
                     player.play(story);
                 },
                 storySaved: function(story) {
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
+                    EditorView.setErrors(parseErrors(story));
                     player.play(story);
                 }
             });
@@ -50,7 +67,6 @@ define(
                 story = new Story(STORY_ID);
                 story.fetch().then(function() {
                     if (story.status === "error") {
-                        console.log("ERROR");
                         $('.twopane.solo').removeClass('solo');
                         $('#show_code_opt').hide();
                         $('#hide_code_opt').show();
@@ -62,6 +78,9 @@ define(
                 async function presave_story() {
                     await story.save();
                 }
+
+                // autosave story before refresh/leaving page
+                window.addEventListener('beforeunload', presave_story);
 
                 $('#save_story').click(function() {
                     story.save();

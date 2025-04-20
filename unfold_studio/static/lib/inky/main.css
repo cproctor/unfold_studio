@@ -664,6 +664,7 @@ img.issue-icon.warning {
 
 #player pre.error {
   color: #C56D6D;
+  background-color: #ffeeee;
 }
 #player pre.diagnostic {
   color: gray;

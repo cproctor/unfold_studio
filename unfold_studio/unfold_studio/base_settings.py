@@ -55,6 +55,7 @@ INSTALLED_APPS = [
     'prompts',
     'comments',
     'text_generation',
+    'generated_text_evaluator'
 ]
 
 MIDDLEWARE = [
@@ -69,6 +70,10 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_structlog.middlewares.RequestMiddleware",
 ]
+
+if DEBUG:
+    INSTALLED_APPS += ['silk']
+    MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
 
 ROOT_URLCONF = 'unfold_studio.urls.base'
 
