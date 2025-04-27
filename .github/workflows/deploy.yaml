@@ -1,0 +1,136 @@
+name: Deploy Unfold Studio
+
+on:
+  push:
+    branches: [ cicd-full ]
+
+env:
+  INSTANCE_IP: ${{ secrets.INSTANCE_IP }}
+  SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: SSH into instance and deploy
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ env.INSTANCE_IP }}
+        username: ${{ secrets.SSH_USERNAME }}
+        key: ${{ env.SSH_PRIVATE_KEY }}
+        script: |
+          # Cleanup previous deployment
+          sudo supervisorctl stop unfold_studio || true
+          sudo rm -f /etc/supervisor/conf.d/unfold_studio.conf
+          sudo supervisorctl update
+          
+          sudo systemctl stop nginx || true
+          sudo rm -f /etc/nginx/sites-available/unfold_studio
+          sudo rm -f /etc/nginx/sites-enabled/unfold_studio
+          
+          sudo rm -rf /opt/unfold_studio
+          sudo rm -f /opt/unfold_studio*.sock
+          sudo rm -rf /opt/unfold_studio/static_assets
+
+          # System setup
+          sudo apt update -y
+          sudo apt upgrade -y
+          sudo apt install -y python3 python3-pip python3-venv nginx git supervisor build-essential libpq-dev
+
+          # Create fresh directory
+          sudo mkdir -p /opt/unfold_studio
+          sudo chown -R $USER:$USER /opt/unfold_studio
+
+          # Clone repository
+          git clone git@github.com:cproctor/unfold_studio.git /opt/unfold_studio
+          cd /opt/unfold_studio
+
+          # Install Poetry
+          curl -sSL https://install.python-poetry.org | python3 -
+          echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+          source ~/.bashrc
+
+          # Install dependencies
+          poetry install
+          poetry install gunicorn
+
+          # Create Supervisor config
+          echo "[program:unfold_studio]
+          directory=/opt/unfold_studio/unfold_studio
+          command=/usr/bin/poetry run gunicorn unfold_studio.wsgi:application --bind unix:/opt/unfold_studio/unfold_studio.sock --workers 3 --log-level debug
+          autostart=true
+          autorestart=true
+          stderr_logfile=/var/log/unfold_studio.err.log
+          stdout_logfile=/var/log/unfold_studio.out.log
+          user=unfold_studio
+          environment=PYTHONPATH=\"/opt/unfold_studio:/opt/unfold_studio/unfold_studio\",DJANGO_SETTINGS_MODULE=\"unfold_studio.settings\"
+          redirect_stderr=true
+          stdout_logfile_maxbytes=50MB
+          stdout_logfile_backups=10" | sudo tee /etc/supervisor/conf.d/unfold_studio.conf
+
+          # Create fresh Nginx config
+          echo "server {
+              server_name app.unfoldstudio.net 159.65.178.191;
+
+              location /static/ {
+                  root /opt/unfold_studio/static_assets;
+                  expires 30d;
+                  add_header Cache-Control \"public, no-transform\";
+              }
+
+              location / {
+                  proxy_pass http://unix:/opt/unfold_studio/unfold_studio.sock;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+                  proxy_set_header Host \$host;
+                  proxy_connect_timeout 300s;
+                  proxy_send_timeout 300s;
+                  proxy_read_timeout 300s;
+                  send_timeout 300s;
+              }
+
+              listen 443 ssl;
+              ssl_certificate /etc/letsencrypt/live/app.unfoldstudio.net/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/app.unfoldstudio.net/privkey.pem;
+              include /etc/letsencrypt/options-ssl-nginx.conf;
+              ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+          }
+
+          server {
+              server_name app.unfoldstudio.net 159.65.178.191;
+              listen 80;
+
+              location /static/ {
+                  root /opt/unfold_studio/static_assets;
+                  expires 30d;
+                  add_header Cache-Control \"public, no-transform\";
+              }
+
+              location / {
+                  proxy_pass http://unix:/opt/unfold_studio/unfold_studio.sock;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+                  proxy_set_header Host \$host;
+                  proxy_connect_timeout 300s;
+                  proxy_send_timeout 300s;
+                  proxy_read_timeout 300s;
+                  send_timeout 300s;
+              }
+          }" | sudo tee /etc/nginx/sites-available/unfold_studio
+
+          # Enable fresh Nginx config
+          sudo ln -sf /etc/nginx/sites-available/unfold_studio /etc/nginx/sites-enabled/
+          sudo nginx -t
+          sudo systemctl start nginx
+          sudo systemctl reload nginx
+
+          # Set permissions for socket
+          sudo touch /opt/unfold_studio/unfold_studio.sock
+          sudo chmod 770 /opt/unfold_studio/unfold_studio.sock
+          sudo chown unfold_studio:www-data /opt/unfold_studio/unfold_studio.sock
+
+          # Supervisor setup
+          sudo supervisorctl reread
+          sudo supervisorctl update
+          sudo supervisorctl start unfold_studio
