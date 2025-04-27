@@ -73,21 +73,20 @@ jobs:
         username: ${{ env.SSH_USER }}
         key: ${{ env.SSH_PRIVATE_KEY }}
         script: |
-          # Cleanup previous deployment
-          sudo supervisorctl stop unfold_studio || true
-          sudo rm -f /etc/supervisor/conf.d/unfold_studio.conf
-          sudo supervisorctl update
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S supervisorctl stop unfold_studio || true
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S rm -f /etc/supervisor/conf.d/unfold_studio.conf
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S supervisorctl update
           
-          sudo systemctl stop nginx || true
-          sudo rm -f /etc/nginx/sites-available/unfold_studio
-          sudo rm -f /etc/nginx/sites-enabled/unfold_studio
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S systemctl stop nginx || true
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-available/unfold_studio
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S rm -f /etc/nginx/sites-enabled/unfold_studio
           
-          sudo rm -rf /opt/unfold_studio
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S rm -rf /opt/unfold_studio
 
-          # # System setup
-          sudo apt update -y
-          sudo apt upgrade -y
-          sudo apt install -y python3 python3-pip python3-venv nginx git supervisor build-essential libpq-dev
+          # System setup
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S apt update -y
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S apt upgrade -y
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S apt install -y python3 python3-pip python3-venv nginx git supervisor build-essential libpq-dev
 
           # # Create fresh directory
           # sudo mkdir -p /opt/unfold_studio
