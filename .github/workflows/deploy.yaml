@@ -180,4 +180,4 @@ jobs:
           # # Supervisor setup
           sudo supervisorctl reread
           sudo supervisorctl update
-          sudo supervisorctl start unfold_studio
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S supervisorctl start unfold_studio
