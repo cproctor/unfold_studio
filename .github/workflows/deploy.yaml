@@ -95,8 +95,8 @@ jobs:
           # # Clone repository
           git clone git@github.com:cproctor/unfold_studio.git /opt/unfold_studio
           cd /opt/unfold_studio
-          git fetch origin development
-          git checkout development
+          git fetch origin cicd-full
+          git checkout cicd-full
 
           # # Install dependencies
           poetry config virtualenvs.in-project true
