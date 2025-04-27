@@ -25,6 +25,7 @@ pytz = "^2024.2"
 django-silk = "^5.3.2"
 sentence-transformers = "^2.5.1"
 numpy = "^1.26.0"
+gunicorn = "23.0.0"
 
 
 [tool.poetry.group.docs.dependencies]

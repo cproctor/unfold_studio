@@ -89,21 +89,19 @@ jobs:
           echo "${{ env.SSH_PASSWORD }}" | sudo -S apt install -y python3 python3-pip python3-venv nginx git supervisor build-essential libpq-dev
 
           # # Create fresh directory
-          # sudo mkdir -p /opt/unfold_studio
-          # sudo chown -R $USER:$USER /opt/unfold_studio
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S mkdir -p /opt/unfold_studio
+          echo "${{ env.SSH_PASSWORD }}" | sudo -S chown -R $USER:$USER /opt/unfold_studio
 
           # # Clone repository
-          # git clone git@github.com:cproctor/unfold_studio.git /opt/unfold_studio
-          # cd /opt/unfold_studio
-
-          # # Install Poetry
-          # curl -sSL https://install.python-poetry.org | python3 -
-          # echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
-          # source ~/.bashrc
+          git clone git@github.com:cproctor/unfold_studio.git /opt/unfold_studio
+          cd /opt/unfold_studio
+          git fetch origin development
+          git checkout development
 
           # # Install dependencies
-          # poetry install
-          # poetry install gunicorn
+          poetry config virtualenvs.in-project true
+          poetry install
+          source .venv/bin/activate
 
           # # Create Supervisor config
           # echo "[program:unfold_studio]
