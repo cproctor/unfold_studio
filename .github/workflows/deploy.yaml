@@ -99,9 +99,8 @@ jobs:
           git checkout cicd-full
 
           # # Install dependencies
-          poetry config virtualenvs.in-project true
+          poetry shell
           poetry install
-          source .venv/bin/activate
 
           # # Create Supervisor config
           # echo "[program:unfold_studio]
