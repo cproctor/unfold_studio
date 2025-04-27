@@ -173,9 +173,9 @@ jobs:
           sudo systemctl reload nginx
 
           # # Set permissions for socket
-          sudo touch /opt/unfold_studio/unfold_studio.sock
-          sudo chmod 770 /opt/unfold_studio/unfold_studio.sock
-          sudo chown unfold_studio:www-data /opt/unfold_studio/unfold_studio.sock
+          # sudo touch /opt/unfold_studio/unfold_studio.sock
+          # sudo chmod 770 /opt/unfold_studio/unfold_studio.sock
+          # sudo chown unfold_studio:www-data /opt/unfold_studio/unfold_studio.sock
 
           # # Supervisor setup
           sudo supervisorctl reread
