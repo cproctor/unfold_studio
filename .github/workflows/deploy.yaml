@@ -102,75 +102,75 @@ jobs:
           poetry shell
           poetry install
 
-          # # Create Supervisor config
-          # echo "[program:unfold_studio]
-          # directory=/opt/unfold_studio/unfold_studio
-          # command=/usr/bin/poetry run gunicorn unfold_studio.wsgi:application --bind unix:/opt/unfold_studio/unfold_studio.sock --workers 3 --log-level debug
-          # autostart=true
-          # autorestart=true
-          # stderr_logfile=/var/log/unfold_studio.err.log
-          # stdout_logfile=/var/log/unfold_studio.out.log
-          # user=unfold_studio
-          # environment=PYTHONPATH=\"/opt/unfold_studio:/opt/unfold_studio/unfold_studio\",DJANGO_SETTINGS_MODULE=\"unfold_studio.settings\"
-          # redirect_stderr=true
-          # stdout_logfile_maxbytes=50MB
-          # stdout_logfile_backups=10" | sudo tee /etc/supervisor/conf.d/unfold_studio.conf
+          # Create Supervisor config
+          echo "[program:unfold_studio]
+          directory=/opt/unfold_studio/unfold_studio
+          command=/usr/bin/poetry run gunicorn unfold_studio.wsgi:application --bind unix:/opt/unfold_studio/unfold_studio.sock --workers 3 --log-level debug
+          autostart=true
+          autorestart=true
+          stderr_logfile=/var/log/unfold_studio.err.log
+          stdout_logfile=/var/log/unfold_studio.out.log
+          user=unfold_studio
+          environment=PYTHONPATH=\"/opt/unfold_studio:/opt/unfold_studio/unfold_studio\",DJANGO_SETTINGS_MODULE=\"unfold_studio.settings\"
+          redirect_stderr=true
+          stdout_logfile_maxbytes=50MB
+          stdout_logfile_backups=10" | sudo tee /etc/supervisor/conf.d/unfold_studio.conf
 
           # # Create fresh Nginx config
-          # echo "server {
-          #     server_name app.unfoldstudio.net 159.65.178.191;
+          echo "server {
+              server_name app.unfoldstudio.net 159.65.178.191;
 
-          #     location /static/ {
-          #         root /opt/unfold_studio/static_assets;
-          #         expires 30d;
-          #         add_header Cache-Control \"public, no-transform\";
-          #     }
+              location /static/ {
+                  root /opt/unfold_studio/static_assets;
+                  expires 30d;
+                  add_header Cache-Control \"public, no-transform\";
+              }
 
-          #     location / {
-          #         proxy_pass http://unix:/opt/unfold_studio/unfold_studio.sock;
-          #         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-          #         proxy_set_header X-Forwarded-Proto \$scheme;
-          #         proxy_set_header Host \$host;
-          #         proxy_connect_timeout 300s;
-          #         proxy_send_timeout 300s;
-          #         proxy_read_timeout 300s;
-          #         send_timeout 300s;
-          #     }
+              location / {
+                  proxy_pass http://unix:/opt/unfold_studio/unfold_studio.sock;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+                  proxy_set_header Host \$host;
+                  proxy_connect_timeout 300s;
+                  proxy_send_timeout 300s;
+                  proxy_read_timeout 300s;
+                  send_timeout 300s;
+              }
 
-          #     listen 443 ssl;
-          #     ssl_certificate /etc/letsencrypt/live/app.unfoldstudio.net/fullchain.pem;
-          #     ssl_certificate_key /etc/letsencrypt/live/app.unfoldstudio.net/privkey.pem;
-          #     include /etc/letsencrypt/options-ssl-nginx.conf;
-          #     ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
-          # }
+              listen 443 ssl;
+              ssl_certificate /etc/letsencrypt/live/app.unfoldstudio.net/fullchain.pem;
+              ssl_certificate_key /etc/letsencrypt/live/app.unfoldstudio.net/privkey.pem;
+              include /etc/letsencrypt/options-ssl-nginx.conf;
+              ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+          }
 
-          # server {
-          #     server_name app.unfoldstudio.net 159.65.178.191;
-          #     listen 80;
+          server {
+              server_name app.unfoldstudio.net 159.65.178.191;
+              listen 80;
 
-          #     location /static/ {
-          #         root /opt/unfold_studio/static_assets;
-          #         expires 30d;
-          #         add_header Cache-Control \"public, no-transform\";
-          #     }
+              location /static/ {
+                  root /opt/unfold_studio/static_assets;
+                  expires 30d;
+                  add_header Cache-Control \"public, no-transform\";
+              }
 
-          #     location / {
-          #         proxy_pass http://unix:/opt/unfold_studio/unfold_studio.sock;
-          #         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-          #         proxy_set_header X-Forwarded-Proto \$scheme;
-          #         proxy_set_header Host \$host;
-          #         proxy_connect_timeout 300s;
-          #         proxy_send_timeout 300s;
-          #         proxy_read_timeout 300s;
-          #         send_timeout 300s;
-          #     }
-          # }" | sudo tee /etc/nginx/sites-available/unfold_studio
+              location / {
+                  proxy_pass http://unix:/opt/unfold_studio/unfold_studio.sock;
+                  proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+                  proxy_set_header X-Forwarded-Proto \$scheme;
+                  proxy_set_header Host \$host;
+                  proxy_connect_timeout 300s;
+                  proxy_send_timeout 300s;
+                  proxy_read_timeout 300s;
+                  send_timeout 300s;
+              }
+          }" | sudo tee /etc/nginx/sites-available/unfold_studio
 
           # # Enable fresh Nginx config
-          # sudo ln -sf /etc/nginx/sites-available/unfold_studio /etc/nginx/sites-enabled/
-          # sudo nginx -t
-          # sudo systemctl start nginx
-          # sudo systemctl reload nginx
+          sudo ln -sf /etc/nginx/sites-available/unfold_studio /etc/nginx/sites-enabled/
+          sudo nginx -t
+          sudo systemctl start nginx
+          sudo systemctl reload nginx
 
           # # Set permissions for socket
           # sudo touch /opt/unfold_studio/unfold_studio.sock
