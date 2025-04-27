@@ -102,6 +102,9 @@ jobs:
           poetry shell
           poetry install
 
+          cd unfold_studio
+          python manage.py collectstatic --noinput
+
           # Create Supervisor config
           echo "[program:unfold_studio]
           directory=/opt/unfold_studio/unfold_studio
@@ -121,7 +124,7 @@ jobs:
               server_name app.unfoldstudio.net 159.65.178.191;
 
               location /static/ {
-                  root /opt/unfold_studio/static_assets;
+                  alias /opt/unfold_studio/static_assets/;
                   expires 30d;
                   add_header Cache-Control \"public, no-transform\";
               }
@@ -149,7 +152,7 @@ jobs:
               listen 80;
 
               location /static/ {
-                  root /opt/unfold_studio/static_assets;
+                  alias /opt/unfold_studio/static_assets/;
                   expires 30d;
                   add_header Cache-Control \"public, no-transform\";
               }
