@@ -7,7 +7,7 @@ on:
 jobs:
   deploy:
     env:
-      SSH_HOST: 174.138.56.3
+      SSH_HOST: 159.65.178.191
       SSH_USER: unfold_studio
       SSH_PASSWORD: unfold_studio
       REMOTE_DIR: /opt/unfold_studio
