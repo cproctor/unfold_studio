@@ -49,7 +49,18 @@ git clone --branch development --single-branch git@github.com:cproctor/unfold_st
 
 ---
 
-## 5. Install Project Dependencies
+## 5. (Optional) Add Swap Space (for low RAM instances)
+
+```bash
+sudo fallocate -l 2G /swapfile
+sudo chmod 600 /swapfile
+sudo mkswap /swapfile
+sudo swapon /swapfile
+```
+
+---
+
+## 6. Install Project Dependencies
 
 ```bash
 cd /opt/unfold_studio
@@ -67,7 +78,7 @@ poetry add gunicorn
 
 ---
 
-## 6. Install Inklecate (Ink Compiler)
+## 7. Install Inklecate (Ink Compiler)
 
 ```bash
 mkdir ink
@@ -78,16 +89,6 @@ rm inklecate.zip
 
 ---
 
-## 7. (Optional) Add Swap Space (for low RAM instances)
-
-```bash
-sudo fallocate -l 2G /swapfile
-sudo chmod 600 /swapfile
-sudo mkswap /swapfile
-sudo swapon /swapfile
-```
-
----
 
 ## 8. Update Django Settings
 
