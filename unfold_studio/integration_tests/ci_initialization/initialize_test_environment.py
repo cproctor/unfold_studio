@@ -13,7 +13,7 @@ from unfold_studio.integration_tests.ci_initialization.stories.initialize_input_
 from unfold_studio.integration_tests.ci_initialization.stories.initialize_input_generate_story2 import create_input_generate_story2
 from unfold_studio.integration_tests.ci_initialization.stories.initialize_input_generate_story3 import create_input_generate_story3
 from unfold_studio.integration_tests.ci_initialization.stories.initialize_continue_story import create_continue_story
-
+from unfold_studio.integration_tests.ci_initialization.stories.initialize_input_compile_error_story import create_input_compile_error_story
 def create_test_user():
     try:
         return User.objects.get(username='testuser4')
@@ -33,6 +33,7 @@ def initialize_test_environment():
     create_input_generate_story2(user, site)
     create_input_generate_story3(user, site)
     create_continue_story(user, site)
+    create_input_compile_error_story(user, site)
 
     initialize_text_generation_records()
     initialize_text_generation_records_for_continue()

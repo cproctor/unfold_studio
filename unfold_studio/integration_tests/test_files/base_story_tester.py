@@ -218,3 +218,23 @@ class BaseStoryTester:
                 pass
             time.sleep(0.5)
         raise TimeoutException(f"Input box with placeholder '{placeholder}' not found or not enabled within {timeout} seconds")
+
+    def assert_error_message(self, expected_error, timeout=10):
+        try:
+            WebDriverWait(self.driver, timeout).until(
+                lambda d: any(
+                    expected_error == error_element.text.strip()
+                    for error_element in d.find_elements(By.CLASS_NAME, "error")
+                )
+            )
+            print_green(f"✓ Found exact error message: '{expected_error}'")
+            return True
+        except TimeoutException:
+            error_elements = self.driver.find_elements(By.CLASS_NAME, "error")
+            error_texts = [elem.text.strip() for elem in error_elements]
+            print(f"✗ Error message not found. Expected: '{expected_error}'")
+            print(f"Found error elements: {error_texts}")
+            raise TimeoutException(
+                f"Timeout waiting for exact error message: '{expected_error}'\n"
+                f"Found error elements: {error_texts}"
+            )

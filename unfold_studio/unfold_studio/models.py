@@ -235,6 +235,15 @@ class Story(models.Model):
             include(variables, iVars)
             include(knots, iKnots)
 
+        # Check for undefined input variables
+        input_vars = self.get_input_variables()
+        undefined_vars = [var for var in input_vars if var not in variables]
+        if undefined_vars:
+            raise Story.PreprocessingError(
+                StoryError.ErrorTypes.PREPROCESS_ERROR,
+                message=f"Input variables must be defined before use. Undefined variables: {', '.join(undefined_vars)}"
+            )
+
         inkText = "\n".join(
             self.external_function_declarations() +  # call-outs to javascript
             [l for i, l in variables.values()] +    # lifted variable initializations
@@ -371,6 +380,16 @@ class Story(models.Model):
             if result:
                 variableInits[result.group(2)] = (lineNum+1, line)
         return variableInits
+
+    def get_input_variables(self):
+        "Returns a set of variable names used in input calls"
+        input_vars = set()
+        input_pattern = r'~\s*input\s*\([^,]+,\s*"([^"]+)"\)'
+        for line in self.ink.split("\n"):
+            match = re.search(input_pattern, line)
+            if match:
+                input_vars.add(match.group(1))
+        return input_vars
 
     def get_ink_preamble(self, stripped=True):
         "Returns the content before the first knot"
