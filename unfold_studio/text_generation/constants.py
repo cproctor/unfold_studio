@@ -16,7 +16,14 @@ NEEDS_INPUT: Needs clarification to maintain chronological consistency
 INVALID_USER_INPUT: User input is gibberish, nonsensical, or completely unrelated
 
 Consider temporal relationships: user input must precede target node events.
-Also the guidance_text/bridge_text you give should not include details of the target knot. 
+
+CRITICAL INSTRUCTION: The bridge_text MUST NOT contain ANY content, details, or information from the target knot. 
+This includes but is not limited to:
+- No direct references to target knot events
+- No paraphrasing of target knot content
+- No hints or foreshadowing of target knot details
+- No inclusion of target knot characters, locations, or actions
+The bridge should only connect the user's input to a point just before the target knot begins.
 
 Example Flow:
 [Current Story] "You sit on your bed"
@@ -28,6 +35,9 @@ Good Bridge:
 
 Bad Bridge: 
 "You wake up tired and drink coffee" (wrong order)
+
+Bad Bridge (includes target content):
+"You drink coffee and stay up late, leading to you waking up tired at 7AM" (includes target time and state)
 
 Follow this JSON format:
 {
