@@ -21,6 +21,7 @@ sudo apt upgrade -y
 sudo apt install python3 python3-pip python3-venv nginx git supervisor -y
 sudo apt install build-essential libpq-dev python3-poetry -y
 sudo apt install certbot python3-certbot-nginx unzip -y
+sudo apt install fail2ban
 ```
 
 ---
@@ -32,6 +33,11 @@ sudo mkdir -p /opt/unfold_studio
 sudo chown -R $USER:$USER /opt/unfold_studio
 sudo chown -R $USER:$USER ~/.ssh
 ```
+
+Disable ssh password-based login. 
+
+- Set `PasswordAuthentication no` in `/etc/ssh/ssh_config`
+- Restart ssh with `sudo systemctl restart ssh`
 
 ---
 
