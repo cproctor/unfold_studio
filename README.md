@@ -61,9 +61,13 @@ These steps should get a development instance running on MacOS. The process shou
    get from https://github.com/inkle/ink/releases. Ensure that the backend Inklecate version, the frontend
    inkjs version, and `INK_VERSION` in `settings.py` are synchronized. 
 
-   For the default installation, download ink 0.8.2 and unpack it into the `inklecate_0.8.2` directory in 
+   For the default installation, download ink 1.2.0 and unpack it into the `inklecate_1.2.0` directory in 
    the Unfold Studio repository's root. Additionally, create an `ink` directory in the repository root; 
    ink stories will be saved here during compilation.
+
+   You may also need to give the inklecate file executable permissions
+
+        chmod +x inklecate_1.2.0/inklecate
 
 5. Last steps.
 
