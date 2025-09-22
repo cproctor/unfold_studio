@@ -1,6 +1,6 @@
 # Unfold Studio
 
-[Unfold Studio](https://unfold.studio) is an online community for interactive 
+[Unfold Studio](https://unfoldstudio.net) is an online community for interactive 
 storytelling powered by a programming language called Ink. Interactive storytelling 
 brings together the power of programming with the ability of stories to represent 
 and explore our lived realities. Unfold Studio is free and open-source.
