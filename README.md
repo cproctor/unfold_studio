@@ -13,7 +13,7 @@ social justice. (We are currently doing research with a school which uses Unfold
 Studio for several months as part of its core CS curriculum.)
 
 Unfold Studio's main documentation is at 
-[docs.unfold.studio](http://docs.unfold.studio).
+[unfoldstudio.net](https://unfoldstudio.net/about).
 
 ## Development
 
