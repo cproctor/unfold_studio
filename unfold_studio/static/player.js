@@ -260,13 +260,20 @@ InkPlayer.prototype = {
     createInputForm: function(formType, eventHandler, placeholder, variableName=null) {
         const formContainer = document.createElement("div");
         formContainer.classList.add("input-container");
-    
+
         const formElement = document.createElement("form");
         
-        const inputElement = document.createElement("input");
-        inputElement.type = "text";
+        const inputElement = document.createElement("textarea");
         inputElement.placeholder = placeholder;
         inputElement.required = true;
+        inputElement.rows = 3;
+        inputElement.style.resize = "vertical";
+
+        // Auto-resize functionality
+        inputElement.addEventListener("input", function() {
+            this.style.height = "auto";
+            this.style.height = this.scrollHeight + "px";
+        });
         
         const buttonElement = document.createElement("button");
         buttonElement.type = "submit";
@@ -274,7 +281,7 @@ InkPlayer.prototype = {
         
         formElement.appendChild(inputElement);
         formElement.appendChild(buttonElement);
-    
+
         formElement.addEventListener("submit", (event) => {
             event.preventDefault();
             const userInput = inputElement.value.trim();
@@ -284,16 +291,15 @@ InkPlayer.prototype = {
             buttonElement.disabled = true;
             formElement.style.opacity = "0.5";
         });
-    
+
         this.createStoryPlayRecord(
             this.getStoryPlayInstanceUUID(),
             formType,
             {"placeholder": placeholder, "variableName": variableName}
         );
-    
-        formContainer.appendChild(formElement);
 
-        return formContainer
+        formContainer.appendChild(formElement);
+        return formContainer;
     },
     handleUserInputForContinue: async function(userInput){
         targetKnotName = this.currentTargetKnot;

@@ -356,3 +356,45 @@ form.new_story_form > div {
     display: flex;
     flex-direction: column;
 }
+
+.input-container button,
+form button[type="submit"] {
+    background-color: #8e44ad;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: inherit;
+    font-size: inherit;
+}
+
+.input-container button:hover,
+form button[type="submit"]:hover {
+    background-color: #2980b9;
+}
+
+/* Style textarea for longer responses */
+.input-container textarea {
+    width: 350px;
+    min-height: 60px;
+    max-height: 200px;
+    padding: 8px;
+    font-size: 14px;
+    font-family: inherit;
+    border: 2px solid #bdc3c7;
+    border-radius: 4px;
+    box-sizing: border-box;
+    resize: vertical;
+    overflow-y: auto;
+}
+
+.input-container textarea:focus {
+    border-color: #3498db;
+    outline: none;
+}
+
+.input-container button {
+    align-self: flex-start;
+    width: auto;
+}
