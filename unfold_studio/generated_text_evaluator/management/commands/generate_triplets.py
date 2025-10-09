@@ -16,21 +16,24 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         uuid_group = parser.add_mutually_exclusive_group(required=True)
         uuid_group.add_argument(
+            '-u', 
             '--uuids',
             nargs='+',
             type=str,
-            help='One or more UUIDs provided directly in the command line'
+            help='StoryPlayInstance uuid(s)'
         )
         uuid_group.add_argument(
+            '-o',
             '--uuids-filename',
             type=str,
-            help='Name of the file containing UUIDs (one per line), must be in the same directory as the command'
+            help='Name of the file containing UUIDs (one per line)'
         )
         parser.add_argument(
+            '-f',
             '--output-filename',
             type=str,
             required=True,
-            help=f'Name of the output JSON file where triplets will be saved in {GENERATED_TRIPLETS_DIR} directory'
+            help=f'Name of the output JSON file'
         )
 
     def read_uuids_from_file(self, file_path):
