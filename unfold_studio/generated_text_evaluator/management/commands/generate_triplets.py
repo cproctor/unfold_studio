@@ -34,17 +34,9 @@ class Command(BaseCommand):
         )
 
     def read_uuids_from_file(self, file_path):
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        full_path = os.path.join(current_dir, file_path)
-        try:
-            with open(full_path, 'r') as f:
-                uuids = [line.strip() for line in f if line.strip()]
-            return uuids
-        except Exception as e:
-            self.stderr.write(
-                self.style.ERROR(f"Error reading UUIDs file: {str(e)}")
-            )
-            return []
+        with open(file_path) as f:
+            uuids = [line.strip() for line in f if line.strip()]
+        return uuids
 
     def get_output_filepath(self, filename):
         current_file = os.path.abspath(__file__)
@@ -84,12 +76,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['uuids_filename']:
             uuids = self.read_uuids_from_file(options['uuids_filename'])
-            if not uuids:
-                return
         else:
             uuids = options['uuids']
-
-        output_filename = options['output_filename']
-        filepath = self.get_output_filepath(output_filename)
         triplets = self.process_story_play_instances(uuids)
-        self.save_triplets_to_file(triplets, filepath)
+        self.save_triplets_to_file(triplets, options['output_filename'])
