@@ -394,7 +394,23 @@ form button[type="submit"]:hover {
     outline: none;
 }
 
+/* Force vertical layout for input container */
+.input-container {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    align-items: flex-start !important;
+}
+
+.input-container form {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 10px !important;
+    width: 100% !important;
+}
+
 .input-container button {
-    align-self: flex-start;
-    width: auto;
+    align-self: flex-start !important;
+    width: auto !important;
+    margin-top: 0 !important;
 }
