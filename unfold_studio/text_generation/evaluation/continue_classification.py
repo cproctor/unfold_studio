@@ -34,11 +34,10 @@ class ContinueClassificationModel:
         - min_story_turns: Minimum number of story turns (a turn consists of text being
           presented and then the reader making a choice.
         """
-
+        from sentence_transformers import SentenceTransformer
         self.model = SentenceTransformer(self.embedding_model)
         if queryset is None:
             queryset = self.get_default_queryset()
-        print(queryset.query)
         if dist:
             self.validate_dist(dist)
         else:
@@ -131,7 +130,6 @@ class ContinueClassificationModel:
         return sum([sample(ex, n_by_class[cls]) for cls, ex in examples.items()], [])
 
     def generate_invalid_examples(self, turn_sequences, n_by_class):
-        from sentence_transformers import SentenceTransformer
 
         n_invalid = n_by_class["INVALID_USER_INPUT"]
         embeddings = self.model.encode([' '.join(ts) for ts in turn_sequences])
