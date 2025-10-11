@@ -1,7 +1,11 @@
-from unfold_studio.models import Story, StoryPlayRecord
-from django.db.models import Exists, OuterRef
 from collections import defaultdict
-from random import sample
+from itertools import product
+from random import sample, shuffle
+from django.db.models import Exists, OuterRef
+from tqdm import tqdm
+from tabulate import tabulate
+from unfold_studio.models import Story, StoryPlayRecord
+import numpy as np
 
 class ContinueClassificationModel:
     """Models the continue function's classification function.
@@ -16,45 +20,151 @@ class ContinueClassificationModel:
     and evaluates examples. 
     """
 
-    # Future optimization (may be needed in prod): 
-    # Fetch records in batches.
-    # query_page_size = 10
+    embedding_model = 'all-MiniLM-L6-v2'
+    invalid_story_similarity_threshold = 0.3
+    seed = 0
 
-    def generate_examples(self, story_queryset=None, n=100, dist=None):
+    def generate_examples(self, queryset=None, n=100, dist=None, min_story_turns=3):
         """Generates [text, action, target, label] examples from the given queryset.
 
         Arguments:
         - story_queryset: a queryset built off of unfold_studio.models.Story.objects.
         - n: Number of samples.
-        - dist: A dict with the four classifications as keys and 
+        - dist: A dict with the four classifications as keys and floats summing to 1 as values.
+        - min_story_turns: Minimum number of story turns (a turn consists of text being
+          presented and then the reader making a choice.
         """
-        queryset = story_queryset or self.get_default_queryset()
+
+        self.model = SentenceTransformer(self.embedding_model)
+        if queryset is None:
+            queryset = self.get_default_queryset()
+        print(queryset.query)
         if dist:
             self.validate_dist(dist)
         else:
             dist = self.get_default_dist()
         n_by_class = self.get_n_by_class(n, dist) 
-        results = defaultdict(list)
-        for play in self.iter_story_plays(queryset):
-            turns = self.get_turn_sequence(play.records.all())
-            for target_index in range(1, len(turns) - 1):
-                target = turns[target_index]['text']
-                current_text = ""
-                for current_index in range(target_index):
-                    current_text += turns[current_index]['text']
-                    action = turns[current_index]['action']
-                    label = self.get_classification(current_index, target_index)
-                    results[label].append([current_text, action, target, label])
-                    if self.enough_results(results, n_by_class):
-                        clipped_results = {cls: sample(ex, n_by_class[cls]) for cls, ex in results.items()}
-                        return sum(clipped_results.values(), [])
-        
-        n_results = len(results.values())
-        raise ValueError(f"Not enough story plays to generate the {n} requested examples ({n_results} generated).")
+        turn_sequences = list(self.iter_story_turn_sequences(queryset))
+        valid = self.generate_valid_examples(turn_sequences, n_by_class)
+        invalid = self.generate_invalid_examples(turn_sequences, n_by_class)
+        examples = valid + invalid
+        shuffle(examples)
+        return examples
 
-    # TODO: improve default queryset according to #189
+    def evaluate(self, examples):
+        """Evaluates examples. Each example should be [text, action, target, label]
+        """
+        from text_generation.views import GetNextDirectionView
+
+        view = GetNextDirectionView()
+        predictions = []
+        for text, action, target, label in tqdm(examples):
+
+            # TODO This is a mess. Should refactor the underlying system.
+            prediction, explanation = view.get_next_direction_details_for_story(
+                target_knot_data={'knotContents': [target]},
+                story_history=text,
+                user_input=action,
+                seed=self.seed
+            )
+            predictions.append(prediction)
+
+        self._examples = examples
+        self._labels = [label for text, action, target, label in examples]
+        self._predictions = predictions
+        self._classes = sorted(set(self._labels + self._predictions))
+        self._confusion_matrix = np.ndarray([len(self._classes), len(self._classes)])
+        for pred, label in zip(self._predictions, self._labels):
+            ixp, ixl = self._classes.index(pred), self._classes.index(label)
+            self._confusion_matrix[ixl, ixp] += 1
+
+        self._precision = np.diag(self._confusion_matrix) / np.sum(self._confusion_matrix, axis=1)
+        self._recall = np.diag(self._confusion_matrix) / np.sum(self._confusion_matrix, axis=0)
+        self._f1 = 2 * self._precision * self._recall / (self._precision + self._recall)
+
+    def report_evaluation_results(self):
+        """Print evaluation results. Should already have
+        """
+        results = []
+        for label_class, preds in zip(self._classes, self._confusion_matrix):
+            results.append([label_class] + preds.tolist())
+        print("Confusion matrix")
+        print(tabulate(results, headers=["Label     Pred ->"] + self._classes))
+        print()
+
+        stats = []
+        for label_class, p, r, f1 in zip(self._classes, self._precision, self._recall, self._f1):
+            stats.append([label_class, p, r, f1])
+
+        counts = np.array([len([l for l in self._labels if l == c]) for c in self._classes])
+        dist = counts / len(self._labels)
+        stats.append([
+            "Weighted average", 
+            np.sum(self._precision * dist), 
+            np.sum(self._recall * dist), 
+            np.sum(self._f1 * dist), 
+        ])
+        print("Stats")
+        print(tabulate(stats, headers=["Class", "Precision", "Recall", "F1"]))
+
+
+    def generate_valid_examples(self, turn_sequences, n_by_class):
+        valid_classes = ["DIRECT_CONTINUE", "BRIDGE_AND_CONTINUE", "NEEDS_INPUT"]
+        examples = {cls: [] for cls in valid_classes}
+        for turns in turn_sequences:
+            for target_index in range(2, len(turns) - 1):
+                target = turns[target_index]
+                current_text = ""
+                for current_index in range(target_index - 1):
+                    current_text += turns[current_index]
+                    action = turns[current_index + 1]
+                    label = self.get_classification(current_index, target_index)
+                    examples[label].append([current_text, action, target, label])
+        if not all(len(examples[cls]) >= n_by_class[cls] for cls in valid_classes):
+            stats = [[min(len(examples[c]), n_by_class[c]), n_by_class[c], c] for c in valid_classes]
+            n = sum(n_by_class.values())
+            raise ValueError(
+                f"Not enough story plays to generate the {n} requested examples " + 
+                f"in distribution provided: " + 
+                ", ".join(f"{n}/{d} {c}" for n, d, c in stats)
+            )
+        return sum([sample(ex, n_by_class[cls]) for cls, ex in examples.items()], [])
+
+    def generate_invalid_examples(self, turn_sequences, n_by_class):
+        from sentence_transformers import SentenceTransformer
+
+        n_invalid = n_by_class["INVALID_USER_INPUT"]
+        embeddings = self.model.encode([' '.join(ts) for ts in turn_sequences])
+        sims = self.model.similarity(embeddings, embeddings)
+        dissimilar_turn_sequences = []
+        for [ixa, a], [ixb, b] in product(enumerate(turn_sequences), repeat=2):
+            if sims[ixa, ixb] <= self.invalid_story_similarity_threshold:
+                dissimilar_turn_sequences.append([a, b])
+        invalid_params = []
+        for ix, [a, b] in enumerate(dissimilar_turn_sequences):
+            for ixa in range(len(a)):
+                for ixbt in range(2, len(b)):
+                    for ixbc in range(1, ixbt):
+                        invalid_params.append([ix, ixa, ixbc, ixbt])
+        if len(invalid_params) < n_invalid:
+            raise ValueError(
+                f"Not enough story plays to generate {n_invalid} examples of INVALID_USER_INPUT. " + 
+                f"Only {len(dissimilar_turn_sequences)/2} pairs of story plays had similarity " +
+                f"below threshold {self.invalid_story_similarity_threshold}, producing " + 
+                f"{len(invalid_params)} examples."
+            )
+        invalid_examples = []
+        for ix, ixa, ixbc, ixbt in sample(invalid_params, n_invalid):
+            a, b = dissimilar_turn_sequences[ix]
+            current_text = ' '.join(b[:ixbc])
+            action = a[ixa]
+            target = b[ixbt]
+            label = "INVALID_USER_INPUT"
+            invalid_examples.append([current_text, action, target, label])
+        return invalid_examples
+
     def get_default_queryset(self):
-        """Returns the default queryset:
+        """Returns the default queryset, selecting stories which:
           - No AI generated text
           - Shared
         """
@@ -87,12 +197,12 @@ class ContinueClassificationModel:
         if not sum(dist.values()) == 1:
             raise ValueError(f"invalid dist {dist}. Values must sum to 1.")
 
-    def iter_story_plays(self, story_queryset):
+    def iter_story_turn_sequences(self, story_queryset):
         """Yields a sequence of StoryPlayInstances from the story_queryset.
         """
         for story in story_queryset.order_by('?'):
-            for play in story.story_play_instances.all():
-                yield play
+            for spi in story.story_play_instances.all():
+                yield self.get_turn_sequence(spi.records.all())
 
     def get_turn_sequence(self, story_play_records):
         """Maps a sequence of StoryPlayRecords into a sequence of turns, 
@@ -100,24 +210,25 @@ class ContinueClassificationModel:
         presented to a reader.
         """
         turns = []
-        turn = {'text': '', 'action': None}
+        turn = ""
         for r in story_play_records:
             if r.data_type == 'AUTHORS_TEXT': 
-                turn['text'] += r.data['text']
+                turn += r.data['text']
             elif r.data_type == 'READERS_CHOSEN_CHOICE':
-                turn['action'] = r.data
+                # This line includes the chosen choice in the story. More useful in some cases.
+                #turn += ' ' + r.data
                 turns.append(turn)
-                turn = {'text': '', 'action': None}
-        if turn['text']:
+                turn = ""
+        if turn:
             turns.append(turn)
         return turns
 
     def get_classification(self, current, target):
         """Classifies current and target by index. 
         """
-        if current + 1 == target:
-            return "DIRECT_CONTINUE"
         if current + 2 == target:
+            return "DIRECT_CONTINUE"
+        if current + 3 == target:
             return "BRIDGE_AND_CONTINUE"
         else:
             return "NEEDS_INPUT"
@@ -128,15 +239,5 @@ class ContinueClassificationModel:
         """
         n_by_class = {cls: round(n * prob) for cls, prob in dist.items()}
         del n_by_class["INVALID_USER_INPUT"]
+        n_by_class["INVALID_USER_INPUT"] = n - sum(n_by_class.values())
         return n_by_class
-
-    def enough_results(self, results, n_by_class):
-        "Checks whether there are enough results in each class"
-        #return all(len(examples) >= n_by_class[cls] for cls, examples in results.items())
-        return all(len(results.get(cls, [])) >= cls_min for cls, cls_min in n_by_class.items())
-
-
-
-
-            
-
