@@ -1,0 +1,15 @@
+[
+  {
+    "initial_text": "I thought for a moment before answering.\n",
+    "chosen_choice": "Order a slice of pepperoni",
+    "next_text": "The slice was hot, crisp at the edges, and the cheese stretched as I took the first bite.\n",
+    "triplet_type": "DIRECT_CONTINUE",
+    "get_next_direction_prediction": {
+      "direction": "BRIDGE_AND_CONTINUE",
+      "content": {
+        "reason": "Ordering the slice naturally leads to consuming it, but a narrative bridge is needed to connect these events.",
+        "bridge_text": "After deciding to go with the classic pepperoni, I placed my order and waited briefly. Soon, the server brought a freshly baked slice to my table. It was hot, crisp at the edges, and the cheese stretched as I took the first bite."
+      }
+    }
+  }
+]
