@@ -33,15 +33,10 @@ def compile_story(request):
         reversion.set_user(story.author)
         reversion.set_comment("Creating temporary story")
     story.compile()
-    if story.errors.exists():
-        response = {
-            "compile_success": False,
-            "errors": [err.message for err in story.errors.all()],
-        }
-    else:
-        response = {
-            "compile_success": True,
-        }
+    response = {
+        "compile_success": not story.errors.exists(),
+        "errors": [err.message for err in story.errors.all()],
+    }
     story.delete()
     return JsonResponse(response)
 
