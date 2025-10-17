@@ -245,7 +245,6 @@ class Story(models.Model):
         inkText = self.inject_input_call_indicators(inkText)
         inkText = self.inject_generate_call_indicators(inkText)
         inkText = self.inject_static_continue_knot(inkText)
-        print(f"inkText: {inkText}")
 
         offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))

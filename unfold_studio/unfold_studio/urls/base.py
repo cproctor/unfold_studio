@@ -78,6 +78,7 @@ urlpatterns = [
     path('story_play_instance/new/', views.CreateStoryPlayInstanceView.as_view(), name="new_story_play_instance"),
     path('story_play_record/new/', views.CreateStoryPlayRecordView.as_view(), name="new_story_play_record"),
     path('', include('text_generation.urls')),
+    path('research/', include("research.urls")), 
 ]
 
 if settings.DEBUG:
