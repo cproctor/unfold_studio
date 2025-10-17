@@ -16,35 +16,30 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         uuid_group = parser.add_mutually_exclusive_group(required=True)
         uuid_group.add_argument(
+            '-u', 
             '--uuids',
             nargs='+',
             type=str,
-            help='One or more UUIDs provided directly in the command line'
+            help='StoryPlayInstance uuid(s)'
         )
         uuid_group.add_argument(
+            '-o',
             '--uuids-filename',
             type=str,
-            help='Name of the file containing UUIDs (one per line), must be in the same directory as the command'
+            help='Name of the file containing UUIDs (one per line)'
         )
         parser.add_argument(
+            '-f',
             '--output-filename',
             type=str,
             required=True,
-            help=f'Name of the output JSON file where triplets will be saved in {GENERATED_TRIPLETS_DIR} directory'
+            help=f'Name of the output JSON file'
         )
 
     def read_uuids_from_file(self, file_path):
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        full_path = os.path.join(current_dir, file_path)
-        try:
-            with open(full_path, 'r') as f:
-                uuids = [line.strip() for line in f if line.strip()]
-            return uuids
-        except Exception as e:
-            self.stderr.write(
-                self.style.ERROR(f"Error reading UUIDs file: {str(e)}")
-            )
-            return []
+        with open(file_path) as f:
+            uuids = [line.strip() for line in f if line.strip()]
+        return uuids
 
     def get_output_filepath(self, filename):
         current_file = os.path.abspath(__file__)
@@ -84,12 +79,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['uuids_filename']:
             uuids = self.read_uuids_from_file(options['uuids_filename'])
-            if not uuids:
-                return
         else:
             uuids = options['uuids']
-
-        output_filename = options['output_filename']
-        filepath = self.get_output_filepath(output_filename)
         triplets = self.process_story_play_instances(uuids)
-        self.save_triplets_to_file(triplets, filepath)
+        self.save_triplets_to_file(triplets, options['output_filename'])

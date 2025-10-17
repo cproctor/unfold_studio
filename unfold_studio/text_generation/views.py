@@ -116,10 +116,10 @@ class GetNextDirectionView(BaseView):
 
 
     def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input, seed):
-        print("target_knot_data", target_knot_data)
-        print("story_history", story_history)
-        print("user_input", user_input)
-        print("seed", seed)
+        #print("target_knot_data", target_knot_data)
+        #print("story_history", story_history)
+        #print("user_input", user_input)
+        #print("seed", seed)
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
             "guidance_text": "What would you like to do next?",
@@ -132,7 +132,7 @@ class GetNextDirectionView(BaseView):
 
             system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
             response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt, seed, hit_cache=True)
-            print(response)
+            #print(response)
 
             parsed_response = self.parse_and_validate_ai_response(response)
             direction, content = self.determine_next_direction_details_from_ai_response(parsed_response)
