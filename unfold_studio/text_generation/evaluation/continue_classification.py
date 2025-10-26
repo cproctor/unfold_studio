@@ -24,7 +24,8 @@ class ContinueClassificationModel:
     invalid_story_similarity_threshold = 0.3
     seed = 0
 
-    def generate_examples(self, queryset=None, n=100, dist=None, min_story_turns=3):
+    def generate_examples(self, queryset=None, n=100, dist=None, min_story_turns=3,
+            turn_sequences_per_story=None, verbose=False):
         """Generates [text, action, target, label] examples from the given queryset.
 
         Arguments:
@@ -36,6 +37,7 @@ class ContinueClassificationModel:
         """
         from sentence_transformers import SentenceTransformer
         self.model = SentenceTransformer(self.embedding_model)
+        self.turn_sequences_per_story = turn_sequences_per_story
         if queryset is None:
             queryset = self.get_default_queryset()
         if dist:
@@ -43,7 +45,16 @@ class ContinueClassificationModel:
         else:
             dist = self.get_default_dist()
         n_by_class = self.get_n_by_class(n, dist) 
+        if verbose: 
+            print("Using distribution:")
+            for cls, p in dist.items():
+                print(f" - {cls}: {p}")
+            print(f"Required examples:")
+            for cls, n in n_by_class.items():
+                print(f" - {cls}: {n}")
         turn_sequences = list(self.iter_story_turn_sequences(queryset))
+        if verbose: 
+            print(f"Generated {len(turn_sequences)} turn sequences")
         valid = self.generate_valid_examples(turn_sequences, n_by_class)
         invalid = self.generate_invalid_examples(turn_sequences, n_by_class)
         examples = valid + invalid
@@ -175,7 +186,7 @@ class ContinueClassificationModel:
         ).filter(
             uses_ai=False,
             shared=True,
-        )
+        ).order_by("?")
 
     def get_default_dist(self):
         """dist is a dirichlet distribution representing our prior for 
@@ -198,8 +209,11 @@ class ContinueClassificationModel:
     def iter_story_turn_sequences(self, story_queryset):
         """Yields a sequence of StoryPlayInstances from the story_queryset.
         """
-        for story in story_queryset.order_by('?'):
-            for spi in story.story_play_instances.all():
+        for story in story_queryset:
+            qs = story.story_play_instances.all()
+            if self.turn_sequences_per_story:
+                qs = qs[:self.turn_sequences_per_story]
+            for spi in qs:
                 yield self.get_turn_sequence(spi.records.all())
 
     def get_turn_sequence(self, story_play_records):
