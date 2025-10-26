@@ -177,13 +177,18 @@ class ContinueClassificationModel:
           - No AI generated text
           - Shared
         """
+        any_story_play_records = StoryPlayRecord.objects.filter(
+            story_play_instance__story__id=OuterRef("id"),
+        )
         ai_story_play_records = StoryPlayRecord.objects.filter(
             story_play_instance__story__id=OuterRef("id"),
             data_type="AI_GENERATED_TEXT"
         )
         return Story.objects.annotate(
+            has_plays=Exists(any_story_play_records),
             uses_ai=Exists(ai_story_play_records)
         ).filter(
+            has_plays=True,
             uses_ai=False,
             shared=True,
         ).order_by("?")
