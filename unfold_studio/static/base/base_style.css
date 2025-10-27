@@ -182,6 +182,27 @@ a:hover {}
     left: 0;
 }
 
+/* Add responsive padding for solo mode (when code is hidden) */
+.twopane.solo #player {
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Responsive padding for different screen sizes */
+@media (max-width: 900px) {
+    .twopane.solo #player {
+        max-width: 100%;
+        padding: 0 15px;
+    }
+}
+
+@media (min-width: 1200px) {
+    .twopane.solo #player {
+        max-width: 900px;
+        padding: 0 40px;
+    }
+}
+
 .helptext {
     display: none;
 }
@@ -378,16 +399,13 @@ form button[type="submit"]:hover {
 .input-container textarea {
     width: 350px;
     min-height: 60px;
-    max-height: 200px;
     padding: 8px;
     font-size: 14px;
     font-family: inherit;
     border: 2px solid #bdc3c7;
     border-radius: 4px;
     box-sizing: border-box;
-    resize: vertical;
-    overflow-y: auto;
-}
+    resize: both;}
 
 .input-container textarea:focus {
     border-color: #3498db;
@@ -399,7 +417,8 @@ form button[type="submit"]:hover {
     display: flex;
     flex-direction: column;
     gap: 10px;
-    width: 100%;
+    width: fit-content;
+    min-width: 100%;
 }
 
 .input-container form button[type="submit"] {
@@ -407,3 +426,4 @@ form button[type="submit"]:hover {
     width: auto;
     margin-top: 0;
 }
+

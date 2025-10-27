@@ -267,7 +267,12 @@ InkPlayer.prototype = {
         inputElement.placeholder = placeholder;
         inputElement.required = true;
         inputElement.rows = 3;
-        inputElement.style.resize = "vertical";
+        inputElement.style.resize = "both";
+        inputElement.style.minWidth = "300px";
+        inputElement.style.minHeight = "60px";
+        inputElement.style.maxWidth = "900px";
+        inputElement.style.boxSizing = "border-box";
+        inputElement.style.maxWidth = "95%";
 
         // Auto-resize functionality
         inputElement.addEventListener("input", function() {
