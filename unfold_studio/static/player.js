@@ -220,7 +220,7 @@ InkPlayer.prototype = {
         this.continueStory();
     },
     scheduleInputBox: function(placeholder, variableName) {
-        const eventHandler = (userInput) => {
+        const eventHandler = async (userInput) => {
             this.inputFunctionCalled = false;
             this.story.variablesState[variableName] = userInput;
             this.createStoryPlayRecord(
@@ -229,7 +229,12 @@ InkPlayer.prototype = {
                 userInput
             );
             this.running = true;
-            this.continueStory();
+            await this.continueStory();
+            // Remove loading indicator after response is complete
+            const loadingContainer = document.querySelector('.input-container');
+            if (loadingContainer) {
+                loadingContainer.remove();
+            }
         };
         
         formContainer = this.createInputForm(
@@ -241,13 +246,18 @@ InkPlayer.prototype = {
         this.inputBoxToInsert = formContainer;
     },
     scheduleInputBoxForContinue: function(placeholder = "what would you like to do next?") {
-        const eventHandler = (userInput) => {
+        const eventHandler = async (userInput) => {
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
                 "READERS_CONTINUE_ENTERED_TEXT", 
                 userInput
             );
-            this.handleUserInputForContinue(userInput);
+            await this.handleUserInputForContinue(userInput);
+            // Remove loading indicator after response is complete
+            const loadingContainer = document.querySelector('.input-container');
+            if (loadingContainer) {
+                loadingContainer.remove();
+            }
         };
     
         formContainer = this.createInputForm(
@@ -290,11 +300,25 @@ InkPlayer.prototype = {
         formElement.addEventListener("submit", (event) => {
             event.preventDefault();
             const userInput = inputElement.value.trim();
-            eventHandler(userInput);
             
-            inputElement.disabled = true;
-            buttonElement.disabled = true;
-            formElement.style.opacity = "0.5";
+            // Replace form with loading indicator
+            formContainer.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <div style="margin-bottom: 10px; color: #666;">Processing your input...</div>
+                    <div style="width: 100%; height: 6px; background-color: #f0f0f0; border-radius: 3px; overflow: hidden;">
+                        <div style="height: 100%; background: linear-gradient(90deg, #9b59b6, #8e44ad); animation: loading 2s infinite; border-radius: 3px;"></div>
+                    </div>
+                </div>
+                <style>
+                    @keyframes loading {
+                        0% { width: 0%; }
+                        50% { width: 70%; }
+                        100% { width: 100%; }
+                    }
+                </style>
+            `;
+            
+            eventHandler(userInput);
         });
 
         this.createStoryPlayRecord(
