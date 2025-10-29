@@ -304,17 +304,17 @@ InkPlayer.prototype = {
             // Replace form with loading indicator
             formContainer.innerHTML = `
                 <div style="padding: 20px; text-align: center;">
-                    <div style="margin-bottom: 15px; color: #666;">Unfolding Story</div>
-                    <div style="display: inline-block;">
-                        <span style="font-size: 24px; color: #9b59b6; animation: bounce 0.6s infinite alternate; margin: 0 4px; display: inline-block;">●</span>
-                        <span style="font-size: 24px; color: #9b59b6; animation: bounce 0.6s infinite alternate 0.2s; margin: 0 4px; display: inline-block;">●</span>
-                        <span style="font-size: 24px; color: #9b59b6; animation: bounce 0.6s infinite alternate 0.4s; margin: 0 4px; display: inline-block;">●</span>
+                    <div style="margin-bottom: 15px; color: #666;">
+                        Unfolding Story
+                        <span style="font-size: 14px; color: #9b59b6; animation: bounce 0.6s infinite alternate; margin: 0 4px; display: inline-block;">●</span>
+                        <span style="font-size: 14px; color: #9b59b6; animation: bounce 0.6s infinite alternate 0.2s; margin: 0 4px; display: inline-block;">●</span>
+                        <span style="font-size: 14px; color: #9b59b6; animation: bounce 0.6s infinite alternate 0.4s; margin: 0 4px; display: inline-block;">●</span>
                     </div>
                 </div>
                 <style>
                     @keyframes bounce {
                         0% { transform: translateY(0px); }
-                        100% { transform: translateY(-20px); }
+                        100% { transform: translateY(-5px); }
                     }
                 </style>
             `;
