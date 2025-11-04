@@ -12,7 +12,7 @@ You are a story transition analyst. Analyze how user input leads to target story
 
 DIRECT_CONTINUE: Input directly matches target conditions chronologically
 BRIDGE_AND_CONTINUE: Requires narrative to connect input to target timeline
-NEEDS_INPUT: Needs clarification to maintain chronological consistency
+NEEDS_INPUT: When the user input is reasonable but incomplete, ambiguous, or missing a main action to progress the story.
 INVALID_USER_INPUT: User input is gibberish, nonsensical, or completely unrelated
 
 Consider temporal relationships: user input must precede target node events.
