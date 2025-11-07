@@ -1,12 +1,23 @@
 import csv
 from collections import defaultdict
 from itertools import product
-from random import sample, shuffle
-from django.db.models import Exists, OuterRef
+from random import sample, shuffle, choice, randint
+from django.db.models import Count, Exists, OuterRef
 from tqdm import tqdm
 from tabulate import tabulate
-from unfold_studio.models import Story, StoryPlayRecord
+from unfold_studio.models import Story, StoryPlayRecord, StoryPlayInstance
 import numpy as np
+
+MIN_STORY_PLAY_SEQUENCE_LENGTHS = {
+    "DIRECT_CONTINUE": 3,
+    "BRIDGE_AND_CONTINUE": 4, 
+    "NEEDS_INPUT": 5,
+}
+VALID_CLASSES = [
+    "DIRECT_CONTINUE", 
+    "BRIDGE_AND_CONTINUE", 
+    "NEEDS_INPUT",
+]
 
 class ContinueClassificationModel:
     """Models the continue function's classification function.
@@ -25,20 +36,19 @@ class ContinueClassificationModel:
     invalid_story_similarity_threshold = 0.3
     seed = 0
 
-    def generate_examples(self, queryset=None, n=100, dist=None, min_story_turns=3,
-            turn_sequences_per_story=None, verbose=False):
+    def generate_examples(self, queryset=None, n=100, dist=None, verbose=False):
         """Generates [text, action, target, label] examples from the given queryset.
 
         Arguments:
-        - story_queryset: a queryset built off of unfold_studio.models.Story.objects.
+        - queryset: a queryset built off of unfold_studio.models.StoryPlayInstance.
         - n: Number of samples.
-        - dist: A dict with the four classifications as keys and floats summing to 1 as values.
-        - min_story_turns: Minimum number of story turns (a turn consists of text being
-          presented and then the reader making a choice.
+        - dist: A dict with the four classifications as keys and floats summing to 
+          1 as values.
+        - verbose: Whether to print details.
         """
         from sentence_transformers import SentenceTransformer
         self.model = SentenceTransformer(self.embedding_model)
-        self.turn_sequences_per_story = turn_sequences_per_story
+        self.turn_sequences = []
         if queryset is None:
             queryset = self.get_default_queryset()
         if dist:
@@ -53,14 +63,30 @@ class ContinueClassificationModel:
             print(f"Required examples:")
             for cls, n in n_by_class.items():
                 print(f" - {cls}: {n}")
-        turn_sequences = list(self.iter_story_turn_sequences(queryset))
-        if verbose: 
-            print(f"Generated {len(turn_sequences)} turn sequences")
-        valid = self.generate_valid_examples(turn_sequences, n_by_class)
-        invalid = self.generate_invalid_examples(turn_sequences, n_by_class)
-        examples = valid + invalid
+        valid_examples = {}
+        for c in VALID_CLASSES:
+            n = n_by_class[c]
+            valid_examples[c] = [self.generate_example(c, queryset) for _ in range(n)]
+        invalid_examples = self.generate_invalid_examples(n_by_class["INVALID_USER_INPUT"], verbose=verbose)
+        examples = sum(valid_examples.values(), invalid_examples)
         shuffle(examples)
+        if verbose:
+            print(tabulate(
+                examples, 
+                headers=["history", "action", "target", "label"],
+                maxcolwidths=[40, 20, 20, 10],
+            ))
         return examples
+
+    def generate_example(self, _class, queryset):
+        """Generates a single example for _class.
+        """
+        spi = queryset.annotate(
+            sequence_length=Count("records")
+        ).filter(
+            sequence_length__gte=MIN_STORY_PLAY_SEQUENCE_LENGTHS[_class]
+        ).order_by("?").first()
+        return self.get_turn_sequence(spi.records.all())
 
     def evaluate(self, examples):
         """Evaluates examples. Each example should be [text, action, target, label]
@@ -89,30 +115,6 @@ class ContinueClassificationModel:
         self._recall = np.nan_to_num(self._recall)
         self._f1 = np.nan_to_num(self._f1)
 
-    def _get_error_analysis(self):
-        """Returns a list of examples where the prediction was incorrect. 
-        [label, pred, history, action, target, explanation]
-        """
-        errors = []
-        for pred, example, expl in zip(self._predictions, self._examples, self._explanations):
-            history, action, target, label = example
-            if label != pred:
-                errors.append([label, pred, history, action, target, expl['reason']])
-        return errors
-
-    def report_error_analysis(self):
-        print(tabulate(
-            self._get_error_analysis(), 
-            ["label", "prediction", "history", "action", "target", "explanation"],
-            maxcolwidths=[8, 8, 40, 20, 20, 20],
-        ))
-
-    def save_error_analysis(self, outfile):
-        with open(outfile, "w") as fh:
-            writer = csv.writer(fh)
-            writer.writerow(["label", "prediction", "history", "action", "target", "explanation"])
-            writer.writerows(self._get_error_analysis())
-
     def classify(self, history, action, target):
         """Uses this instance of Unfold Studio to classify a continue example. 
         This is a mess currently; there should be a cleaner interface. 
@@ -127,105 +129,53 @@ class ContinueClassificationModel:
         )
         return prediction, explanation
 
-    def report_evaluation_results(self):
-        """Print evaluation results. Should already have
+    def generate_invalid_examples(self, n, verbose=False):
+        """Generates examples of invalid input. 
+        First, dissimilar turn sequences are generated. We generate an embedding vector
+        for each turn sequence and compare pairs, keeping those below a certain similarity threshold.
+        Then, for each required example, a random dissimilar pair (source, external) is chosen. 
+        A random point, i, is selected from source; history is source[:i], the target is a 
+        randomly chosen item from source[i+1:], 
+
         """
-        results = []
-        for label_class, preds in zip(self._classes, self._confusion_matrix):
-            results.append([label_class] + preds.tolist())
-        print("Confusion matrix")
-        print(tabulate(results, headers=["Label     Pred ->"] + self._classes))
-        print()
-
-        stats = []
-        for label_class, p, r, f1 in zip(self._classes, self._precision, self._recall, self._f1):
-            stats.append([label_class, p, r, f1])
-
-        counts = np.array([len([l for l in self._labels if l == c]) for c in self._classes])
-        dist = counts / len(self._labels)
-        stats.append([
-            "Weighted average", 
-            np.sum(self._precision * dist), 
-            np.sum(self._recall * dist), 
-            np.sum(self._f1 * dist), 
-        ])
-        print("Stats")
-        print(tabulate(stats, headers=["Class", "Precision", "Recall", "F1"]))
-
-    def generate_valid_examples(self, turn_sequences, n_by_class):
-        valid_classes = ["DIRECT_CONTINUE", "BRIDGE_AND_CONTINUE", "NEEDS_INPUT"]
-        examples = {cls: [] for cls in valid_classes}
-        for turns in turn_sequences:
-            for target_index in range(2, len(turns) - 1):
-                target = turns[target_index]
-                current_text = ""
-                for current_index in range(target_index - 1):
-                    current_text += turns[current_index]
-                    action = turns[current_index + 1]
-                    label = self.get_classification(current_index, target_index)
-                    examples[label].append([current_text, action, target, label])
-        if not all(len(examples[cls]) >= n_by_class[cls] for cls in valid_classes):
-            stats = [[min(len(examples[c]), n_by_class[c]), n_by_class[c], c] for c in valid_classes]
-            n = sum(n_by_class.values())
-            raise ValueError(
-                f"Not enough story plays to generate the {n} requested examples " + 
-                f"in distribution provided: " + 
-                ", ".join(f"{n}/{d} {c}" for n, d, c in stats)
-            )
-        return sum([sample(ex, n_by_class[cls]) for cls, ex in examples.items()], [])
-
-    def generate_invalid_examples(self, turn_sequences, n_by_class):
-
-        n_invalid = n_by_class["INVALID_USER_INPUT"]
-        embeddings = self.model.encode([' '.join(ts) for ts in turn_sequences])
+        embeddings = self.model.encode([' '.join(ts) for ts in self.turn_sequences])
         sims = self.model.similarity(embeddings, embeddings)
         dissimilar_turn_sequences = []
-        for [ixa, a], [ixb, b] in product(enumerate(turn_sequences), repeat=2):
+        for [ixa, a], [ixb, b] in product(enumerate(self.turn_sequences), repeat=2):
             if sims[ixa, ixb] <= self.invalid_story_similarity_threshold:
                 dissimilar_turn_sequences.append([a, b])
-        invalid_params = []
-        for ix, [a, b] in enumerate(dissimilar_turn_sequences):
-            for ixa in range(len(a)):
-                for ixbt in range(2, len(b)):
-                    for ixbc in range(1, ixbt):
-                        invalid_params.append([ix, ixa, ixbc, ixbt])
-        if len(invalid_params) < n_invalid:
-            raise ValueError(
-                f"Not enough story plays to generate {n_invalid} examples of INVALID_USER_INPUT. " + 
-                f"Only {len(dissimilar_turn_sequences)/2} pairs of story plays had similarity " +
-                f"below threshold {self.invalid_story_similarity_threshold}, producing " + 
-                f"{len(invalid_params)} examples."
+        if not dissimilar_turn_sequences:
+            raise ValueError("Can't generate invalid examples; No dissimilar turn sequences.")
+        if verbose:
+            print(
+                "Generating invalid examples from " + 
+                f"{len(dissimilar_turn_sequences)/2} pairs of dissimilar turn sequences."
             )
         invalid_examples = []
-        for ix, ixa, ixbc, ixbt in sample(invalid_params, n_invalid):
-            a, b = dissimilar_turn_sequences[ix]
-            current_text = ' '.join(b[:ixbc])
-            action = a[ixa]
-            target = b[ixbt]
+        for _ in range(n):
+            source, external = choice(dissimilar_turn_sequences)
+            i = randint(1, len(source) - 1)
+            history = ' '.join(source[:i])
+            action = choice(external)
+            target = choice(source[i+1:])
             label = "INVALID_USER_INPUT"
-            invalid_examples.append([current_text, action, target, label])
+            invalid_examples.append([history, action, target, label])
         return invalid_examples
 
     def get_default_queryset(self):
-        """Returns the default queryset, selecting stories which:
-          - No AI generated text
-          - Shared
+        """Returns the default StoryPlayInstance queryset, selecting SPIs from 
+        stories which are shared and have no AI generated text.
         """
-        any_story_play_records = StoryPlayRecord.objects.filter(
-            story_play_instance__story__id=OuterRef("id"),
-        )
         ai_story_play_records = StoryPlayRecord.objects.filter(
-            story_play_instance__story__id=OuterRef("id"),
+            story_play_instance__id=OuterRef("id"),
             data_type="AI_GENERATED_TEXT"
         )
-        return Story.objects.annotate(
-            has_plays=Exists(any_story_play_records),
+        return StoryPlayInstance.objects.annotate(
             uses_ai=Exists(ai_story_play_records)
         ).filter(
-            has_plays=True,
             uses_ai=False,
-            shared=True,
-        ).order_by("?")
+            story__shared=True,
+        )
 
     def get_default_dist(self):
         """dist is a dirichlet distribution representing our prior for 
@@ -292,3 +242,52 @@ class ContinueClassificationModel:
         del n_by_class["INVALID_USER_INPUT"]
         n_by_class["INVALID_USER_INPUT"] = n - sum(n_by_class.values())
         return n_by_class
+
+    def report_evaluation_results(self):
+        """Print evaluation results. Should already have
+        """
+        results = []
+        for label_class, preds in zip(self._classes, self._confusion_matrix):
+            results.append([label_class] + preds.tolist())
+        print("Confusion matrix")
+        print(tabulate(results, headers=["Label     Pred ->"] + self._classes))
+        print()
+
+        stats = []
+        for label_class, p, r, f1 in zip(self._classes, self._precision, self._recall, self._f1):
+            stats.append([label_class, p, r, f1])
+
+        counts = np.array([len([l for l in self._labels if l == c]) for c in self._classes])
+        dist = counts / len(self._labels)
+        stats.append([
+            "Weighted average", 
+            np.sum(self._precision * dist), 
+            np.sum(self._recall * dist), 
+            np.sum(self._f1 * dist), 
+        ])
+        print("Stats")
+        print(tabulate(stats, headers=["Class", "Precision", "Recall", "F1"]))
+
+    def _get_error_analysis(self):
+        """Returns a list of examples where the prediction was incorrect. 
+        [label, pred, history, action, target, explanation]
+        """
+        errors = []
+        for pred, example, expl in zip(self._predictions, self._examples, self._explanations):
+            history, action, target, label = example
+            if label != pred:
+                errors.append([label, pred, history, action, target, expl['reason']])
+        return errors
+
+    def report_error_analysis(self):
+        print(tabulate(
+            self._get_error_analysis(), 
+            ["label", "prediction", "history", "action", "target", "explanation"],
+            maxcolwidths=[8, 8, 40, 20, 20, 20],
+        ))
+
+    def save_error_analysis(self, outfile):
+        with open(outfile, "w") as fh:
+            writer = csv.writer(fh)
+            writer.writerow(["label", "prediction", "history", "action", "target", "explanation"])
+            writer.writerows(self._get_error_analysis())
