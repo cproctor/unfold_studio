@@ -86,7 +86,24 @@ class ContinueClassificationModel:
         ).filter(
             sequence_length__gte=MIN_STORY_PLAY_SEQUENCE_LENGTHS[_class]
         ).order_by("?").first()
-        return self.get_turn_sequence(spi.records.all())
+        ts = self.get_turn_sequence(spi.records.all())
+        self.turn_sequences.append(ts)
+        if _class == "DIRECT_CONTINUE":
+            i = randint(1, len(ts) - 1)
+            history = ' '.join(ts[:i])
+            action = ts[i]
+            target = ts[i+1]
+        elif _class == "BRIDGE_AND_CONTINUE":
+            i = randint(1, len(ts) - 2)
+            history = ' '.join(ts[:i])
+            action = ts[i]
+            target = ts[i+2]
+        elif _class == "NEEDS_INPUT": 
+            i = randint(1, len(ts) - 3)
+            history = ' '.join(ts[:i])
+            action = ts[i]
+            target = choice(ts[i+2:])
+        return [history, action, target, _class]
 
     def evaluate(self, examples):
         """Evaluates examples. Each example should be [text, action, target, label]
