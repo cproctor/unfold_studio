@@ -8,6 +8,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('examples', help="File path for examples in CSV format")
+        parser.add_argument('-e', "--errors", help="File path to save error analysis as CSV")
 
     def handle(self ,*args, **options):
         with open(options["examples"]) as fh:
@@ -15,3 +16,6 @@ class Command(BaseCommand):
         model = ContinueClassificationModel()
         model.evaluate(examples)
         model.report_evaluation_results()
+        if options["errors"]:
+            model.report_error_analysis()
+            model.save_error_analysis(options["errors"])
