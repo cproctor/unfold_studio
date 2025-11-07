@@ -1,3 +1,4 @@
+import csv
 from collections import defaultdict
 from itertools import product
 from random import sample, shuffle
@@ -64,23 +65,16 @@ class ContinueClassificationModel:
     def evaluate(self, examples):
         """Evaluates examples. Each example should be [text, action, target, label]
         """
-        from text_generation.views import GetNextDirectionView
-
-        view = GetNextDirectionView()
         predictions = []
-        for text, action, target, label in tqdm(examples):
-
-            # TODO This is a mess. Should refactor the underlying system.
-            prediction, explanation = view.get_next_direction_details_for_story(
-                target_knot_data={'knotContents': [target]},
-                story_history=text,
-                user_input=action,
-                seed=self.seed
-            )
+        explanations = []
+        for history, action, target, label in tqdm(examples):
+            prediction, explanation = self.classify(history, action, target)
             predictions.append(prediction)
+            explanations.append(explanation)
 
         self._examples = examples
-        self._labels = [label for text, action, target, label in examples]
+        self._explanations = explanations
+        self._labels = [label for history, action, target, label in examples]
         self._predictions = predictions
         self._classes = sorted(set(self._labels + self._predictions))
         self._confusion_matrix = np.ndarray([len(self._classes), len(self._classes)])
@@ -94,6 +88,44 @@ class ContinueClassificationModel:
         self._precision = np.nan_to_num(self._precision)
         self._recall = np.nan_to_num(self._recall)
         self._f1 = np.nan_to_num(self._f1)
+
+    def _get_error_analysis(self):
+        """Returns a list of examples where the prediction was incorrect. 
+        [label, pred, history, action, target, explanation]
+        """
+        errors = []
+        for pred, example, expl in zip(self._predictions, self._examples, self._explanations):
+            history, action, target, label = example
+            if label != pred:
+                errors.append([label, pred, history, action, target, expl['reason']])
+        return errors
+
+    def report_error_analysis(self):
+        print(tabulate(
+            self._get_error_analysis(), 
+            ["label", "prediction", "history", "action", "target", "explanation"],
+            maxcolwidths=[8, 8, 40, 20, 20, 20],
+        ))
+
+    def save_error_analysis(self, outfile):
+        with open(outfile, "w") as fh:
+            writer = csv.writer(fh)
+            writer.writerow(["label", "prediction", "history", "action", "target", "explanation"])
+            writer.writerows(self._get_error_analysis())
+
+    def classify(self, history, action, target):
+        """Uses this instance of Unfold Studio to classify a continue example. 
+        This is a mess currently; there should be a cleaner interface. 
+        """
+        from text_generation.views import GetNextDirectionView
+        view = GetNextDirectionView()
+        prediction, explanation = view.get_next_direction_details_for_story(
+            target_knot_data={'knotContents': [target]},
+            story_history=history,
+            user_input=action,
+            seed=self.seed
+        )
+        return prediction, explanation
 
     def report_evaluation_results(self):
         """Print evaluation results. Should already have
