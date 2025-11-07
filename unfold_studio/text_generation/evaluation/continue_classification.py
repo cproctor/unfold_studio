@@ -81,12 +81,11 @@ class ContinueClassificationModel:
     def generate_example(self, _class, queryset):
         """Generates a single example for _class.
         """
-        spi = queryset.annotate(
-            sequence_length=Count("records")
-        ).filter(
-            sequence_length__gte=MIN_STORY_PLAY_SEQUENCE_LENGTHS[_class]
-        ).order_by("?").first()
-        ts = self.get_turn_sequence(spi.records.all())
+        while True:
+            spi = queryset.order_by("?").first()
+            ts = self.get_turn_sequence(spi.records.all())
+            if len(ts) >= MIN_STORY_PLAY_SEQUENCE_LENGTHS[_class]:
+                break
         self.turn_sequences.append(ts)
         if _class == "DIRECT_CONTINUE":
             i = randrange(1, len(ts) - 1)
