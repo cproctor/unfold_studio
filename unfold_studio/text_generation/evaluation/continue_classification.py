@@ -1,7 +1,7 @@
 import csv
 from collections import defaultdict
 from itertools import product
-from random import sample, shuffle, choice, randint
+from random import sample, shuffle, choice, randrange
 from django.db.models import Count, Exists, OuterRef
 from tqdm import tqdm
 from tabulate import tabulate
@@ -89,17 +89,17 @@ class ContinueClassificationModel:
         ts = self.get_turn_sequence(spi.records.all())
         self.turn_sequences.append(ts)
         if _class == "DIRECT_CONTINUE":
-            i = randint(1, len(ts) - 1)
+            i = randrange(1, len(ts) - 1)
             history = ' '.join(ts[:i])
             action = ts[i]
             target = ts[i+1]
         elif _class == "BRIDGE_AND_CONTINUE":
-            i = randint(1, len(ts) - 2)
+            i = randrange(1, len(ts) - 2)
             history = ' '.join(ts[:i])
             action = ts[i]
             target = ts[i+2]
         elif _class == "NEEDS_INPUT": 
-            i = randint(1, len(ts) - 3)
+            i = randrange(1, len(ts) - 3)
             history = ' '.join(ts[:i])
             action = ts[i]
             target = choice(ts[i+2:])
@@ -171,7 +171,7 @@ class ContinueClassificationModel:
         invalid_examples = []
         for _ in range(n):
             source, external = choice(dissimilar_turn_sequences)
-            i = randint(1, len(source) - 1)
+            i = randrange(1, len(source) - 1)
             history = ' '.join(source[:i])
             action = choice(external)
             target = choice(source[i+1:])
