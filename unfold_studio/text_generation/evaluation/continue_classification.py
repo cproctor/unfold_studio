@@ -91,6 +91,9 @@ class ContinueClassificationModel:
         self._precision = np.diag(self._confusion_matrix) / np.sum(self._confusion_matrix, axis=1)
         self._recall = np.diag(self._confusion_matrix) / np.sum(self._confusion_matrix, axis=0)
         self._f1 = 2 * self._precision * self._recall / (self._precision + self._recall)
+        self._precision = np.nan_to_num(self._precision)
+        self._recall = np.nan_to_num(self._recall)
+        self._f1 = np.nan_to_num(self._f1)
 
     def report_evaluation_results(self):
         """Print evaluation results. Should already have
@@ -116,7 +119,6 @@ class ContinueClassificationModel:
         ])
         print("Stats")
         print(tabulate(stats, headers=["Class", "Precision", "Recall", "F1"]))
-
 
     def generate_valid_examples(self, turn_sequences, n_by_class):
         valid_classes = ["DIRECT_CONTINUE", "BRIDGE_AND_CONTINUE", "NEEDS_INPUT"]
