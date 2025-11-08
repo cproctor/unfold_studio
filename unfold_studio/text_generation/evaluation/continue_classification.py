@@ -6,6 +6,7 @@ from django.db.models import Count, Exists, OuterRef
 from tqdm import tqdm
 from tabulate import tabulate
 from unfold_studio.models import Story, StoryPlayRecord, StoryPlayInstance
+from threading import Thread, Semaphore
 import numpy as np
 
 MIN_STORY_PLAY_SEQUENCE_LENGTHS = {
@@ -104,13 +105,25 @@ class ContinueClassificationModel:
             target = choice(ts[i+2:])
         return [history, action, target, _class]
 
-    def evaluate(self, examples):
+    def evaluate(self, examples, max_parallel_requests=8):
         """Evaluates examples. Each example should be [text, action, target, label]
         """
-        predictions = []
-        explanations = []
-        for history, action, target, label in tqdm(examples):
+        results, threads, predictions, explanations = [], [], [], []
+        semaphore = Semaphore(max_parallel_requests)
+
+        def classify(i, history, action, target):
+            semaphore.acquire()
             prediction, explanation = self.classify(history, action, target)
+            results.append((i, prediction, explanation))
+            semaphore.release()
+
+        for i, (history, action, target, label) in enumerate(examples):
+            threads.append(Thread(target=classify, args=(i, history, action, target)))
+        for thread in threads:
+            thread.start()
+        for thread in threads:
+            thread.join()
+        for i, prediction, explanation in sorted(results):
             predictions.append(prediction)
             explanations.append(explanation)
 
