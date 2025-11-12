@@ -11,13 +11,19 @@ class Command(BaseCommand):
         parser.add_argument('-e', "--errors", help="File path to save error analysis as CSV")
         parser.add_argument('-p', "--max-parallel-requests", type=int, default=8, 
                 help="Maximum number of parallel requests for classification")
+        parser.add_argument('-s', "--stats-csv", 
+                help="Output stats as a CSV row, with the provided string as the version name")
 
     def handle(self ,*args, **options):
         with open(options["examples"]) as fh:
             examples = list(csv.reader(fh))
         model = ContinueClassificationModel()
         model.evaluate(examples, max_parallel_requests=options["max_parallel_requests"])
-        model.report_evaluation_results()
+        if options["stats_csv"]:
+            model.evaluation_stats_csv(options["stats_csv"])
+        else:
+            model.report_evaluation_results()
         if options["errors"]:
-            model.report_error_analysis()
+            if not options["stats-csv"]:
+                model.report_error_analysis()
             model.save_error_analysis(options["errors"])

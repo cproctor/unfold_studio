@@ -1,4 +1,5 @@
 import csv
+import sys
 from collections import defaultdict
 from itertools import product
 from random import sample, shuffle, choice, randrange
@@ -282,6 +283,26 @@ class ContinueClassificationModel:
         print(tabulate(results, headers=["Label     Pred ->"] + self._classes))
         print()
 
+        print("Stats")
+        print(tabulate(
+            self._get_evaluation_stats(), 
+            headers=["Class", "Precision", "Recall", "F1"]
+        ))
+
+    def evaluation_stats_csv(self, version_name):
+        """Prints evaluation stats in CSV format"""
+        writer = csv.writer(sys.stdout)
+        for row in self._get_evaluation_stats():
+            writer.writerow([version_name] + row)
+
+    def _get_evaluation_stats(self):
+        """Returns a list of lists reporting precision, recall, and f1, like:
+            BRIDGE_AND_CONTINUE         0.95  0.240506  0.383838
+            DIRECT_CONTINUE             0.05  0.2       0.08
+            INVALID_USER_INPUT          0.8   0.727273  0.761905
+            NEEDS_INPUT                 0.04  0.4       0.0727273
+            Weighted average            0.3   0.360829  0.205322
+        """
         stats = []
         for label_class, p, r, f1 in zip(self._classes, self._precision, self._recall, self._f1):
             stats.append([label_class, p, r, f1])
@@ -294,8 +315,7 @@ class ContinueClassificationModel:
             np.sum(self._recall * dist), 
             np.sum(self._f1 * dist), 
         ])
-        print("Stats")
-        print(tabulate(stats, headers=["Class", "Precision", "Recall", "F1"]))
+        return stats
 
     def _get_error_analysis(self):
         """Returns a list of examples where the prediction was incorrect. 
