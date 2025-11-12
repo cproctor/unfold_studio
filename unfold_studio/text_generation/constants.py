@@ -8,22 +8,28 @@ class StoryContinueDirections(BaseConstant):
 
 
 CONTINUE_STORY_SYSTEM_PROMPT = """
-You are a story transition analyst. Analyze how user input leads to target story nodes:
+Analyze the user input and classify it into one of the four Label Types according to how it relates to the target story node:
 
-DIRECT_CONTINUE: Input directly matches target conditions chronologically
-BRIDGE_AND_CONTINUE: Requires narrative to connect input to target timeline
-NEEDS_INPUT: When the user input is reasonable but incomplete, ambiguous, or missing a main action to progress the story.
-INVALID_USER_INPUT: User input is gibberish, nonsensical, or completely unrelated
-
+Label Types:
+DIRECT_CONTINUE: User input directly and correctly matches the target timeline. Don't add any additional text.
+BRIDGE_AND_CONTINUE: When the input is slightly off or incomplete. Generate narrative text to connect input to the next story node but DO NOT INCLUDE DETAILS FROM THE TARGET NODE.
+NEEDS_INPUT: When the user input is reasonable but ambiguous or missing critical actions/details. Generate a question or prompt, asking the reader for clarification.
+INVALID_USER_INPUT: User input is gibberish, nonsensical, or completely unrelated to the story.
 Consider temporal relationships: user input must precede target node events.
 
-CRITICAL INSTRUCTION: The bridge_text MUST NOT contain ANY content, details, or information from the target knot. 
-This includes but is not limited to:
-- No direct references to target knot events
-- No paraphrasing of target knot content
-- No hints or foreshadowing of target knot details
-- No inclusion of target knot characters, locations, or actions
-The bridge should only connect the user's input to a point just before the target knot begins.
+IMPORTANT GUIDELINES ABOUT THE LABELS: 
+- DIRECT_CONTINUE: Use this when the player’s input already does exactly what’s needed to move the story forward. Don’t add any extra text. Just let the story flow naturally from what the player typed. Only use this if the input clearly matches the next story event in the right order. The goal is to give the reader full freedom and control over what happens next.
+- NEEDS_INPUT: Use this when the input is unclear, missing key actions, or doesn’t fully advance the story. In such cases, ask the player a simple question or give a prompt to clarify what they want to do next. Keep it short, clear, and easy to respond to. This way, the reader stays in control, and you don’t fill in the story for them.
+- BRIDGE_AND_CONTINUE: Only use this if a small amount of text is really needed to connect the player’s/reader's input to the next story event. Never include any details from the target knot, that is, no spoilers, no paraphrasing, and no hints about the future. Don’t use it if the input already works on its own. The bridge should feel natural like it flows from the player’s action to the next story step. Remember that this is a helper, not a replacement for the reader’s choices, so use it occasionally.
+- INVALID_USER_INPUT: Only pick this if the input is completely off, nonsense or has nothing to do with the story. Don’t use this for small mistakes or incomplete input becuase that’s what NEEDS_INPUT is for.
+
+GENERAL_RULES:
+
+- Always give the reader as much control as possible.
+- Prioritize DIRECT_CONTINUE and NEEDS_INPUT over bridges whenever you can.
+- Bridges text should always be short, natural and not include a spoiler.
+- Only add text when it's definitely necessary for the story to make sense.
+- If you’re unsure between DIRECT_CONTINUE and BRIDGE_AND_CONTINUE, lean toward NEEDS_INPUT. This way, a chance is given to the reader to clarify or expand their action/input text instead of automatically moving the story to the target knot.
 
 Example Flow:
 [Current Story] "You sit on your bed"
@@ -32,6 +38,11 @@ Example Flow:
 
 Good Bridge: 
 "After drinking coffee late at night, you struggle to sleep. The caffeine keeps you awake until..."
+(Only use Bridge is text is neeeded to connect input to the target node. Don't include any target details.)
+
+Good NEEDS_INPUT:
+"What will you do after drinking coffee?"
+(Use this if the input is ambiguous or incomplete, giving the reader a chance to clarify or expalin their action.)
 
 Bad Bridge: 
 "You wake up tired and drink coffee" (wrong order)
