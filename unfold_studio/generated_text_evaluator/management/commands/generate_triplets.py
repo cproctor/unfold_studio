@@ -3,6 +3,7 @@ import json
 from django.core.management.base import BaseCommand
 from generated_text_evaluator.flows.generate_triplets_flow import GenerateTripletsFlow
 from generated_text_evaluator.constants import GENERATED_TRIPLETS_DIR
+from generated_text_evaluator.models import StoryPlayInstance
 
 class Command(BaseCommand):
     """
@@ -16,30 +17,35 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         uuid_group = parser.add_mutually_exclusive_group(required=True)
         uuid_group.add_argument(
-            '-u', 
             '--uuids',
             nargs='+',
             type=str,
-            help='StoryPlayInstance uuid(s)'
+            help='One or more UUIDs provided directly in the command line'
         )
         uuid_group.add_argument(
-            '-o',
             '--uuids-filename',
             type=str,
-            help='Name of the file containing UUIDs (one per line)'
+            help='Name of the file containing UUIDs (one per line), must be in the same directory as the command'
         )
         parser.add_argument(
-            '-f',
             '--output-filename',
             type=str,
             required=True,
-            help=f'Name of the output JSON file'
+            help=f'Name of the output JSON file where triplets will be saved in {GENERATED_TRIPLETS_DIR} directory'
         )
 
     def read_uuids_from_file(self, file_path):
-        with open(file_path) as f:
-            uuids = [line.strip() for line in f if line.strip()]
-        return uuids
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        full_path = os.path.join(current_dir, file_path)
+        try:
+            with open(full_path, 'r') as f:
+                uuids = [line.strip().replace("“", "").replace("”", "") for line in f if line.strip()]
+            return uuids
+        except Exception as e:
+            self.stderr.write(
+                self.style.ERROR(f"Error reading UUIDs file: {str(e)}")
+            )
+            return []
 
     def get_output_filepath(self, filename):
         current_file = os.path.abspath(__file__)
@@ -54,12 +60,16 @@ class Command(BaseCommand):
         
         for uuid in uuids:
             self.stdout.write(f"Processing UUID: {uuid}")
-            try:
-                triplets = flow.execute_flow([uuid])
-                all_triplets.extend(triplets)
-            except Exception as e:
-                self.stderr.write(
-                    self.style.ERROR(f"Error processing UUID {uuid}: {str(e)}")
+            instance = StoryPlayInstance.objects.filter(uuid=uuid).first()
+        if not instance:
+            self.stderr.write(self.style.ERROR(f"No StoryPlayInstance found for UUID {uuid}"))
+
+        try:
+            triplets = flow.execute_flow([instance])
+            all_triplets.extend(triplets)
+        except Exception as e:
+            self.stderr.write(
+                self.style.ERROR(f"Error processing UUID {uuid}: {str(e)}")
                 )
         
         return all_triplets
@@ -79,7 +89,12 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['uuids_filename']:
             uuids = self.read_uuids_from_file(options['uuids_filename'])
+            if not uuids:
+                return
         else:
             uuids = options['uuids']
+
+        output_filename = options['output_filename']
+        filepath = self.get_output_filepath(output_filename)
         triplets = self.process_story_play_instances(uuids)
-        self.save_triplets_to_file(triplets, options['output_filename'])
+        self.save_triplets_to_file(triplets, filepath)

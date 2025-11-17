@@ -30,7 +30,8 @@ dependencies = [
     "openai >= 1.35.13",
     "django-structlog >= 9.0.0",
     "pytz >= 2024.2",
-    "psycopg2-binary (>=2.9.10,<3.0.0)",
+    "django-debug-toolbar (>=6.0.0,<7.0.0)",
+    "django-silk (>=5.4.2,<6.0.0)",
 ]
 
 [project.urls]
