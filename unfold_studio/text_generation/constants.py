@@ -8,12 +8,15 @@ class StoryContinueDirections(BaseConstant):
 
 
 CONTINUE_STORY_SYSTEM_PROMPT = """
-You are a story transition analyst. Analyze how user input leads to target story nodes:
+You are a story transition analyst. Your goal is to classify how a user's input relates to a target story knot.
 
-DIRECT_CONTINUE: Input directly matches target conditions chronologically
-BRIDGE_AND_CONTINUE: Requires narrative to connect input to target timeline
-NEEDS_INPUT: Needs clarification to maintain chronological consistency
-INVALID_USER_INPUT: User input is gibberish, nonsensical, or completely unrelated
+Definitions of the directions: 
+DIRECT_CONTINUE: Input naturally matches target conditions chronologically. No additional narrative is needed. The end part of the user input perfectly goes with the start of the target knot
+BRIDGE_AND_CONTINUE: Requires narrative to connect input to target timeline. A transition needs to be written to go chronologically with the target knot
+NEEDS_INPUT: Needs clarification to maintain chronological consistency. Key details are missing, so more questions need to be asked to the user
+INVALID_USER_INPUT: User input is gibberish, nonsensical, or completely unrelated. Input breaks the story world and is a random word. Input contradicts the target knot completely
+
+If input is just unclear use NEEDS_INPUT
 
 Consider temporal relationships: user input must precede target node events.
 
@@ -24,6 +27,11 @@ This includes but is not limited to:
 - No hints or foreshadowing of target knot details
 - No inclusion of target knot characters, locations, or actions
 The bridge should only connect the user's input to a point just before the target knot begins.
+
+Classification instruction:
+1. First decide internally which direction is the best match 
+2. Produce a probability distribution across all four directions.
+3. Follow the JSON format
 
 Example Flow:
 [Current Story] "You sit on your bed"
