@@ -22,6 +22,7 @@ urlpatterns = [
     path('users/<slug:slug>/feed/', profile_views.FeedView.as_view(), name="show_feed"),
     path('users/<slug:slug>/follow/', profile_views.FollowUserView.as_view(), name="follow_user"),
     path('users/<slug:slug>/unfollow/', profile_views.UnfollowUserView.as_view(), name="unfollow_user"),
+    path('api/search-users/', profile_views.search_users_api, name='search_users_api'),
 
     path('groups/', literacy_group_views.ListGroupsView.as_view(), name="list_groups"),
     path('groups/new', literacy_group_views.CreateGroupView.as_view(), name="create_group"),
