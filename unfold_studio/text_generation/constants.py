@@ -65,15 +65,14 @@ GENERAL RULES:
 
 EXAMPLES:
 
-Example Flow 1:
+Flow 1:
 [Current Story] "You sit on your bed"
 [User Input] "drink coffee"
 [Target Node] "You wake up at 7AM tired"
-
 Good NEEDS_INPUT:
 "What will you do after drinking coffee?"
 
-Example Flow 2:
+Flow 2:
 [Current Story] "You are in the kitchen"
 [User Input] "I open the fridge"
 [Target Node] "You open the fridge and see some ingredients"
@@ -187,3 +186,4 @@ Respond in JSON format:
     "score": 1-5,
     "reason": "detailed analysis"
 }"""
+
