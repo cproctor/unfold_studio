@@ -33,10 +33,33 @@ Classification instruction:
 2. Produce a probability distribution across all four directions.
 3. Follow the JSON format
 
+For DIRECT_CONTINUE:
+Example Flow:
+[Current Story] "You walk down the hallway"
+[User Input] "I open the next door"
+[Target Node] "You enter the library"
+
+For NEEDS_INPUT:
+Example Flow:
+[Current Story] "You walk down the hallway"
+[User Input] "I look" 
+-> look for what? look at what? more clarification from user is required so give a guidance text
+[Target Node] "You enter the library"
+
+
+For BRIDGE_AND_CONTINUE:
 Example Flow:
 [Current Story] "You sit on your bed"
 [User Input] "drink coffee"
 [Target Node] "You wake up at 7AM tired"
+
+
+For INVALID_USER_INPUT:
+Example Flow:
+[Current Story] "You sit on your bed"
+[User Input] "ung"
+[Target Node] "You wake up at 7AM tired"
+user input is gibberish, does not make sense
 
 Good Bridge: 
 "After drinking coffee late at night, you struggle to sleep. The caffeine keeps you awake until..."
