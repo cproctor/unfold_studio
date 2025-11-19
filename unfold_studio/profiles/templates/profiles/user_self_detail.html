@@ -3,6 +3,16 @@
 
 {% block content %}
     <h1>{{user}}</h1>
+    
+    <!-- Add Follow User Section -->
+    <div>
+        <h2>Follow a User</h2>
+        <form method="get" action="{% url 'show_user' 'placeholder' %}" id="follow-form">
+            <input type="text" name="username" placeholder="Enter username to follow" required>
+            <button type="submit">Visit Profile</button>
+        </form>
+    </div>
+    
     {% if unsubmitted_prompts > 0 %}
         <h2>To Do</h2>
         <ul>
@@ -11,6 +21,7 @@
         {% endfor %}
         </ul>
     {% endif %}
+    
     <div class="feed">
         <h2>Feed</h2>
         <ul>
@@ -22,6 +33,7 @@
             <p><a href="{% url 'show_feed' user.username %}">More...</a></p>
         {% endif %}
     </div>
+    
     {% if user.profile.following.exists %}
       <div>
       <h2>Users you follow</h2>
@@ -29,11 +41,14 @@
         {% for p in user.profile.following.all %}
         <li>
             <a href="{% url 'show_user' p.user.username %}">{{p.user.username}}</a>
+            [<a href="{% url 'unfollow_user' p.user.username %}">Unfollow</a>]
         </li>
         {% endfor %}
       </ul> 
       </div>
     {% endif %}
+    
+    <!-- Rest of existing content -->
     <div>
         <h2>Stories</h2>
         <ul>
@@ -48,6 +63,7 @@
         {% endfor %} 
         </ul>
     </div>
+    
     <div>
         <h2>Books</h2>
         <ul>
@@ -59,4 +75,14 @@
             <li>[<a href="{% url 'create_book'%}">Start a new book</a>]</li>
         </ul>
     </div>
+
+    <script>
+        document.getElementById('follow-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const username = this.username.value.trim();
+            if (username) {
+                window.location.href = '/users/' + username + '/';
+            }
+        });
+    </script>
 {% endblock %}
