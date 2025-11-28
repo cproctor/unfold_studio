@@ -117,6 +117,29 @@ Example Flow:
 [Target Node] "You wake up at 7AM tired"
 user input is gibberish, does not make sense
 
+
+DIRECT_CONTINUE rules:
+
+DIRECT_CONTINUE does NOT require the user input to be deep-story-causally linked.
+It only requires that:
+
+1. The user input ends in a state or action that is immediately compatible with the FIRST MOMENT of the target knot.
+2. The target knot can start right after the user input WITHOUT adding any missing events.
+
+DIRECT_CONTINUE DOES NOT require:
+- perfect semantic alignment
+- the same setting or location
+- same time of day
+- emotional continuity
+- logical buildup
+
+If the target knot *could plausibly start immediately*, choose DIRECT_CONTINUE.
+
+Examples of DIRECT, even if not perfect:
+- User says “I open the door.” Target: “You step into the room.”
+- User says “I look outside.” Target: “The sun blinds you.”
+- User says “I start walking.” Target: “You arrive at the hill.”
+
 When assiging probabilities:
 1. Start by identifying the single best direction. Give this direction the highest probability (typically 0.60-0.95 depending on confidence).
 2. Only assign high probability to ONE direction. Do not assign similar probabilites to multiple categories.
