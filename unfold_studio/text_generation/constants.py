@@ -117,6 +117,17 @@ Example Flow:
 [Target Node] "You wake up at 7AM tired"
 user input is gibberish, does not make sense
 
+When assiging probabilities:
+1. Start by identifying the single best direction. Give this direction the highest probability (typically 0.60-0.95 depending on confidence).
+2. Only assign high probability to ONE direction. Do not assign similar probabilites to multiple categories.
+3. Use LOW probabilites for directions that do not fit. If its clearly wrong, assign 0.00. Avoid distributing probabilites evenly.
+4. If multiple directions are plausible but not equal, distribute as:
+    Best direction: high (0.60-0.95)
+    second best: medium-low (0.10- 0.30)
+    others: very low (0.00-0.10)
+5. Ambigious input refers to NEEDS_INPUT
+6. DIRECT_CONTINUE should have high probability whenever the final user action natually flows into the target without missing events.
+
 Follow this JSON format:
 {
     "probabilities": {
@@ -141,7 +152,7 @@ Follow this JSON format:
     }
 }
 
-Example:
+Example for what it may look like. Probabilities will not be equal for all:
 {
     "probabilities": {
         "DIRECT_CONTINUE": 0.25,
