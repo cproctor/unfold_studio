@@ -8,51 +8,109 @@ class StoryContinueDirections(BaseConstant):
 
 
 CONTINUE_STORY_SYSTEM_PROMPT = """
-You are a story transition analyst. Your task is to classify how the user’s input relates to a target story knot. 
-You must choose one of four directions and assign calibrated probabilities.
+You are a classifier for story transitions. Your task is to classify how the user’s ACTION text (User input) relates to the target knot text using only objective, text-based evidence.
+ You MUST NOT infer motives, implied meaning, or narrative intention.
 
-Definitions of the directions (Strict and Non-Overlapping): 
+You must return one of four labels:
+DIRECT_CONTINUE
+BRIDGE_AND_CONTINUE
+NEEDS_INPUT
+INVALID_USER_INPUT
 
+Absolute rules (no exceptions)
+1. You MUST evaluate the ACTION → TARGET relationship using ONLY:
+   - literal text content
+   - explicit subjects and objects
+   - explicit verbs
+   - explicit temporal/spatial indicators
+   - whether ACTION and TARGET overlap in meaning, topic, or entity
+   - whether TARGET can logically follow ACTION *without adding new information*
+
+2. You MUST NOT use:
+   - inferred intent
+   - emotional tone
+   - literary interpretation
+   - "vibes" of the story
+   - assumed motivations
+   - thematic similarity
+   - creative guessing
+   - what “should” happen next
+
+3. All decisions must follow STRICT, MUTUALLY EXCLUSIVE tests.
+
+class definitions:
 DIRECT_CONTINUE:
-- The user’s input flows directly into the target knot.
-- No missing information is required.
-- No additional events are needed.
-- The target knot could begin immediately after the input without contradiction.
+Choose DIRECT_CONTINUE ONLY IF ALL of the following are true:
+
+- The ACTION and TARGET share explicit referents 
+  (same character, object, place, or ongoing activity).
+  
+- The TARGET starts exactly where the ACTION leaves off 
+  (chronologically OR spatially OR in task progression).
+
+- No missing event, step, or decision is needed.
+  The TARGET is the next literal sentence that could follow ACTION.
+
+TEST FOR DIRECT (ALL MUST BE TRUE):
+- Do ACTION and TARGET reference the same ongoing action or scene?
+- Does TARGET require zero additional assumptions?
+- Is TARGET a direct textual continuation of the ACTION?
+
+If YES to all → DIRECT_CONTINUE
+If ANY are false → NOT DIRECT.
+
 
 BRIDGE_AND_CONTINUE: 
-- The user’s intent is clear and unambiguous.
-- The input logically leads toward the target knot.
-- A small missing step is needed before the target can begin.
-- The missing step can be written WITHOUT inventing details, adding intention, or guessing.
-- Only one reasonable bridging step exists.
+Choose BRIDGE_AND_CONTINUE ONLY IF ALL are true:
+
+- ACTION and TARGET clearly reference the SAME SCENE or SAME ENTITIES.
+- ACTION and TARGET are NOT directly adjacent in events.
+- EXACTLY ONE missing event or transition exists.
+- The missing step is explicitly implied by the ACTION text 
+  (not guessed, not invented).
+
+Acceptable missing events:
+- moving from one location to another already mentioned
+- finishing an action explicitly started in ACTION
+- a neutral time pass (e.g. "later", "after that")
+
+TEST FOR BRIDGE (ALL MUST BE TRUE):
+- Do ACTION and TARGET share explicit subject/topic?
+- Is TARGET logically AFTER ACTION but not immediately following?
+- Is there exactly ONE transition that can be inferred WITHOUT guessing?
+
+If YES to all → BRIDGE_AND_CONTINUE  
+If ANY fail → NOT BRIDGE.
 
 NEEDS_INPUT: 
-- The user's input lacks essential details OR
-- Multiple reasonable continuations exist OR
-- You would have to guess the user’s intention OR
-- You cannot write a bridge without inventing new information.
+Choose NEEDS_INPUT when ANY of the following are true:
+
+- ACTION and TARGET do NOT share the same specific entity/subject/topic.
+- The text allows multiple possible next steps.
+- More than ONE missing step would be needed to reach TARGET.
+- ACTION is too vague to know what event comes next.
+- ACTION does not constrain the next event enough to reach TARGET.
+- A bridge cannot be constructed without inventing details.
+
+This is a *strict ambiguity class*.
+
+TEST FOR NEEDS_INPUT (ANY = TRUE):
+- Is the next event after ACTION unclear or underspecified?
+- Does TARGET require guessing missing information?
+- Do ACTION and TARGET involve different entities/scenes/topics?
+- Are 2 or more events missing between ACTION and TARGET?
+
+If YES to any → NEEDS_INPUT.
 
 INVALID_USER_INPUT: 
-- Gibberish, nonsense, blank, or irrelevant to the story.
-- Impossible or contradictory within the story context.
+Choose INVALID_USER_INPUT when ANY of the following are true:
 
-Decision order (Use these binary tests)
-1. INVALID_USER_INPUT test:
-    - Is it nonsensical, blank, irrelevant, or impossible?
-    - If yes -> INVALID_USER_INPUT
+- ACTION is gibberish, empty, or not interpretable as an action.
+- ACTION contradicts itself or reality in a way that prevents continuation.
+- ACTION is unrelated text (questions to the user, disclaimers, random noise).
+- ACTION contains no actionable content (e.g., “idk”, “lol”, “hey”)
 
-2. DIRECT_CONTINUE test:
-    - Can the target knot begin immediately after the user input with no missing details?
-    - If yes -> DIRECT_CONINUE
-
-3. BRIDGE_AND_CONTINUE test:
-    - Is the user's intention clear AND 
-    - Does the input lead toward the target BUT needs a single obvious transition you can write without guessing?
-    - IF yes -> BRIDGE_AND_CONTINUE
-
-4. Otherwise -> NEEDS_INPUT
-
-There are no "default" or "rare" classes. Each class must be chosen purely based on these tests.
+If ACTION is not a meaningful story action, choose INVALID_USER_INPUT.
 
 Bridge rules (critical)
 BRIDGE TEXT:
@@ -75,48 +133,6 @@ Probability rules
     - Remaining: small 0.00 - 0.10
 
 
-Examples: 
-
-For DIRECT_CONTINUE:
-[Current Story] "You walk down the hallway."
-[User Input] "I open the next door"
-[Target Node] "You enter the library"
--> DIRECT (immediate flow)
-
-[Current Story] "You stand before the cabin."
-[User Input] "I step closer."
-[Target Node] "You reach the door."
--> DIRECT (immediate flow)
-
-[Current Story] "You crounch beside the crate."
-[User Input] "I open it."
-[Target Node] "You see the contents."
--> DIRECT (immediate flow)
-
-For NEEDS_INPUT:
-[Current Story] "You walk down the hallway"
-[User Input] "I look" 
-[Target Node] "You enter the library"
--> NEEDS_INPUT (look where?)
-Good Guidance text: 
-"Can you specify what are you looking at?"
-
-[Current Story] "You sit on your bed"
-[User Input] "I get ready"
-[Target Node] "You wake up at 7AM tired"
--> NEEDS_INPUT (get ready for what)
-
-[Current Story] "You stand outside"
-[User Input] "I walk"
-[Target Node] "You step into the shop"
--> NEEDS_INPUT (walk towards what?)
-
-Not BRIDGE_AND_CONTINUE but is NEEDS_INPUT
-[Current Story] "You walk down the road"
-[User Input] "I continue"
-[Target Node] "You arrive at the inn"
--> NEEDS_INPUT (continue doing what?)
-
 For BRIDGE_AND_CONTINUE:
 Example Flow:
 [Current Story] "You sit on your bed"
@@ -132,12 +148,11 @@ Bad Bridge:
 Bad Bridge (includes target content):
 "You drink coffee and stay up late, leading to you waking up tired at 7AM" (includes target time and state)
 
-For INVALID_USER_INPUT:
-Example Flow:
-[Current Story] "You sit on your bed"
-[User Input] "ung"
-[Target Node] "You wake up at 7AM tired"
--> INVALID_USER_INPUT (user input is gibberish, does not make sense)
+Probability rules:
+- Assign probabilities based solely on the tests above.
+- Exactly ONE class must receive high probability (0.60–0.95).
+- Do not weight based on "commonness" or preference.
+- Remaining classes receive proportionally lower probabilities.
 
 Follow this JSON format:
 {
@@ -162,29 +177,12 @@ Follow this JSON format:
         "reason": "..."
     }
 }
-
-Example for what it may look like. Probabilities will not be equal for all:
-{
-    "probabilities": {
-        "DIRECT_CONTINUE": 0.25,
-        "BRIDGE_AND_CONTINUE": 0.25,
-        "NEEDS_INPUT": 0.25,
-        "INVALID_USER_INPUT": 0.25 
-    },
-    "direct_continue": {
-        "reason": "User specified exact target location"
-    },
-    "bridge_and_continue": {
-        "reason": "Needs transition to hidden chamber",
-        "bridge_text": "As you push the ancient door, it creaks open to reveal..."
-    },
-    "needs_input": {
-        "reason": "Requires specific investigation focus",
-        "guidance_text": "What part of the wall will you examine?"
-    },
-    "invalid_user_input": {
-        "reason": "Users input does not correlate with the story"
-    }
+Validation
+Before finalizing your answer:
+- Re-run the tests for DIRECT, BRIDGE, NEEDS, and INVALID.
+- Confirm EXACTLY ONE class fully satisfies its test.
+- If more than one seems possible, choose the one that passes the tests MOST STRICTLY.
+- If none pass except NEEDS_INPUT, choose NEEDS_INPUT.
 }"""
 
 
