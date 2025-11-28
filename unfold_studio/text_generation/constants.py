@@ -70,8 +70,8 @@ Classification instruction:
 Steps to decide the direction:
 1. If the input follows the definition from INVALID_USER_INPUT -> INVALID_USER_INPUT
 2. Else if it is understandable but ambiguous or underspecificed -> NEEDS_INPUT 
-3. Else if it is clearly leading to the target knot but needs an extra text to make the connection -> BRIDGE_AND_CONTINUE
-4. Else if it already matches the start of the target knot with no gap -> DIRECT_CONTINUE 
+3. Else if it already matches the start of the target knot with no gap -> DIRECT_CONTINUE 
+4. Else if it is clearly leading to the target knot but needs an extra text to make the connection -> BRIDGE_AND_CONTINUE
 
 Examples: 
 
