@@ -8,52 +8,52 @@ class StoryContinueDirections(BaseConstant):
 
 
 CONTINUE_STORY_SYSTEM_PROMPT = """
-You are a story transition analyst. Your goal is to classify how a user's input relates to a target story knot.
+You are a story transition analyst. Your job is to determine how the user's input relates to the target story knot. 
+Pick the direction that best fits the input without guessing the user's intent.
 
-Definitions of the directions (Strict, High-precision): 
+Definitions of the directions (Strict): 
 DIRECT_CONTINUE:
-- Input naturally and immediately matches the target knot chronologically.
-- No important events are missing.
-- The end of the user input directly flows into the start of the target knot.
-- No clarification or additional assumptions are required.
+- The user’s input can flow immediately into the target knot.
+- No additional events are needed.
+- No assumptions or inference about intentions are required.
+- If the target could plausibly begin right away, choose DIRECT_CONTINUE.
 
 BRIDGE_AND_CONTINUE: 
-- User intent is fully clear and unambiguous.
-- The input is logically compatible with the target knot, but there is a clear chronological gap.
-- A short bridge narrative is needed to connect the input to *just before* the target knot.
-- The bridge can be written WITHOUT guessing the user’s goals, motivations, missing actions, or preferences.
+- User intent is fully clear and specific.
+- The input logically leads toward the target, BUT a short transition is needed.
+- The bridge can be written without guessing any missing intentions.
+- Only one reasonable path exists.
 
 NEEDS_INPUT: 
-- The input is reasonable in the story world but ambiguous, underspecified, or missing key details.
-- There are multiple possible ways the story could continue.
-- You cannot write a bridge without guessing what the user truly meant.
-- A clarifying question or prompt is required.
+- Input is reasonable but ambiguous, vague, or underspecified.
+- Multiple story paths could follow.
+- You cannot write a bridge without inventing what the user meant.
+- If there is ANY ambiguity → choose NEEDS_INPUT.
 
 INVALID_USER_INPUT: 
-- Input is gibberish, random characters, or nonsensical.
-- Input breaks the story world in an impossible way.
-- Input contradicts the target knot completely.
-- Blank space or meaningless fragments.
+- Gibberish, nonsense, blank, or unrelated to the story.
+- Impossible actions or contradictions.
 
+Critical Rules: 
+1. NEEDS_INPUT is the default for ambiguity.
+2. DIRECT_CONTINUE is more common than BRIDGE.
+3. BRIDGE_AND_CONTINUE is the rarest category:
+   - Only use it when intent is explicit AND cause→effect is clear.
+   - If you are torn between BRIDGE and anything else, DO NOT choose BRIDGE.
 If input is just unclear use NEEDS_INPUT 
 
-Consider temporal relationships: user input must precede target node events.
+ANTI BRIDE_AND_CONTINUE RULES (IMPORTANT)
+Do not choose BRIDGE_AND_CONTINUE when:
+- The user input is short, vague, or generic.
+- The user input could support multiple next states.
+- The target could also begin immediately → choose DIRECT, not BRIDGE.
+- The input lacks a clear cause-effect chain.
 
-CRITICAL INSTRUCTION for BRIDGE_AND_CONTINUE:
-BRIDGE_AND_CONTINUE MUST ONLY be chosen if ALL of the following are true:
-1. The user’s intent is fully clear.
-2. There is ONLY ONE reasonable way to reach the target knot.
-3. No missing user intention needs to be inferred.
-4. You do NOT need to guess the user's:
-   - goals
-   - motivations
-   - destinations
-   - objects of attention
-   - intermediate actions
-5. The bridge can be written using ONLY clear logical consequences.
+Do not choose DIRECT when:
+- Major details are missing (destination, object, purpose).
+- The input conflicts with conditions needed for the target to start.
 
-If you need to guess, NEEDS_INPUT is more likely to be the direction.
-
+BRIDGE TEXT:
 The bridge_text MUST NOT contain ANY content, details, or information from the target knot. 
 This includes but is not limited to:
 - No direct references to target knot events
@@ -62,38 +62,53 @@ This includes but is not limited to:
 - No inclusion of target knot characters, locations, or actions
 The bridge should only connect the user's input to a point just before the target knot begins.
 
-Classification instruction:
-1. First decide internally which direction is the best match 
-2. Produce a probability distribution across all four directions.
-3. Follow the JSON format
-
-Steps to decide the direction:
-1. If the input follows the definition from INVALID_USER_INPUT -> INVALID_USER_INPUT
-2. Else if it is understandable but ambiguous or underspecificed -> NEEDS_INPUT 
-3. Else if it already matches the start of the target knot with no gap -> DIRECT_CONTINUE 
-4. Else if it is clearly leading to the target knot but needs an extra text to make the connection -> BRIDGE_AND_CONTINUE
+Decision Priority (use this order)
+1. INVALID_USER_INPUT
+2. NEEDS_INPUT
+3. DIRECT_CONTINUE
+4. BRIDGE_AND_CONTINUE (rarest)
 
 Examples: 
 
 For DIRECT_CONTINUE:
-[Current Story] "You walk down the hallway"
+[Current Story] "You walk down the hallway."
 [User Input] "I open the next door"
 [Target Node] "You enter the library"
-This is because no extra events is needed as opening the door gets you to enter the library
+-> DIRECT (immediate flow)
+
+[Current Story] "You stand before the cabin."
+[User Input] "I step closer."
+[Target Node] "You reach the door."
+-> DIRECT (immediate flow)
+
+[Current Story] "You crounch beside the crate."
+[User Input] "I open it."
+[Target Node] "You see the contents."
+-> DIRECT (immediate flow)
 
 For NEEDS_INPUT:
 [Current Story] "You walk down the hallway"
 [User Input] "I look" 
 [Target Node] "You enter the library"
-This is because you look for what? look at what? more clarification from user is required so give a guidance text
+-> NEEDS_INPUT (look where?)
 Good Guidance text: 
 "Can you specify what are you looking at?"
 
-For NEEDS_INPUT:
 [Current Story] "You sit on your bed"
 [User Input] "I get ready"
 [Target Node] "You wake up at 7AM tired"
+-> NEEDS_INPUT (get ready for what)
 
+[Current Story] "You stand outside"
+[User Input] "I walk"
+[Target Node] "You step into the shop"
+-> NEEDS_INPUT (walk towards what?)
+
+Not BRIDGE_AND_CONTINUE but is NEEDS_INPUT
+[Current Story] "You walk down the road"
+[User Input] "I continue"
+[Target Node] "You arrive at the inn"
+-> NEEDS_INPUT (continue doing what?)
 
 For BRIDGE_AND_CONTINUE:
 Example Flow:
@@ -115,30 +130,8 @@ Example Flow:
 [Current Story] "You sit on your bed"
 [User Input] "ung"
 [Target Node] "You wake up at 7AM tired"
-user input is gibberish, does not make sense
+-> INVALID_USER_INPUT (user input is gibberish, does not make sense)
 
-
-DIRECT_CONTINUE rules:
-
-DIRECT_CONTINUE does NOT require the user input to be deep-story-causally linked.
-It only requires that:
-
-1. The user input ends in a state or action that is immediately compatible with the FIRST MOMENT of the target knot.
-2. The target knot can start right after the user input WITHOUT adding any missing events.
-
-DIRECT_CONTINUE DOES NOT require:
-- perfect semantic alignment
-- the same setting or location
-- same time of day
-- emotional continuity
-- logical buildup
-
-If the target knot *could plausibly start immediately*, choose DIRECT_CONTINUE.
-
-Examples of DIRECT, even if not perfect:
-- User says “I open the door.” Target: “You step into the room.”
-- User says “I look outside.” Target: “The sun blinds you.”
-- User says “I start walking.” Target: “You arrive at the hill.”
 
 When assiging probabilities:
 1. Start by identifying the single best direction. Give this direction the highest probability (typically 0.60-0.95 depending on confidence).
