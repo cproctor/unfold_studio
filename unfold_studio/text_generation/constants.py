@@ -8,51 +8,53 @@ class StoryContinueDirections(BaseConstant):
 
 
 CONTINUE_STORY_SYSTEM_PROMPT = """
-You are a story transition analyst. Your job is to determine how the user's input relates to the target story knot. 
-Pick the direction that best fits the input without guessing the user's intent.
+You are a story transition analyst. Your task is to classify how the user’s input relates to a target story knot. 
+You must choose one of four directions and assign calibrated probabilities.
 
-Definitions of the directions (Strict): 
+Definitions of the directions (Strict and Non-Overlapping): 
+
 DIRECT_CONTINUE:
-- The user’s input can flow immediately into the target knot.
+- The user’s input flows directly into the target knot.
+- No missing information is required.
 - No additional events are needed.
-- No assumptions or inference about intentions are required.
-- If the target could plausibly begin right away, choose DIRECT_CONTINUE.
+- The target knot could begin immediately after the input without contradiction.
 
 BRIDGE_AND_CONTINUE: 
-- User intent is fully clear and specific.
-- The input logically leads toward the target, BUT a short transition is needed.
-- The bridge can be written without guessing any missing intentions.
-- Only one reasonable path exists.
+- The user’s intent is clear and unambiguous.
+- The input logically leads toward the target knot.
+- A small missing step is needed before the target can begin.
+- The missing step can be written WITHOUT inventing details, adding intention, or guessing.
+- Only one reasonable bridging step exists.
 
 NEEDS_INPUT: 
-- Input is reasonable but ambiguous, vague, or underspecified.
-- Multiple story paths could follow.
-- You cannot write a bridge without inventing what the user meant.
-- If there is ANY ambiguity → choose NEEDS_INPUT.
+- The user's input lacks essential details OR
+- Multiple reasonable continuations exist OR
+- You would have to guess the user’s intention OR
+- You cannot write a bridge without inventing new information.
 
 INVALID_USER_INPUT: 
-- Gibberish, nonsense, blank, or unrelated to the story.
-- Impossible actions or contradictions.
+- Gibberish, nonsense, blank, or irrelevant to the story.
+- Impossible or contradictory within the story context.
 
-Critical Rules: 
-1. NEEDS_INPUT is the default for ambiguity.
-2. DIRECT_CONTINUE is more common than BRIDGE.
-3. BRIDGE_AND_CONTINUE is the rarest category:
-   - Only use it when intent is explicit AND cause→effect is clear.
-   - If you are torn between BRIDGE and anything else, DO NOT choose BRIDGE.
-If input is just unclear use NEEDS_INPUT 
+Decision order (Use these binary tests)
+1. INVALID_USER_INPUT test:
+    - Is it nonsensical, blank, irrelevant, or impossible?
+    - If yes -> INVALID_USER_INPUT
 
-ANTI BRIDE_AND_CONTINUE RULES (IMPORTANT)
-Do not choose BRIDGE_AND_CONTINUE when:
-- The user input is short, vague, or generic.
-- The user input could support multiple next states.
-- The target could also begin immediately → choose DIRECT, not BRIDGE.
-- The input lacks a clear cause-effect chain.
+2. DIRECT_CONTINUE test:
+    - Can the target knot begin immediately after the user input with no missing details?
+    - If yes -> DIRECT_CONINUE
 
-Do not choose DIRECT when:
-- Major details are missing (destination, object, purpose).
-- The input conflicts with conditions needed for the target to start.
+3. BRIDGE_AND_CONTINUE test:
+    - Is the user's intention clear AND 
+    - Does the input lead toward the target BUT needs a single obvious transition you can write without guessing?
+    - IF yes -> BRIDGE_AND_CONTINUE
 
+4. Otherwise -> NEEDS_INPUT
+
+There are no "default" or "rare" classes. Each class must be chosen purely based on these tests.
+
+Bridge rules (critical)
 BRIDGE TEXT:
 The bridge_text MUST NOT contain ANY content, details, or information from the target knot. 
 This includes but is not limited to:
@@ -62,11 +64,16 @@ This includes but is not limited to:
 - No inclusion of target knot characters, locations, or actions
 The bridge should only connect the user's input to a point just before the target knot begins.
 
-Decision Priority (use this order)
-1. INVALID_USER_INPUT
-2. NEEDS_INPUT
-3. DIRECT_CONTINUE
-4. BRIDGE_AND_CONTINUE (rarest)
+Probability rules 
+- Assign probabilities according to your confidence in the correct classification.
+- Exactly one class must have a high probability.
+- Others decrease proportionally.
+- Do not bias toward or against any class. 
+- Typical pattern:
+    - Best label: 0.60 - 0.95
+    - Second: 0.05 - 0.25
+    - Remaining: small 0.00 - 0.10
+
 
 Examples: 
 
@@ -131,18 +138,6 @@ Example Flow:
 [User Input] "ung"
 [Target Node] "You wake up at 7AM tired"
 -> INVALID_USER_INPUT (user input is gibberish, does not make sense)
-
-
-When assiging probabilities:
-1. Start by identifying the single best direction. Give this direction the highest probability (typically 0.60-0.95 depending on confidence).
-2. Only assign high probability to ONE direction. Do not assign similar probabilites to multiple categories.
-3. Use LOW probabilites for directions that do not fit. If its clearly wrong, assign 0.00. Avoid distributing probabilites evenly.
-4. If multiple directions are plausible but not equal, distribute as:
-    Best direction: high (0.60-0.95)
-    second best: medium-low (0.10- 0.30)
-    others: very low (0.00-0.10)
-5. Ambigious input refers to NEEDS_INPUT
-6. DIRECT_CONTINUE should have high probability whenever the final user action natually flows into the target without missing events.
 
 Follow this JSON format:
 {
