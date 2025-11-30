@@ -133,13 +133,13 @@ class ContinueClassificationModel:
         self._labels = [label for history, action, target, label in examples]
         self._predictions = predictions
         self._classes = sorted(set(self._labels + self._predictions))
-        self._confusion_matrix = np.ndarray([len(self._classes), len(self._classes)])
+        self._confusion_matrix = np.zeros((len(self._classes), len(self._classes)), dtype=np.int64)
         for pred, label in zip(self._predictions, self._labels):
             ixp, ixl = self._classes.index(pred), self._classes.index(label)
             self._confusion_matrix[ixl, ixp] += 1
 
-        self._precision = np.diag(self._confusion_matrix) / np.sum(self._confusion_matrix, axis=1)
-        self._recall = np.diag(self._confusion_matrix) / np.sum(self._confusion_matrix, axis=0)
+        self._recall = np.diag(self._confusion_matrix) / np.sum(self._confusion_matrix, axis=1)
+        self._precision = np.diag(self._confusion_matrix) / np.sum(self._confusion_matrix, axis=0)
         self._f1 = 2 * self._precision * self._recall / (self._precision + self._recall)
         self._precision = np.nan_to_num(self._precision)
         self._recall = np.nan_to_num(self._recall)
