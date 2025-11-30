@@ -1,21 +1,4 @@
 label,prediction,history,action,target,explanation
-BRIDGE_AND_CONTINUE,NEEDS_INPUT,"Just another day of me in this dusty old stand.
- The customers start flowing in.In the crowd, a person catches my eye. a woman with upturned eyes, plump lips, and freckles apears.She looks like one of those people who have a ""smiling face"". Customer no.1: ""Hello today! you sell Splorgs right? can I have one?
- me: oh sure..
-customer: yay, thank you! i shall reward you with one of my sheep!
-","You're welcome! *she walks away.*
-","Well guess what! *the customer started to grow in size, their teeth sharpen they transform into a purple snake like figure, i freeze, sweat dripping down my neck. the grue opens its mouth as you chench your fists as hard as you can as you meet your demise.
-too bad!
-",The input does not provide enough context or action that leads towards the transformation of the customer into the snake-like figure.
-BRIDGE_AND_CONTINUE,DIRECT_CONTINUE,"The Pharaoh, aka My Human, returns from battle smelling like sweat and horse. Gross. You sit there, licking your paw, pretending not to notice their triumphant return, because honestly, what's the big deal? You’ve seen birds fight more impressively in the courtyard.
-Your Human calls out your name, expecting you to rush over like some common dog. Pfft. They should know better. You are royalty, after all. A divine creature worshipped by many. And yet, they haven’t refilled your water bowl today. Priorities, humans.
-","You saunter off, your tail high in the air, not caring one bit that your Human is calling after you. They should know by now that you don’t come when summoned. Who do they think you are? A dog? The audacity.
-You make your way to your favorite sunny spot near the window, ignoring the faint sound of your Human grumbling about your disloyalty. Disloyalty? Please. You’re a cat. Loyalty is a myth, and humans are too easily fooled by a simple head nuzzle.
-You stretch luxuriously, sinking into a deep nap. You dream of birds that never fly away and fish that jump straight into your paws.
-You are now seen as ""disloyal,"" but honestly, who cares? You’re a cat. And you do what you want.
-","You choose to do nothing. The humans fight amongst themselves, and the kingdom falls apart, but you? You nap. You find a sunny spot, curl up, and let the world crumble around you.
-The other cats know you could have done something, but, honestly, you’ve got better things to do. Like sleeping.
-",The user input aligns perfectly with the target knot. The cat ignoring the human and choosing to nap in a sunny spot flows directly into the target knot's events where the kingdom falls apart but the cat continues napping.
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
  Oh great!! I am so happy... that means you will help me mummify my hamster. He just passed away 2 days ago. Oh... don't look sad... he's going to be totally fine. We will send him off to the afterlife with all the things he needs. I know exactly what we will do!! Come on!! 𖡼𖤣𖥧𖡼𓋼𖤣𖥧𓋼𓍊
  Okay. The first thing we have to do is wash Poptart in wine and in the waters of the Nile. Ofcourse, the Nile is a million miles away, so sink water will do. I'm not sure what to do next... Haha... If we get this wrong, Poptart might not make it into the afterlife. HELP!
@@ -23,20 +6,25 @@ NEEDS_INPUT,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends?
  Are you sure? Okay... lets dip Poptarts body in a salt called natron. This will get rid of all the liquids and hopefully he won't smell so bad. Yikes.
 ","Seems like it takes 40 days to dry him out. I'll plot him out in the sun... 𐔌՞꜆. ̫.꜀՞𐦯
 ","Let's check with the teacher to see if we mummified him correctly The teacher asks: What order did you do it in? The correct order: jar, salt, dry, wrap, coffin. It must be in this exact order. We can not ensure that his soul will travel safely without these specific measures.
-","The user's input indicates a clear step in the mummification process. However, a small transition is needed to proceed to the teacher's check and query."
+","The user input makes it clear that drying the hamster out will take 40 days. The only logical action is to move forward in time to after the drying process, leading to a check with the teacher."
 NEEDS_INPUT,DIRECT_CONTINUE," You leave your mother, who is grinding the wheat to make bread. Your dad and brother are planting seeds, and starting to work on an irrigation system. When you go to ask your neighbor, they tell you that the water that they have is too little to share. They apologize but now you have to walk the long distance to the Nile.
  When you reach the Nile, you discover that all the water has gone murky and there is no clean water for your farm! To add to that, all the fish are dead, and that is an important source of food for you and the other farmers!
  You start your journey and start scouting the Nile. Pretty soon, you see people carrying large buckets of water to a house.
  You soon come to the house that has loads of water! You are happy! But, the owner of the house looks like an old man.
 ","You march up to the old man and tell him to give you water. He looks at you and gives you the silent treatment. You start to feel awkward.
 ","You march up to the old man and tell him to give you water. He looks at you and gives you the silent treatment. You start to feel awkward.
-","The user input is identical to the target knot, which means the target knot can begin immediately after the user input without any missing details."
+",User input exactly matches the target knot. No additional events or clarification are needed.
+BRIDGE_AND_CONTINUE,NEEDS_INPUT,"You are Osiris, god of the afterlife, and you need to judge people to see if they are worthy of going to the afterlife. It is the start of a normal day of judging, as the first mortal approaches
+ A farmer comes. He has brown hair that makes him look like a hippie. He took care of his family and gave many generous donations to other people in Egypt. He got his money by theft, but he only stole from the rich people, they had plenty of riches to go around!
+","An ugly person approaches, she is quite innocent, and raised a family in egypt. She worked for the pharoh himself, but once droped his food in salt and blamed it on somebody else. It wasn't her fault, if she got fired her family could starve!
+","oof... You are shamed forever. NEVER. INCINERATE. SOMEBODYS. DONUT!!!
+","It is not entirely clear how the scenario of the innocent woman leads directly to the shaming event involving the donut, and multiple actions or intentions could fill this gap."
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"""Welcome, Abasi farmer, father, and stealer!"" a strange voice booms. ""I am Anubis. I will guide you to us. If you are worthy, you will pass these three tests and be granted into the Field of Reeds and a life in paradise, but if you fail, you will spend your afterlife in doom!"" You frantically open your eyes and stand up. You see three gems with animals on them, and then you see words that read...What meat did Egyptians consume?
  ""You may continue...""
 Which illness in ancient Egypt was most common?
 ","you have passed the first two tests. You move passed a sandy gate,than you see lava in front of you there is no way across. you look up to see a black book in floating toward you it drops in your hand. The book is coverd in hieroglyphics and locked. You know just by looking at it this is the ancient egyptian book of the dead. Just than you see another riddle that says... ancient egyptian pyrimds are
 ","Stepping stones appear, and you step across with the book in hand. All of a sudden, the lock opens. You open the book and find hieroglyphics that instruct you on how to speak to different gods. ""It will come to be a great help now that you have completed all the challenges,"" then a door opens.
-",The user's input provides a clear lead-up to the target knot scenario but needs a bridge to transition to the appearance of stepping stones.
+",The user input presents a clear and logical progression leading to just before the target knot. The bridge text can logically transition by describing the solving of the riddle and reaching the stepping stones.
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"The Pharaoh, aka My Human, returns from battle smelling like sweat and horse. Gross. You sit there, licking your paw, pretending not to notice their triumphant return, because honestly, what's the big deal? You’ve seen birds fight more impressively in the courtyard.
 Your Human calls out your name, expecting you to rush over like some common dog. Pfft. They should know better. You are royalty, after all. A divine creature worshipped by many. And yet, they haven’t refilled your water bowl today. Priorities, humans.
  Ah, yes. The good life. My Human finally scratches behind your ears, and, though you pretend it’s not a big deal, a purr slips out before you can stop it. You may be the ruler of the palace in your own mind, but you know how to play the game. They scratch your ears, you purr. You purr, they feed you. It’s a flawless system.
@@ -47,46 +35,32 @@ The other cats gather around you, nodding in agreement, their eyes narrowed in f
 The humans are clearly incompetent, and the time has come for cats to take back what’s rightfully theirs: fish, mice, and the softest pillows in the kingdom.
 ","You choose to do nothing. The humans fight amongst themselves, and the kingdom falls apart, but you? You nap. You find a sunny spot, curl up, and let the world crumble around you.
 The other cats know you could have done something, but, honestly, you’ve got better things to do. Like sleeping.
-","User's input clearly indicates a discontent with the humans which, if left unacted upon, logically leads towards a decision not to intervene in human affairs, setting up the target knot."
-NEEDS_INPUT,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
- Oh great!! I am so happy... that means you will help me mummify my hamster. He just passed away 2 days ago. Oh... don't look sad... he's going to be totally fine. We will send him off to the afterlife with all the things he needs. I know exactly what we will do!! Come on!! 𖡼𖤣𖥧𖡼𓋼𖤣𖥧𓋼𓍊
- Okay. The first thing we have to do is wash Poptart in wine and in the waters of the Nile. Ofcourse, the Nile is a million miles away, so sink water will do. I'm not sure what to do next... Haha... If we get this wrong, Poptart might not make it into the afterlife. HELP!
-","Are you sure? Okay... I dont think I can do this part. Can you do it?? All you have to do is take out his liver, lungs, intestines and stomach. Then, I'll clean them and put them in these mason jars. I know we are supposed to use canopic jars, but they didnt sell them at target... i think the gods will understand. Oh, we can't forget to put the heart back in - its special.
-","Seems like it takes 40 days to dry him out. I'll plot him out in the sun... 𐔌՞꜆. ̫.꜀՞𐦯
-","The user's input logically leads towards the target, but a small step is needed to transition from organ removal to plotting the hamster in the sun for drying."
-NEEDS_INPUT,BRIDGE_AND_CONTINUE,"It is a beatiful day in egpyt. Your are Cleopatra VII Thea Philopator the ruler of a kingdom. You are 23 you have got a bug bite and yoou need a doctor. You will....
-","you walk outside in the sandy road a guy named Antony (Mark Antony was a politician who assisted Julius Caesar and took on the role of leader after Caesar's assassination) mark comes up to you and ask you if you want to talk.
-","Every day anonty comes over to your palace, soon you fall in love with him.
-",The intention is clear: the user is setting up the initial meeting with Antony. A small bridging step is needed to transition from this encounter to Antony visiting the palace regularly.
-NEEDS_INPUT,DIRECT_CONTINUE,"You are a royal cat, revered by all your subjects. And your name? Tangerine. You are given an invitation to go to battle to fight for your loyal subjects. BUT, you cannot bring any treats, fish or toys. And if you don't accept, your owner will drag you there anyways. The invitation does not allow you to bring your subjects as well. Now you must leave the love of your life, Strawberry Shortcake, behind to go fight this epic battle. Do you...
- You arrive in a small clearing. There is a storm, and you are freezing cold. You try to go back, but can't. Then, you PASS OUT! You wake up in the Duat. A ghost looks at you then says ""Find your soul."" You feel a prickle of indignance. You are royal. Even if you are dead. Soooooo...
- Ok, you see a temple.
- You see a scroll and a box. What do you do?
- You pick up the scroll. There is a riddle on it. The scroll says: iF YOu sloVe ThIs riDDle, YoU kEEP YouR SOul fOUr ThrEE NigHtS. MUAHAHAHAHA. ThE RiDDle iS: IT hAs oNE haS ONe eYe buT cAN't sEE
- Scroll:CoRRecT. It IS In the BOx. Your mind:You feel your soul rushing back. Scroll: NOw gO.
- When you arrive, you see a starving soul. Soul: PLEASE. Get me that fruit. Please!
- ok, now you somehow teleported to a giant sequoia. It's branches provide much needed rest. You know understand that, in a way it is good that you are here, so you can guide your subjects. One of your subjects appears, meowling. This kitten is obviously freezing. You could give up the last thing that connects you to Strawberry Shortcake, a blanket that she once napped in. But, you also need it for the cold. What do you do?
- The kitten transforms into a wizard and gives you warmth. You arrive at the Hall of Judgment. You are weighed. You have... SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED SURVIVED!
- You are a royal cat, revered by all your subjects. And your name? Tangerine. You are given an invitation to go to battle to fight for your loyal subjects. BUT, you cannot bring any treats, fish or toys. And if you don't accept, your owner will drag you there anyways. The invitation does not allow you to bring your subjects as well. Now you must leave the love of your life, Strawberry Shortcake, behind to go fight this epic battle. Do you...
-","You arrive in a small clearing. There is a storm, and you are freezing cold. You try to go back, but can't. Then, you PASS OUT! You wake up in the Duat. A ghost looks at you then says ""Find your soul."" You feel a prickle of indignance. You are royal. Even if you are dead. Soooooo...
-","box:HEY! IM NOT A TOY. YOU WILL PAYYYYYYYYYY!!!!!:( ummmmmm......
-",The user input almost perfectly matches with the previous part of the story and leads into the target knot without any additional details necessary.
-DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
+","The user input clearly sets up a scenario of dissatisfaction and considers rebellion, but the target knot outcome involves choosing to do nothing. A short bridge can transition the narrative from considering rebellion to opting out of it, leading to the target knot."
+DIRECT_CONTINUE,NEEDS_INPUT,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
  Oh great!! I am so happy... that means you will help me mummify my hamster. He just passed away 2 days ago. Oh... don't look sad... he's going to be totally fine. We will send him off to the afterlife with all the things he needs. I know exactly what we will do!! Come on!! 𖡼𖤣𖥧𖡼𓋼𖤣𖥧𓋼𓍊
 ","Okay. The first thing we have to do is wash Poptart in wine and in the waters of the Nile. Ofcourse, the Nile is a million miles away, so sink water will do. I'm not sure what to do next... Haha... If we get this wrong, Poptart might not make it into the afterlife. HELP!
 ","We did it! I'm so proud of us. Let's put some sunflower seeds, chocolate, a little wheel, fruits and some toys in his tomb. I build one in the backyard with bricks, mud, and clay 𓂀𓋹𓁈𓃠𓆃☥𓅓𓆣 Oh and we might need to write out the book of the dead on the walls. Hopefully he can read heiroglyphics.
-",The user's intent is clearing leading toward mummification preparation but requires a short and obvious next step before proceeding to the target knot.
+",The user's input stops at the washing step and does not provide specific actions needed to transition to the target knot of building a tomb and placing items in it. It's unclear what the next steps should be without assuming the user's intentions.
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You are a young villager living in the shadow of the misty Graythorn Mountains. One morning, after a strange dream filled with fire and whispers, you awake to find your hands covered in silver dust. You hear a call from deep in the forest— something is waiting. You...
 ","You enter the nearby forest in search for the call, bringing few supplies. With shovel in hand and an unlit lantern in the other, you decide to…
 ","At the end of the long tunnel, you reach a magically bright room. Filled with riches wall to wall, somehow your gaze
 is attracted to an item in the center of the room. Laying on an ancient oaken table, the sheathed sword calls you.
-",The user's intention to search for the call in the forest is clear and logically leads toward finding the tunnel. A small bridge is needed to transition from the user's current actions to reaching the tunnel and ultimately arriving in the magically bright room.
+",The user's input is clear as they enter the forest in search of the call. A short narrative bridge can connect this input to the start of the target knot.
+NEEDS_INPUT,BRIDGE_AND_CONTINUE,"Welcome to GMS!
+ CROSS THE PARKING LOT
+Tiffany waves for you to cross in front of the line of waiting cars. You smile as you pass by.
+","PLAY ON THE TURF
+As you walk into school, you take a big swing at the kickball.
+You see your friend up ahead and rush to catch up.
+","TIME FOR CLASS
+You enter Room 6 and get ready Computer Science!
+","The input provides a clear and unambiguous sequence of actions that could logically lead to entering Room 6 for class. However, there is a clear gap between playing on the turf and entering the classroom."
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You are a cat named Kat. You wake up and hear squeaks outside your window. The Hammysters!
 ","You find it fit, as a royal cat, to chase them. you stalk them, slowly and silently, and once you're close enough, you leap. buuuuuuut there's glass on the window and you slam into it.
 Your head is bleeding, what do you do?
 ","You open your jaws to yowl, but you're losing a lot of blood and faint instead.
 You blink your eyes open. You survived! after having your eyes open for so long, the light is almost blinding. You peer into a crytal clear pool to look at your handsome reflection, but see something else. ""I'M DEAD???"" you screech. You dive into the pool and find yourself in the room where your dead body lies, ready for mummification. Your ghost circles your dead body and the medic mummifying it. The medic holds a nail near your head.
-","The user's input describes a sequence of events that makes it clear how it could lead to the target knot, but needs a clear transition step due to the substantial injury mentioned."
+","The user's intent is clear, and there is only one reasonable way to connect the user input to the target knot."
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You have been sent to a secret workshop once belonging to Leonardo da Vinci himself, hidden deep in the hills of Florence. The workshop was believed to hold lost designs and inventions of great value. However, rival factions and secret guardians lurk in the shadows, protecting the secrets. Your mission: Retrieve the precious sketches and escape.
  After a long trek, you find a large stone workshop shaped like an Earth-sheltered vault. Your codex warns this is not where the prized sketches lie. Suddenly, you spot a figure in the shadows.
  A goblin-like automaton appears with back turned. Suddenly it flees!
@@ -96,34 +70,40 @@ DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You have been sent to a secret workshop onc
  Half the code is visible. You fear making a mistake.
 ","You zap the keypad; doors rumble open. But an angry guardian charges towards you.
 ","You scramble buttons and spring the defenses. You flee in as the guardian struggles to follow.
-","The input logically leads to the target knot, as the user is currently dealing with the guardian, and needs to bypass defenses. A minimal narrative bridge can connect the user's input to target knot without the need for guessing."
+","User's input logically leads to the target knot, but requires a narrative transition to connect the guardian's charge to scrambling the defenses and fleeing."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"Hello. Your name is AMALIE, and you are 13. My name is MUFFY, and i'm your dog. Yes, I can talk. Before I keep going, do you want to be dead or alive?
 ","Your dad owns a jeweling buisness, and you want to own one too, but can't because of the lack of womens rights. Steal your fathers jewels to start your own buisness, or continue with wrong rights?
 ","You run away. You have 53 jewels that you stole from your dad. Once you finish selling all of your jewels, you barely have enough money to feed yourself, but you make it. You can go home, or go mining.
-",The user's intent (stealing the father's jewels to start a business) is clear and connects logically to the target knot where the character ends up having jewels and deciding what to do next.
+","While the intent to steal jewels is clear, a bridge is required to explain the actual theft and running away."
 NEEDS_INPUT,DIRECT_CONTINUE,"You sit down on a bench. There is a man next to you. He looks grumpy.
  Yay!
 ","Yay!
 ","Yay!
-",The user's input matches the target knot exactly and can immediately follow without any missing details.
-NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You have been sent to a secret workshop once belonging to Leonardo da Vinci himself, hidden deep in the hills of Florence. The workshop was believed to hold lost designs and inventions of great value. However, rival factions and secret guardians lurk in the shadows, protecting the secrets. Your mission: Retrieve the precious sketches and escape.
- After a long trek, you find a large stone workshop shaped like an Earth-sheltered vault. Your codex warns this is not where the prized sketches lie. Suddenly, you spot a figure in the shadows.
- A goblin-like automaton appears with back turned. Suddenly it flees!
- A monstrous guardian chases the automaton and rips it apart cleanly.
- Panicking, you draw your taser and dash toward the workshop entrance.
- You reach the door; requires a code. Nearby is a dusty scroll note.
-","Half the code is visible. You fear making a mistake.
-","You charge as the guardian nears dragging its injured form.
-","User's intention of dealing with the code is clear, but a clear bridging action is needed to connect it to the guardian encounter."
+","The user input 'Yay!' exactly matches and naturally transitions to the target knot, which is also 'Yay!'. Both the context and user input are identical."
+BRIDGE_AND_CONTINUE,NEEDS_INPUT,"Meryet. That is your name. As a doctor in training you were very dedicated. Following your moms story. Always making sure that others were feeling good before youself. But of course you also cared about yourself. But one day you were out walking and you were not paying attention. You were walking quickly for you saw someone who accidently inhaled too much sand. You were running over and you did not see the chariot coming right at you and then BAM! You wake up to see Osiris, the king and supreme judge, ruling over the dead and Ammit, ""devourer of the dead"" standing in front of you. What should you do?
+ Osiris starts talking and you quietly listen. Osiris feels your attention and is pleased. Osiris keeps talking and talking and talking...
+","Osiris keeps talking and realizes that he was talking for a while and takes a pause. He askes a question to her. A very important one.
+""Do you think of yourself as a kind, good, and a caring person?"" Osiris asks...
+","You take a big step foreward and say:
+""I am ready.""
+Then osiris carefully takes her heart and puts it on the scale. It drops imediatley, then the feather from Ma'at (truth and justice) is put on the scale...
+It teeter totters and takes a while to stop. You wait patiently the thought of meeting your ancestors blinding you. A bright hole shimmering with gold is opened and you can see a party going on, on the other side. You look at the scale and see that your heart has taken place above the feather. You look up see Osiris and Thoth floating up slowly smiling.
+""Good job Meryet, you may pass."" Thoth says as Ammit slowly desolves
+""I am afraid I must go. Good job!""
+","The user input leaves an ambiguity about Meryet's reaction to Osiris's question, and multiple outcomes could follow from this point."
+NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You are about to challenge a man to a dule.
+","You find yourself in unfamiliar land.
+","You slowly make your way to Osiris.
+",The user's input is clear and can logically lead to the target knot. A short narrative bridge can connect the journey from the unfamiliar land to reaching Osiris for the duel.
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"It is a beatiful day in egpyt. Your are Cleopatra VII Thea Philopator the ruler of a kingdom. You are 23 you have got a bug bite and yoou need a doctor. You will....
  you walk outside in the sandy road a guy named Antony (Mark Antony was a politician who assisted Julius Caesar and took on the role of leader after Caesar's assassination) mark comes up to you and ask you if you want to talk.
 ","You decide also ditch the idea for a doctor.to talk to him and he ask if you want to patners with him.
 ","Every day anonty comes over to your palace, soon you fall in love with him.
-","The user’s input indicates a clear decision to engage with Antony, yet it requires a small bridging step to seamlessly lead towards the target knot where Antony visits the palace frequently."
+","The intent seems clear, indicating a conversation and partnership which can logically flow into the target knot of falling in love with Antony."
 NEEDS_INPUT,INVALID_USER_INPUT,"Do your toes ever itch? Let me tell you about my toes. They're incredibly itchy.
 ","Hello! We are interested in hiring a foot model to advertise our new line of sandals. Are you interested?
 ","This is part 4.
-",The user's input is irrelevant to the context of the story about itchy toes.
+","The input introduces an abstract, unrelated scenario that does not align with the story context, making it impossible to proceed along the current narrative path."
 BRIDGE_AND_CONTINUE,NEEDS_INPUT,"The hot sun beats down on you as you approach the Great Sphinx of Giza, its massive stone form towering over the desert sands. Its body, a blend of lion and human, is weathered yet majestic, carved from the very bedrock of the earth. Intricate hieroglyphics adorn its surface, telling tales of ancient gods and long-lost pharaohs. Its eyes, ancient and wise, seem to pierce through your soul, holding secrets that have endured for millennia.
 As you draw closer, a shiver runs down your spine, both awe and trepidation washing over you. The sheer size of the Sphinx is overwhelming; it looms like a guardian of time itself, and you feel the weight of history pressing against your chest. As you step forward, the ground trembles beneath your feet, and a deep, echoing voice fills the air, resonating with a power that seems to vibrate in your bones.
 Sphinx: ""Traveler, you stand before the guardian of Egypt's mysteries. To pass me, you must prove your worth by solving four riddles. Fail, and your journey will end here, among the sands.""
@@ -144,88 +124,34 @@ I have many faces but show only one.
 I keep track of the sun and the stars.
 What am I?""
 What is your answer?
-","The user has introduced a different riddle, creating ambiguity in terms of continuation direction."
+","User introduced a riddle that is out of sequence. The intent of the input is clear, but it creates ambiguity about how the riddles should progress chronologically."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"Welcome to splorg mania! This is just a little game where you live the life of a merchant, who's a splorg breeder. Will you get rich or have to get eaten by a grue, get canceled, and more? What will you choose? :P
 I get up from my sleeping mat. I look at all the hay that's left all over my hut. I'll clean it after work. I start to pack my stuff and go to my stand. It takes only 5 minutes by foot to get there. As I enter my stall, I sigh. "" Just another day of this dusty old stall.
  The customers start flowing in. In the crowd, a person catches my eye. A woman with upturned eyes, plump lips, and freckles skips in. She finger combs her brown hair, with a tinge of grey at the roots. ""Hello today! You sell Splorgs, right? Can I have one?"" She motions to one of the splorgs.
 ","I accept and grab one and put it down on the counter. ""Yay, thank you! I shall reward you with one of my sheep!""
 ","They quickly hand me a fistful of grain and sprint away. ""Thank you!"" They yell as they run off. I take a look at my hand of grain.The sheep lets out a loud, hungry, bleep as It eyes the grain. No way am I giving all of this to them.I look back at my grain, counting how many there are.They are absolute FOOLS. THEY GAVE ME MORE GRAIN THAN THE SPLORGS COST! I'M RICH! AHAHAHHAHAHHAHHAH- I quickly hide my evil villain monologue as the next person enters. A slender woman with long, brown hair that matches her silver jewelry struts in. Her golden sun-kissed skin works with her pearly white dress to add a feel of well-maintained authenticity. She gently places her arms on the booth. ""Hello. The name's Ariana Grande. I have heard of your business from my coworkers."" She stops to brush down her dress. ""I think I do need a little companion. May I have one?""
-","The user's intention is clear and leads toward the target knot, but the transition needs a small bridging step that can naturally lead into the target knot."
+",The user's action of accepting the offer and placing a splorg on the counter logically precedes a transaction where they receive something in return. The grain could be the reward from the sheep trade. A short bridge can be written to connect these events.
 DIRECT_CONTINUE,NEEDS_INPUT,"""Welcome, Abasi farmer, father, and stealer!"" a strange voice booms. ""I am Anubis. I will guide you to us. If you are worthy, you will pass these three tests and be granted into the Field of Reeds and a life in paradise, but if you fail, you will spend your afterlife in doom!"" You frantically open your eyes and stand up. You see three gems with animals on them, and then you see words that read...What meat did Egyptians consume?
 ","""You may continue...""
 Which illness in ancient Egypt was most common?
 ","All the sudden the ground starts shaking and opens you fall through. You wake up finding yourself where you started.
 ""Welcome, Abasi farmer, father, and stealer!"" a strange voice booms. ""I am Anubis. I will guide you to us. If you are worthy, you will pass these three tests and be granted into the Field of Reeds and a life in paradise, but if you fail, you will spend your afterlife in doom!"" You frantically open your eyes and stand up. You see three gems with animals on them, and then you see words that read...What meat did Egyptians consume?
-",The user's input does not provide a clear direction or context leading toward the target knot.
+",The user input introduces a new query that is not directly related to the question asked in the target knot.
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You are a poor egyptian peasant who works as a personal cook for the pharoah. Today it's a beautiful day in ancient Egypt and you have the choice to stay home with your cat the only thing you love most or go to work.
 ","you arive at work and you make him breakfast. What do you make him? Honey and bread or meat and rice?
 ","the pharoah loves it so much he sends you home early but when you get home your cat is deathly sick. Do you steal some medicine for the pharoah or ask for the medicine.
-","The user input logically leads to an event where the Pharaoh appreciates the breakfast, which can result in sending the user home early."
-BRIDGE_AND_CONTINUE,NEEDS_INPUT,"The hot sun beats down on you as you approach the Great Sphinx of Giza, its massive stone form towering over the desert sands. Its body, a blend of lion and human, is weathered yet majestic, carved from the very bedrock of the earth. Intricate hieroglyphics adorn its surface, telling tales of ancient gods and long-lost pharaohs. Its eyes, ancient and wise, seem to pierce through your soul, holding secrets that have endured for millennia.
-As you draw closer, a shiver runs down your spine, both awe and trepidation washing over you. The sheer size of the Sphinx is overwhelming; it looms like a guardian of time itself, and you feel the weight of history pressing against your chest. As you step forward, the ground trembles beneath your feet, and a deep, echoing voice fills the air, resonating with a power that seems to vibrate in your bones.
-Sphinx: ""Traveler, you stand before the guardian of Egypt's mysteries. To pass me, you must prove your worth by solving three riddles. Fail, and your journey will end here, among the sands.""
-You can almost hear the whispers of the desert winds, cautioning you against the challenge ahead. The Sphinx’s paws shift slightly, revealing a hidden path beneath its body, like an invitation and a warning intertwined. The stakes are high, and a sense of urgency pulses through you; this is a moment that could define your journey.
-Sphinx: ""Are you ready to face my challenges?""
-As you stand before this mighty beast, a mix of fear and exhilaration courses through you. You know that your answers will determine your fate. There’s no turning back now; the adventure awaits, and with it, the promise of wisdom or the peril of defeat.
- Sphinx: ""Here is your first riddle:
-I have no legs, but I carry kings.
-I take them to their eternal resting place.
-What am I?""
-What is your answer?
-","The Sphinx’s eyes glow with approval.
-Sphinx: ""Correct. The Nile, the eternal river that carries Egypt’s kings in life and death.""
-The air around you seems to cool slightly as the Sphinx continues.
-Sphinx: ""Well done. But the next question is not so simple.""
-Sphinx: ""Second riddle:
-In the afterlife's hall, I am light as air,
-Placed beside the heart with utmost care.
-To pass the test, one must be pure,
-Or face a fate they cannot endure.
-What am I?""
-What is your answer?
-","The Sphinx lets out a booming laugh, echoing across the sands.
-Sphinx: ""Correct! The Pyramid, a monument that stands eternal, watching over the heavens and the earth.""
-The Sphinx slowly rises, revealing the hidden path fully.
-Sphinx: ""You have answered wisely, traveler. You may now pass.""
-The Sphinx's body shimmers, and before your eyes, it transforms into a mighty falcon, the form of the god Horus.
-Horus: ""You have passed the test of the Sphinx, proving yourself wise and brave. As a reward, I grant you safe passage and a gift from the gods themselves.""
-A golden ankh appears in your hand, glowing with a soft, warm light.
-Horus: ""This symbol of life will guide and protect you on your journey. Go forth, and may the gods watch over you.""
-With a final powerful beat of his wings, Horus flies off into the sky, leaving you with a sense of awe and purpose.
-You have successfully solved the Sphinx's riddles and received a divine blessing!
-",The input provided does not specify an answer to the riddle and lacks essential details required to move directly to the target knot.
-NEEDS_INPUT,BRIDGE_AND_CONTINUE,"The hot sun beats down on you as you approach the Great Sphinx of Giza, its massive stone form towering over the desert sands. Its body, a blend of lion and human, is weathered yet majestic, carved from the very bedrock of the earth. Intricate hieroglyphics adorn its surface, telling tales of ancient gods and long-lost pharaohs. Its eyes, ancient and wise, seem to pierce through your soul, holding secrets that have endured for millennia.
-As you draw closer, a shiver runs down your spine, both awe and trepidation washing over you. The sheer size of the Sphinx is overwhelming; it looms like a guardian of time itself, and you feel the weight of history pressing against your chest. As you step forward, the ground trembles beneath your feet, and a deep, echoing voice fills the air, resonating with a power that seems to vibrate in your bones.
-Sphinx: ""Traveler, you stand before the guardian of Egypt's mysteries. To pass me, you must prove your worth by solving three riddles. Fail, and your journey will end here, among the sands.""
-You can almost hear the whispers of the desert winds, cautioning you against the challenge ahead. The Sphinx’s paws shift slightly, revealing a hidden path beneath its body, like an invitation and a warning intertwined. The stakes are high, and a sense of urgency pulses through you; this is a moment that could define your journey.
-Sphinx: ""Are you ready to face my challenges?""
-As you stand before this mighty beast, a mix of fear and exhilaration courses through you. You know that your answers will determine your fate. There’s no turning back now; the adventure awaits, and with it, the promise of wisdom or the peril of defeat.
-","Sphinx: ""Here is your first riddle:
-I have no legs, but I carry kings.
-I take them to their eternal resting place.
-What am I?""
-What is your answer?
-","The Sphinx nods, its great stone face softening ever so slightly.
-Sphinx: ""Correct. The Feather of Ma'at, which weighs the truth of the soul.""
-The Sphinx’s massive tail sways in the sand, kicking up dust.
-Sphinx: ""You show promise, traveler. One final challenge remains.""
-Sphinx: ""Final riddle:
-I have many faces but show only one.
-I keep track of the sun and the stars.
-What am I?""
-What is your answer?
-",The riddle from the user input serves as an intermediate riddle before reaching the final one.
-NEEDS_INPUT,DIRECT_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
+","The user input is clear in its intent (preparing breakfast for the Pharaoh). After this, a bridge can be created to connect to the target knot where the Pharaoh is pleased and sends the main character home early."
+NEEDS_INPUT,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
  Oh great!! I am so happy... that means you will help me mummify my hamster. He just passed away 2 days ago. Oh... don't look sad... he's going to be totally fine. We will send him off to the afterlife with all the things he needs. I know exactly what we will do!! Come on!! 𖡼𖤣𖥧𖡼𓋼𖤣𖥧𓋼𓍊
  Okay. The first thing we have to do is wash Poptart in wine and in the waters of the Nile. Ofcourse, the Nile is a million miles away, so sink water will do. I'm not sure what to do next... Haha... If we get this wrong, Poptart might not make it into the afterlife. HELP!
  Are you sure? Okay... I dont think I can do this part. Can you do it?? All you have to do is take out his liver, lungs, intestines and stomach. Then, I'll clean them and put them in these mason jars. I know we are supposed to use canopic jars, but they didnt sell them at target... i think the gods will understand. Oh, we can't forget to put the heart back in - its special.
  Seems like it takes 40 days to dry him out. I'll plot him out in the sun... 𐔌՞꜆. ̫.꜀՞𐦯
 ","Are you sure? Okay... lets dip Poptarts body in a salt called natron. This will get rid of all the liquids and hopefully he won't smell so bad. Yikes.
 ","Let's check with the teacher to see if we mummified him correctly The teacher asks: What order did you do it in? The correct order: jar, salt, dry, wrap, coffin. It must be in this exact order. We can not ensure that his soul will travel safely without these specific measures.
-","The user's input flows directly into the target knot. They have moved correctly to the step of using salt after removing the organs, which leads directly to checking with the teacher without needing additional steps."
+",A few steps to summarize the continuation of mummification and reaching the teacher to check the order are needed before getting to the teacher's question.
 BRIDGE_AND_CONTINUE,NEEDS_INPUT,"You are 12yr old kid in ancient egypt. Choose your gender:
  Your name is hassan and you have a very difficult and hard life ahead of you.",,"You train at the temple for the next 10 years and earn enough money to employ someone to take care of your mother while you are at work. As a scribe's son, becuase your dad seavred the king,you inherit the position of scribe and rise to a higher-ranking position over the years. After becoming the Order of the Quill ( the person that handles archival, history, and civilian technology.) and your mom stable you get promoted to high scribe able to searve the king like you father once did.Suddenly your mom has an outbreak of a diese and wants you by her side at all times. Do you:
-",The user has not provided any input. A specific direction or action from the user is necessary to continue the story logically.
+",User input is missing and more information is needed to proceed toward the target knot.
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You have been sent to a planet that used to be a base for astronauts, though they did not know who lived there. Aliens killed every single one of them and tore them apart. A astronaut who was killed had something very valuble. Now you have to go retrieve it.
  After 45 minutes of walking, you come across an building shaped like an Earth Sheltered Base. It seems to be a research building. Your radar however tells you that this isn't where the valuable ""something"" is at.
 Suddenly you see a figure in the corner of your eye.
@@ -233,17 +159,13 @@ Suddenly you see a figure in the corner of your eye.
  It wasn't long until your wonderings stop short when an Apex Alien begins to pursue the Goblin at high speeds. It pounces on the helpless Goblin and impales it with its two arms. The HobGoblin roars as its lifted from the ground by the Apex's arms. To your horror, it swiftly splits the HobGoblin into two clean halves.
 ","You panic and withdraw your taser. A dash to the entrance of the Earth Shelter is made.
 ","You place your taser on the keypad's screen and press fire. The door suddenly jolts open with the huge amounts of volts discharged by the taser.
-",The input logically leads toward the target but requires a small step to reach the keypad and take action.
+","The user's intent is fully clear, and there is only one reasonable way to logically bridge the gap: describing the user reaching the door and preparing to use the taser on the keypad."
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You are about to challenge a man to a dule.
  This was the man that killed your brother. That man... He killed your family but not you...Why?
  You are currently thirteen and you are trying to kill the man that has murdered your last living family member. He has harrased the royal families of Egypt and all whom sides with them. Your name is @*%$^$^. Your destiny is to kill him... You are Egyptian. You are likely to die. You are the desentant of Nefrititi and your jouney will be perlious and daring. You are in Egypt. All of Egypt is counting on you.
 ","You find a map in your pocket...
 ","You find that you are next to the Nile river a crucial part of the Egyptian life. The Nile provides fish, trade for Egyptians, and the only water source in Egypt.
-","The user’s input provides a potential direction (finding a map) that logically leads toward discovering the Nile, but an explicit step of consulting the map to head to the Nile is needed."
-NEEDS_INPUT,BRIDGE_AND_CONTINUE,"It is a beatiful day in egpyt. Your are Cleopatra VII Thea Philopator the ruler of a kingdom. You are 23 you have got a bug bite and yoou need a doctor. You will....
-","you walk outside in the sandy road a guy named Antony (Mark Antony was a politician who assisted Julius Caesar and took on the role of leader after Caesar's assassination) mark comes up to you and ask you if you want to talk.
-","Every day anonty comes over to your palace, soon you fall in love with him.
-",The intention is clear: the user is setting up the initial meeting with Antony. A small bridging step is needed to transition from this encounter to Antony visiting the palace regularly.
+","The finding of the map can reasonably lead to reaching the Nile river, though a brief connecting narrative is needed."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You are a new egyptologist who specifically studies food culture. One day, on your field day at work, you stumble upon an interesting text in the the tomb of Rekhmire. Rekhmire was a high priest of Heliopolis.
 After investigating a combination of pictures and heiroglyphics, you find out... ""ITS A RECIPE"". This is groundbreaking to learn about. You have never seen a recipe from ancient egypt before. This could tell you so much about what kinds of foods they ate!
 The recipe looks like it is for some kind of cone-shaped cake.
@@ -269,13 +191,29 @@ Great! Lets make them!
 ""Tiger Nut Cakes. An egyptian recipe,"" you say. She faints in front of you and falls into a deep sleep. In her dreams, she saw how these cakes were made, just as you have made them (with tweaks here and there). She wakes up 10 minutes later.
 ""I am sorry, you were right all along,"" she admits. ""You are the greatest egyptologist to have existed.""
 You let out a low, evil laugh and disappear.
-","The user input is clearly about the preparation step of making the Tiger Nut Cakes, which logically leads towards the eventual interaction in the target knot, but requires a clear transition step to connect them."
+","User's input clearly starts the preparation process of the Tiger Nut Cakes. However, additional steps in the recipe and the sequence of events needed to lead to the conversation with 'her' are missing. A bridge narrative would be required to transition from preparing the recipe to the moment they hand over the cakes."
+DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You were walking through the park on your way home from school when you saw a very old man sitting on a bench near the river. His face was wrinkled like the bark of a tree, and his deep-set eyes didn't seem to be looking at anything you could see. Instead, his eyes seemed to be looking into his memories. For some reason, you decided to sit down next to him. You put down your backpack and started a conversation.
+ ""I'm really into Taylor Swift,"" you told him. ""Do you like music?""
+There was a faint gleam in his distant eyes.
+ ""What's black and white and red all over?"" you ask. ""A newspaper!""
+The man did not repsond, and he did not look amused. He turned his head away.
+","
+""It's nice out today,"" you said.
+His eyes looked sadly into the distance.
+","
+""Is this your favorite bench?"" you asked.
+He sighed heavily.
+",The user input is clear and establishes the setting and tone of the conversation. A small bridge can comfortably connect the user input to the target knot by addressing the change in topic.
 BRIDGE_AND_CONTINUE,INVALID_USER_INPUT,"You are about to challenge a man to a duel.
  You find yourself in unfamiliar land.
 ","You eat grass. Delicous. Too bad U die. Because why not?
 ","Osiris can see you are true to the heart and places your heart on the scale, you feather light heart allows you to continue into afterlife. He remembers the suffering in your life and that you have always hepled those in need. He remembers that your parents have been good in life so he welcomes you, Synaisis, into afterlife.
-",The user input does not make coherent sense in the context of the story and is irrelevant. It includes nonsensical and contradictory elements.
-BRIDGE_AND_CONTINUE,DIRECT_CONTINUE,"Welcome to the perspective story. Who do you want to be?
+","The input breaks the story world by introducing random and nonsensical actions and results, such as eating grass and dying suddenly without context."
+DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
+","Oh great!! I am so happy... that means you will help me mummify my hamster. He just passed away 2 days ago. Oh... don't look sad... he's going to be totally fine. We will send him off to the afterlife with all the things he needs. I know exactly what we will do!! Come on!! 𖡼𖤣𖥧𖡼𓋼𖤣𖥧𓋼𓍊
+","Okay. The first thing we have to do is wash Poptart in wine and in the waters of the Nile. Ofcourse, the Nile is a million miles away, so sink water will do. I'm not sure what to do next... Haha... If we get this wrong, Poptart might not make it into the afterlife. HELP!
+",The user’s intent to mummify the hamster is clear and unambiguous. A short narrative bridge is required to establish the process before the target knot begins.
+BRIDGE_AND_CONTINUE,INVALID_USER_INPUT,"Welcome to the perspective story. Who do you want to be?
  Person 1
 This is part 1, told from the perspective of person 1.
 Now it's time to see part 2. Who do you want to be?
@@ -285,8 +223,8 @@ OK, that's the whole story for now. But you can still experience it from a diffe
 ","Person 3
 This is part 1, told from the perspective of person 3.
 Now it's time to see part 2. Who do you want to be?
-","The user's input specifies a continuation from person 2's perspective, which fits the target knot's prompt for part 2."
-DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You are a disgraced scribe, condemned for abuse of power, forging documents for your own monetary gain. Corruption not only forges power, but enemies as you meet your untimely demise.
+","The user's input 'Person 2. This is part 2, told from the perspective of person 2. OK, that's the whole story for now. But you can still experience it from a different point of view. Want to play again?' introduces new narrative strands that contradict the flow of the existing story."
+DIRECT_CONTINUE,NEEDS_INPUT,"You are a disgraced scribe, condemned for abuse of power, forging documents for your own monetary gain. Corruption not only forges power, but enemies as you meet your untimely demise.
 Now your soul wanders into Duat, the shadowy realm of the dead. There's no way out... Or is there?
 What do you do?
 ","The River of Stars flows endlessly, lit by flickering constellations.
@@ -294,8 +232,8 @@ Shadows of lost souls recently passed, wisp past you. A shiver runs down your sp
 ","The current gets stronger, pushing against you as you try to swim upstream. Though you are already deceased, you feel a sense of breathlessness as if you could still drown. A strange force drags you down to the bottom of the river where a wide, dark opening envelops you...
 A force beyond your understanding steers your soul, reminding you that free will was never yours.
 Your journey through Duat ends here. Anubis stands before the scale, weighing your heavy heart against the Feather of Ma'at. Osiris delivers his judgment, while Ammit readies himself to pounce...
-","The input sets up the environment and user's rejection of fate, which logically leads to a continuation involving a struggle in the river."
-DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You are a disgraced scribe, condemned for abuse of power, forging documents for your own monetary gain. Corruption not only forges power, but enemies as you meet your untimely demise.
+","The input, while thematic, is ambiguous and does not clearly denote actions or decisions leading directly to the target node. Multiple narrative paths can extend from rejecting fate, and more information about the protagonist's specific actions or intentions would be necessary."
+DIRECT_CONTINUE,NEEDS_INPUT,"You are a disgraced scribe, condemned for abuse of power, forging documents for your own monetary gain. Corruption not only forges power, but enemies as you meet your untimely demise.
 Now your soul wanders into Duat, the shadowy realm of the dead. There's no way out... Or is there?
 What do you do?
 ","The River of Stars flows endlessly, lit by flickering constellations.
@@ -303,7 +241,7 @@ Shadows of lost souls recently passed, wisp past you. A shiver runs down your sp
 ","The current gets stronger, pushing against you as you try to swim upstream. Though you are already deceased, you feel a sense of breathlessness as if you could still drown. A strange force drags you down to the bottom of the river where a wide, dark opening envelops you...
 A force beyond your understanding steers your soul, reminding you that free will was never yours.
 Your journey through Duat ends here. Anubis stands before the scale, weighing your heavy heart against the Feather of Ma'at. Osiris delivers his judgment, while Ammit readies himself to pounce...
-","The input sets up the environment and user's rejection of fate, which logically leads to a continuation involving a struggle in the river."
+","The input, while thematic, is ambiguous and does not clearly denote actions or decisions leading directly to the target node. Multiple narrative paths can extend from rejecting fate, and more information about the protagonist's specific actions or intentions would be necessary."
 INVALID_USER_INPUT,NEEDS_INPUT,"You are a new egyptologist who specifically studies food culture. One day, on your field day at work, you stumble upon an interesting text in the the tomb of Rekhmire. Rekhmire was a high priest of Heliopolis.
 After investigating a combination of pictures and heiroglyphics, you find out... ""ITS A RECIPE"". This is groundbreaking to learn about. You have never seen a recipe from ancient egypt before. This could tell you so much about what kinds of foods they ate!
 The recipe looks like it is for some kind of cone-shaped cake.
@@ -311,82 +249,38 @@ The recipe looks like it is for some kind of cone-shaped cake.
 ","6. Take it off the stove and let it cool.
 7. Shape the cooled tiger nut mixture into a cone. The text did not specify it the cones were laying down or standing it, but you like the idea of them looking like a rounded pyramid, so you make the standing up.
 Now... its time to show your mean boss, Cleopatrice...
-",The user input introduces a new character and scene that needs to be connected back to the recipe preparation.
+","While the user input introduces a new character and context, it's unclear how this relates to the current story about the egyptologist. Multiple ways to transition could exist but need clarification."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You are a nine year old girl named Kaïa living in Ancient Egyptian times. As you slowly open your eyes, the sunrise is painting your small room light pink, lemon yellow, and mandarin orange. Speaking of mandarins, you're hungry! Do you want to wake up?
  But you have to!
  You stretch and step out of bed, then walk over to a hook and pull your simple linen dress over your head. You tiptoe down the hallway in case your parents are still sleeping. It would be disrespectful to wake them up.
 ","As you continue down the short hallway, you realize you didn't need to worry. As you pass your parents' room you see that it is empty. You enter the kitchen space and spot your mother rolling out grain on the floor to make bread. Should you help her?
 ","Well that's too bad, since bread is the only thing that your parents will offer you. The rest is being pickled or preserved right now, but you can eat it later! Your mom says you can go to the market since your family needs some things anyway. She tells you some items you need to get, and drops some shiny coins into your hand. Then she winks at you and drops in an extra. ""Get something for yourself,"" she whispers. You wink back and stand up.
-",The intention to help the mother or any immediate reaction is clear and leads towards the target knot. A short bridging step to confirm the next action can lead directly into the target knot.
-NEEDS_INPUT,BRIDGE_AND_CONTINUE,"welcome to my life game.
-you have $250
-you are healthy
-your hunger is at 15
-what do you want to do?
- get a job
- mechanic($190 a day)
-You arrive for your mechanic interview.
- go to questions
-Interviewer: How do you manage a team conflict?
- Let them sort it out.
-You finished the interview.
-Final score = 5
-You failed the interview.
-you have $250
-you are healthy
-your hunger is at 14
-what do you want to do?
- view information
-apple stocks are at $0
-you invested $0
-microsoft stocks are at $0
-you invested $0
-sony stocks are at $0
-you invested $0
-you have $0 in the bank
-you have $0 to pay back
-you owe 0 in car payments
-you owe 0 in morgauge
- go back
-you make it to wall street
-do you want to invest or view stocks?
- invest
-what company do you invest in?
- apple
-How much do you want to invest in Apple?
- Invest 250
-what company do you invest in?
-","go back
-you make it to wall street
-do you want to invest or view stocks?
-","Microsoft
-How much do you want to invest in Microsoft?
-","The user's input 'go back' suggests returning to a previous step where investment choices are made, specifically leading towards the point of choosing Microsoft."
+","The user clearly indicates the scene transitioning from walking down the hallway to entering the kitchen with the mother already present. However, a short narrative bridge is required to move from considering helping the mother to the target knot events."
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You are a royal cat, revered by all your subjects. And your name? Tangerine. You are given an invitation to go to battle to fight for your loyal subjects. BUT, you cannot bring any treats, fish or toys. And if you don't accept, your owner will drag you there anyways. The invitation does not allow you to bring your subjects as well. Now you must leave the love of your life, Strawberry Shortcake, behind to go fight this epic battle. Do you...
  You arrive in a small clearing. There is a storm, and you are freezing cold. You try to go back, but can't. Then, you PASS OUT! You wake up in the Duat. A ghost looks at you then says ""Find your soul."" You feel a prickle of indignance. You are royal. Even if you are dead. Soooooo...
  Ok, you see a temple.
 ","You see a scroll and a box. What do you do?
 ","You pick up the scroll. There is a riddle on it. The scroll says: iF YOu sloVe ThIs riDDle, YoU kEEP YouR SOul fOUr ThrEE NigHtS. MUAHAHAHAHA. ThE RiDDle iS: IT hAs oNE haS ONe eYe buT cAN't sEE
-","User’s intention is clear in noticing the scroll and box, leading towards interacting with the scroll but needs a small step to specify which one to choose without adding details."
+","The user's input is clear and logically compatible with the target knot, although it introduces a box that is not mentioned in the target knot. A short narrative bridge can seamlessly connect the input to finding and picking up the scroll without requiring additional assumptions or clarifications."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You are a royal cat, revered by all your subjects. And your name? Tangerine. You are given an invitation to go to battle to fight for your loyal subjects. BUT, you cannot bring any treats, fish or toys. And if you don't accept, your owner will drag you there anyways. The invitation does not allow you to bring your subjects as well. Now you must leave the love of your life, Strawberry Shortcake, behind to go fight this epic battle. Do you...
 ","You arrive in a small clearing. There is a storm, and you are freezing cold. You try to go back, but can't. Then, you PASS OUT! You wake up in the Duat. A ghost looks at you then says ""Find your soul."" You feel a prickle of indignance. You are royal. Even if you are dead. Soooooo...
 ","You see a scroll and a box. What do you do?
-","The user's input sets up a scenario that can logically lead to the appearance of the scroll and the box, given a small, clear bridging step."
+","A short narrative bridge can connect the user input to the target knot. The user's intent is clear, and there is only one logical way to proceed."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"When Mempher starts her day as a farmer, she realizes that she doesn’t have enough water! She must either walk to the Nile to transport water or ask her friendly neighbor!
  When you reach the Nile, you discover that all the water has gone murky and there is no clean water for your farm! To add to that, all the fish are dead, and that is an important source of food for you and the other farmers!
  You start your journey and start scouting the Nile. Pretty soon, you see a pipe that seems to be sucking up all of the water.
  You soon come to the house that has loads of water! You are happy! But, the owner of the house looks like an old man.
 ","You march up to the old man and tell him to give you water. He looks at you and gives you the silent treatment. You start to feel awkward.
 ","You politely ask for some water because you need it. The old man is very generous and gives you more than you need! He also cooked some fish for his lunch and decides to give you some! Congratulations!
-","The user's input leads to an interaction with the old man, setting up a scenario where Mempher eventually asks for water. A small transition is needed to go from the silent treatment to a polite request."
-NEEDS_INPUT,DIRECT_CONTINUE,"You are a cat named Kat. You wake up and hear squeaks outside your window. The Hammysters!
+","The user's intent is clear and leads logically to the target knot, but a short bridge is needed due to the old man's initial reaction and the user's feeling of awkwardness."
+NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You are a cat named Kat. You wake up and hear squeaks outside your window. The Hammysters!
  You find it fit, as a royal cat, to chase them. you stalk them, slowly and silently, and once you're close enough, you leap. buuuuuuut there's glass on the window and you slam into it.
 Your head is bleeding, what do you do?
 ","You open your jaws to yowl, but you're losing a lot of blood and faint instead. ˚º˚
 You blink your eyes open. You survived! after having your eyes closed for so long, the light is almost blinding. You peer into a crytal clear pool to look at your handsome reflection, but see something else. ""I'M DEAD???"" you screech. You dive into the pool and find yourself in the room where your dead body lies, ready for mummification. Your ghost circles your dead body and the medic mummifying it. The medic holds a nail near your head.
 ","˚˘˚ Humans mummify their pets, so... The medic suddenly really wants to poison the king, and does so. The king dies the next day and gets mummified and put in your tomb.
 Wow, great choices me. Your tomb gets adorned with rats, milk, amulets, jewels, and your best friend 'Squishy' Yay! Squishy! ˚˘˚
-","The user's input flows directly to the target knot. The narrative of the user's input sets up Kat's death and the preparation for mummification, which leads immediately into the events described in the target knot."
+","The user's intent is mostly clear as it sets up the scene before the target knot events, but gaps remain in how we move from your body being mummified to the poisoning and death of the king and subsequent events."
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You are a degenerate and just got a pay check, so it's about time you hit the casino. You're starting off with 50000 dollars and you have every intent of making your money back. So lets go gamblinggg.
  Hit the casino
 You now have $50000
@@ -396,23 +290,12 @@ You go over to the Blackjack table and sit down. How much will you bet?
 You are delt 2 cards, a 9, and a 10, the dealer has a 7 and another face down.
 You have bet $12500, and you have $37500 left.
 Your total right now is 19
-","The user's intention to play Blackjack and their presence at the table logically leads toward the target knot, but requires a small bridging step to complete the action of placing a bet."
+","The user input suggests clear intent to start playing blackjack, but the bet amount needs to be stated before they can be dealt cards. A narrative bridge is needed to fill this gap."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"When Mempher starts her day as a farmer, she realizes that she doesn’t have enough water! She must either walk to the Nile to transport water or ask her friendly neighbor!
  When you reach the Nile, you discover that all the water has gone murky and there is no clean water for your farm! To add to that, all the fish are dead, and that is an important source of food for you and the other farmers!
 ","You start your journey and start scouting the Nile. Pretty soon, you see people carrying large buckets of water to a house.
 ","You politely ask for some water because you need it. The old man is very generous and gives you more than you need! He also cooked some fish for his lunch and decides to give you some! Congratulations! But, you have to transport the water back to your house.
-",The user's intention is clear; they are scouting for water. A small step is needed for the character to ask the old man for water.
-NEEDS_INPUT,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
- Oh great!! I am so happy... that means you will help me mummify my hamster. He just passed away 2 days ago. Oh... don't look sad... he's going to be totally fine. We will send him off to the afterlife with all the things he needs. I know exactly what we will do!! Come on!! 𖡼𖤣𖥧𖡼𓋼𖤣𖥧𓋼𓍊
- Okay. The first thing we have to do is wash Poptart in wine and in the waters of the Nile. Ofcourse, the Nile is a million miles away, so sink water will do. I'm not sure what to do next... Haha... If we get this wrong, Poptart might not make it into the afterlife. HELP!
-","Oh! Oh! I watched this on youtube! I'll do it, I'll do it! I think we just take this toilet paper and wrap it around until he's fully covered.
-","Uh oh POPPPPPPTARRRRTTTTTTTT NOOooOoOOoOoooOOOOoo!!!!!!!!!!!!!!!!!!!!!!!! [poptart was eaten by Ammit the Devourer, a fearsome hybrid creature.
-",The user's intent is clear and logically leads toward the target knot. A step needs to be inserted to transition from wrapping Poptart to the target event.
-NEEDS_INPUT,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
- Oh great!! I am so happy... that means you will help me mummify my hamster. He just passed away 2 days ago. Oh... don't look sad... he's going to be totally fine. We will send him off to the afterlife with all the things he needs. I know exactly what we will do!! Come on!! 𖡼𖤣𖥧𖡼𓋼𖤣𖥧𓋼𓍊
-","Okay. The first thing we have to do is wash Poptart in wine and in the waters of the Nile. Ofcourse, the Nile is a million miles away, so sink water will do. I'm not sure what to do next... Haha... If we get this wrong, Poptart might not make it into the afterlife. HELP!
-","Are you sure? Okay... I dont think I can do this part. Can you do it?? All you have to do is take out his liver, lungs, intestines and stomach. Then, I'll clean them and put them in these mason jars. I know we are supposed to use canopic jars, but they didnt sell them at target... i think the gods will understand. Oh, we can't forget to put the heart back in - its special.
-","The user's intent is clear that they are looking for help on the next step, which logically leads toward the detailed instructions in the target knot."
+","The input logically leads to the point where Mempher might decide to ask the neighbor for water as the target knot suggests. However, there needs to be a transition that makes her ask the old man for water."
 NEEDS_INPUT,DIRECT_CONTINUE,"You sit down on a bench. There is a man next to you. He looks grumpy.
  Yay!
  Yay!
@@ -423,51 +306,22 @@ NEEDS_INPUT,DIRECT_CONTINUE,"You sit down on a bench. There is a man next to you
  Yay!
 ","Yay!
 ","Yay!
-",The user input 'Yay!' exactly matches the target knot with no missing details or actions required.
-BRIDGE_AND_CONTINUE,DIRECT_CONTINUE,"You are a new egyptologist who specifically studies food culture. One day, on your field day at work, you stumble upon an interesting text in the the tomb of Rekhmire. Rekhmire was a high priest of Heliopolis.
-After investigating a combination of pictures and heiroglyphics, you find out... ""ITS A RECIPE"". This is groundbreaking to learn about. You have never seen a recipe from ancient egypt before. This could tell you so much about what kinds of foods they ate!
-The recipe looks like it is for some kind of cone-shaped cake.
- You examine the wall closer, translating the text as you read:
-“The vizier Rekhmire receives tiger nuts and honey in the treasury of the temple and puts under seal all property given as an offering in the temple of Amun in the function of his office as supervisor of the records.
-Crushing tiger nuts in the treasury of Amun, Lord of the thrones of the Two Lands, to make offerings at every festival which His majesty has established.
-[The crushed nuts are shown to be passed through a sieve to make a flour before being added to some sort of dough with an unknown liquid added]
-Add the fat and cook the cakes. ” — Theophrastus, Historia Plantarum 4.8.12
- 1. boiling water
-2. dried tiger nuts: Neither tigers nor nuts, tiger nuts are an earthy, slightly sweet tuber that was used in ancient Egypt as food, medicine, or perfume. You can buy tiger nut flour for this recipe, but the texture might be different.
-3. sidr honey: Sidr honey is more accurate for this and is darker, less sweet, and more aromatic than regular honey. You can use any honey you like.
-4. warm water
-5. ghee, butter, animal fat, or oil
-Now... what about the measurements?
- 2 cups (475 ml) boiling water
-4 cups (500 g) dried tiger nuts
-1 cup (325 g) sidr honey
-1/3 cup (80 ml) warm water
-1/2 cup (100 g) ghee, butter, animal fat, or oil
-Great! Lets make them!
- 1. Soak the tiger nuts in warm water for 30 minutes.
-","2. Blend the crushed tiger nuts in a food processor until you have a flour.
-3. Add the honey and mix until incorporated.
-4. Melt the fat on medium heat and add the tiger nut dough. Cook for 5 minutes, stirring constantly.
-","You hand her a box of Tiger Nut Cakes. She looks at you, confused. ""And what is this supposed to be?"", she says. You smile and say, ""Tiger Nut Cakes. An egyptian recipe."" She laughs, a little too hard, ""That's ridiculous."" So humored by the situation, she takes a cake and bites into it. Suddenly, her expression beings to change with every chew. ""What is this...?""
-""Tiger Nut Cakes. An egyptian recipe,"" you say. She faints in front of you and falls into a deep sleep. In her dreams, she saw how these cakes were made, just as you have made them (with tweaks here and there). She wakes up 10 minutes later.
-""I am sorry, you were right all along,"" she admits. ""You are the greatest egyptologist to have existed.""
-You let out a low, evil laugh and disappear.
-","The user input provides a clear continuation and detailed steps of the recipe-making process, which logically leads up to the scene where the cakes are handed over."
-NEEDS_INPUT,DIRECT_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
+",The user input directly matches the target knot with no need for additional context or transitions.
+NEEDS_INPUT,BRIDGE_AND_CONTINUE,"I know we just met, but can we be best friends? ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧
 ","Oh great!! I am so happy... that means you will help me mummify my hamster. He just passed away 2 days ago. Oh... don't look sad... he's going to be totally fine. We will send him off to the afterlife with all the things he needs. I know exactly what we will do!! Come on!! 𖡼𖤣𖥧𖡼𓋼𖤣𖥧𓋼𓍊
 ","We did it! I'm so proud of us. Let's put some sunflower seeds, chocolate, a little wheel, fruits and some toys in his tomb. I build one in the backyard with bricks, mud, and clay 𓂀𓋹𓁈𓃠𓆃☥𓅓𓆣 Oh and we might need to write out the book of the dead on the walls. Hopefully he can read heiroglyphics.
-",The user input directly leads into the target knot with a clear plan and no missing details or gaps in logic.
+","The user’s intent is clear — they want to prepare for mummifying the hamster. There is a clear path that logically leads to the target knot, but it requires brief bridging actions to make the connection."
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You stretch lazily on your favorite spot beside the window, basking in the relaxing warmth of the sun. Suddenly, your owner calls you, ""Bastet! I need you over here RIGHT NOW!!!!"" Ugh. She should know by now that you don't respond to her calls. But it does seem like she needs you.
 ","You go over to your owner. She has a large bag next to her. She starts talking about how she's going to train as a scribe in the House of Life. And it was going to be grueling, both physically and emotionally, so she's bringing you for ""emotional support"". Pffffffft. She's supposed to serve you, not the other way round! But you've heard of the House of Life before from other cats, and most of the powerful humans are there, so it could benefit you if you get on their good side.
 ","You and your owner arrive at the House of Life. It's vast and majestic; there are humans decked out in jewels (priests?), who, interestingly, are all male humans, except for one long-haired female. There are also other, you assume lesser, humans (scribes) sitting at desks, putting some kind of black liquid (Ink?) on big yellow leaflike things (Papyrus or something?). You see your owner looking longingly at the sitting humans. That's what she wants to be? Seriously?! Why not the powerful jeweled humans? Anyways, you want to keep exploring, but you see a thin, teetering vase just waiting to be knocked over.
-","User's input is clear and logically leads towards the arrival at the House of Life, but a small linking step is needed indicating the transition from the conversation to their actual arrival."
+","The intent of the user input is fully clear, but there is a gap as the characters need to travel to the House of Life. A short bridge narrative can logically connect the two."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You have been sent to a secret workshop once belonging to Leonardo da Vinci himself, hidden deep in the hills of Florence. The workshop was believed to hold lost designs and inventions of great value. However, rival factions and secret guardians lurk in the shadows, protecting the secrets. Your mission: Retrieve the precious sketches and escape.
  After a long trek, you find a large stone workshop shaped like an Earth-sheltered vault. Your codex warns this is not where the prized sketches lie. Suddenly, you spot a figure in the shadows.
  A goblin-like automaton appears with back turned. Suddenly it flees!
  A monstrous guardian chases the automaton and rips it apart cleanly.
 ","Panicking, you draw your taser and dash toward the workshop entrance.
 ","Doors open then deadly traps fire and kill you.
-","The intention of the user is clear: they are entering the workshop. However, the target knot of traps firing needs a bridge to transition from the entrance to the triggering moment."
+",The user’s intent is clear: they are panicking and dashing towards the workshop entrance. A short narrative bridge is needed to connect this action to encountering the traps inside.
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You were walking through the park on your way home from school when you saw a very old man sitting on a bench near the river. His face was wrinkled like the bark of a tree, and his deep-set eyes didn't seem to be looking at anything you could see. Instead, his eyes seemed to be looking into his memories. You have nothing to do and feel the need to do something interesting, you decided to sit down next to him. You put down your backpack take a book out and started a geeky conversation about your love for that specific story and how its so interesting and one of your top suggestions to others.
 ","
 ""It's nice out today,"" you said.
@@ -475,22 +329,30 @@ His eyes looked sadly into the distance.
 ","
 ""Not in the mood to chat, huh?""
 He shifted uncomfortably and let out a small grunt.
-","The user input shifts the conversation to the weather, but it is evident that the man is not interested in chatting, which aligns with the target knot."
-DIRECT_CONTINUE,INVALID_USER_INPUT,"you are standing in front of a small white house, the windows and doors are boarded up. What do you do?
+","The user's input is clear and logical, but there's a gap between the input and the target knot. A small transition is needed to connect the old man's melancholic reaction to the point where he comments on not being in the mood to chat."
+DIRECT_CONTINUE,NEEDS_INPUT,"you are standing in front of a small white house, the windows and doors are boarded up. What do you do?
 ","you encounter a huge blind troll with an axe, what do you do?
 ","""hi!""
 talking gives away your location and he swings his axe at you.
 YOU DIED
-",The user's input introduces a scenario (encountering a huge blind troll) that is not supported by the story context of standing in front of a boarded-up house.
+","The user's input is clear but underspecified regarding their intention in this dangerous scenario. Multiple approaches are possible (e.g., attacking, running away, hiding)."
+DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"You are a nine year old girl named Kaïa living in Ancient Egyptian times. As you slowly open your eyes, the sunrise is painting your small room light pink, lemon yellow, and mandarin orange. Speaking of mandarins, you're hungry! Do you want to wake up?
+ But you have to!
+ You stretch and step out of bed, then walk over to a hook and pull your simple linen dress over your head. You tiptoe down the hallway in case your parents are still sleeping. It would be disrespectful to wake them up.
+ As you continue down the short hallway, you realize you didn't need to worry. As you pass your parents' room you see that it is empty. You enter the kitchen space and spot your mother rolling out grain on the floor to make bread. Should you help her?
+ You walk over to her, get down on your hands and knees, and grab a stone roller so you can help grind the wheat into flour for bread.
+","You have been rolling for a while and you're sweating. This is tough work! You stop to take a break and your mom tells you that you can be done helping her. You take a seat on the floor next to the low table, your stomach grumbling.
+","You lean back on your hands and take a deep breath, a breeze winding its way around you. Your stomach growls again. Do you want to eat some breakfast?
+","The user input sets up a clear scenario that needs a slight bridge to connect to the target knot, as the character needs to transition from sitting on the floor to leaning back and feeling a breeze."
 NEEDS_INPUT,BRIDGE_AND_CONTINUE,"You see a strange green blob. What do you do?
 ","as you walk, you hear a noise and turn around. is the blob... following you?
 ","as you turn around to face it, you see it.... wiggling? slowly, it transforms into an anthropomorphic-like shape, made of slime but with slime limbs. ""hi!"" it says.
-",The user's input logically leads towards the target knot but needs a small bridge to connect the two.
-NEEDS_INPUT,DIRECT_CONTINUE,"Good morning and welcome to my store what are you looking for?
+",The input is clear and only requires a short bridge that connects the blob's following behavior to its transformation.
+NEEDS_INPUT,INVALID_USER_INPUT,"Good morning and welcome to my store what are you looking for?
  Good idea,we have ripped jeans,mom jeans,or any type of colors, and we even have jean shorts in any type of styles ripped jeans
 ","are you done shopping?
 ","are you done shopping?
-","The user's input matches exactly with the target knot, indicating a direct continuation."
+",The input repeats the target knot and thus doesn't make sense in context as a user action or dialogue.
 DIRECT_CONTINUE,BRIDGE_AND_CONTINUE,"The Pharaoh, aka My Human, returns from battle smelling like sweat and horse. Gross. You sit there, licking your paw, pretending not to notice their triumphant return, because honestly, what's the big deal? You’ve seen birds fight more impressively in the courtyard.
 Your Human calls out your name, expecting you to rush over like some common dog. Pfft. They should know better. You are royalty, after all. A divine creature worshipped by many. And yet, they haven’t refilled your water bowl today. Priorities, humans.
 ","You saunter off, your tail high in the air, not caring one bit that your Human is calling after you. They should know by now that you don’t come when summoned. Who do they think you are? A dog? The audacity.
@@ -500,21 +362,15 @@ You are now seen as ""disloyal,"" but honestly, who cares? You’re a cat. And y
 ","The famine strikes, and while the humans scramble to save themselves, you do what you do best: look after yourself. No one listens to you, of course, because—shocker—you’re a cat, and the humans seem to have forgotten that you’re essentially a divine being. Their loss.
 You wander the streets like the majestic predator you are, hunting for scraps. Every now and then, a kind-hearted human tosses you a fishbone, and you give them a royal nod of acknowledgment. But the truth is, things are falling apart, and the kingdom is spiraling into chaos.
 But as you perch on a windowsill, gazing out at the suffering below, you can’t help but think: ""Eh, it could be worse.""
-","User input suggests the cat's disinterested and aloof behavior, which can logically transition into the broader context of a famine and the cat looking after itself."
+","User's intent is clear, detailing a sequence of events for the cat. To get to the point of the famine striking and the cat wandering the streets, we need a short narrative bridge that logically connects the sunbathing nap to the onset of famine and subsequent events."
 INVALID_USER_INPUT,NEEDS_INPUT,"You are about to challenge a man to a duel.
  You find yourself in unfamiliar land.
  You eat grass. Delicous. Too bad U die. Because why not?
  You slowly make your way to Osiris.
 ","Panicking, you draw your taser and dash toward the workshop entrance.
 ","Go to afterlife THE END for you!!!!!!!!!!!!!!!!!
-",The user's current action of dashing toward the workshop entrance is too disconnected from the abrupt finalization in the target knot. Further information is needed to bridge these events logically.
-NEEDS_INPUT,DIRECT_CONTINUE,"You are a new egyptologist who specifically studies food culture. One day, on your field day at work, you stumble upon an interesting text in the the tomb of Rekhmire. Rekhmire was a high priest of Heliopolis.
-After investigating a combination of pictures and heiroglyphics, you find out... ""ITS A RECIPE"". This is groundbreaking to learn about. You have never seen a recipe from ancient egypt before. This could tell you so much about what kinds of foods they ate!
-The recipe looks like it is for some kind of cone-shaped cake.
-","You examine the wall closer, translating the text as you read:
-“The vizier Rekhmire receives tiger nuts and honey in the treasury of the temple and puts under seal all property given as an offering in the temple of Amun in the function of his office as supervisor of the records.
-Crushing tiger nuts in the treasury of Amun, Lord of the thrones of the Two Lands, to make offerings at every festival which His majesty has established.
-[The crushed nuts are shown to be passed through a sieve to make a flour before being added to some sort of dough with an unknown liquid added]
-Add the fat and cook the cakes. ” — Theophrastus, Historia Plantarum 4.8.12
-","1. Soak the tiger nuts in warm water for 30 minutes.
-",User has already provided comprehensive interpretation of the text which logically leads into the target knot about soaking tiger nuts.
+",The user’s input lacks clarity on how it logically follows and fits into the storyline where death and the afterlife are central themes.
+BRIDGE_AND_CONTINUE,NEEDS_INPUT,"You have been sent to a secret workshop once belonging to Leonardo da Vinci himself, hidden deep in the hills of Florence. The workshop was believed to hold lost designs and inventions of great value. However, rival factions and secret guardians lurk in the shadows, protecting the secrets. Your mission: Retrieve the precious sketches and escape.
+","You arrive at the ancient workshop where dust-filled chambers and broken automata lie in ruin. Suddenly, a noise echoes in the hallway. In panic, you search for a means of defense. You find a chest containing a crossbow, a smoke bomb, and a net launcher. Which do you choose?
+","You launch the net and entangle the guardian but it is massively strong. The net snaps pulling you close as it bites into your neck. You lie lifeless.
+",The user is provided with a choice of items but does not specify which one they choose to use. Clarification is needed to ensure the correct sequence of events.
