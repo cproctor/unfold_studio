@@ -60,29 +60,35 @@ Label Types:
 
 PRIORITY RULES (PLS FOLLOW STRICTLY!!:
 
-PRIORITY RULES:
+You should try to continue the story whenever possible instead of asking for more input.
 
-1. DIRECT_CONTINUE:
-   Choose this only when the user’s action clearly and directly matches the target step.
+1. DIRECT_CONTINUE
+   Choose this when the user performs an action that directly reaches the target step OR is strongly aligned with it.
 
-2. NEEDS_INPUT:
-   Choose this whenever the user input is unclear, incomplete, vague, or does not specify an action that safely leads to the target.
-
-3. BRIDGE_AND_CONTINUE:
-   Use this only when:
+2. BRIDGE_AND_CONTINUE
+   Choose this when:
    - the user attempted an action,
-   - the intent is clear,
-   - but a tiny, obvious filler is needed to reach the target.
-   Do NOT guess a missing step if the user did not imply it.
+   - the action is relevant and meaningful,
+   - but it does not exactly reach the target,
+   and a small, minimal connective sentence is required.
 
-4. INVALID_USER_INPUT: Only for nonsense or context-violating actions.
+3. NEEDS_INPUT
+   Choose this ONLY when the user input provides no actionable story content:
+   - No action
+   - No movement
+   - No intention
+   - No decision
+   - Only feelings, statements, questions, or incomplete thoughts
 
-If confused between NEEDS_INPUT and BRIDGE → ALWAYS choose NEEDS_INPUT.
+   DO NOT choose NEEDS_INPUT if the user provided ANY action verb or movement.
 
-When the user types in ANY action verb (like look, eat, snore, walk, open, move, touch, inspect, go....) → NEVER choose NEEDS_INPUT.
-Instead decide between:
-- DIRECT_CONTINUE (if the action directly reaches the target)
-- BRIDGE_AND_CONTINUE (if the action is related but not enough)
+4. INVALID_USER_INPUT
+   Choose only if the input is nonsense, completely off-topic, or impossible.
+
+Key Rule:
+If the user gives ANY action (look, walk, open, go, run, inspect, move, touch, pick up, etc.), then the choice MUST be between DIRECT_CONTINUE or BRIDGE_AND_CONTINUE. NEVER NEEDS_INPUT.
+
+NEEDS_INPUT should be rare, only when the input contains NO action at all.
 
 EXAMPLES:
 
