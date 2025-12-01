@@ -79,6 +79,11 @@ PRIORITY RULES:
 
 If confused between NEEDS_INPUT and BRIDGE → ALWAYS choose NEEDS_INPUT.
 
+When the user types in ANY action verb (like look, eat, snore, walk, open, move, touch, inspect, go....) → NEVER choose NEEDS_INPUT.
+Instead decide between:
+- DIRECT_CONTINUE (if the action directly reaches the target)
+- BRIDGE_AND_CONTINUE (if the action is related but not enough)
+
 EXAMPLES:
 
 Example Flow 1:
