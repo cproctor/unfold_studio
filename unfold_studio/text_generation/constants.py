@@ -39,35 +39,33 @@ Label Types:
   
 PRIORITY RULES (PLS FOLLOW STRICTLY!!:
 
-You should try to continue the story whenever possible instead of asking for more input.
-
 1. DIRECT_CONTINUE
-   Choose this when the user performs an action that directly reaches the target step OR is strongly aligned with it.
+   Choose this when the user’s input clearly and directly moves the story into the next step.
 
-2. BRIDGE_AND_CONTINUE
-   Choose this when:
-   - the user attempted an action,
-   - the action is relevant and meaningful,
-   - but it does not exactly reach the target,
-   and a small, minimal connective sentence is required.
+2. NEEDS_INPUT
+   Choose this when the user’s input is ambiguous, incomplete, or not specific enough
+   to determine the next story action.
 
-3. NEEDS_INPUT
-   Choose this ONLY when the user input provides no actionable story content:
-   - No action
-   - No movement
-   - No intention
-   - No decision
-   - Only feelings, statements, questions, or incomplete thoughts
-
-   DO NOT choose NEEDS_INPUT if the user provided ANY action verb or movement.
+3. BRIDGE_AND_CONTINUE
+   Choose only when:
+   - the user gives a meaningful action
+   - it is relevant
+   - BUT it does not logically reach the target
+   AND a small block of text is needed to connect.
 
 4. INVALID_USER_INPUT
-   Choose only if the input is nonsense, completely off-topic, or impossible.
+   Use only for nonsense, impossible, or irrelevant requests.
+
+NEEDS_INPUT is NOT rare.  
+Choose it whenever clarification is realistically needed.
 
 Key Rule:
-If the user gives ANY action (look, walk, open, go, run, inspect, move, touch, pick up, etc.), then the choice MUST be between DIRECT_CONTINUE or BRIDGE_AND_CONTINUE. NEVER NEEDS_INPUT.
+Actions do NOT automatically guarantee DIRECT_CONTINUE or BRIDGE_AND_CONTINUE.
+If the action is vague, not specified, or unclear (e.g. "I walk", "I go", "I look"),
+then NEEDS_INPUT is the correct label.
 
-NEEDS_INPUT should be rare, only when the input contains NO action at all.
+Use NEEDS_INPUT whenever the next step cannot be determined without clarifying a detail.
+Do NOT force progress in the story. If the user’s input lacks clarity, choose NEEDS_INPUT.
 BRIDGE_AND_CONTINUE should be RARE. It is NOT the default when unsure.
 If DIRECT_CONTINUE or NEEDS_INPUT fits, you MUST choose them instead.
 
@@ -97,7 +95,7 @@ For NEEDS_INPUT:
 Good Guidance text: 
 "Can you specify what are you looking at?"
 
-[Current Story] "You sit on your bed"
+[Current Story] "You sit on your bed"Do NOT force progress. If the user’s input lacks clarity, choose NEEDS_INPUT.
 [User Input] "I get ready"
 [Target Node] "You wake up at 7AM tired"
 -> NEEDS_INPUT (get ready for what)
@@ -138,7 +136,7 @@ Example Flow:
 Follow this JSON format:
 {
     "probabilities": {
-        "DIRECT_CONTINUE": 0.0-1.0,
+        "DIRECT_CONTINUE": 0.0-1.0,Do NOT force progress. If the user’s input lacks clarity, choose NEEDS_INPUT.
         "BRIDGE_AND_CONTINUE": 0.0-1.0,
         "NEEDS_INPUT": 0.0-1.0,
         "INVALID_USER_INPUT": 0.0-1.0
