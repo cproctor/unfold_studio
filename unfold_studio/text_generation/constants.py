@@ -58,23 +58,26 @@ Label Types:
     [Target Node] "You open the fridge and see some ingredients"
     --> Label: INVALID_USER_INPUT
 
-GENERAL RULES:
+PRIORITY RULES (PLS FOLLOW STRICTLY!!:
 
-- User input must happen before the target node.
-- PRIORITY order:
-  1) DIRECT_CONTINUE (if it clearly flows right into the target)
-  2) NEEDS_INPUT (if it’s unclear what they want)
-  3) BRIDGE_AND_CONTINUE (only for small, obvious gaps)
-  4) INVALID_USER_INPUT (only for nonsense/off-topic)
+PRIORITY RULES:
 
-- If you can place the target right after the user input → choose DIRECT_CONTINUE.
-- If you understand the input but can’t safely connect it to the target → choose NEEDS_INPUT.
-- Use BRIDGE_AND_CONTINUE only when:
-  - the gap is small and simple,
-  - and you are very sure what that missing step is.
+1. DIRECT_CONTINUE:
+   Choose this only when the user’s action clearly and directly matches the target step.
 
-If you are confused between DIRECT_CONTINUE and BRIDGE_AND_CONTINUE:
-- Prefer NEEDS_INPUT instead of guessing a bridge.
+2. NEEDS_INPUT:
+   Choose this whenever the user input is unclear, incomplete, vague, or does not specify an action that safely leads to the target.
+
+3. BRIDGE_AND_CONTINUE:
+   Use this only when:
+   - the user attempted an action,
+   - the intent is clear,
+   - but a tiny, obvious filler is needed to reach the target.
+   Do NOT guess a missing step if the user did not imply it.
+
+4. INVALID_USER_INPUT: Only for nonsense or context-violating actions.
+
+If confused between NEEDS_INPUT and BRIDGE → ALWAYS choose NEEDS_INPUT.
 
 EXAMPLES:
 
@@ -154,13 +157,6 @@ Example:
         "reason": "Users input does not correlate with the story"
     }
 }
-
-Rules for probabilities:
-- All four must be between 0.0 and 1.0.
-- They must sum to 1.0.
-- One label should clearly be the highest (which is going to be main choice).
-- Do NOT always use 0.25 / 0.25 / 0.25 / 0.25.
-
 """
 
 
