@@ -24,40 +24,19 @@ Label Types:
   Use when the user input directly achieves the next story step.
   - Do not add any extra narrative.
   - The input doesn't have to be the same words as the target node, it just needs to logically move the story to the next step directly.
-    Example: 
-    [Current Story] "You are in the kitchen"
-    [User Input] "I open the fridge"
-    [Target Node] "You open the fridge and see some ingredients"
-    --> Label: DIRECT_CONTINUE
-
+  
 - NEEDS_INPUT:
   Use this when the input is ambiguous, incomplete, or missing key actions.
   - Ask the player a short, clear question/prompt to clarify their next move.
   - Keep it engaging, so the reader can provide meaningful input without the AI filling in the story.
-    Example:
-    [Current Story] "You are in the kitchen"
-    [User Input] "I'm hungry"
-    [Target Node] "She goes to Joe's Pizza"
-    --> Label: NEEDS_INPUT
-    Guidance Text: "Where do you want to go to eat?"
 
 - BRIDGE_AND_CONTINUE:
   Use only if a small narrative is required to connect the user input to the next story node.
   Never include any details from the target node or no spoilers.
-  Example:
-      [Current Story] "You are in the kitchen"
-      [User Input] "look around"
-      [Target Node] "You open the fridge and see some ingredients"
-      --> Bridge: "You glance at the fridge and decide to open it…"
-
+  
 - INVALID_USER_INPUT:
   Use only if the input is completely unrelated, nonsensical, or impossible in context.
-   Example:
-    [Current Story] "You are in the kitchen"
-    [User Input] "Punch the wall!"
-    [Target Node] "You open the fridge and see some ingredients"
-    --> Label: INVALID_USER_INPUT
-
+  
 PRIORITY RULES (PLS FOLLOW STRICTLY!!:
 
 You should try to continue the story whenever possible instead of asking for more input.
@@ -89,37 +68,72 @@ Key Rule:
 If the user gives ANY action (look, walk, open, go, run, inspect, move, touch, pick up, etc.), then the choice MUST be between DIRECT_CONTINUE or BRIDGE_AND_CONTINUE. NEVER NEEDS_INPUT.
 
 NEEDS_INPUT should be rare, only when the input contains NO action at all.
+BRIDGE_AND_CONTINUE should be RARE. It is NOT the default when unsure.
+If DIRECT_CONTINUE or NEEDS_INPUT fits, you MUST choose them instead.
 
-EXAMPLES:
+Examples: 
 
-Example Flow 1:
+For DIRECT_CONTINUE:
+[Current Story] "You walk down the hallway."
+[User Input] "I open the next door"
+[Target Node] "You enter the library"
+-> DIRECT (immediate flow)
+
+[Current Story] "You stand before the cabin."
+[User Input] "I step closer."
+[Target Node] "You reach the door."
+-> DIRECT (immediate flow)
+
+[Current Story] "You crounch beside the crate."
+[User Input] "I open it."
+[Target Node] "You see the contents."
+-> DIRECT (immediate flow)
+
+For NEEDS_INPUT:
+[Current Story] "You walk down the hallway"
+[User Input] "I look" 
+[Target Node] "You enter the library"
+-> NEEDS_INPUT (look where?)
+Good Guidance text: 
+"Can you specify what are you looking at?"
+
+[Current Story] "You sit on your bed"
+[User Input] "I get ready"
+[Target Node] "You wake up at 7AM tired"
+-> NEEDS_INPUT (get ready for what)
+
+[Current Story] "You stand outside"
+[User Input] "I walk"
+[Target Node] "You step into the shop"
+-> NEEDS_INPUT (walk towards what?)
+
+Not BRIDGE_AND_CONTINUE but is NEEDS_INPUT
+[Current Story] "You walk down the road"
+[User Input] "I continue"
+[Target Node] "You arrive at the inn"
+-> NEEDS_INPUT (continue doing what?)
+
+For BRIDGE_AND_CONTINUE:
+Example Flow:
 [Current Story] "You sit on your bed"
 [User Input] "drink coffee"
 [Target Node] "You wake up at 7AM tired"
 
-Good NEEDS_INPUT:
-"What will you do after drinking coffee?"
+Good Bridge: 
+"After drinking coffee late at night, you struggle to sleep. The caffeine keeps you awake until..."
 
-Example Flow 2:
-[Current Story] "You are in the kitchen"
-[User Input] "I open the fridge"
-[Target Node] "You open the fridge and see some ingredients"
-Good DIRECT_CONTINUE:
-The input already completes the step. No extra text needed.
+Bad Bridge: 
+"You wake up tired and drink coffee" (wrong order)
 
-Example Flow 3:
-[Current Story] "You are in the kitchen"
-[User Input] "I look around"
-[Target Node] "You open the fridge and see some ingredients"
-Good Bridge:
-"You glance at the fridge and decide to open it…"
+Bad Bridge (includes target content):
+"You drink coffee and stay up late, leading to you waking up tired at 7AM" (includes target time and state)
 
-Example Flow 4:
-[Current Story] "You are in the kitchen"
-[User Input] "Punch the wall!"
-[Target Node] "You open the fridge and see some ingredients"
-Invalid Input:
-"Punch the wall!"
+For INVALID_USER_INPUT:
+Example Flow:
+[Current Story] "You sit on your bed"
+[User Input] "ung"
+[Target Node] "You wake up at 7AM tired"
+-> INVALID_USER_INPUT (user input is gibberish, does not make sense)
 
 Follow this JSON format:
 {
