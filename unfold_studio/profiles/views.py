@@ -11,18 +11,29 @@ from prompts.models import Prompt
 from django.conf import settings as s                                 
 from django.db.models import Q, OuterRef, Subquery
 from django.core.paginator import Paginator, PageNotAnInteger
-from django.http import HttpResponse, Http404                         
+from django.http import HttpResponse, Http404, JsonResponse                         
 from django.contrib.sites.shortcuts import get_current_site
 import structlog
 
 from literacy_events.models import Notification, LiteracyEvent
 
 log = structlog.get_logger("unfold_studio")  
-  
 
 def un(request):
     "Helper to return username"
     return request.user.username if request.user.is_authenticated else "<anonymous>"
+
+def search_users_api(request):
+    query = request.GET.get('q', '').strip()
+    if len(query) < 2:
+        return JsonResponse([], safe=False)
+    
+    users = User.objects.filter(
+        Q(username__icontains=query) & Q(is_active=True)
+    ).exclude(id=request.user.id if request.user.is_authenticated else None)[:10]
+    
+    user_data = [{'username': user.username} for user in users]
+    return JsonResponse(user_data, safe=False)
 
 class UserDetailView(DetailView):
     model = User

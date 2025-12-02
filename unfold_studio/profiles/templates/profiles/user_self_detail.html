@@ -3,6 +3,16 @@
 
 {% block content %}
     <h1>{{user}}</h1>
+    
+    <!-- Add Follow User Section -->
+    <div>
+        <h2>Follow a User</h2>
+        <div class="user-search-container">
+            <input type="text" id="username-search" placeholder="Enter username to follow" autocomplete="off">
+            <div id="search-results" class="search-results"></div>
+        </div>
+    </div>
+    
     {% if unsubmitted_prompts > 0 %}
         <h2>To Do</h2>
         <ul>
@@ -11,6 +21,7 @@
         {% endfor %}
         </ul>
     {% endif %}
+    
     <div class="feed">
         <h2>Feed</h2>
         <ul>
@@ -22,18 +33,25 @@
             <p><a href="{% url 'show_feed' user.username %}">More...</a></p>
         {% endif %}
     </div>
+    
     {% if user.profile.following.exists %}
       <div>
-      <h2>Users you follow</h2>
-      <ul>
+      <h2>Creators You Follow</h2>
+      <div class="creators-grid">
         {% for p in user.profile.following.all %}
-        <li>
-            <a href="{% url 'show_user' p.user.username %}">{{p.user.username}}</a>
-        </li>
+        <div class="creator-card">
+            <div class="creator-avatar" style="background-color: #9333ea;"></div>
+            <div class="creator-info">
+                <h3>{{ p.user.username }}</h3>
+                <a href="{% url 'show_user' p.user.username %}" class="view-stories-btn">View Stories</a>
+            </div>
+        </div>
         {% endfor %}
-      </ul> 
+      </div> 
       </div>
     {% endif %}
+    
+    <!-- Rest of existing content -->
     <div>
         <h2>Stories</h2>
         <ul>
@@ -48,6 +66,7 @@
         {% endfor %} 
         </ul>
     </div>
+    
     <div>
         <h2>Books</h2>
         <ul>
@@ -59,4 +78,62 @@
             <li>[<a href="{% url 'create_book'%}">Start a new book</a>]</li>
         </ul>
     </div>
+
+    <script>
+        const searchInput = document.getElementById('username-search');
+        const searchResults = document.getElementById('search-results');
+        let searchTimeout;
+
+        searchInput.addEventListener('input', function() {
+            const query = this.value.trim();
+            
+            clearTimeout(searchTimeout);
+            
+            if (query.length < 2) {
+                searchResults.innerHTML = '';
+                searchResults.style.display = 'none';
+                return;
+            }
+            
+            searchTimeout = setTimeout(() => {
+                fetch(`/api/search-users/?q=${encodeURIComponent(query)}`)
+                    .then(response => response.json())
+                    .then(users => {
+                        searchResults.innerHTML = '';
+                        
+                        if (users.length === 0) {
+                            searchResults.innerHTML = '<div class="search-result-item">No users found</div>';
+                        } else {
+                            users.forEach(user => {
+                                const resultItem = document.createElement('div');
+                                resultItem.className = 'search-result-item';
+                                resultItem.innerHTML = `
+                                    <span class="username">${user.username}</span>
+                                    <button onclick="visitProfile('${user.username}')" class="visit-btn">Visit Profile</button>
+                                `;
+                                searchResults.appendChild(resultItem);
+                            });
+                        }
+                        
+                        searchResults.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Search error:', error);
+                        searchResults.innerHTML = '<div class="search-result-item">Search error</div>';
+                        searchResults.style.display = 'block';
+                    });
+            }, 300);
+        });
+
+        function visitProfile(username) {
+            window.location.href = `/users/${username}/`;
+        }
+
+        // Hide results when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.user-search-container')) {
+                searchResults.style.display = 'none';
+            }
+        });
+    </script>
 {% endblock %}
