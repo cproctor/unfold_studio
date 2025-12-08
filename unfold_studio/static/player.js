@@ -220,7 +220,7 @@ InkPlayer.prototype = {
         this.continueStory();
     },
     scheduleInputBox: function(placeholder, variableName) {
-        const eventHandler = (userInput) => {
+        const eventHandler = async (userInput) => {
             this.inputFunctionCalled = false;
             this.story.variablesState[variableName] = userInput;
             this.createStoryPlayRecord(
@@ -229,7 +229,12 @@ InkPlayer.prototype = {
                 userInput
             );
             this.running = true;
-            this.continueStory();
+            await this.continueStory();
+            // Remove loading indicator after response is complete
+            const loadingContainer = document.querySelector('.input-container');
+            if (loadingContainer) {
+                loadingContainer.remove();
+            }
         };
         
         formContainer = this.createInputForm(
@@ -241,13 +246,18 @@ InkPlayer.prototype = {
         this.inputBoxToInsert = formContainer;
     },
     scheduleInputBoxForContinue: function(placeholder = "what would you like to do next?") {
-        const eventHandler = (userInput) => {
+        const eventHandler = async (userInput) => {
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(), 
                 "READERS_CONTINUE_ENTERED_TEXT", 
                 userInput
             );
-            this.handleUserInputForContinue(userInput);
+            await this.handleUserInputForContinue(userInput);
+            // Remove loading indicator after response is complete
+            const loadingContainer = document.querySelector('.input-container');
+            if (loadingContainer) {
+                loadingContainer.remove();
+            }
         };
     
         formContainer = this.createInputForm(
@@ -267,7 +277,12 @@ InkPlayer.prototype = {
         inputElement.placeholder = placeholder;
         inputElement.required = true;
         inputElement.rows = 3;
-        inputElement.style.resize = "vertical";
+        inputElement.style.resize = "both";
+        inputElement.style.minWidth = "300px";
+        inputElement.style.minHeight = "60px";
+        inputElement.style.maxWidth = "900px";
+        inputElement.style.boxSizing = "border-box";
+        inputElement.style.maxWidth = "95%";
 
         // Auto-resize functionality
         inputElement.addEventListener("input", function() {
@@ -285,11 +300,26 @@ InkPlayer.prototype = {
         formElement.addEventListener("submit", (event) => {
             event.preventDefault();
             const userInput = inputElement.value.trim();
-            eventHandler(userInput);
             
-            inputElement.disabled = true;
-            buttonElement.disabled = true;
-            formElement.style.opacity = "0.5";
+            // Replace form with loading indicator
+            formContainer.innerHTML = `
+                <div style="padding: 20px; text-align: center;">
+                    <div style="margin-bottom: 15px; color: #666;">
+                        Unfolding Story
+                        <span style="font-size: 14px; color: #9b59b6; animation: bounce 0.6s infinite alternate; margin: 0 4px; display: inline-block;">●</span>
+                        <span style="font-size: 14px; color: #9b59b6; animation: bounce 0.6s infinite alternate 0.2s; margin: 0 4px; display: inline-block;">●</span>
+                        <span style="font-size: 14px; color: #9b59b6; animation: bounce 0.6s infinite alternate 0.4s; margin: 0 4px; display: inline-block;">●</span>
+                    </div>
+                </div>
+                <style>
+                    @keyframes bounce {
+                        0% { transform: translateY(0px); }
+                        100% { transform: translateY(-5px); }
+                    }
+                </style>
+            `;
+            
+            eventHandler(userInput);
         });
 
         this.createStoryPlayRecord(
