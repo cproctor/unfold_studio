@@ -23,8 +23,8 @@ These steps should get a development instance running on MacOS. The process shou
 
 0. Prerequisites
 
+- Install [uv](https://docs.astral.sh/uv/)
 - Install [Homebrew](https://brew.sh/). 
-- Install [Poetry](https://python-poetry.org/).
 - Install [Postgresql](https://www.postgresql.org/download/) (`brew install postgresql@16`)
   
     Set up default postgres user
@@ -52,8 +52,8 @@ These steps should get a development instance running on MacOS. The process shou
         cd /opt # (Or wherever you want to install)
         git clone https://github.com/cproctor/unfold_studio.git
         cd unfold_studio
-        poetry install
         cp unfold_studio/unfold_studio/base_settings.py unfold_studio/unfold_studio/settings.py
+        uv sync
 
     You will need to ensure the `PASSWORD`, `HOST`, and `PORT` fields are set correctly in `settings.py[DATABASES.default]` based on your postgres configuration
 
@@ -71,10 +71,10 @@ These steps should get a development instance running on MacOS. The process shou
 
 5. Last steps.
 
-        ./manage.py migrate
-        ./manage.py collectstatic
-        ./manage.py dev_init
-        python manage.py runserver
+        uv run manage.py migrate
+        uv run manage.py collectstatic
+        uv run manage.py dev_init
+        uv run manage.py runserver
 
    This should be enough to get a local server running; you can test it by navigating to
    http://local.unfoldstudio.net:8000.
