@@ -24,14 +24,15 @@
     </div>
     {% if user.profile.following.exists %}
       <div>
-      <h2>Creators You Follow</h2>
-      <div class="creators-grid">
+      <h2>Users you follow</h2>
+      <ul>
         {% for p in user.profile.following.all %}
         <li>
             <a href="{% url 'show_user' p.user.username %}">{{p.user.username}}</a>
+            [<a href="{% url 'unfollow_user' p.user.username %}">Unfollow</a>]
         </li>
         {% endfor %}
-      </div> 
+      </ul> 
       </div>
     {% endif %}
     <div>
