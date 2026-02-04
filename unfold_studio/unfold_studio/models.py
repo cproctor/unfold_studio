@@ -442,6 +442,27 @@ class Story(models.Model):
             'knotChoices': knot_choices
         }
 
+    def run_from_knot(self, knot_name: str) -> str:
+        #only extrafccts text from self.ink
+        if not knot_name or not isinstance(knot_name,str):
+            raise ValueError("knot_name must be a non-empty string")
+        knots = self.get_knots()  # OrderedDict(name -> (lineNum, knotText))
+        name = knot_name.strip()
+
+        if name not in knots:
+           raise KeyError(f"Knot '{knot_name}' not found")
+
+        _, knot_text = knots[name]
+
+        # knot_text includes the knot header line itself (e.g. "=== intro ===")
+        # We want everything AFTER that header.
+        if "\n" in knot_text:
+            _, content = knot_text.split("\n", 1)
+        else:
+            content = ""
+        return content.strip("\n")
+        #Does not handle choices, includes, or update StoryPlayRecords. Only returns raw ink source
+        
     # Using Hacker News gravity algorithm: 
     # https://medium.com/hacking-and-gonzo/how-hacker-news-ranking-algorithm-works-1d9b0cf2c08d
     def update_priority(self):
