@@ -7,6 +7,9 @@ from .models import StoryTransitionRecord
 from .services.unfold_studio import UnfoldStudioService
 from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
 
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
+
 class GenerateTextView(BaseView):
 
     def validate_request(self, request_body):
@@ -195,3 +198,26 @@ class GetNextDirectionView(BaseView):
         except Exception as e:
             print(str(e))
             return JsonResponse({"error": str(e)}, status=500)
+
+@method_decorator(csrf_exempt, name="dispatch")
+class AgentView(BaseView):
+     #Endpoint for agent. Returns a static text so frontend can still work
+
+    def validate_request(self, request_body):
+        return True, None
+
+    def post(self, request):
+        try:
+            request_body = json.loads(request.body) if request.body else {}
+         
+        except json.JSONDecodeError:
+            request_body = {} 
+            # Static response for now
+        result = {
+         "text": "agent endpoint: ok"
+        }
+
+        return JsonResponse({"result": result}, status=200)
+
+    def get(self, request):
+        return JsonResponse({"result": {"text": "agent endpoint: ok (GET)"}})
