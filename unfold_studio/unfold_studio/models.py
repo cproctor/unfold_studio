@@ -305,6 +305,7 @@ class Story(models.Model):
             "EXTERNAL input(a,b)",
             "EXTERNAL SEED_AI(a)",
             "EXTERNAL continue_function(a)",
+	    "EXTERNAL agent(a)",
         ]
 
     def ink_to_json(self, ink, offset=0):

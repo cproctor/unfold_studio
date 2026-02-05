@@ -14,6 +14,10 @@ function InkPlayer(containerSelector) {
     this.currentStoryPoint = 0;
     this.aiSeed = null;
     this.generateInProgress = false;
+    
+    this.agentFunctionCalled = false;
+    this.currentAgentCharacter = null;
+    this.currentAgentTarget = null;
 }
 
 InkPlayer.prototype = {
@@ -50,6 +54,21 @@ InkPlayer.prototype = {
             this.scheduleInputBoxForContinue()
             return '';
         }.bind(this));
+
+//AGENT
+
+	story.BindExternalFunction("agent_function", function(characterKnot, targetKnot) {
+            var characterKnotName = characterKnot._componentsString;
+            var targetKnotName = targetKnot._componentsString;
+	    this.agentFunctionCalled = true;
+	    this.currentAgentCharacter = characterKnotName;
+	    this.currentAgentTarget = targetKnotName;
+
+	    this.scheduleAgentInputBox("Talk to " + this.currentAgentCharacter);
+	    return '';
+	}.bind(this));
+
+
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
             this.inputFunctionCalled = true;
             this.scheduleInputBox(placeholder, variableName);
@@ -58,7 +77,7 @@ InkPlayer.prototype = {
         
         
         
-        
+       
         // TODO: There is a race condition here: the ajax query is sent off
         // with a callback for when it returns. Meanwhile, a temporary span
         // is created with text "Loading..." and a unique ID. Once the query 
@@ -150,6 +169,12 @@ InkPlayer.prototype = {
                     this.continueFunctionCalled = false;
                     return;
                 }
+
+		if (this.agentFunctionCalled) {
+		    this.agentFunctionCalled = false;
+		    this.events.renderScheduledInputBox();
+    		    return;
+		}
                 if (this.generateInProgress) {
                     await this.generateAndInsertInDOM(this.generatePrompt);
                 }
@@ -257,6 +282,27 @@ InkPlayer.prototype = {
         );
         this.inputBoxToInsert = formContainer;
     },
+
+    scheduleAgentInputBox: function(placeholder = "Enter text...."){
+	const eventHandler = (userInput) => {
+	    this.createStoryPlayRecord(
+                this.getStoryPlayInstanceUUID(),
+		"READERS_AGENT_ENTERED_TEXT",
+		userInput
+	    );
+
+            this.handleUserInputForAgent(userInput);
+        };
+
+        const formContainer = this.createInputForm(
+            "AUTHORS_AGENT_INPUT_BOX",
+            eventHandler,
+            placeholder,
+        );
+        this.inputBoxToInsert = formContainer;
+	this.events.renderScheduledInputBox();
+    },
+
     createInputForm: function(formType, eventHandler, placeholder, variableName=null) {
         const formContainer = document.createElement("div");
         formContainer.classList.add("input-container");
@@ -349,6 +395,67 @@ InkPlayer.prototype = {
                 break;
         }
     },
+
+//AGENT HANDLING INPUT
+
+    handleUserInputForAgent: async function(userInput){
+	const response = await $.ajax("/agent",{
+	    beforeSend: function(xhr) { xhr.setRequestHeader("X-CSRFToken", CSRF); },
+            method: "POST",
+            data: JSON.stringify({
+                user_input: userInput,
+                story_play_instance_uuid: this.getStoryPlayInstanceUUID(),
+                character_knot_name: this.currentAgentCharacter,
+                target_knot_name: this.currentAgentTarget,
+                ai_seed: this.aiSeed
+            }),
+            contentType: "application/json"
+        });
+
+	const nextDirectionJson = response.result;
+	
+	switch(nextDirectionJson.direction) {
+            case 'NEEDS_INPUT':
+                this.events.addContent({
+                    text: nextDirectionJson.content.agent_text,
+                    tags: ['agent']
+                });
+                this.scheduleAgentInputBox();
+                this.events.renderScheduledInputBox();
+                break;
+
+            case 'DIRECT_CONTINUE':
+                this.continueStory();
+                break;
+
+            case 'BRIDGE_AND_CONTINUE':
+                this.events.addContent({
+                    text: nextDirectionJson.content.agent_text,
+                    tags: ['agent']
+                });
+                this.events.addContent({
+                    text: nextDirectionJson.content.bridge_text,
+                    tags: ['bridge']
+                });
+                this.createStoryPlayRecord(
+                    this.getStoryPlayInstanceUUID(),
+                    "AI_GENERATED_TEXT",
+                    nextDirectionJson.content.bridge_text
+                );
+                this.continueStory();
+                break;
+
+            case 'INVALID_USER_INPUT':
+                this.scheduleAgentInputBox("Input was not valid... Try again");
+                this.events.renderScheduledInputBox();
+                break;
+
+            default:
+                console.error("Unexpected agent direction:", nextDirectionJson);
+                break;
+        }
+    },
+
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
     },
