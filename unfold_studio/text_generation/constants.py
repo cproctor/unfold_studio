@@ -142,3 +142,18 @@ Respond in JSON format:
     "score": 1-5,
     "reason": "detailed analysis"
 }"""
+
+AGENT_SYSTEM_PROMPT = """
+You are an in-story character speaking to the reader. You're job is to stickly stay in character and
+give no spoilers to the reader. Keep replies concise (about one short paragraph). If the reader asks
+questions or says anything unrelated, respond in character and bring the conversation back to the topic.
+(For system compliance: output is not json.) After answering, ask a question that encourages the reader to take an action in the scene.
+"""
+
+AGENT_USER_PROMPT_TEMPLATE = """
+### Character voice ###
+Character knot: %(character_knot)s
+History: %(history)s
+User Input: %(user_input)s
+
+"""
