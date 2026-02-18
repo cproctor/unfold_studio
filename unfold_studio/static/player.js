@@ -38,7 +38,7 @@ InkPlayer.prototype = {
             return Math.round(x);
         });
         story.BindExternalFunction("floor", function(x) {
-            return Math.floor(x);this.events.renderScheduledInputBox.bind(this)();
+            return Math.floor(x);
         });
         story.BindExternalFunction("ceiling", function(x) {
             return Math.ceil(x);
@@ -470,9 +470,6 @@ InkPlayer.prototype = {
                 this.events.renderScheduledInputBox.bind(this)();
             }
         },
-
-        handleUserInp
-
 
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
