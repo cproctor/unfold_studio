@@ -459,7 +459,7 @@ class CreateBookView(LoginRequiredMixin, CreateView):
 
 class BookListView(ListView):
     model = Book
-
+    paginate_by = 12
     def get_queryset(self):
         return Book.objects.filter(sites__id=get_current_site(self.request).id).select_related('owner')
 
