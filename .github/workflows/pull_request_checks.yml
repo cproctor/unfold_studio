@@ -28,23 +28,21 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version-file: "pyproject.toml"
           
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          
-      - name: Update lock file
-        run: poetry lock
-        
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
       - name: Install dependencies
-        run: poetry install --with dev,docs,admin
+        run: uv sync --locked --all-extras --dev
         
       - name: Run tests
         run: |
-          poetry run pytest unfold_studio/*/tests -v 
+          uv run pytest unfold_studio/*/tests -v 
 
   run_integration_tests:
     name: Run Integration Tests
@@ -53,29 +51,22 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.12'
+          python-version-file: "pyproject.toml"
           
-      - name: Install Poetry
-        run: |
-          curl -sSL https://install.python-poetry.org | python3 -
-          
-      - name: Update lock file
-        run: poetry lock
-        
+      - name: Install uv
+        uses: astral-sh/setup-uv@v7
+        with:
+          enable-cache: true
+
       - name: Install dependencies
-        run: poetry install --with dev,docs,admin
-            
-      # - name: Install Chrome
-      #   run: |
-      #     sudo apt-get update
-      #     sudo apt-get install -y chromium-browser chromium-chromedriver
+        run: uv sync --locked --all-extras --dev
           
       - name: Set up PostgreSQL
         uses: harmon758/postgresql-action@v1
         with:
-          postgresql version: '14'
+          postgresql version: '15'
           postgresql db: ${{ env.POSTGRES_DB }}
           postgresql user: ${{ env.POSTGRES_USER }}
           postgresql password: ${{ env.POSTGRES_PASSWORD }}
@@ -117,9 +108,9 @@ jobs:
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
-          poetry run python manage.py makemigrations
-          poetry run python manage.py migrate
-          poetry run python manage.py runserver ${{ env.DJANGO_PORT }} &
+          uv run python manage.py makemigrations
+          uv run python manage.py migrate
+          uv run python manage.py runserver ${{ env.DJANGO_PORT }} &
           sleep 5  # Wait for server to start
           
       - name: Verify Django server is running
@@ -138,7 +129,7 @@ jobs:
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
-          poetry run python -m integration_tests.ci_initialization.initialize_test_environment
+          uv run python -m integration_tests.ci_initialization.initialize_test_environment
           
       - name: Run integration tests
         env:
@@ -146,5 +137,5 @@ jobs:
           DJANGO_SETTINGS_MODULE: unfold_studio.settings
         run: |
           cd unfold_studio
-          poetry run python -m integration_tests.test_files.run_all_tests
+          uv run python -m integration_tests.test_files.run_all_tests
           
