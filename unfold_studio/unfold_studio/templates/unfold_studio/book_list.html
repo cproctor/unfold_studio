@@ -11,7 +11,18 @@
         When you are logged in, you can create your own books. 
     {% endif %}
 </p>
+</ul>
+<div class="description">
+    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
 
+    {% if page_obj.has_previous %}
+        [<a href="?page={{ page_obj.previous_page_number }}">Previous</a>]
+    {% endif %}
+
+    {% if page_obj.has_next %}
+        [<a href="?page={{ page_obj.next_page_number }}">Next</a>]
+    {% endif %}
+</div>
 <ul>
 {% for book in object_list %}
     <li><a href="{% url 'show_book' book.id %}">{{book.title}}</a> 

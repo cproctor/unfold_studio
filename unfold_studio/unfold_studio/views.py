@@ -71,7 +71,7 @@ def browse(request):
             stories = stories.annotate(
                 rank=SearchRank(F('search'), query), 
                 score=F('rank') * F('priority') / (F('rank') + F('priority'))
-            ).filter(rank__gte=s.SEARCH_RANK_CUTOFF).order_by('-score')
+            ).filter(Q(rank__gte=s.SEARCH_RANK_CUTOFF) | Q(author__username__icontains=form.cleaned_data['query'])).order_by('-score')
         else:
             messages.warning(request, "Please enter a valid search query")
             return redirect('list_stories')
@@ -459,7 +459,7 @@ class CreateBookView(LoginRequiredMixin, CreateView):
 
 class BookListView(ListView):
     model = Book
-
+    paginate_by = 12
     def get_queryset(self):
         return Book.objects.filter(sites__id=get_current_site(self.request).id).select_related('owner')
 
