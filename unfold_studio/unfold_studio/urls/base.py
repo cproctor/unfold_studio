@@ -23,6 +23,7 @@ urlpatterns = [
     path('users/<slug:slug>/follow/', profile_views.FollowUserView.as_view(), name="follow_user"),
     path('users/<slug:slug>/unfollow/', profile_views.UnfollowUserView.as_view(), name="unfollow_user"),
 
+    #Teacher Endpoints
     path('groups/', literacy_group_views.ListGroupsView.as_view(), name="list_groups"),
     path('groups/new', literacy_group_views.CreateGroupView.as_view(), name="create_group"),
     path('groups/<int:pk>/', literacy_group_views.ShowGroupView.as_view(), name="show_group"),
@@ -31,6 +32,9 @@ urlpatterns = [
     path('groups/<int:pk>/change_invite', literacy_group_views.ChangeGroupInviteView.as_view(), name="change_group_invite"),
     path('groups/<int:pk>/join', literacy_group_views.JoinGroupView.as_view(), name="join_group"),
     path('groups/<int:pk>/leave', literacy_group_views.LeaveGroupView.as_view(), name="leave_group"),
+    path('groups/<int:pk>/codes/generate' literacy_group_views.GenerateCodesView.as_view(), name="generate_codes"),
+    path('groups/<int:pk>/codes/<int:code_id>/delete/',literacy_group_views.DeleteJoinCodeView.as_view(), name="delete_code"),
+    
     path('groups/<int:pk>/prompts/new/', prompt_views.CreatePromptView.as_view(), 
             name="create_prompt"),
     path('groups/<int:group_pk>/prompts/<int:pk>/', prompt_views.ShowPromptView.as_view(), 
