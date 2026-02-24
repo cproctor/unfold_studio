@@ -190,6 +190,41 @@ def signup(request):
 
     return render(request, 'registration/signup.html', {'form': form})
 
+class StudentSignUpView(View):
+    def post(self, request):
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        code_str = request.POST.get('join_code')
+
+        # Use a transaction so if one part fails, nothing is saved
+        try:
+            with transaction.atomic():
+                # 1. Validate Code
+                join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                
+                # 2. Create User
+                user = User.objects.create_user(username=username, password=password)
+                
+                # 3. Create Profile (Crucial for your teacher checks)
+                Profile.objects.create(user=user, is_teacher=False)
+                
+                # 4. Link to Group
+                user.literacy_groups.add(join_code.group)
+                
+                # 5. Claim Code
+                join_code.assigned_user = user
+                join_code.save()
+
+                login(request, user)
+                return redirect('show_group', join_code.group.id)
+                
+        except JoinCode.DoesNotExist:
+            messages.error(request, "Invalid or expired join code.")
+            return redirect('signup')
+        except Exception as e:
+            messages.error(request, "An error occurred during sign up.")
+            return redirect('signup')
+
 class StoryVersionDetailView(View):
     verb = "viewed the history of"
 
