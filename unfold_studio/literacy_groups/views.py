@@ -100,11 +100,9 @@ class InviteToGroupView(LiteracyGroupContextMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['group'] = self.group
         context['leader'] = self.user_is_leader
-        context['join_url'] = self.request.build_absolute_uri(reverse('join_group', args=(self.group.id,)))
-        if not self.group.anyone_can_join:
-            context['join_url'] += '?code={}'.format(self.group.join_code)
+        context['join_codes'] = self.group.individual_codes.all()
         return context
-        
+     
     def get_queryset(self):
         return LiteracyGroup.objects.filter(site=get_current_site(self.request))
 
