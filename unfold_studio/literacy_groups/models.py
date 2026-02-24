@@ -23,3 +23,12 @@ class LiteracyGroup(models.Model):
         "Returns a new join code"
         return get_random_string(length=8).upper()
     
+
+class JoinCode(models.Model):
+    group = models.ForeignKey(LiteracyGroup, on_delete=models.CASCADE, related_name="individual_codes")
+    code = models.CharField(max_length=10, unique=True)
+    assigned_user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="used_join_code")
+
+    def __str__(self):
+        return f"{self.code} ({self.assigned_user.username if self.assigned_user else 'Unused'})"
+    
