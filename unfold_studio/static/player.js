@@ -57,7 +57,7 @@ InkPlayer.prototype = {
 
 //AGENT
 
-	story.BindExternalFunction("agent", function(characterKnot, targetKnot) {
+	story.BindExternalFunction("agent_call", function(characterKnot, targetKnot) {
             var characterKnotName = characterKnot._componentsString;
             var targetKnotName = targetKnot._componentsString;
 	    this.agentFunctionCalled = true;

@@ -245,23 +245,43 @@ class Story(models.Model):
         inkText = self.inject_input_call_indicators(inkText)
         inkText = self.inject_generate_call_indicators(inkText)
         inkText = self.inject_static_continue_knot(inkText)
+        inkText = self.inject_static_agent_knot(inkText)
+
+        debug_path = "/tmp/preprocessed_story.ink"
+        with open(debug_path, "w", encoding="utf-8") as f:
+            f.write(inkText)
+        print("WROTE PREPROCESSED INK TO:", debug_path)
 
         offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))
         return inkText, inclusions, variables, knots, offset
-    
+
     def inject_static_continue_knot(self, inkText):
         """
         Injects static continue knot text into the ink text.
         """
-        continue_knot = """
-        === continue(->target_knot) ===
-        ~ continue_function(target_knot)
-        Continue was called above
-        -> target_knot
-        """
+        continue_knot = (
+            "\n"
+            "=== continue(->target_knot) ===\n"
+            "~ continue_function(target_knot)\n"
+            "Continue was called above\n"
+            "-> target_knot\n"
+        )
         return inkText + continue_knot
-    
+
+    def inject_static_agent_knot(self, inkText):
+        """
+        Injects static agent knot text into the ink text.
+        """
+        agent_knot = (
+            "\n"
+            "=== agent(->character_knot, ->target_knot) ===\n"
+            "~ agent_call(character_knot, target_knot)\n"
+            "Agent was called above\n"
+            "-> target_knot\n"
+        )
+        return inkText + agent_knot
+
     def inject_input_call_indicators(self, inkText):
         """
         Injects input call indicators into the ink text.
@@ -305,7 +325,7 @@ class Story(models.Model):
             "EXTERNAL input(a,b)",
             "EXTERNAL SEED_AI(a)",
             "EXTERNAL continue_function(a)",
-	    "EXTERNAL agent(a)",
+            "EXTERNAL agent_call(a,b)",
         ]
 
     def ink_to_json(self, ink, offset=0):
@@ -318,6 +338,13 @@ class Story(models.Model):
         fqn = os.path.join(settings.INK_DIR, fn)
         with open(fqn, 'w', encoding='utf-8') as inkfile:
             inkfile.write(ink)
+
+        debug_copy = "/tmp/inklecate_input.ink"
+        with open(debug_copy, "w", encoding="utf-8") as f:
+            f.write(ink)
+        print("WROTE INKLECATE INPUT TO:", debug_copy)
+        print("INKLECATE FQN:", fqn)
+
         try:
             warnings = subprocess.check_output([settings.INKLECATE, fqn]).decode("utf-8-sig")
             for warning in warnings.split('\n'):
