@@ -30,7 +30,7 @@ class ListGroupsView(LoginRequiredMixin, ListView):
 
 class CreateGroupView(LoginRequiredMixin, CreateView):
     model = LiteracyGroup
-    fields = ['name', 'anyone_can_join']
+    fields = ['name']
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -48,14 +48,14 @@ class CreateGroupView(LoginRequiredMixin, CreateView):
             group = form.save()
             group.members.add(request.user)
             group.leaders.add(request.user)
-            log.info(name = "Literacy Groups Alert", event="New Litaracy Group Created", args={"user": request.user, "group_name": group.name, "group_id": group.id})
+            log.info(name = "Literacy Groups Alert", event="New Literacy Group Created", args={"user": request.user, "group_name": group.name, "group_id": group.id})
             return redirect('show_group', group.id)
         else:
             context = self.get_context_data(form=form)
             return render('literacy_groups/literacygroup_form.html', context=context)
 
 class UpdateGroupView(LiteracyGroupContextMixin, UpdateView):
-    fields = ['name', 'anyone_can_join']
+    fields = ['name']
     url_group_key = "pk"
 
     def get_context_data(self, **kwargs):
