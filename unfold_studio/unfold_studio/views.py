@@ -240,7 +240,7 @@ class StoryVersionDetailView(View):
         if len(comment) > 100:
             comment = comment[:100] + '...'
         return render(request, 'unfold_studio/show_story_version.html', {
-            'story': versions[vIndex - 1].object,
+            'story': versions[vIndex - 1]._object_version.object,
             'comment': comment,
             'version': vIndex,
             'previousVersion': vIndex - 1 if vIndex > 1 else None,
@@ -384,9 +384,9 @@ class NewStoryVersionView(StoryMethodView):
         story = self.get_object()
         if form.is_valid():
             with reversion.create_revision():
-            story.save() 
-            reversion.set_user(request.user)
-            reversion.set_comment(form.cleaned_data['comment'])
+                story.save() 
+                reversion.set_user(request.user)
+                reversion.set_comment(form.cleaned_data['comment'])
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.TAGGED_STORY_VERSION,
                 subject=request.user,

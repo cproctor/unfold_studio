@@ -92,6 +92,10 @@ class ShowPromptView(LiteracyGroupContextMixin, DetailView):
         if form.is_valid():
             prompt = self.get_object()
             story = Story.objects.get_editable_for_request_or_404(self.request, pk=form.cleaned_data['story'])
+            with reversion.create_revision():
+                story.save() 
+                reversion.set_user(self.request.user)
+                reversion.set_comment("Submitted to prompt: {}".format(prompt.name))
             version = Version.objects.get_for_object(story).last()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
                     submitted_story_version=version)
