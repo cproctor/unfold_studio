@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Log in — Mock</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  
+    <div class="nav">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <a href="index.html" style="color:#fff;text-decoration:none">Unfold Studio</a>
+      </div>
+      <div class="links">
+        <a href="browse_stories.html" class="">Browse stories</a>
+        <a href="books.html" class="">Books</a>
+        <a href="new_story.html" style="color:#fff;text-decoration:none">New Story</a>
+        <div class="search">
+          <form action="browse_stories.html" method="get">
+            <input type="text" name="query" placeholder="Search stories..." />
+            <button type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="auth">
+        <a href="login.html" style="color:#fff;text-decoration:none">Log in</a>
+        <a href="signup.html" style="color:#fff;text-decoration:none">Sign up</a>
+      </div>
+    </div>
+
+  <main class="container">
+    <div class="h1">Log in</div>
+    <div class="card">
+      <h3>Log in to Unfold Studio</h3>
+      <p class="lead">Use any username and password for this demo. This does not create a real account.</p>
+
+      <form action="browse_stories.html" method="get" style="max-width:360px;display:grid;gap:10px;margin-top:8px">
+        <label>Username<br/>
+          <input type="text" name="username" required
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit"/>
+        </label>
+
+        <label>Password<br/>
+          <input type="password" name="password" required
+                 style="width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-family:inherit"/>
+        </label>
+
+        <div class="actions">
+          <button class="btnPrimary" type="submit">Log In</button>
+        </div>
+      </form>
+    </div>
+  </main>
+  
+<div class="footer">
+  <a href="#">Help</a>
+  <a href="#">About</a>
+  <a href="#">For Teachers</a>
+</div>
+
+  <script src="script.js"></script>
+</body>
+</html>

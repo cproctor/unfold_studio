@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Public Story Editor</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <!-- reuse your nav HTML here, but WITHOUT anonymous banner/pill -->
+  <!-- IMPORTANT: make Sign up link have id="signupClaimLink" -->
+  <div class="nav">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <a href="index.html" style="color:#fff;text-decoration:none">Unfold Studio</a>
+    </div>
+
+    <div class="links">
+      <a href="browse_stories.html" style="color:#fff;text-decoration:none">Browse stories</a>
+      <a href="books.html" style="color:#fff;text-decoration:none">Books</a>
+      <a href="new_story.html" style="color:#fff;text-decoration:none">New Story</a>
+
+      <div class="search">
+        <form action="browse_stories.html" method="get">
+          <input type="text" name="query" placeholder="Search stories..." />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="auth">
+      <a href="login.html" style="color:#fff;text-decoration:none">Log in</a>
+      <a id="signupClaimLink" href="signup.html" style="color:#fff;text-decoration:none">Sign up</a>
+    </div>
+  </div>
+
+  <main class="container" id="publicStoryLabel">
+    <div class="storyTop">
+      <div class="title" id="storyTitleText">Public Story</div>
+      <div class="by">by <span id="authorDisplay">—</span> • ID: <span id="storyIdText"></span></div>
+      <div style="margin-top:8px">
+        <label>Your name <input id="authorInput" type="text" placeholder="Author name" style="margin-left:6px;padding:6px 10px;border:1px solid var(--border);border-radius:6px;font-family:inherit;min-width:180px" /></label>
+      </div>
+    </div>
+
+    <div class="notice" style="margin-top:12px">
+      <strong>Public story rules</strong>
+      <ul style="margin:8px 0 0 18px">
+        <li>AI features are not available.</li>
+        <li>Public stories are temporary and may be deleted.</li>
+        <li>Public stories are not listed or searchable.</li>
+        <li>Anyone can edit public stories.</li>
+      </ul>
+    </div>
+
+    <p class="lead" id="storyDescText" style="margin-top:14px"></p>
+
+    <!-- actions (NO share/love/ai shown) -->
+    <div class="storyActions">
+      <button type="button" data-demo-save>[Save]</button>
+      <button type="button" data-demo-rename>[Rename]</button>
+      <button id="forkPublicBtn" class="btnGhost" style="padding:6px 10px;border-radius:8px">Fork</button>
+    </div>
+
+    <div class="editorToolbar">
+      <button type="button" class="codeToggle" id="codeToggleBtn">Hide code</button>
+    </div>
+
+    <div class="editorSplit" id="editorSplit">
+      <div class="editorInk">
+        <label>Ink</label>
+        <textarea id="inkEditor" placeholder="=== my_story ===&#10;Hello, world.&#10;-> END">=== my_story ===
+Hello, world.
+-> END</textarea>
+      </div>
+      <div class="editorStory" id="storyPreview">
+        Hello, world.
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Owned Story Editor</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  <div class="nav">
+    <div class="brand">
+      <span class="logo" aria-hidden="true"></span>
+      <a href="index.html" style="color:#fff;text-decoration:none">Unfold Studio</a>
+    </div>
+
+    <div class="links">
+      <a href="browse_stories.html" style="color:#fff;text-decoration:none">Browse stories</a>
+      <a href="books.html" style="color:#fff;text-decoration:none">Books</a>
+      <a href="new_story.html" style="color:#fff;text-decoration:none">New Story</a>
+
+      <div class="search">
+        <form action="browse_stories.html" method="get">
+          <input type="text" name="query" placeholder="Search stories..." />
+          <button type="submit">Search</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="spacer"></div>
+
+    <div class="auth">
+      <span style="color:#fff;opacity:.9">mukeshkr</span>
+      <a href="index.html" style="color:#fff;text-decoration:none">[Log out]</a>
+    </div>
+  </div>
+
+  <main class="container">
+    <div class="h1">Story claimed ✅</div>
+    <p class="lead">
+      You now own story: <strong id="ownedId"></strong>
+    </p>
+
+    <div class="notice">
+      This is how the editor looks after signup (owned story).
+      Features like Share/Love/AI can now appear.
+    </div>
+
+    <div class="storyActions" style="margin-top:14px">
+      <button type="button" data-demo-save>[Save]</button>
+      <button type="button" data-demo-rename>[Rename]</button>
+      <span>[Share]</span>
+      <span>[Love]</span>
+      <span>[AI Generate]</span>
+    </div>
+
+    <div class="editorToolbar">
+      <button type="button" class="codeToggle" id="codeToggleBtn">Hide code</button>
+    </div>
+
+    <div class="editorSplit" id="editorSplit">
+      <div class="editorInk">
+        <label>Ink</label>
+        <textarea id="inkEditor" placeholder="=== my_story ===&#10;Hello, world.&#10;-> END">=== my_story ===
+Hello, world.
+-> END</textarea>
+      </div>
+      <div class="editorStory" id="storyPreview">
+        Hello, world.
+      </div>
+    </div>
+  </main>
+
+  <script src="script.js"></script>
+  <script>
+    const params = new URLSearchParams(location.search);
+    document.getElementById("ownedId").textContent = params.get("story_id") || "unknown";
+  </script>
+</body>
+</html>
+

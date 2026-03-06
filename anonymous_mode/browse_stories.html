@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Browse stories — Mock</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+  
+    <div class="nav">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <a href="index.html" style="color:#fff;text-decoration:none">Unfold Studio</a>
+      </div>
+      <div class="links">
+        <a href="browse_stories.html" class="active">Browse stories</a>
+        <a href="books.html">Books</a>
+        <a href="new_story.html" style="color:#fff;text-decoration:none">New Story</a>
+        <div class="search">
+          <form action="browse_stories.html" method="get">
+            <input type="text" name="query" placeholder="Search stories..." />
+            <button type="submit">Search</button>
+          </form>
+        </div>
+      </div>
+      <div class="spacer"></div>
+      <div class="auth">
+        <a href="login.html" style="color:#fff;text-decoration:none">Log in</a>
+        <a href="signup.html" style="color:#fff;text-decoration:none">Sign up</a>
+      </div>
+    </div>
+
+  <main class="container">
+    <div class="h1" id="storiesHeading">All stories</div>
+
+    <div class="inlineAlert" data-inline-alert style="display:none"></div>
+
+    <div class="list" id="storiesListWrap">
+      <div class="meta" id="storiesMeta">Page 1 of 1</div>
+      <ul id="storiesList">
+        <li class="story-item" data-title="The real beginning starts when you are about to lose" data-author="sanjay183">
+          <a href="story_real_beginning.html">The real beginning starts when you are about to lose</a>
+          <span class="meta"> by sanjay183</span>
+        </li>
+        <li class="story-item" data-title="testing" data-author="demo_author">
+          <a href="story_testing_ai.html">testing</a>
+          <span class="meta"> by demo_author</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="card" id="noStories" style="display:none;max-width:760px">
+      <h2>Sorry, no stories were found.</h2>
+      <p class="muted">Try a different keyword.</p>
+    </div>
+  </main>
+  
+<div class="footer">
+  <a href="#">Help</a>
+  <a href="#">About</a>
+  <a href="#">For Teachers</a>
+</div>
+
+  <script src="script.js"></script>
+</body>
+</html>
