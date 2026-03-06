@@ -421,7 +421,6 @@ InkPlayer.prototype = {
             const direction = decision.direction || "NEEDS_INPUT";
             const content = decision.content || {};
 
-            // IMPORTANT: bind(this) so addContent uses InkPlayer.container
             if (characterText) {
                 this.events.addContent.bind(this)({
                     text: characterText,
