@@ -283,13 +283,13 @@ InkPlayer.prototype = {
         this.inputBoxToInsert = formContainer;
     },
 
-    scheduleAgentInputBox: function(placeholder = "Enter text...."){
-	const eventHandler = (userInput) => {
-	    this.createStoryPlayRecord(
+    scheduleAgentInputBox: function(placeholder = "Enter text....") {
+        const eventHandler = (userInput) => {
+            this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(),
-		"READERS_AGENT_ENTERED_TEXT",
-		userInput
-	    );
+                "READERS_AGENT_ENTERED_TEXT",
+                userInput
+            );
 
             this.handleUserInputForAgent(userInput);
         };
@@ -297,10 +297,11 @@ InkPlayer.prototype = {
         const formContainer = this.createInputForm(
             "AUTHORS_AGENT_INPUT_BOX",
             eventHandler,
-            placeholder,
+            placeholder
         );
+
         this.inputBoxToInsert = formContainer;
-	this.events.renderScheduledInputBox();
+        this.events.renderScheduledInputBox.bind(this)();
     },
 
     createInputForm: function(formType, eventHandler, placeholder, variableName=null) {
@@ -396,80 +397,87 @@ InkPlayer.prototype = {
         }
     },
 
-
-// AGENT HANDLING INPUT
+    // AGENT HANDLING INPUT
     handleUserInputForAgent: async function(userInput) {
-       try {
-                const response = await $.ajax("/agent", {
-                    beforeSend: function(xhr) { xhr.setRequestHeader("X-CSRFToken", CSRF); },
-                    method: "POST",
-                    data: JSON.stringify({
-                        user_input: userInput,
-                        story_play_instance_uuid: this.getStoryPlayInstanceUUID(),
-                        character_knot_name: this.currentAgentCharacter,
-                        target_knot_name: this.currentAgentTarget,
-                        ai_seed: this.aiSeed
-                    }),
-                    contentType: "application/json"
+        try {
+            const response = await $.ajax("/agent/", {
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                },
+                method: "POST",
+                data: JSON.stringify({
+                    user_input: userInput,
+                    story_play_instance_uuid: this.getStoryPlayInstanceUUID(),
+                    character_knot_name: this.currentAgentCharacter,
+                    target_knot_name: this.currentAgentTarget,
+                    ai_seed: this.aiSeed
+                }),
+                contentType: "application/json"
+            });
+
+            const agentResult = response.result || {};
+            const characterText = agentResult.character_text || "";
+            const decision = agentResult.continue_decision || {};
+            const direction = decision.direction || "NEEDS_INPUT";
+            const content = decision.content || {};
+
+            // IMPORTANT: bind(this) so addContent uses InkPlayer.container
+            if (characterText) {
+                this.events.addContent.bind(this)({
+                    text: characterText,
+                    tags: ["agent"]
                 });
-
-                const agentResult = response.result || {};
-                const characterText = agentResult.character_text || "";
-                const decision = agentResult.continue_decision || {};
-                const direction = decision.direction || "NEEDS_INPUT";
-                const content = decision.content || {};
-
-            
-               if (characterText) {
-                    this.events.addContent({ text: characterText, tags: ['agent'] });
-                }
-
-                switch (direction) {
-                    case 'NEEDS_INPUT':
-                        this.scheduleAgentInputBox();
-                        this.events.renderScheduledInputBox.bind(this)();
-                        break;
-
-                    case 'INVALID_USER_INPUT':
-                        this.scheduleAgentInputBox("Input was not valid... Try again");
-                        this.events.renderScheduledInputBox.bind(this)();
-                        break;
-
-                    case 'BRIDGE_AND_CONTINUE':
-                        if (content.bridge_text) {
-                            this.events.addContent({ text: content.bridge_text, tags: ['bridge'] });
-
-                            this.createStoryPlayRecord(
-                                this.getStoryPlayInstanceUUID(),
-                                "AI_GENERATED_TEXT",
-                                content.bridge_text
-                            );
-                        }
-                        this.continueStory();
-                        break;
-
-                    case 'DIRECT_CONTINUE':
-                        this.continueStory();
-                        break;
-
-                    default:
-                        console.error("Unexpected agent direction:", direction, decision);
-                        this.scheduleAgentInputBox("Something went wrong — try again");
-                        this.events.renderScheduledInputBox.bind(this)();
-                        break;
-                }
-            } catch (err) {
-                console.error("Agent request failed:", err);
-
-                this.events.addContent({
-                    text: "Connection issue talking to the character. Please try again.",
-                    tags: ['agent']
-                });
-
-                this.scheduleAgentInputBox("Try again...");
-                this.events.renderScheduledInputBox.bind(this)();
             }
-        },
+
+            switch (direction) {
+                case "NEEDS_INPUT":
+                    this.scheduleAgentInputBox();
+                    this.events.renderScheduledInputBox.bind(this)();
+                    break;
+
+                case "INVALID_USER_INPUT":
+                    this.scheduleAgentInputBox("Input was not valid... Try again");
+                    this.events.renderScheduledInputBox.bind(this)();
+                    break;
+
+                case "BRIDGE_AND_CONTINUE":
+                    if (content.bridge_text) {
+                        this.events.addContent.bind(this)({
+                            text: content.bridge_text,
+                            tags: ["bridge"]
+                        });
+
+                        this.createStoryPlayRecord(
+                            this.getStoryPlayInstanceUUID(),
+                            "AI_GENERATED_TEXT",
+                            content.bridge_text
+                        );
+                    }
+                    this.continueStory();
+                    break;
+
+                case "DIRECT_CONTINUE":
+                    this.continueStory();
+                    break;
+
+                default:
+                    console.error("Unexpected agent direction:", direction, decision);
+                    this.scheduleAgentInputBox("Something went wrong — try again");
+                    this.events.renderScheduledInputBox.bind(this)();
+                    break;
+            }
+        } catch (err) {
+            console.error("Agent request failed:", err);
+
+            this.events.addContent.bind(this)({
+                text: "Connection issue talking to the character. Please try again.",
+                tags: ["agent"]
+            });
+
+            this.scheduleAgentInputBox("Try again...");
+            this.events.renderScheduledInputBox.bind(this)();
+        }
+    },
 
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
