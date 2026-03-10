@@ -11,3 +11,11 @@ log/*
 analysis/
 **/.DS_Store
 .unfold_studio*
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

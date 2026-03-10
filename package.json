@@ -1,0 +1,23 @@
+{
+  "name": "unfold_studio",
+  "version": "1.0.0",
+  "description": "[Unfold Studio](https://unfoldstudio.net) is an online community for interactive  storytelling powered by a programming language called Ink. Interactive storytelling  brings together the power of programming with the ability of stories to represent  and explore our lived realities. Unfold Studio is free and open-source.",
+  "main": "index.js",
+  "scripts": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cproctor/unfold_studio.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/cproctor/unfold_studio/issues"
+  },
+  "homepage": "https://github.com/cproctor/unfold_studio#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.58.2",
+    "@types/node": "^25.3.3"
+  }
+}
