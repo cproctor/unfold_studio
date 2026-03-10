@@ -178,7 +178,7 @@ def show_ink(request, story_id):
     return render(request, 'unfold_studio/show_ink.html', {'story': story})
 
 def signup(request):
-   if request.method == 'POST':
+    if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
             try:
