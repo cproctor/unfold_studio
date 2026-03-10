@@ -14,8 +14,7 @@ urlpatterns = [
     path('favicon.ico', favicon_view),
 
     path('admin/', admin.site.urls),
-    path('signup', views.signup, name='signup'),
-    path('signup/student/', views.StudentSignUpView.as_view(), name="student_signup"),
+    path('signup/', views.signup, name='signup'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('', views.home, name="home"),
     path('', include('django.contrib.auth.urls')),
