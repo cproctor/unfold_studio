@@ -6,18 +6,18 @@ import re
 
 
 class SignUpForm(UserCreationForm):
-    email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
+    email = forms.EmailField(max_length=254, required=False, help_text='Inform a valid email address (Teachers/Regular users only).')
   
     #Dropdown choices
     USER_TYPE_CHOICES = [
     ('regular', 'Regular User'),
     ('student', 'Student'),
     ('teacher', 'Teacher/Instructor'),
-   ]
+    ]
     #Add dropdown
     user_type= forms.ChoiceField(
         choices= USER_TYPE_CHOICES,
-        Label= "I am a...",
+        label= "I am a...",
         initial='regular',
         required= True
     )

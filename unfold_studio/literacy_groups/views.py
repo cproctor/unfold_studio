@@ -132,7 +132,7 @@ class JoinGroupView(LiteracyGroupContextMixin, View):
             return redirect('home')
         
         #Check if code is taken by someone else
-        if join_code.assigned_user and join_code.assigned user != request.user:
+        if join_code.assigned_user and join_code.assigned_user != request.user:
             messages.warning(request, "This code has already been used.")
             return redirect('home')
         
