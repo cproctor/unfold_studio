@@ -1,21 +1,23 @@
 [project]
 name = "unfold-studio"
-version = "1.0.0"
+version = "1.1.0"
 description = "Web application for interactive storytelling"
-license = { text = "MIT" }
-authors = [
-    { name = "Chris Proctor", email = "chris@chrisproctor.net>"}
-]
-maintainers = [
-    { name = "Chris Proctor", email = "chris@chrisproctor.net>"}
-]
-readme = "README.md"
-keywords = [
-    "interactive storytelling", 
-    "ink", 
-    "computer science education"
-]
+authors = [{ name = "Chris Proctor", email = "chris@chrisproctor.net>" }]
 requires-python = ">=3.12"
+readme = "README.md"
+license = { text = "MIT" }
+maintainers = [{ name = "Chris Proctor", email = "chris@chrisproctor.net>" }]
+keywords = [
+    "interactive storytelling",
+    "ink",
+    "computer science education",
+]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+]
 dependencies = [
     "django >= 5.0.6",
     "django-storages >= 1.14.3",
@@ -38,31 +40,22 @@ homepage = "https://unfoldstudio.net/"
 repository = "https://github.com/cproctor/unfold_studio"
 documentation = "https://unfoldstudio.net/user-guide/"
 
-[tool.poetry]
-package-mode = false
+[dependency-groups]
+admin = ["tabulate>=0.9.0"]
+dev = [
+    "django-debug-toolbar>=4.4.2",
+    "pytest>=8.0.0",
+    "pytest-django>=4.8.0",
+    "selenium>=4.18.1",
+    "webdriver-manager>=4.0.1",
+    "sentence-transformers>= 2.5.1",
+    "numpy>= 1.26.0",
+    "django-silk>= 5.3.2",
+]
 
-[tool.poetry.dependencies]
-python = ">=3.12,<4.0"
-
-[tool.poetry.group.admin]
-optional = true
-
-[tool.poetry.group.admin.dependencies]
-tabulate = ">=0.9.0"
-
-[tool.poetry.group.dev]
-optional = true
-
-[tool.poetry.group.dev.dependencies]
-django-debug-toolbar = ">=4.4.2"
-pytest = ">=8.0.0"
-pytest-django = ">=4.8.0"
-selenium = ">=4.18.1"
-webdriver-manager = ">=4.0.1"
-sentence-transformers = ">= 2.5.1"
-numpy = ">= 1.26.0"
-django-silk = ">= 5.3.2"
+[tool.uv]
+package = false
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires = ["uv_build>=0.9.0,<0.10.0"]
+build-backend = "uv_build"
