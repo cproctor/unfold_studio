@@ -18,6 +18,8 @@ function InkPlayer(containerSelector) {
     this.agentFunctionCalled = false;
     this.currentAgentCharacter = null;
     this.currentAgentTarget = null;
+    this.isAgentLoading = false;
+    this.agentLoading = null;
 }
 
 InkPlayer.prototype = {
@@ -91,19 +93,72 @@ InkPlayer.prototype = {
             return '';
         }.bind(this));
     },
+
+    resetAgent: function() {
+        this.agentFunctionCalled = false;
+        this.currentAgentCharacter = null;
+        this.currentAgentTarget = null;
+
+        this.isAgentLoading = false;
+
+        if (this.agentLoading && this.agentLoading.parentNode) {
+            this.agentLoading.parentNode.removeChild(this.agentLoading);
+        }
+        this.agentLoading = null;
+    },
+
+    showAgentLoading: function(message = "Thinking...") {
+        this.hideAgentLoading();
+        const p = document.createElement("p");
+        p.classList.add("regular-text");
+        p.classList.add("story-content");
+        p.classList.add("agent-loading");
+        p.innerText = message;
+        this.container.appendChild(p);
+        this.agentLoading= p;
+        this.events.renderDidEnd.bind(this)();
+    },
+
+    hideAgentLoading: function() {
+        if (this.agentLoading&& this.agentLoading.parentNode) {
+            this.agentLoading.parentNode.removeChild(this.agentLoading);
+        }
+        this.agentLoading = null;
+    },
+
+    safeAddContent: function(contentObj) {
+        this.events.addContent.bind(this)(contentObj);
+        this.events.renderDidEnd.bind(this)();
+    },
+
+    isValidAgentResponse: function(resp) {
+        if (!resp || typeof resp !== "object") return false;
+        if (!resp.result || typeof resp.result !== "object") return false;
+        const r = resp.result;
+
+        if (r.character_text !== undefined && typeof r.character_text !== "string") return false;
+        if (!r.continue_decision || typeof r.continue_decision !== "object") return false;
+        if (typeof r.continue_decision.direction !== "string") return false;
+        if (r.continue_decision.content !== undefined && typeof r.continue_decision.content !== "object") return false;
+
+        return true;
+    },
+
     play: function(content) {
         this.events.prepareToPlay.bind(this)();
+        this.resetAgent();
         this.content = content;
         this.aiSeed = null;
         if (content.status != 'ok') {
             this.events.reportError.bind(this)(content.error);
-            return 
-        } 
+            return;
+        }
         this.story = new inkjs.Story(content.compiled);
         this.bindExternalFunctions(this.story);
         this.running = true;
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
+
     generateAndInsertInDOM: async function(prompt_text) {
         if (prompt_text.includes("data-loaded")) {
             const el = new DOMParser().parseFromString(
@@ -208,7 +263,9 @@ InkPlayer.prototype = {
     stop: function() { 
         this.timeouts.forEach(clearTimeout);
         this.running = false;
+        this.resetAgent();
     },
+
     logPath: function() {
         /*
         if (window.LOG_READING_URL) {
@@ -285,6 +342,10 @@ InkPlayer.prototype = {
 
     scheduleAgentInputBox: function(placeholder = "Enter text....") {
         const eventHandler = (userInput) => {
+            if (this.isAgentLoading) {
+                return;
+            }
+
             this.createStoryPlayRecord(
                 this.getStoryPlayInstanceUUID(),
                 "READERS_AGENT_ENTERED_TEXT",
@@ -302,6 +363,7 @@ InkPlayer.prototype = {
 
         this.inputBoxToInsert = formContainer;
         this.events.renderScheduledInputBox.bind(this)();
+        this.events.renderDidEnd.bind(this)();
     },
 
     createInputForm: function(formType, eventHandler, placeholder, variableName=null) {
@@ -399,6 +461,14 @@ InkPlayer.prototype = {
 
     // AGENT HANDLING INPUT
     handleUserInputForAgent: async function(userInput) {
+        if (this.isAgentLoading) {
+            return;
+        }
+
+        this.isAgentLoading = true;
+        const who = this.currentAgentCharacter ? this.currentAgentCharacter : "The character";
+        this.showAgentLoading(who + " is thinking...");
+
         try {
             const response = await $.ajax("/agent/", {
                 beforeSend: function(xhr) {
@@ -415,15 +485,42 @@ InkPlayer.prototype = {
                 contentType: "application/json"
             });
 
-            const agentResult = response.result || {};
-            const characterText = agentResult.character_text || "";
+            this.hideAgentLoading();
+            this.isAgentLoading = false;
+
+            if (!this.isValidAgentResponse(response)) {
+                this.safeAddContent({
+                    text: "Hmm—something went wrong getting a reply. Please try again.",
+                    tags: ["agent"]
+                });
+                this.scheduleAgentInputBox("Try again...");
+                return;
+            }
+
+            const agentResult = response.result || response;
+            const characterText = typeof agentResult.character_text === "string"
+		? agentResult.character_text.trim()
+		: "";
+
             const decision = agentResult.continue_decision || {};
             const direction = decision.direction || "NEEDS_INPUT";
             const content = decision.content || {};
 
             if (characterText) {
-                this.events.addContent.bind(this)({
-                    text: characterText,
+                this.safeAddContent({ 
+		    text: characterText, 
+		    tags: ["agent"]
+		});
+
+		this.createStoryPlayRecord(
+                    this.getStoryPlayInstanceUUID(),
+                    "AI_GENERATED_TEXT",
+                    characterText
+                );
+
+            } else {
+                this.safeAddContent({
+                    text: "…No reply came back :( Please try again",
                     tags: ["agent"]
                 });
             }
@@ -431,27 +528,33 @@ InkPlayer.prototype = {
             switch (direction) {
                 case "NEEDS_INPUT":
                     this.scheduleAgentInputBox();
-                    this.events.renderScheduledInputBox.bind(this)();
                     break;
 
                 case "INVALID_USER_INPUT":
                     this.scheduleAgentInputBox("Input was not valid... Try again");
-                    this.events.renderScheduledInputBox.bind(this)();
                     break;
 
                 case "BRIDGE_AND_CONTINUE":
-                    if (content.bridge_text) {
-                        this.events.addContent.bind(this)({
-                            text: content.bridge_text,
-                            tags: ["bridge"]
-                        });
+                    if (
+			content.bridge_text && 
+			typeof content.bridge_text === "string" && 
+			content.bridge_text.trim()
+			) {
+                            this.safeAddContent({ 
+			        text: content.bridge_text, tags: ["bridge"] 
+			    });
 
-                        this.createStoryPlayRecord(
-                            this.getStoryPlayInstanceUUID(),
-                            "AI_GENERATED_TEXT",
-                            content.bridge_text
-                        );
+                            this.createStoryPlayRecord(
+                                this.getStoryPlayInstanceUUID(),
+                                "AI_GENERATED_TEXT",
+                                content.bridge_text
+                            );
+                    } else {
+                        this.safeAddContent({ 
+			    text: "Okay — let’s continue.", tags: ["bridge"] 
+			    });
                     }
+
                     this.continueStory();
                     break;
 
@@ -460,21 +563,25 @@ InkPlayer.prototype = {
                     break;
 
                 default:
-                    console.error("Unexpected agent direction:", direction, decision);
-                    this.scheduleAgentInputBox("Something went wrong — try again");
-                    this.events.renderScheduledInputBox.bind(this)();
+                    this.safeAddContent({
+                        text: "I didn’t understand what to do next — try again.",
+                        tags: ["agent"]
+                    });
+                    this.scheduleAgentInputBox("Try again...");
                     break;
             }
         } catch (err) {
+            this.hideAgentLoading();
+            this.isAgentLoading = false;
+
             console.error("Agent request failed:", err);
 
-            this.events.addContent.bind(this)({
+            this.safeAddContent({
                 text: "Connection issue talking to the character. Please try again.",
                 tags: ["agent"]
             });
 
             this.scheduleAgentInputBox("Try again...");
-            this.events.renderScheduledInputBox.bind(this)();
         }
     },
 
