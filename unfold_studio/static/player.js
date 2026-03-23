@@ -114,8 +114,9 @@ InkPlayer.prototype = {
         p.classList.add("story-content");
         p.classList.add("agent-loading");
         p.innerText = message;
+        p.classList.add("show");
         this.container.appendChild(p);
-        this.agentLoading= p;
+        this.agentLoading = p;
         this.events.renderDidEnd.bind(this)();
     },
 
@@ -358,7 +359,9 @@ InkPlayer.prototype = {
         const formContainer = this.createInputForm(
             "AUTHORS_AGENT_INPUT_BOX",
             eventHandler,
-            placeholder
+            placeholder,
+            null,
+            true
         );
 
         this.inputBoxToInsert = formContainer;
@@ -366,7 +369,7 @@ InkPlayer.prototype = {
         this.events.renderDidEnd.bind(this)();
     },
 
-    createInputForm: function(formType, eventHandler, placeholder, variableName=null) {
+    createInputForm: function(formType, eventHandler, placeholder, variableName=null, isAgentForm=false) {
         const formContainer = document.createElement("div");
         formContainer.classList.add("input-container");
 
@@ -397,7 +400,11 @@ InkPlayer.prototype = {
             eventHandler(userInput);
             
             inputElement.disabled = true;
-            buttonElement.disabled = true;
+            if (isAgentForm) {
+                buttonElement.parentNode.removeChild(buttonElement);
+            } else {
+                buttonElement.disabled = true;
+            }
             formElement.style.opacity = "0.5";
         });
 
@@ -536,13 +543,13 @@ InkPlayer.prototype = {
 
                 case "BRIDGE_AND_CONTINUE":
                     if (
-			content.bridge_text && 
-			typeof content.bridge_text === "string" && 
-			content.bridge_text.trim()
-			) {
+		content.bridge_text && 
+		typeof content.bridge_text === "string" && 
+		content.bridge_text.trim()
+		) {
                             this.safeAddContent({ 
-			        text: content.bridge_text, tags: ["bridge"] 
-			    });
+		        text: content.bridge_text, tags: ["bridge"] 
+		    });
 
                             this.createStoryPlayRecord(
                                 this.getStoryPlayInstanceUUID(),
@@ -551,8 +558,8 @@ InkPlayer.prototype = {
                             );
                     } else {
                         this.safeAddContent({ 
-			    text: "Okay — let’s continue.", tags: ["bridge"] 
-			    });
+		    text: "Okay — let's continue.", tags: ["bridge"] 
+		    });
                     }
 
                     this.continueStory();
@@ -564,7 +571,7 @@ InkPlayer.prototype = {
 
                 default:
                     this.safeAddContent({
-                        text: "I didn’t understand what to do next — try again.",
+                        text: "I didn't understand what to do next — try again.",
                         tags: ["agent"]
                     });
                     this.scheduleAgentInputBox("Try again...");
