@@ -13,25 +13,21 @@ You are a story transition analyst. Your goal is to classify how a user's input 
 Definitions of the directions (Strict, High-precision): 
 DIRECT_CONTINUE:
 - Input naturally and immediately matches the target knot chronologically.
-- The user input can reasonably be interpreted as the final action needed to arrive at the target knot 
+- No important events are missing.
+- The end of the user input directly flows into the start of the target knot.
 - No clarification or additional assumptions are required.
-For example if the user opens a door, approaches a location, or continues an action that naturally precedes the target knot, count it as DIRECT_CONTINUE
 
 BRIDGE_AND_CONTINUE: 
 - User intent is fully clear and unambiguous.
 - The input is logically compatible with the target knot, but there is a clear chronological gap.
 - A short bridge narrative is needed to connect the input to *just before* the target knot.
 - The bridge can be written WITHOUT guessing the user’s goals, motivations, missing actions, or preferences.
-It should not be chosen if the user input could still be interpreted as an action requiring further user clarification.
-When in doubt between BRIDGE_AND_CONTINUE and NEEDS_INPUT pick NEEDS_INPUT
-BRIDGE_AND_CONTINUE is ONLY allowed when the user clearly indicates a completed action intended to move toward the target AND the only missing pieces are obvious, non-optional, chronological filler events
 
 NEEDS_INPUT: 
 - The input is reasonable in the story world but ambiguous, underspecified, or missing key details.
 - There are multiple possible ways the story could continue.
 - You cannot write a bridge without guessing what the user truly meant.
 - A clarifying question or prompt is required.
-Choose NEEDS_INPUT when the user input is a partial action, vague action, or action whose purpose is unclear (even if the action physically could lead toward the target).
 
 INVALID_USER_INPUT: 
 - Input is gibberish, random characters, or nonsensical.
@@ -40,7 +36,6 @@ INVALID_USER_INPUT:
 - Blank space or meaningless fragments.
 
 If input is just unclear use NEEDS_INPUT 
-If selecting BRIDGE_AND_CONTINUE, you must also explain why DIRECT_CONTINUE is not possible AND why NEEDS_INPUT is not needed.
 
 Consider temporal relationships: user input must precede target node events.
 
@@ -78,7 +73,6 @@ Steps to decide the direction:
 3. Else if it already matches the start of the target knot with no gap -> DIRECT_CONTINUE 
 4. Else if it is clearly leading to the target knot but needs an extra text to make the connection -> BRIDGE_AND_CONTINUE
 
-Give realistic probabilities that sum to 1. Do not inflate BRIDGE_AND_CONTINUE unless all criteria are strictly satisfied
 Examples: 
 
 For DIRECT_CONTINUE:
@@ -170,6 +164,7 @@ Example:
         "reason": "Users input does not correlate with the story"
     }
 }"""
+
 
 
 
