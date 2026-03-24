@@ -1,0 +1,156 @@
+/* Landing page — matches Unfold Studio internal pages (Browse stories, Books, New Story) */
+
+:root {
+  --bg: #ffffff;
+  --ink: #111;
+  --muted: #666;
+  --nav: #3b3b3b;
+  --navText: #fff;
+  --link: #1a66d6;
+  --border: #d9d9d9;
+  --banner: #d6c79a;
+  --bannerText: #111;
+  --btn: #1f5fbf;
+  --btnText: #fff;
+  --btnGhost: #f2f2f2;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; background: var(--bg); color: var(--ink); font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; }
+a { color: var(--link); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* Nav — same as internal pages */
+.nav {
+  background: var(--nav);
+  color: var(--navText);
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+.nav .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; }
+.nav .brand .logo {
+  width: 20px;
+  height: 20px;
+  border: 2px solid #cfcfcf;
+  border-radius: 3px;
+  display: inline-block;
+  transform: rotate(45deg);
+}
+.nav .links { display: flex; gap: 18px; align-items: center; }
+.nav .spacer { flex: 1; }
+.nav .auth { display: flex; gap: 16px; align-items: center; }
+.nav a { color: var(--navText); text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+
+.nav .search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+}
+.nav input[type="text"] {
+  width: 220px;
+  max-width: 28vw;
+  padding: 6px 8px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  background: #fff;
+  color: #000;
+  font-family: inherit;
+}
+.nav button {
+  padding: 6px 10px;
+  border-radius: 3px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: #f2f2f2;
+  color: #000;
+  font-family: inherit;
+  cursor: pointer;
+}
+.nav button:hover { filter: brightness(0.97); }
+
+/* Container — same as internal pages */
+.container {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 24px 18px 80px;
+}
+
+/* Typography — same as internal pages */
+.h1 { font-size: 44px; letter-spacing: 0.5px; margin: 16px 0 8px; }
+.h2 { font-size: 28px; margin: 0 0 12px; }
+.lead {
+  color: var(--muted);
+  max-width: 70ch;
+  line-height: 1.5;
+  margin: 10px 0 18px;
+}
+
+/* Hero — clean, centered, no splash */
+.hero {
+  margin-top: 24px;
+}
+
+/* Primary button — same as New Story / internal pages */
+.btnPrimary {
+  display: inline-block;
+  background: var(--btn);
+  color: var(--btnText);
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: inherit;
+  text-decoration: none;
+}
+.btnPrimary:hover { filter: brightness(0.95); }
+
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+/* Section — how it works */
+.section {
+  margin-top: 48px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+}
+
+.feature-list {
+  margin: 0 0 0 18px;
+  padding: 0;
+  color: var(--ink);
+  line-height: 1.65;
+}
+.feature-list li {
+  margin: 12px 0;
+  max-width: 65ch;
+}
+.feature-list strong { color: var(--ink); }
+
+@media (max-width: 820px) {
+  .nav input[type="text"] { width: 160px; }
+}
+
+/* Footer — same as internal pages */
+.footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #2f2f2f;
+  color: #fff;
+  padding: 10px 18px;
+  display: flex;
+  gap: 18px;
+  font-size: 14px;
+}
+.footer a { color: #fff; }
