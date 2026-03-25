@@ -230,6 +230,30 @@ def signup(request):
 
     return render(request, 'registration/signup.html', {'form': form})
 
+def join_student(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    code_str = request.POST.get('join_code')
+                    try:
+                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                        user.literacy_groups.add(join_code.group)
+                        join_code.assigned_user = user
+                        join_code.save()
+                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+                    except JoinCode.DoesNotExist:
+                        raise ValueError("Invalid or expired join code.")
+            except ValueError as e:
+                messages.error(request, str(e))
+                return render(request, 'registration/join_student.html', {'form': form})
+    else:
+        form = SignUpForm()
+    return render(request, 'registration/join_student.html', {'form': form})
 
 class StoryVersionDetailView(View):
     verb = "viewed the history of"
