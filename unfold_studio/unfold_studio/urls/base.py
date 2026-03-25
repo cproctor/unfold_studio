@@ -15,6 +15,7 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('signup/', views.signup, name='signup'),
+    path('join-student/', views.join_student, name='join_student'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('', views.home, name="home"),
     path('', include('django.contrib.auth.urls')),
