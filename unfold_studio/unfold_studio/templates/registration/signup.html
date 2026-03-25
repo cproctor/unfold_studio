@@ -1,6 +1,17 @@
 {% extends 'base/base.html' %}
 {% load static %}
 
+{% block style %}
+<style>
+    .form-group {
+        margin-bottom: 10px;
+    }
+    .form-group select {
+        width: 240px;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
 <h1>Sign up</h1>
 <p>Create an account to create private stories, follow other users, and more. Please don't use your real name. We will
@@ -17,7 +28,21 @@
         {% endif %}
         <form method="post" action="{% url 'signup' %}">
             {% csrf_token %}
+
+            {# user_type dropdown goes first #}
+            <div class="form-group">
+                <label for="{{ form.user_type.id_for_label }}">{{ form.user_type.label }}:</label>
+                {{ form.user_type }}
+            </div>
+            {% for error in form.user_type.errors %}
+            <div class="alert alert-danger">
+                <strong>&#9888; {{ error|escape }}</strong>
+            </div>
+            {% endfor %}
+
+            {# remaining fields, skipping user_type since we already rendered it #}
             {% for field in form %}
+            {% if field.name != 'user_type' %}
             <div class="form-group">
                 <label for="{{ field.id_for_label }}">{{ field.label }}:</label>
                 {{ field }}
@@ -27,11 +52,12 @@
                 <strong>&#9888; {{ error|escape }}</strong>
             </div>
             {% endfor %}
+            {% endif %}
             {% endfor %}
+
             <input type="submit" value="sign up" />
         </form>
         <p style="align-self: center;">Or</p>
-        <!-- <a href="{% url 'social:begin' 'google-oauth2' %}">Sign up using Google</a> -->
         <!-- https://developers.google.com/identity/branding-guidelines -->
         <button class="gsi-material-button" onclick="location.href='{% url 'social:begin' 'google-oauth2' %}'">
             <div class="gsi-material-button-state"></div>
@@ -69,4 +95,14 @@
         </ul>
     </div>
 </div>
+
+<script>
+    var userTypeSelect = document.getElementById('{{ form.user_type.id_for_label }}');
+    userTypeSelect.addEventListener('change', function() {
+        if (this.value === 'student') {
+            window.location.href = '{% url 'join_student' %}';
+        }
+    });
+</script>
+
 {% endblock %}
