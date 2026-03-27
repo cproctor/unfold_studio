@@ -273,6 +273,14 @@ class AgentView(BaseView):
             )
             if direction in (StoryContinueDirections.NEEDS_INPUT, StoryContinueDirections.INVALID_USER_INPUT):
                 content["guidance_text"] = character_text 
+            
+
+            if direction in (StoryContinueDirections.BRIDGE_AND_CONTINUE):
+                # Blend the two: Maya speaks, then the narrator describes the movement
+                integrated_bridge = f"{character_text}\n\n{content['bridge_text']}"
+                content['bridge_text'] = integrated_bridge
+                # Clear character_text so the frontend doesn't show it twice
+                character_text = None
 
             result = {
                 "character_text": character_text,
