@@ -34,28 +34,163 @@ define(
             // parse errors from story object for use with ace editor
             // returns list of error objects
             function parseErrors(storyObj) {
-                const errors = storyObj.error.split("\n")
-                const errList = []
-                
-                for (err of errors) {
-                    const errObj = {};
-                    errObj.message = err.slice(err.indexOf(":") + 1).trim();
-                    errObj.lineNumber = Number(err[err.indexOf(":") - 1]);
-                    errList.push(errObj);
+                // Successful compiles send error: ""; "".split("\n") is [""] — feeding that into Ace
+                // produced NaN row markers and broke the editor/player.
+                if (!storyObj.error || !String(storyObj.error).trim()) {
+                    return [];
+                }
+                const errList = [];
+                for (let err of String(storyObj.error).split("\n")) {
+                    err = err.trim();
+                    if (!err) {
+                        continue;
+                    }
+                    let lineNumber = null;
+                    const lineMatch = err.match(/line\s+(\d+)/i);
+                    if (lineMatch) {
+                        lineNumber = parseInt(lineMatch[1], 10);
+                    } else {
+                        const colon = err.indexOf(":");
+                        if (colon > 0) {
+                            const ch = err[colon - 1];
+                            if (/^\d$/.test(ch)) {
+                                lineNumber = parseInt(ch, 10);
+                            }
+                        }
+                    }
+                    if (!lineNumber || lineNumber < 1 || !Number.isFinite(lineNumber)) {
+                        continue;
+                    }
+                    const msgAt = err.lastIndexOf(":");
+                    const message = msgAt >= 0 ? err.slice(msgAt + 1).trim() : err;
+                    errList.push({ lineNumber: lineNumber, message: message || err });
                 }
                 return errList;
+            }
+
+            function draftStorageKey() {
+                return "unfold_story_draft_" + STORY_ID;
+            }
+
+            function normalizeInk(s) {
+                if (s === null || s === undefined) {
+                    return "";
+                }
+                return String(s);
+            }
+
+            function readDraftBackup() {
+                if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
+                    return null;
+                }
+                try {
+                    var raw = localStorage.getItem(draftStorageKey());
+                    if (!raw) {
+                        return null;
+                    }
+                    return JSON.parse(raw);
+                } catch (e) {
+                    return null;
+                }
+            }
+
+            /**
+             * Persist ace text + the server revision (edit_date_ms) and server ink snapshot
+             * that this text was typed on top of. Used on reload to decide if local text is
+             * unsaved work for the same server revision or stale.
+             */
+            function writeDraftBackup(storyObj) {
+                if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
+                    return;
+                }
+                try {
+                    var ink = storyObj.getAceValue();
+                    var payload = {
+                        ink: ink,
+                        lastKnownServerEditMs: storyObj._serverEditMs != null ? storyObj._serverEditMs : 0,
+                        lastKnownServerInk: storyObj._serverInk != null ? storyObj._serverInk : "",
+                    };
+                    localStorage.setItem(draftStorageKey(), JSON.stringify(payload));
+                } catch (e) {}
+            }
+
+            function clearDraftBackup() {
+                try {
+                    localStorage.removeItem(draftStorageKey());
+                } catch (e) {}
+            }
+
+            /**
+             * If localStorage has a draft for the same server revision (edit_date_ms) as the
+             * fetched story, and ace text differs from the last known server ink, apply the
+             * draft (unsaved typing). If the server revision advanced, discard draft.
+             */
+            function mergeDraftIntoStory(story) {
+                if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
+                    return;
+                }
+                var serverInk = normalizeInk(story._serverInk !== undefined ? story._serverInk : story.ink);
+                var serverEditMs = story._serverEditMs != null ? Number(story._serverEditMs) : 0;
+                var backup = readDraftBackup();
+                if (!backup) {
+                    return;
+                }
+                var bInk = normalizeInk(backup.ink);
+                var bMs = backup.lastKnownServerEditMs != null ? Number(backup.lastKnownServerEditMs) : null;
+
+                if (bMs !== null && bMs !== serverEditMs) {
+                    clearDraftBackup();
+                    return;
+                }
+                if (bMs === null) {
+                    if (bInk !== serverInk) {
+                        story.setAceValue(backup.ink);
+                        story.ink = backup.ink;
+                    } else {
+                        clearDraftBackup();
+                    }
+                    return;
+                }
+                if (bInk !== serverInk) {
+                    story.setAceValue(backup.ink);
+                    story.ink = backup.ink;
+                }
+            }
+
+            var draftDebounceTimer = null;
+            function attachDraftBackupListeners(storyObj) {
+                if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
+                    return;
+                }
+                if (storyObj._draftBackupListenersAttached) {
+                    return;
+                }
+                storyObj._draftBackupListenersAttached = true;
+                var sess = storyObj.getAceSession();
+                sess.on("change", function() {
+                    if (draftDebounceTimer) {
+                        clearTimeout(draftDebounceTimer);
+                    }
+                    draftDebounceTimer = setTimeout(function() {
+                        writeDraftBackup(storyObj);
+                    }, 250);
+                });
             }
 
             Story.setEvents({
                 newStory: function(story) {
                 },
                 storyFetched: function(story) {
+                    mergeDraftIntoStory(story);
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
                     EditorView.setErrors(parseErrors(story));
+                    attachDraftBackupListeners(story);
+                    writeDraftBackup(story);
                     player.play(story);
                 },
                 storySaved: function(story) {
+                    clearDraftBackup();
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
                     EditorView.setErrors(parseErrors(story));
@@ -79,8 +214,19 @@ define(
                     await story.save();
                 }
 
-                // autosave story before refresh/leaving page
-                window.addEventListener('beforeunload', presave_story);
+                // autosave before leaving only when the user may compile; read-only viewers get 404 on compile.
+                if (typeof EDITABLE !== "undefined" && EDITABLE) {
+                    window.addEventListener('beforeunload', presave_story);
+                }
+
+                if (typeof window.DRAFT_LOCAL_BACKUP !== "undefined" && window.DRAFT_LOCAL_BACKUP) {
+                    setInterval(function() {
+                        writeDraftBackup(story);
+                    }, 4000);
+                    window.addEventListener("beforeunload", function() {
+                        writeDraftBackup(story);
+                    });
+                }
 
                 $('#save_story').click(function() {
                     story.save();

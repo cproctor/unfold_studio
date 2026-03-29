@@ -42,8 +42,23 @@ class StoryManager(models.Manager):
         site = get_current_site(request)
         if user.is_authenticated:
             return self.for_site_user(site, user)
-        else:
-            return self.for_site_anonymous_user(site)
+        from unfold_studio.anonymous_session import get_anonymous_owned_story_ids
+
+        public_shared = self.filter(
+            Q(sites=site),
+            Q(deleted=False),
+            Q(public=True) | Q(shared=True),
+        )
+        owned_ids = get_anonymous_owned_story_ids(request)
+        if not owned_ids:
+            return public_shared
+        session_owned = self.filter(
+            sites=site,
+            deleted=False,
+            author__isnull=True,
+            pk__in=owned_ids,
+        )
+        return (public_shared | session_owned).distinct()
 
     def for_site_user(self, site, user):
         literacy_groups = LiteracyGroup.objects.filter(
@@ -59,10 +74,11 @@ class StoryManager(models.Manager):
         ).distinct()
 
     def for_site_anonymous_user(self, site):
+        "Stories listed on browse/home for anonymous users (excludes session-only drafts)."
         return self.filter(
             Q(sites=site),
-            Q(public=True) | 
-            Q(shared=True)
+            Q(deleted=False),
+            Q(public=True) | Q(shared=True),
         )
 
     def editable_for_request(self, request):
@@ -72,7 +88,7 @@ class StoryManager(models.Manager):
         if user.is_authenticated:
             return self.editable_for_site_user(site, user)
         else:
-            return self.editable_for_site_anonymous_user(site)
+            return self.editable_for_site_anonymous_user(request)
 
     def editable_for_site_user(self, site, user):
         return self.filter(
@@ -83,11 +99,18 @@ class StoryManager(models.Manager):
             Q(author=user)
         )
 
-    def editable_for_site_anonymous_user(self, site):
+    def editable_for_site_anonymous_user(self, request):
+        from unfold_studio.anonymous_session import get_anonymous_owned_story_ids
+
+        site = get_current_site(request)
+        owned_ids = get_anonymous_owned_story_ids(request)
+        if not owned_ids:
+            return self.none()
         return self.filter(
             Q(sites=site),
             Q(deleted=False),
-            Q(public=True)
+            Q(author__isnull=True),
+            Q(pk__in=owned_ids),
         )
 
     def get_for_request_or_404(self, request, **kwargs):
@@ -318,7 +341,11 @@ class Story(models.Model):
         with open(fqn, 'w', encoding='utf-8') as inkfile:
             inkfile.write(ink)
         try:
-            warnings = subprocess.check_output([settings.INKLECATE, fqn]).decode("utf-8-sig")
+            inklecate_argv = list(getattr(settings, "INKLECATE_PREFIX", [])) + [
+                str(settings.INKLECATE),
+                fqn,
+            ]
+            warnings = subprocess.check_output(inklecate_argv).decode("utf-8-sig")
             for warning in warnings.split('\n'):
                 if warning.strip():
                     self.create_inklecate_error(warning, offset)
@@ -329,6 +356,18 @@ class Story(models.Model):
             for error in errors.split('\n'):
                 if error.strip():
                     self.create_inklecate_error(error, offset)
+            self.json = None
+        except OSError as e:
+            log.error(name="Application Alert", event="Inklecate OS Error", arg={"story": self.id, "error": str(e)})
+            self.errors.create(
+                story_version=self.latest_version(),
+                error_type=StoryError.ErrorTypes.OTHER.value,
+                line=None,
+                message=(
+                    "Inklecate could not run ({!s}). On Apple Silicon Macs, install Rosetta "
+                    "or set INKLECATE / INKLECATE_NO_ROSETTA in settings."
+                ).format(e),
+            )
             self.json = None
         if self.errors.exists():
             raise Story.CompileError()
@@ -462,10 +501,18 @@ class Story(models.Model):
 
     def for_json(self):
         "Returns JSON for the story in old format. Needs to be updated once the "
+        edit_date = self.edit_date
+        if edit_date is not None:
+            if timezone.is_naive(edit_date):
+                edit_date = timezone.make_aware(edit_date, timezone.get_current_timezone())
+            edit_date_ms = int(edit_date.timestamp() * 1000)
+        else:
+            edit_date_ms = 0
         return {
             "id": self.id,
             "compiled": json.loads(self.json) if self.json else None,
             "ink": self.ink,
+            "edit_date_ms": edit_date_ms,
             "status": "error" if self.errors.exists() else "ok",
             "error": "\n".join(e.message for e in self.errors.all()),
             # "errors": [e.message for e in self.errors.all()],

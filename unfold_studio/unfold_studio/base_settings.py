@@ -9,6 +9,8 @@ instance up and running.
 """
 
 import os
+import platform
+import sys
 from pathlib import Path
 from unfold_studio.logger import *
 
@@ -77,10 +79,12 @@ if DEBUG:
 
 ROOT_URLCONF = 'unfold_studio.urls.base'
 
+ANONYMOUS_MODE_TEMPLATE_DIR = os.path.normpath(os.path.join(BASE_DIR, '..', 'anonymous_mode'))
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR, 'templates'), ANONYMOUS_MODE_TEMPLATE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -105,7 +109,7 @@ DATABASES = {
         "ENGINE": "django.db.backends.postgresql",
         "NAME": "unfold_studio",
         "USER": "unfold_studio_user",
-        "PASSWORD": '<password>',
+        "PASSWORD": "mypass123",
         "HOST": "localhost",
         "PORT": "5432"
     }
@@ -140,7 +144,16 @@ USE_L10N = True
 # should exist and have appropriate permissions.
 INK_VERSION = "1.2.0"
 INK_DIR = Path(BASE_DIR).parent / "ink"
-INKLECATE = Path(BASE_DIR).parent / f"inklecate_{INK_VERSION}" / "inklecate"
+INKLECATE = Path(os.environ["INKLECATE"]) if os.environ.get("INKLECATE") else (
+    Path(BASE_DIR).parent / f"inklecate_{INK_VERSION}" / "inklecate"
+)
+INKLECATE_PREFIX = []
+if (
+    sys.platform == "darwin"
+    and platform.machine() == "arm64"
+    and not os.environ.get("INKLECATE_NO_ROSETTA")
+):
+    INKLECATE_PREFIX = ["arch", "-x86_64"]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/

@@ -5,6 +5,7 @@ from django.shortcuts import render, get_object_or_404
 from django.views import generic                                      
 from django.http import JsonResponse                                  
 from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
 import json
 import structlog
 from .forms import StoryForm, StoryVersionForm
@@ -23,8 +24,8 @@ from reversion.models import Version
 from profiles.forms import SignUpForm
 from django.utils.timezone import now
 from django.contrib.sites.shortcuts import get_current_site
-from django.db.models import Q, F, Window
-from django.db.models.functions import RowNumber
+from django.db.models import Q, F, Window, Value, FloatField
+from django.db.models.functions import RowNumber, Coalesce
 from django.db import OperationalError
 from django.core.paginator import Paginator, PageNotAnInteger
 from unfold_studio.mixins import StoryMixin
@@ -34,12 +35,23 @@ from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from comments.models import Comment
 from comments.forms import CommentForm
 from django.utils import timezone
+from django.utils.http import url_has_allowed_host_and_scheme
+from unfold_studio.anonymous_session import (
+    add_anonymous_owned_story,
+    get_anonymous_owned_story_ids,
+    owns_anonymous_story,
+    remove_anonymous_owned_story,
+)
 
 log = structlog.get_logger("unfold_studio")    
 
 def u(request):
     "Helper to return username"
     return request.user.username if request.user.is_authenticated else "<anonymous>"
+
+def anonymous_welcome(request):
+    return render(request, 'anonymous_mode_entry.html')
+
 
 def home(request):
     "The homepage shows a subset of stories with the highest priority."
@@ -67,11 +79,32 @@ def browse(request):
     if request.GET.get('query'):
         form = SearchForm(request.GET)
         if form.is_valid():
-            query = SearchQuery(form.cleaned_data['query'])
+            raw_q = (form.cleaned_data.get('query') or '').strip()
+            if not raw_q:
+                messages.warning(request, "Please enter a valid search query")
+                return redirect('list_stories')
+            # websearch: friendlier multi-word matching than plainto_tsquery.
+            query = SearchQuery(raw_q, search_type='websearch')
+            # Substring fallback: FTS misses many title/ink cases; also match each word (len>=3).
+            text_q = Q(title__icontains=raw_q) | Q(ink__icontains=raw_q)
+            for w in raw_q.split():
+                w = w.strip('.,!?\"\'()[]')
+                if len(w) >= 3:
+                    text_q |= Q(title__icontains=w) | Q(ink__icontains=w)
             stories = stories.annotate(
-                rank=SearchRank(F('search'), query), 
-                score=F('rank') * F('priority') / (F('rank') + F('priority'))
-            ).filter(Q(rank__gte=s.SEARCH_RANK_CUTOFF) | Q(author__username__icontains=form.cleaned_data['query'])).order_by('-score')
+                rank=SearchRank(F('search'), query),
+                score=Coalesce(
+                    F('rank') * F('priority') / (F('rank') + F('priority')),
+                    Value(0.0),
+                    output_field=FloatField(),
+                ),
+            ).filter(
+                Q(rank__gte=s.SEARCH_RANK_CUTOFF)
+                | Q(author__username__icontains=raw_q)
+                | text_q
+            ).exclude(
+                author__isnull=True, public=False, shared=False
+            ).order_by('-score', '-priority')
         else:
             messages.warning(request, "Please enter a valid search query")
             return redirect('list_stories')
@@ -101,12 +134,13 @@ def new_story(request):
                 creation_date=now(), 
                 edit_date=now()
             )
-        else: 
+        else:
             story = Story(
-                author=None, 
-                creation_date=now(), 
-                edit_date=now(), 
-                public=True
+                author=None,
+                creation_date=now(),
+                edit_date=now(),
+                public=False,
+                shared=False,
             )
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():
@@ -119,6 +153,8 @@ def new_story(request):
                 reversion.set_user(story.author)
                 reversion.set_comment("Initial version of @story:{}".format(story.id))
             log.info(name="Application Alert", event="New Story Created", arg={"user": u(request), "story": story.id})
+            if not request.user.is_authenticated:
+                add_anonymous_owned_story(request, story.id)
             return redirect('show_story', story.id)
     else:
         form = StoryForm()
@@ -146,6 +182,9 @@ def compile_story(request, story_id):
     story.edit_date = now()
     story.ink = request.POST['ink']
     story.compile()
+    # Share/Unshare can commit between our get() and save(); refresh visibility flags so
+    # we do not clobber shared/public with stale values (lost-update race with beforeunload save).
+    story.refresh_from_db(fields=["shared", "public"])
     with reversion.create_revision():
         story.save()
         reversion.set_user(story.author)
@@ -155,17 +194,32 @@ def compile_story(request, story_id):
             log.warning(name="Application Alert", event="Story Editted", msg="Edit has Errors", arg={"user": u(request), "story": story.id})
     return JsonResponse(story.for_json())
 
+def _user_may_edit_story(request, story):
+    if request.user.is_authenticated:
+        return story.author_id == request.user.id or bool(story.public)
+    return owns_anonymous_story(request, story)
+
+
 def show_story(request, story_id):
     "Shows a story, using the same view regardless of whether it can be edited by the user"
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
-    editable = int(story.author == request.user or story.public)
+    may_edit = _user_may_edit_story(request, story)
+    editable = int(may_edit)
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
+    ai_enabled = request.user.is_authenticated
+    draft_local_backup = (not request.user.is_authenticated) and may_edit
     return render(request, 'unfold_studio/show_story.html', {
-        'story': story, 
-        'editable': editable, 
+        'story': story,
+        'editable': editable,
+        'owns_anonymous_story': owns_anonymous_story(request, story),
         'commentable': story.user_may_comment(request.user),
-        'addableBooks': addableBooks}
-    )
+        'addableBooks': addableBooks,
+        'ai_enabled': ai_enabled,
+        'draft_local_backup': draft_local_backup,
+        'can_fork_anonymously': (
+            not request.user.is_authenticated and (story.public or story.shared)
+        ),
+    })
 
 def show_json(request, story_id):
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
@@ -175,20 +229,101 @@ def show_ink(request, story_id):
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
     return render(request, 'unfold_studio/show_ink.html', {'story': story})
 
+class ClaimAwareLoginView(LoginView):
+    """
+    After username/password login, attach an anonymous session-owned story to the user
+    when claim_story is present (same rules as signup).
+    """
+
+    template_name = "registration/login.html"
+
+    def get(self, request, *args, **kwargs):
+        raw = request.GET.get("claim_story")
+        if raw is not None and str(raw).strip().isdigit():
+            request.session["pending_claim_story"] = int(str(raw).strip())
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        raw = self.request.GET.get("claim_story")
+        if raw is not None and str(raw).strip().isdigit():
+            ctx["claim_story_id"] = int(str(raw).strip())
+        return ctx
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        claim_id = None
+        raw = self.request.POST.get("claim_story")
+        if raw is not None and str(raw).strip().isdigit():
+            claim_id = int(str(raw).strip())
+        if claim_id is None:
+            claim_id = self.request.session.pop("pending_claim_story", None)
+        if claim_id is None:
+            return response
+        if claim_id not in get_anonymous_owned_story_ids(self.request):
+            return response
+        story = Story.objects.filter(pk=claim_id, author__isnull=True).first()
+        if not story:
+            return response
+        story.author = self.request.user
+        story.save()
+        remove_anonymous_owned_story(self.request, claim_id)
+        return redirect("show_story", claim_id)
+
+
 def signup(request):
+    claim_story_raw = request.POST.get('claim_story') if request.method == 'POST' else request.GET.get('claim_story')
+    claim_story_id = None
+    if claim_story_raw is not None and str(claim_story_raw).strip().isdigit():
+        claim_story_id = int(str(claim_story_raw).strip())
+
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request, 
+            messages.success(request,
                 "Welcome to Unfold Studio! Have fun, and please be a good community member.")
             log.info(name="Application Alert", event="New User Sign Up", arg={"user": u(request)})
+
+            if claim_story_id is not None and claim_story_id in get_anonymous_owned_story_ids(request):
+                story = Story.objects.filter(
+                    pk=claim_story_id,
+                    author__isnull=True,
+                ).first()
+                if story:
+                    story.author = user
+                    story.save()
+                    remove_anonymous_owned_story(request, claim_story_id)
+                    return redirect('show_story', claim_story_id)
+
+            next_url = request.POST.get('next')
+            if next_url and url_has_allowed_host_and_scheme(
+                next_url,
+                allowed_hosts={request.get_host()},
+                require_https=request.is_secure(),
+            ):
+                return HttpResponseRedirect(next_url)
+
             return redirect('home')
     else:
         form = SignUpForm()
 
-    return render(request, 'registration/signup.html', {'form': form})
+    raw_next = request.POST.get('next') if request.method == 'POST' else request.GET.get('next')
+    raw_next = raw_next or ''
+    next_url = ''
+    if raw_next and url_has_allowed_host_and_scheme(
+        raw_next,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        next_url = raw_next
+
+    return render(request, 'registration/signup.html', {
+        'form': form,
+        'claim_story_id': claim_story_id,
+        'next_url': next_url,
+    })
 
 class StoryVersionDetailView(View):
     verb = "viewed the history of"
@@ -243,38 +378,64 @@ class LoveStoryView(StoryMethodView):
             )
         return redirect('show_story', story.id)
         
-class ForkStoryView(StoryMethodView):
-    require_editable = False
-    verb = "forked"
+class ForkStoryView(SingleObjectMixin, View):
+    model = Story
+
+    def get_queryset(self):
+        return Story.objects.for_request(self.request)
+
     def post(self, request, *args, **kwargs):
         parent = self.get_object()
-        if not request.user.is_authenticated:
-            messages.warning(request, "You must be logged in to fork stories")
+        site = get_current_site(request)
+        if request.user.is_authenticated:
+            story = Story(
+                author=request.user,
+                parent=parent,
+                title="{} (fork)".format(parent.title),
+                description=parent.description,
+                ink=parent.ink,
+                creation_date=now(),
+                edit_date=now(),
+            )
+            with reversion.create_revision():
+                story.save()
+                reversion.set_user(story.author)
+                if parent.author:
+                    reversion.set_comment("{} forked from @story:{} by @user:{}".format(story.title, parent.id,
+                            parent.author.id))
+                else:
+                    reversion.set_comment("{} forked from @story:{}".format(story.title, parent.id))
+            story.compile()
+            story.sites.add(site)
+            LiteracyEvent.objects.create(
+                event_type=LiteracyEvent.FORKED_STORY,
+                subject=request.user,
+                story=story
+            )
+            return redirect('show_story', story.id)
+
+        if not (parent.public or parent.shared):
+            messages.warning(request, "You can only fork public or shared stories.")
             return redirect('show_story', parent.id)
+
         story = Story(
-            author=request.user, 
+            author=None,
             parent=parent,
             title="{} (fork)".format(parent.title),
+            description=parent.description,
             ink=parent.ink,
-            creation_date=now(), 
-            edit_date=now(), 
+            creation_date=now(),
+            edit_date=now(),
+            public=False,
+            shared=False,
         )
         with reversion.create_revision():
             story.save()
-            reversion.set_user(story.author)
-            if parent.author:
-                reversion.set_comment("{} forked from @story:{} by @user:{}".format(story.title, parent.id,
-                        parent.author.id))
-            else:
-                reversion.set_comment("{} forked from @story:{}".format(story.title, parent.id))
+            reversion.set_user(None)
+            reversion.set_comment("{} forked from @story:{}".format(story.title, parent.id))
         story.compile()
-        story.sites.add(get_current_site(self.request))
-        #messages.success(self.request, "You have forked '{}'".format(story.title))
-        LiteracyEvent.objects.create(
-            event_type=LiteracyEvent.FORKED_STORY,
-            subject=request.user,
-            story=story
-        )
+        story.sites.add(site)
+        add_anonymous_owned_story(request, story.id)
         return redirect('show_story', story.id)
 
 class DeleteStoryView(StoryMethodView):

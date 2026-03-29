@@ -44,6 +44,9 @@ InkPlayer.prototype = {
             return "";
         }.bind(this));
         story.BindExternalFunction("continue_function", function(targetKnot) {
+            if (typeof window.AI_ENABLED !== "undefined" && !window.AI_ENABLED) {
+                return "Sign up or log in to use AI Continue.";
+            }
             var targetKnotName = targetKnot._componentsString;
             this.continueFunctionCalled = true;
             this.currentTargetKnot = targetKnotName
@@ -67,6 +70,9 @@ InkPlayer.prototype = {
         // fine, but it is possible that the ajax query could return before 
         // the DOM update, in which case it will not find the span to update. 
         story.BindExternalFunction("generate", function (prompt_text) {
+            if (typeof window.AI_ENABLED !== "undefined" && !window.AI_ENABLED) {
+                return "Sign up or log in to use AI generation.";
+            }
             this.generateInProgress = true;
             this.generatePrompt = prompt_text;
             return '';
@@ -76,11 +82,36 @@ InkPlayer.prototype = {
         this.events.prepareToPlay.bind(this)();
         this.content = content;
         this.aiSeed = null;
-        if (content.status != 'ok') {
-            this.events.reportError.bind(this)(content.error);
-            return 
-        } 
-        this.story = new inkjs.Story(content.compiled);
+
+        var isLocalHost =
+            typeof window !== "undefined" &&
+            window.location &&
+            /^(127\.0\.0\.1|localhost)$/i.test(window.location.hostname);
+        var localCompileHint = isLocalHost
+            ? "\n\n— Local dev: inklecate must run successfully for this preview. On Apple Silicon, use Rosetta " +
+              "(settings INKLECATE_PREFIX / INKLECATE_NO_ROSETTA), then click Save to recompile."
+            : "";
+
+        if (content.status != "ok" || content.compiled == null || content.compiled === undefined) {
+            var msg = (content.error && String(content.error).trim()) ? content.error : "";
+            if (!msg) {
+                msg =
+                    "This story is not compiled yet (no playable JSON). " +
+                    "Fix any Ink errors and click Save.";
+            }
+            this.events.reportError.bind(this)(msg + localCompileHint);
+            return;
+        }
+        try {
+            this.story = new inkjs.Story(content.compiled);
+        } catch (err) {
+            this.events.reportError.bind(this)(
+                "Compiled story JSON could not be loaded: " +
+                    (err && err.message ? err.message : err) +
+                    localCompileHint
+            );
+            return;
+        }
         this.bindExternalFunctions(this.story);
         this.running = true;
         this.createStoryPlayInstanceAndContinueStory(content.id);
@@ -106,7 +137,16 @@ InkPlayer.prototype = {
         let loadingSpan = '<span id="' + nonce + '" data-loaded="false">Loading...</span>';
         this.events.addContent.bind(this)({ text: loadingSpan, tags: [] });
 
-        data = await this.api.generate(prompt_text, [], this.aiSeed)
+        try {
+            data = await this.api.generate(prompt_text, [], this.aiSeed);
+        } catch (e) {
+            this.generateInProgress = false;
+            let el = document.getElementById(nonce);
+            if (el) {
+                el.textContent = "AI is unavailable. Sign up or log in to use generation.";
+            }
+            return;
+        }
 
         let generated = JSON.parse(
             sessionStorage.getItem("generated") ?? "{}",
@@ -215,9 +255,25 @@ InkPlayer.prototype = {
         this.api.createStoryPlayRecord(storyPlayInstanceUUID, data_type, data, this.currentStoryPoint);
     },
     createStoryPlayInstanceAndContinueStory: async function(storyID) {
-        response = await this.api.createStoryPlayInstance(storyID)
-        this.storyPlayInstanceUUID = response.story_play_instance_uuid
-        this.continueStory();
+        try {
+            var response = await this.api.createStoryPlayInstance(storyID);
+            this.storyPlayInstanceUUID = response.story_play_instance_uuid;
+            this.continueStory();
+        } catch (err) {
+            var detail = "";
+            if (err && err.responseText) {
+                detail = err.responseText.slice(0, 300);
+            } else if (err && err.statusText) {
+                detail = err.statusText;
+            } else if (err && err.message) {
+                detail = err.message;
+            }
+            this.events.reportError.bind(this)(
+                "Could not start a play session for this story (needed for choices / continue). " +
+                    (detail ? detail + " " : "") +
+                    (err && err.status ? "(HTTP " + err.status + ")" : "")
+            );
+        }
     },
     scheduleInputBox: function(placeholder, variableName) {
         const eventHandler = (userInput) => {
@@ -303,7 +359,19 @@ InkPlayer.prototype = {
     },
     handleUserInputForContinue: async function(userInput){
         targetKnotName = this.currentTargetKnot;
-        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotName, this.aiSeed)
+        let response;
+        try {
+            response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotName, this.aiSeed);
+        } catch (e) {
+            content = [{
+                text: "AI Continue is unavailable. Sign up or log in to continue with AI.",
+                tags: []
+            }];
+            content.forEach(this.events.addContent, this);
+            this.scheduleInputBoxForContinue();
+            this.events.renderScheduledInputBox.bind(this)();
+            return;
+        }
         nextDirectionJson = response.result
 
         switch(nextDirectionJson.direction) {
@@ -523,7 +591,7 @@ InkPlayer.prototype = {
             this.stop.bind(this)();
             var p = document.createElement('pre');
             p.classList.add("error");
-            p.innerHTML = message;
+            p.textContent = message == null ? "" : String(message);
             this.container.appendChild(p);
         }
     }

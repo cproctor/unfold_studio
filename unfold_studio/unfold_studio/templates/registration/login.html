@@ -26,6 +26,9 @@
                 {{ field }}
             </div>
             {% endfor %}
+            {% if claim_story_id %}
+            <input type="hidden" name="claim_story" value="{{ claim_story_id }}" />
+            {% endif %}
 
             <input type="submit" value="login" />
             <input type="hidden" name="next" value="{{ next }}" />

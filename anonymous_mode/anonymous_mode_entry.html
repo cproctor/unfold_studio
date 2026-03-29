@@ -1,0 +1,25 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block head %}
+<title>Try Unfold Studio | {{ SITE.name }}</title>
+<link rel="stylesheet" href="{% static 'anonymous_mode/style.css' %}">
+{% endblock %}
+
+{% block content %}
+<main class="anonymous-entry">
+  <h1>Tell interactive stories with Unfold Studio</h1>
+  <p class="lead">
+    Browse and read public stories, create a private draft, or fork a public story—all without signing in.
+    When you are ready, sign up from your draft to keep the same story on your account.
+  </p>
+  <p class="actions">
+    <a class="btnPrimary" href="{% url 'new_story' %}">New story</a>
+    <a class="btnGhost" href="{% url 'list_stories' %}">Browse stories</a>
+    <a class="btnGhost" href="{% url 'login' %}">Log in</a>
+  </p>
+  <p class="note">
+    This entry point uses the same site as logged-in users: your drafts are stored on the server and tied to your browser session until you sign up.
+  </p>
+</main>
+{% endblock %}
