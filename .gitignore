@@ -11,3 +11,6 @@ log/*
 analysis/
 **/.DS_Store
 .unfold_studio*
+node_modules/
+playwright-report/
+test-results/
