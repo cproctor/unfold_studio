@@ -24,7 +24,7 @@ class LiteracyGroup(models.Model):
     
 
 class JoinCode(models.Model):
-    group = models.ForeignKey(LiteracyGroup, on_delete=models.CASCADE, related_name="individual_codes")
+    group = models.ForeignKey(LiteracyGroup, on_delete=models.CASCADE, related_name="codes")
     code = models.CharField(max_length=10, unique=True)
     assigned_user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="used_join_code")
 
