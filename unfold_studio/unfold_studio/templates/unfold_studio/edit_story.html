@@ -2,11 +2,19 @@
 
 {% block content %}
     <h1>Rename {{story.title}}</h1>
-    <form action="{% url 'edit_story' story.id %}" method="POST">
+    <form action="{% url 'edit_story' story.id %}" method="POST" class="new_story_form">
         {% csrf_token %}
-        <table>
-        {{form.as_table}}
-        </table>
-        <input type="submit" value="Submit">
+
+        <div>
+            <label for="{{ form.title.id_for_label }}">Title:</label>
+            <input type="text" name="title" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default_if_none:'' }}">
+        </div>
+
+        <div>
+            <label for="{{ form.description.id_for_label }}">Description:</label>
+            <textarea name="description" id="{{ form.description.id_for_label }}" rows="4" cols="40" style="resize: vertical;">{{ form.description.value|default_if_none:'' }}</textarea>
+        </div>
+
+        <input type="submit" value="Submit" />
     </form>
 {% endblock %}
