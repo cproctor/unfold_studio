@@ -214,10 +214,9 @@ define(
                     await story.save();
                 }
 
-                // autosave before leaving only when the user may compile; read-only viewers get 404 on compile.
-                if (typeof EDITABLE !== "undefined" && EDITABLE) {
-                    window.addEventListener('beforeunload', presave_story);
-                }
+                // Don't autosave on beforeunload: the XHR is commonly canceled by navigation,
+                // which triggers a noisy "Save failed" alert. Explicit Save and other actions
+                // (rename/share/version) already presave.
 
                 if (typeof window.DRAFT_LOCAL_BACKUP !== "undefined" && window.DRAFT_LOCAL_BACKUP) {
                     setInterval(function() {
