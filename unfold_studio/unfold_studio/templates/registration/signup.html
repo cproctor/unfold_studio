@@ -29,6 +29,14 @@
 
 <div class="registration-container">
     <div>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-danger">
+            <strong>{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+
         {% if form.errors %}
         {% for error in form.non_field_errors %}
         <div class="alert alert-danger">
@@ -39,7 +47,6 @@
         <form method="post" action="{% url 'signup' %}" class="registration-form">
             {% csrf_token %}
 
-            {# user_type dropdown goes first #}
             <div class="form-group">
                 <label for="{{ form.user_type.id_for_label }}">{{ form.user_type.label }}:</label>
                 {{ form.user_type }}
@@ -50,7 +57,6 @@
             </div>
             {% endfor %}
 
-            {# remaining fields, skipping user_type since we already rendered it #}
             {% for field in form %}
             {% if field.name != 'user_type' %}
             <div class="form-group">
@@ -68,7 +74,6 @@
             <input type="submit" value="sign up" />
         </form>
         <p style="align-self: center;">Or</p>
-        <!-- https://developers.google.com/identity/branding-guidelines -->
         <button class="gsi-material-button" onclick="location.href='{% url 'social:begin' 'google-oauth2' %}'">
             <div class="gsi-material-button-state"></div>
             <div class="gsi-material-button-content-wrapper">

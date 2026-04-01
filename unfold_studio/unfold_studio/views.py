@@ -20,7 +20,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 import reversion
 from reversion.models import Version
-from profiles.forms import SignUpForm
+from profiles.forms import SignUpForm, StudentSignUpForm
 from django.utils.timezone import now
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q, F, Window
@@ -232,7 +232,7 @@ def signup(request):
 
 def join_student(request):
     if request.method == 'POST':
-        form = SignUpForm(request.POST)
+        form = StudentSignUpForm(request.POST)
         if form.is_valid():
             try:
                 with transaction.atomic():
@@ -252,7 +252,7 @@ def join_student(request):
                 messages.error(request, str(e))
                 return render(request, 'registration/join_student.html', {'form': form})
     else:
-        form = SignUpForm()
+        form = StudentSignUpForm()
     return render(request, 'registration/join_student.html', {'form': form})
 
 class StoryVersionDetailView(View):
