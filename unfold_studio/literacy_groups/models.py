@@ -9,7 +9,6 @@ class LiteracyGroup(models.Model):
     A LiteracyGroup models a classroom, writing club, or another space.
     """
     name = models.TextField()
-    anyone_can_join = models.BooleanField(default=False)
     members = models.ManyToManyField(User, related_name="literacy_groups")
     leaders = models.ManyToManyField(User, related_name="literacy_groups_leading")
     site = models.ForeignKey(Site, on_delete=models.CASCADE)
