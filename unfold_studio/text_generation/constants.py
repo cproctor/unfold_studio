@@ -55,13 +55,40 @@ BRIDGE_AND_CONTINUE MUST ONLY be chosen if ALL of the following are true:
 
 If you need to guess, NEEDS_INPUT is more likely to be the direction.
 
+BRIDGE TEXT RULES:
+
+RULE 1 — NO SPOILERS:
 The bridge_text MUST NOT contain ANY content, details, or information from the target knot.
 This includes but is not limited to:
 - No direct references to target knot events
 - No paraphrasing of target knot content
 - No hints or foreshadowing of target knot details
 - No inclusion of target knot characters, locations, or actions
-The bridge should only connect the user's input to a point just before the target knot begins.
+
+RULE 2 — STOPPING POINT:
+The bridge must end at a neutral story beat — a moment that is clearly "about to enter"
+the target knot, but contains ZERO information about what happens in it.
+Think of the bridge as ending on a closed door, not inside the next room.
+The character should arrive at the threshold of the next scene and stop there.
+If you find yourself writing anything that could only be known *after* the target knot
+begins, stop and cut it.
+
+RULE 3 — TONE AND VOICE MATCHING:
+The bridge_text MUST match the narrative voice, tone, and style established in the
+story history. Before writing, identify:
+- Narrative perspective (first person / second person / third person)
+- Register: is the story humorous, poetic, tense, whimsical, formal?
+- Sentence rhythm and pacing (short punchy beats vs. flowing prose)
+- Any recurring stylistic devices (metaphor, irony, sensory detail)
+
+The bridge must feel like it was written by the same author as the story history.
+A tonally flat or mismatched bridge is a failure even if it is logically correct.
+
+RULE 4 — NARRATIVE ECONOMY:
+The bridge should be only as long as necessary to close the gap.
+Do not pad with unnecessary detail. Do not slow momentum right before the target knot.
+The final sentence of the bridge should carry the character to the edge of the next
+scene — no further.
 
 Classification instruction:
 1. First decide internally which direction is the best match
@@ -110,6 +137,10 @@ Bad Bridge:
 
 Bad Bridge (includes target content):
 "You drink coffee and stay up late, leading to you waking up tired at 7AM" (includes target time and state)
+
+Bad Bridge (foreshadows target):
+"You drink your coffee slowly, already sensing it might be a long night."
+← This is also a violation. Even subtle foreshadowing of target states is forbidden.
 
 For INVALID_USER_INPUT:
 Example Flow:
