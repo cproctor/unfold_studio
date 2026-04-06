@@ -51,6 +51,12 @@ BRIDGE_AND_CONTINUE MUST ONLY be chosen if ALL of the following are true:
    - objects of attention
    - intermediate actions
 5. The bridge can be written using ONLY clear logical consequences.
+STOPPING POINT RULE:
+The bridge must end at a neutral story beat — a moment that is clearly
+"about to enter" the target knot, but contains ZERO information about what
+happens in it. Think of the bridge as ending on a closed door, not inside
+the next room. If you find yourself writing anything that could only be
+known *after* the target knot begins, stop and cut it.
 
 If you need to guess, NEEDS_INPUT is more likely to be the direction.
 
@@ -61,6 +67,15 @@ This includes but is not limited to:
 - No hints or foreshadowing of target knot details
 - No inclusion of target knot characters, locations, or actions
 The bridge should only connect the user's input to a point just before the target knot begins.
+
+TONE MATCHING REQUIREMENT:
+The bridge_text MUST match the narrative voice, tone, and style established in the
+story history. This includes:
+- Narrative perspective (first person, second person, third person)
+- Humor, formality, or whimsy present in the story
+- Character voice consistency (e.g., a sarcastic cat must sound sarcastic in the bridge)
+- Pacing (short punchy sentences vs. flowing prose)
+Read the story history carefully and mirror its register before writing the bridge.
 
 Classification instruction:
 1. First decide internally which direction is the best match 
@@ -176,9 +191,13 @@ History: %(history)s
 User Input: %(user_input)s
 
 ### Analysis Request ###
-1. Probability distribution
+1. Probability distribution across directions
 2. Action parameters
-3. Brief reasoning
+3. Brief reasoning for your chosen direction.
+4. Identify the narrative voice, tone, and perspective of the story history.
+
+Note: Any bridge_text must match the identified tone and voice from step 4,
+and must stop before the target knot begins.
 """
 
 
