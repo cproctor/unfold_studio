@@ -55,7 +55,7 @@ class StoryManager(models.Manager):
             Q(author=user) |
             Q(shared=True) | 
             Q(public=True) |
-            Q(prompts_submitted__literacy_group=Subquery(literacy_groups.values('id')))
+            Q(prompts_submitted__literacy_group__in=literacy_groups)
         ).distinct()
 
     def for_site_anonymous_user(self, site):
