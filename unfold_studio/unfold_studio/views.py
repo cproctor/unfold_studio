@@ -135,6 +135,7 @@ def edit_story(request, story_id):
             with reversion.create_revision():
                 story.save()
                 reversion.set_user(story.author)
+                reversion.set_comment("Edited")
             return redirect('show_story', story.id)
     else:
         form = StoryForm(instance=story)
@@ -149,6 +150,7 @@ def compile_story(request, story_id):
     with reversion.create_revision():
         story.save()
         reversion.set_user(story.author)
+        reversion.set_comment("Auto-saved")
         if not story.errors.exists():
             log.info(name="Application Alert", event="Story Editted", msg="OK", arg={"user": u(request), "story": story.id})
         else:

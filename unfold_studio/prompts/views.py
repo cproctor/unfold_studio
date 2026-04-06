@@ -20,6 +20,7 @@ from literacy_groups.mixins import LiteracyGroupContextMixin
 from collections import defaultdict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+import reversion
 
 log = structlog.get_logger("unfold_studio")    
 
@@ -93,10 +94,11 @@ class ShowPromptView(LiteracyGroupContextMixin, DetailView):
             prompt = self.get_object()
             story = Story.objects.get_editable_for_request_or_404(self.request, pk=form.cleaned_data['story'])
             with reversion.create_revision():
-                story.save() 
+                story.save()
                 reversion.set_user(self.request.user)
                 reversion.set_comment("Submitted to prompt: {}".format(prompt.name))
-            version = Version.objects.get_for_object(story).last()
+
+            version = Version.objects.get_for_object(story).order_by('-pk').first()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
                     submitted_story_version=version)
             log.info(name="Prompt Alert", event="Story Submission", 

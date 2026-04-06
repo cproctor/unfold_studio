@@ -21,7 +21,7 @@
 
 <h2>Your submission</h2>
 {% if submission %}
-    You submitted <a href="{% url 'show_story' submission.id %}">{{submission.title}}</a>. 
+    You submitted <a href="{% url 'show_story' submission.id %}">{{submission.submitted_story_snapshot.title}}</a>. 
     [<form action="{% url 'clear_prompt_submission' group.id prompt.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Clear"></form>]
 {% else %}
     {% if user.stories.exists %}
@@ -56,7 +56,7 @@
             </td>
             <td>
                 {% if needs_feedback %}
-                    <a href="{% url 'show_story_versions' submission.id %}">-></a>
+                    <a href="{% url 'show_story_versions' submission.story.id%}">-></a>
                 {% endif %}
             </td>
         </tr>
