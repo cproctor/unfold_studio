@@ -34,6 +34,8 @@ from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from comments.models import Comment
 from comments.forms import CommentForm
 from django.utils import timezone
+from django.db import transaction
+from literacy_groups.models import JoinCode
 
 log = structlog.get_logger("unfold_studio")    
 
@@ -181,51 +183,55 @@ def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request, 
-                "Welcome to Unfold Studio! Have fun, and please be a good community member.")
-            log.info(name="Application Alert", event="New User Sign Up", arg={"user": u(request)})
-            return redirect('home')
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    role = form.cleaned_data.get('user_type')
+
+                    if role == 'student':
+                        code_str = request.POST.get('join_code')
+                        try:
+                            # Verify the code exists and isn't used
+                            join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                            
+                            # Link student to the group
+                            user.literacy_groups.add(join_code.group)
+                            
+                            # Claim the code
+                            join_code.assigned_user = user
+                            join_code.save()
+                            
+                            log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                            return redirect('home')
+
+                        except JoinCode.DoesNotExist:
+                            # Manually trigger a failure to roll back the user creation
+                            raise ValueError("Invalid or expired join code.")
+
+                    elif role == 'teacher':
+                        messages.info(request, 
+                        f"Account created! To gain instructor access, please contact Dr. Chris Proctor at chrisp@buffalo.edu to request access."
+                        f"Include your username: {user.username}, name, institution, and how you plan to use Unfold Studio. Until then, you can use the site as a regular user. "
+                        f"Once approved, your account will be upgraded to instructor status")
+                        log.info(event="Teacher Sign Up (Pending)", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+
+                    else: # Regular User
+                        log.info(event="New User Sign Up", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+
+            except ValueError as e:
+                messages.error(request, str(e))
+                # The transaction.atomic() ensures the User object is deleted if this happens
+                return render(request, 'registration/signup.html', {'form': form})
     else:
         form = SignUpForm()
 
     return render(request, 'registration/signup.html', {'form': form})
 
-class StudentSignUpView(View):
-    def post(self, request):
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        code_str = request.POST.get('join_code')
-
-        # Use a transaction so if one part fails, nothing is saved
-        try:
-            with transaction.atomic():
-                # 1. Validate Code
-                join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
-                
-                # 2. Create User
-                user = User.objects.create_user(username=username, password=password)
-                
-                # 3. Create Profile (Crucial for your teacher checks)
-                Profile.objects.create(user=user, is_teacher=False)
-                
-                # 4. Link to Group
-                user.literacy_groups.add(join_code.group)
-                
-                # 5. Claim Code
-                join_code.assigned_user = user
-                join_code.save()
-
-                login(request, user)
-                return redirect('show_group', join_code.group.id)
-                
-        except JoinCode.DoesNotExist:
-            messages.error(request, "Invalid or expired join code.")
-            return redirect('signup')
-        except Exception as e:
-            messages.error(request, "An error occurred during sign up.")
-            return redirect('signup')
 
 class StoryVersionDetailView(View):
     verb = "viewed the history of"
