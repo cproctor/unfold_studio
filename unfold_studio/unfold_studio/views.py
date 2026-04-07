@@ -116,10 +116,8 @@ def new_story(request):
             story.compile()
             story.update_priority()
             story.sites.add(get_current_site(request))
-            with reversion.create_revision():
-                story.save()
-                reversion.set_user(story.author)
-                reversion.set_comment("Initial version of @story:{}".format(story.id))
+
+            story.save()
             log.info(name="Application Alert", event="New Story Created", arg={"user": u(request), "story": story.id})
             return redirect('show_story', story.id)
     else:
@@ -380,7 +378,8 @@ class NewStoryVersionView(StoryMethodView):
     def get(self, request, *args, **kwargs):
         story = self.get_object()
         version = Version.objects.get_for_object(story).first()
-        form = StoryVersionForm(initial={'comment': version.revision.comment})
+        initial = {'comment': version.revision.comment} if version else {}
+        form = StoryVersionForm(initial=initial)
         return render(request, self.template, {'form': form, 'story': story})
 
     def post(self, request, *args, **kwargs):
