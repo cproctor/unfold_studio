@@ -149,14 +149,7 @@ def compile_story(request, story_id):
     story.edit_date = now()
     story.ink = request.POST['ink']
     story.compile()
-    with reversion.create_revision():
-        story.save()
-        reversion.set_user(story.author)
-        reversion.set_comment("Auto-saved")
-        if not story.errors.exists():
-            log.info(name="Application Alert", event="Story Editted", msg="OK", arg={"user": u(request), "story": story.id})
-        else:
-            log.warning(name="Application Alert", event="Story Editted", msg="Edit has Errors", arg={"user": u(request), "story": story.id})
+    story.save()
     return JsonResponse(story.for_json())
 
 def show_story(request, story_id):
@@ -248,11 +241,14 @@ class StoryVersionDetailView(View):
         if len(comment) > 100:
             comment = comment[:100] + '...'
         return render(request, 'unfold_studio/show_story_version.html', {
-            'story': versions[vIndex - 1]._object_version.object,
-            'comment': comment,
-            'version': vIndex,
-            'previousVersion': vIndex - 1 if vIndex > 1 else None,
-            'nextVersion': vIndex + 1 if vIndex + 1 <= versions.count() else None
+        'story': versions[vIndex - 1]._object_version.object,
+        'story_id': story.id,
+        'story_json': versions[vIndex - 1].field_dict.get('json') or 'null',
+        'story_ink': versions[vIndex - 1].field_dict.get('ink', ''),  # add this
+        'comment': comment,
+        'version': vIndex,
+        'previousVersion': vIndex - 1 if vIndex > 1 else None,
+        'nextVersion': vIndex + 1 if vIndex + 1 <= versions.count() else None
         })
 
     def get_object(self):
