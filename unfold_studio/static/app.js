@@ -3,6 +3,7 @@
 
 define(
     [
+        'jquery',
         'lib/inky/util', 
         'lib/inky/split', 
         'lib/inky/editorView', 
@@ -15,6 +16,7 @@ define(
         'player'
     ], 
     function(
+        $,
         util, 
         split, 
         EditorView, 
@@ -80,11 +82,17 @@ define(
             }
 
             function readDraftBackup() {
+                // Storage strategy (anonymous drafts):
+                // - DB is the source of truth for explicit saves (POST /stories/<id>/compile/).
+                // - Django session (via sessionid cookie) tracks which anonymous drafts the current
+                //   browser session owns (anonymous_owned_story_ids).
+                // - sessionStorage is only a temporary client-side backup for crash/refresh recovery
+                //   within this same browser session. It is NOT the primary persistence mechanism.
                 if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
                     return null;
                 }
                 try {
-                    var raw = localStorage.getItem(draftStorageKey());
+                    var raw = sessionStorage.getItem(draftStorageKey());
                     if (!raw) {
                         return null;
                     }
@@ -96,8 +104,11 @@ define(
 
             /**
              * Persist ace text + the server revision (edit_date_ms) and server ink snapshot
-             * that this text was typed on top of. Used on reload to decide if local text is
-             * unsaved work for the same server revision or stale.
+             * that this text was typed on top of.
+             *
+             * This is a backup-only mechanism for anonymous drafts in the current browser session.
+             * It helps recover unsaved typing after a refresh/crash, but explicit saves still go to
+             * the server (compile_story -> story.save()) and the DB remains the source of truth.
              */
             function writeDraftBackup(storyObj) {
                 if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
@@ -110,18 +121,18 @@ define(
                         lastKnownServerEditMs: storyObj._serverEditMs != null ? storyObj._serverEditMs : 0,
                         lastKnownServerInk: storyObj._serverInk != null ? storyObj._serverInk : "",
                     };
-                    localStorage.setItem(draftStorageKey(), JSON.stringify(payload));
+                    sessionStorage.setItem(draftStorageKey(), JSON.stringify(payload));
                 } catch (e) {}
             }
 
             function clearDraftBackup() {
                 try {
-                    localStorage.removeItem(draftStorageKey());
+                    sessionStorage.removeItem(draftStorageKey());
                 } catch (e) {}
             }
 
             /**
-             * If localStorage has a draft for the same server revision (edit_date_ms) as the
+             * If sessionStorage has a draft for the same server revision (edit_date_ms) as the
              * fetched story, and ace text differs from the last known server ink, apply the
              * draft (unsaved typing). If the server revision advanced, discard draft.
              */
