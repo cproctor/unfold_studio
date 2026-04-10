@@ -191,7 +191,8 @@ def signup(request):
                             # Claim the code
                             join_code.assigned_user = user
                             join_code.save()
-                            
+                            messages.success(request,f"Welcome! You've successfully joined {join_code.group.name}.")
+
                             log.info(event="Student Sign Up Successful", arg={"user": user.username})
                             login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                             return redirect('home')

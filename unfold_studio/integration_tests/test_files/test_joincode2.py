@@ -55,8 +55,6 @@ class LiteracyGroupLeaveTest(TestCase):
         leave_url = reverse('leave_group', kwargs={'pk': self.group.pk})
         response = self.client.post(leave_url, follow=True)
 
-        print(f"\nRedirect chain: {response.redirect_chain}")
-        print(f"Status: {response.status_code}")
 
         self.assertEqual(response.status_code, 200)
 
@@ -75,7 +73,7 @@ class LiteracyGroupLeaveTest(TestCase):
         ).exists()
         self.assertTrue(event_exists)
 
-        print(f"\n Success: {self.student.username} left {self.group.name}")
+   
 
     # ── EDGE CASES ─────────────────────────────────────────────────────────────
 
@@ -89,7 +87,6 @@ class LiteracyGroupLeaveTest(TestCase):
         # Teacher should still be a member
         self.assertIn(self.teacher, self.group.members.all())
 
-        print(f"\n Success: teacher correctly blocked from leaving their own group")
 
 
     def test_used_code_is_freed_when_student_leaves(self):
@@ -101,5 +98,3 @@ class LiteracyGroupLeaveTest(TestCase):
 
         self.join_code.refresh_from_db()
         self.assertIsNone(self.join_code.assigned_user)
-
-        print(f"\n Success: join code {self.join_code.code} was freed after student left")

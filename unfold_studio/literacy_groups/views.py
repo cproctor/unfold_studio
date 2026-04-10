@@ -216,7 +216,7 @@ class DeleteJoinCodeView(LiteracyGroupContextMixin, View):
             
         return redirect('invite_to_group', pk)
 
-@method_decorator(csrf_exempt, name='dispatch')
+
 class GenerateCodesView(LiteracyGroupContextMixin, View):
     url_group_key = "pk"
     require_leader = True

@@ -40,17 +40,12 @@ class LiteracyGroupWorkflowTest(TestCase):
         self.client.login(username='teacher_chris', password='password123')
     
         gen_url = reverse('generate_codes', kwargs={'pk': self.group.pk})
-        print(f"\nGenerated URL: {gen_url}")
-        print(f"Group PK: {self.group.pk}")
+        
 
         # Generate 2 codes
         response = self.client.post(gen_url, {'quantity': 2}, follow=True)
     
-        # NOW we can print response info
-        print("Final URL:", response.wsgi_request.path)
-        print("Redirect chain:", response.redirect_chain)
-        print("Status:", response.status_code)
-
+    
         self.assertEqual(response.status_code, 200)
 
        # self.assertEqual(JoinCode.objects.filter(group=self.group).count(), 2)
@@ -83,4 +78,3 @@ class LiteracyGroupWorkflowTest(TestCase):
         ).exists()
         self.assertTrue(event_exists)
 
-        print(f"\n Success: {self.student.username} joined {self.group.name} using code {test_code_str}")
