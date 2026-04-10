@@ -444,7 +444,7 @@ class StoryVersionListView(DetailView):
         versions = Version.objects.get_for_object(story).exclude(revision__comment__exact='').reverse().annotate(
                 index=Window(RowNumber()))
 
-        comments = Comment.objects.for_story(story).all()
+        comments = Comment.objects.for_story(story, viewer=self.request.user).all()
 
         def date(e):
             if isinstance(e, Comment):
