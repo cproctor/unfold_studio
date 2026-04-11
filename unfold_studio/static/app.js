@@ -74,6 +74,23 @@ define(
                 return "unfold_story_draft_" + STORY_ID;
             }
 
+            // --- Anonymous / draft client backup: localStorage vs sessionStorage ---
+            // Switched *back* to localStorage from sessionStorage (product request, anonymous-story flow).
+            //
+            // localStorage (current):
+            //   - Survives closing the tab and restarting the browser until the user clears site data or
+            //     this code removes/overwrites the key (e.g. after a successful save / revision mismatch).
+            //   - Better when reviewers or students return later without having hit Save yet.
+            //
+            // sessionStorage (previous choice here):
+            //   - Scoped to one browser tab/window; cleared when that tab closes.
+            //   - Lower risk of leaving a draft on a shared computer after the tab is gone.
+            //
+            // Either way: the Django DB remains the source of truth on explicit Save (compile); the
+            // session cookie still drives anonymous_owned_story_ids. This object is only a client-side
+            // backup for crash/refresh and cross-visit recovery while the key is still valid.
+            var draftBackupStorage = window.localStorage;
+
             function normalizeInk(s) {
                 if (s === null || s === undefined) {
                     return "";
@@ -82,17 +99,15 @@ define(
             }
 
             function readDraftBackup() {
-                // Storage strategy (anonymous drafts):
+                // See draftBackupStorage comment above (localStorage vs sessionStorage).
                 // - DB is the source of truth for explicit saves (POST /stories/<id>/compile/).
-                // - Django session (via sessionid cookie) tracks which anonymous drafts the current
-                //   browser session owns (anonymous_owned_story_ids).
-                // - sessionStorage is only a temporary client-side backup for crash/refresh recovery
-                //   within this same browser session. It is NOT the primary persistence mechanism.
+                // - Django session tracks anonymous_owned_story_ids for the anonymous flow.
+                // - draftBackupStorage holds a client-side backup only; merge rules discard stale entries.
                 if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
                     return null;
                 }
                 try {
-                    var raw = sessionStorage.getItem(draftStorageKey());
+                    var raw = draftBackupStorage.getItem(draftStorageKey());
                     if (!raw) {
                         return null;
                     }
@@ -106,9 +121,8 @@ define(
              * Persist ace text + the server revision (edit_date_ms) and server ink snapshot
              * that this text was typed on top of.
              *
-             * This is a backup-only mechanism for anonymous drafts in the current browser session.
-             * It helps recover unsaved typing after a refresh/crash, but explicit saves still go to
-             * the server (compile_story -> story.save()) and the DB remains the source of truth.
+             * Backup only (see draftBackupStorage): helps after refresh/crash and after closing the tab,
+             * until revision mismatch or explicit save. compile_story -> story.save() is authoritative.
              */
             function writeDraftBackup(storyObj) {
                 if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
@@ -121,20 +135,20 @@ define(
                         lastKnownServerEditMs: storyObj._serverEditMs != null ? storyObj._serverEditMs : 0,
                         lastKnownServerInk: storyObj._serverInk != null ? storyObj._serverInk : "",
                     };
-                    sessionStorage.setItem(draftStorageKey(), JSON.stringify(payload));
+                    draftBackupStorage.setItem(draftStorageKey(), JSON.stringify(payload));
                 } catch (e) {}
             }
 
             function clearDraftBackup() {
                 try {
-                    sessionStorage.removeItem(draftStorageKey());
+                    draftBackupStorage.removeItem(draftStorageKey());
                 } catch (e) {}
             }
 
             /**
-             * If sessionStorage has a draft for the same server revision (edit_date_ms) as the
-             * fetched story, and ace text differs from the last known server ink, apply the
-             * draft (unsaved typing). If the server revision advanced, discard draft.
+             * If draftBackupStorage has a draft for the same server revision (edit_date_ms) as the
+             fetched story, and ace text differs from the last known server ink, apply the
+             draft (unsaved typing). If the server revision advanced, discard draft.
              */
             function mergeDraftIntoStory(story) {
                 if (typeof window.DRAFT_LOCAL_BACKUP === "undefined" || !window.DRAFT_LOCAL_BACKUP) {
