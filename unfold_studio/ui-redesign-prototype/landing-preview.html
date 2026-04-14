@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Landing preview — Unfold Studio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="proto-landing-preview-body">
+  <!-- Nested UI shown inside the “Landing Page” frame on index.html (real HTML/CSS, not an image). -->
+  <div class="proto-lp-inner">
+    <header class="proto-lp-topbar">
+      <span class="proto-lp-brand"><span class="proto-lp-brand-star" aria-hidden="true">✦</span> Unfold Studio</span>
+      <div class="proto-lp-topbar-actions">
+        <a class="btn-landing btn-landing-yellow" href="new-story.html" target="_top">Start writing</a>
+        <a class="btn-landing btn-landing-blue" href="index.html#about-teachers" target="_top">About</a>
+      </div>
+    </header>
+
+    <main class="proto-lp-main">
+      <h1 class="proto-lp-title">Unfold Studio</h1>
+      <p class="proto-lp-lead">
+        A web app for reading and writing interactive stories, designed for interdisciplinary computer science and AI.
+      </p>
+
+      <div class="proto-lp-editor-mock" aria-label="Story editor preview (mock)">
+        <div class="proto-lp-editor-chrome">
+          <span class="proto-lp-editor-dots" aria-hidden="true"></span>
+          <span class="proto-lp-editor-title">Snegurochka [The Snow Maiden]</span>
+        </div>
+        <div class="proto-lp-editor-split">
+          <div class="proto-lp-pane proto-lp-pane--ink">
+            <span class="proto-lp-pane-label">Ink</span>
+            <pre class="proto-lp-ink">=== start ===
+
+The platform doors exhale steam.
+
+-> opening_scene
+
+=== opening_scene ===
+You can lean into the cold, or turn away.
+
+*   [Step onto the ice]
+*   [Turn away]</pre>
+          </div>
+          <div class="proto-lp-pane proto-lp-pane--player">
+            <span class="proto-lp-pane-label">Player</span>
+            <div class="proto-lp-player-text">
+              <p>The station clock stutters. Someone has tied a red ribbon to the railing—too neat to be accidental.</p>
+              <p class="proto-lp-choices">
+                <a href="#" onclick="return false;">[Act 1]</a>
+                <a href="#" onclick="return false;">[Turn away]</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <section class="proto-lp-teachers" aria-labelledby="proto-lp-teachers-h">
+        <h2 id="proto-lp-teachers-h">Teachers use Unfold Studio for…</h2>
+        <ul class="proto-lp-list">
+          <li>Introductory computer science, grounded in students’ lives and identities.</li>
+          <li>Interdisciplinary CS in English/Language Arts classes</li>
+          <li>Analyzing social reality in a sociology class</li>
+          <li>CS teacher preparation</li>
+          <li>Restorative justice</li>
+          <li>Fan fiction</li>
+        </ul>
+      </section>
+
+      <p class="proto-lp-browse">
+        <a href="browse.html" target="_top">Browse stories →</a>
+      </p>
+    </main>
+  </div>
+</body>
+</html>

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Completed Story — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="proto-story-completed-body" data-student-story-completed>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New Story</a>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html">Log in</a>
+          <a href="login.html#signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-main--story proto-story-page proto-story-completed-page">
+    <div class="proto-story-toolbar">
+      <p class="proto-story-completed-kicker">Completed Story</p>
+      <h2 class="story-title">My City Story</h2>
+      <div class="description proto-story-completed-desc">
+        by you <span class="love">&lt;3 2</span>
+        [<a href="#" data-proto-demo-alert>Save</a>]
+        [<a href="#" data-proto-demo-alert>Rename</a>]
+        [<a href="#" data-proto-demo-alert>Save this version</a>]
+        [<a href="#" data-proto-demo-alert>Hide code</a>]
+        [<a href="#" data-proto-demo-alert>Public, Unshare?</a>]
+        [<a href="#" data-proto-demo-alert>Fork</a>]
+        [<a href="#history">History/Comment</a>]
+        [<a href="student-submit-to-prompt.html">Submit to prompt</a>]
+      </div>
+    </div>
+
+    <div id="main">
+      <div class="twopane proto-twopane" id="twopane">
+        <div id="editor" aria-label="Editor">
+          <pre class="proto-ink-static proto-story-ink-static" aria-label="Ink code">VAR choice = ""
+
+Sam had always wanted to explore the city alone.
+The subway map crinkled in her hand as she
+stepped off the train at 42nd Street.
+
+The buildings rose up like canyon walls.
+She took a deep breath of pretzel-cart air.
+
+-> downtown
+
+=== downtown ===
+She wandered south, past food trucks and street
+musicians. A woman handed her a flyer for a
+poetry slam happening that night.
+
+"You look like you have something to say."
+
+* [Go to the poetry slam] -> poetry
+* [Keep walking]         -> park</pre>
+        </div>
+        <div class="split" aria-hidden="true"></div>
+        <div id="player" aria-label="Preview">
+          <div class="scrollContainer">
+            <div class="innerText active">
+              <p>Sam had always wanted to explore the city alone. The subway map crinkled in her hands as she stepped off the train at 42nd Street.</p>
+              <p>The buildings rose up like canyon walls. She took a deep breath of pretzel-cart air.</p>
+              <p>She wandered south, past food trucks and street musicians. A woman handed her a flyer for a poetry slam happening that night.</p>
+              <p>“You look like you have something to say.”</p>
+              <p>
+                <a class="choice" href="#" data-proto-demo-alert>▸ Go to the poetry slam</a><br />
+                <a class="choice" href="#" data-proto-demo-alert>▸ Keep walking</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <section class="proto-story-bottom proto-story-bottom--framed" aria-label="Story panels">
+      <div class="proto-story-panebar">
+        <nav class="proto-story-tabs" aria-label="Panels">
+          <a href="#feedback" data-panel-tab="feedback">Feedback <span class="proto-tab-count">1</span></a>
+          <a href="#output" data-panel-tab="output">Output</a>
+          <a href="#problems" data-panel-tab="problems">Problems <span class="proto-tab-count">0</span></a>
+          <a href="#history" data-panel-tab="history" class="is-active">History</a>
+        </nav>
+        <button type="button" class="proto-story-pane-toggle" aria-label="Collapse" data-proto-demo-alert>˅</button>
+      </div>
+
+      <div class="proto-story-panel is-active" id="panel-history" data-panel="history">
+        <div class="proto-story-history-row">
+          <div>
+            <div class="proto-story-history-title">Edited passage: downtown</div>
+            <div class="proto-story-history-sub">2 minutes ago • v12</div>
+          </div>
+          <a href="#" class="proto-story-restore" data-proto-demo-alert>Restore</a>
+        </div>
+        <div class="proto-story-history-row">
+          <div>
+            <div class="proto-story-history-title">Added new choice branch</div>
+            <div class="proto-story-history-sub">15 minutes ago • v11</div>
+          </div>
+          <a href="#" class="proto-story-restore" data-proto-demo-alert>Restore</a>
+        </div>
+        <div class="proto-story-history-row">
+          <div>
+            <div class="proto-story-history-title">Updated story title</div>
+            <div class="proto-story-history-sub">1 hour ago • v10</div>
+          </div>
+          <a href="#" class="proto-story-restore" data-proto-demo-alert>Restore</a>
+        </div>
+      </div>
+
+      <div class="proto-story-panel" id="panel-feedback" data-panel="feedback">
+        <h2 class="proto-story-panel-title">Comments</h2>
+        <div class="proto-story-comment-box">
+          <p>Really strong opening! The sensory detail of the “pretzel-cart air” immediately puts the reader on the street with Sam.</p>
+          <p>The branching choice at the poetry slam is a great idea — I’d love to see you develop both paths more. The “Keep walking” branch feels short. What does Sam discover if she keeps going?</p>
+          <p>Overall: solid voice, clear setting. Keep going!</p>
+        </div>
+        <div class="proto-story-feedback-actions">
+          <button type="button" class="btn btn-primary" data-proto-demo-alert>Send feedback</button>
+          <button type="button" class="btn btn-outline" data-proto-demo-alert>Save draft</button>
+          <a href="#" class="proto-story-skip" data-proto-demo-alert>skip for now</a>
+        </div>
+      </div>
+
+      <div class="proto-story-panel" id="panel-output" data-panel="output">
+        <pre class="proto-story-console">[14:32:15] Story saved successfully
+[14:30:43] Auto-save completed
+[14:28:10] Story compiled
+[14:25:03] Preview updated — import stories links</pre>
+      </div>
+
+      <div class="proto-story-panel" id="panel-problems" data-panel="problems">
+        <p class="proto-story-empty">No problems detected in your story.</p>
+      </div>
+    </section>
+
+    <p class="proto-story-backdash">
+      <a href="student-dashboard.html">← Back to dashboard</a>
+    </p>
+  </main>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="student-story.js"></script>
+</body>
+</html>
+

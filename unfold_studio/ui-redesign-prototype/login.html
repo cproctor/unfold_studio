@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Log in — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <form class="proto-nav-search js-proto-search-form" role="search" action="#">
+        <input class="js-proto-search-input" type="search" placeholder="Search…" aria-label="Search" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html" id="proto-nav-login">Log in</a>
+          <a href="login.html#signup" id="proto-nav-signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-auth" data-proto-auth-page>
+    <div id="proto-auth-logged-banner" class="proto-auth-logged-banner" hidden>
+      <strong>You are signed in</strong> as <span id="proto-auth-banner-name"></span>.
+      <div class="proto-auth-logged-actions">
+        <a class="btn btn-primary" href="index.html">Continue to home</a>
+        <button type="button" class="btn btn-ghost" id="proto-auth-banner-logout">Log out</button>
+      </div>
+    </div>
+
+    <div id="proto-login-panel" class="proto-auth-card">
+      <h1 class="proto-auth-title-slab">Log in</h1>
+      <p class="proto-auth-lead">Welcome back.</p>
+      <p class="proto-auth-hint-login-demo"><strong>Demo:</strong> sign in as <code>prof_chris</code> with any password to open the <a href="teacher-dashboard.html">instructor dashboard</a>.</p>
+      <form id="proto-form-login" action="#" method="post" novalidate>
+        <div class="proto-field">
+          <label class="proto-field-label" for="proto-login-username">Username</label>
+          <input class="proto-field-input" id="proto-login-username" name="username" type="text" autocomplete="username" required />
+        </div>
+        <div class="proto-field">
+          <label class="proto-field-label" for="proto-login-password">Password</label>
+          <input class="proto-field-input" id="proto-login-password" name="password" type="password" autocomplete="current-password" required />
+        </div>
+        <p id="proto-login-error" class="proto-field-error" hidden></p>
+        <button type="submit" class="btn btn-primary btn-block">Log in</button>
+      </form>
+      <p class="proto-auth-switch">Don’t have an account? <a href="login.html#signup">Sign up</a></p>
+    </div>
+
+    <div id="proto-signup-panel" class="proto-auth-card" hidden>
+      <h1 class="proto-auth-title-slab">Sign up</h1>
+      <p class="proto-auth-lead">Create an account to write and share interactive stories.</p>
+      <form id="proto-form-signup" action="#" method="post" novalidate>
+        <div class="proto-field">
+          <label class="proto-field-label" for="proto-signup-role">I am a…</label>
+          <select class="proto-field-input" id="proto-signup-role" name="role" required>
+            <option value="" disabled selected>— Select —</option>
+            <option value="user">Regular User</option>
+            <option value="student">Student</option>
+            <option value="teacher">Instructor / Teacher</option>
+          </select>
+        </div>
+        <div class="proto-field">
+          <label class="proto-field-label" for="proto-signup-username">Username</label>
+          <input class="proto-field-input" id="proto-signup-username" name="username" type="text" autocomplete="username" required />
+        </div>
+        <div class="proto-field">
+          <label class="proto-field-label" for="proto-signup-email">Email</label>
+          <input class="proto-field-input" id="proto-signup-email" name="email" type="email" autocomplete="email" required />
+        </div>
+        <div class="proto-field">
+          <label class="proto-field-label" for="proto-signup-password">Password</label>
+          <input class="proto-field-input" id="proto-signup-password" name="password" type="password" autocomplete="new-password" required />
+          <ul class="proto-signup-password-hint" aria-label="Password rules">
+            <li>Must use at least 8 characters.</li>
+            <li>Cannot be too similar to email.</li>
+            <li>Cannot be too common, or numeric.</li>
+          </ul>
+        </div>
+        <div class="proto-field">
+          <label class="proto-field-label" for="proto-signup-password2">Confirm password</label>
+          <input class="proto-field-input" id="proto-signup-password2" name="password2" type="password" autocomplete="new-password" required />
+        </div>
+        <p id="proto-signup-error" class="proto-field-error" hidden></p>
+        <button type="submit" class="btn btn-primary btn-block">Sign up</button>
+      </form>
+      <p class="proto-auth-switch proto-auth-switch--student">
+        Joining a class? <a href="join-student.html">Join as a student</a>
+      </p>
+      <p class="proto-auth-switch">Already have an account? <a href="login.html">Log in</a></p>
+    </div>
+
+    <p class="proto-auth-back">
+      <a href="index.html">← Back to home</a>
+    </p>
+  </main>
+
+  <dialog id="proto-teacher-modal" class="proto-modal proto-modal--teacher" aria-labelledby="proto-teacher-modal-title">
+    <div class="proto-modal-inner">
+      <button type="button" class="proto-modal-close" id="proto-teacher-modal-close" aria-label="Close">×</button>
+      <h2 id="proto-teacher-modal-title">Instructor access required</h2>
+      <p>Teacher accounts require manual approval to prevent misuse.</p>
+      <p>
+        Please email Dr. Chris Proctor at
+        <a id="proto-teacher-email-link" href="mailto:dr.chris.proctor@unfoldstudio.example">dr.chris.proctor@unfoldstudio.example</a>
+        to request access. Include your name, institution, and how you plan to use Unfold Studio.
+      </p>
+      <p>Once approved, your account will be upgraded to Instructor status.</p>
+      <div class="proto-modal-actions proto-modal-actions--teacher">
+        <button type="button" class="btn btn-primary" id="proto-teacher-gotit">Got it</button>
+        <button type="button" class="btn btn-outline" id="proto-teacher-copy-email">Copy email address</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

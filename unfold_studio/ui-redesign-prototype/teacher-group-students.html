@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Group B — Students — Unfold Studio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-teacher-page data-teacher-students-proto>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <form class="proto-nav-search js-proto-search-form" role="search" action="#">
+        <input class="js-proto-search-input" type="search" placeholder="Search…" aria-label="Search" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html">Log in</a>
+          <a href="login.html#signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-teacher-students-page">
+    <p class="proto-teacher-breadcrumb">
+      <a href="teacher-group-detail.html">← Group B Details</a>
+    </p>
+    <header class="proto-teacher-students-header">
+      <h1 class="proto-teacher-page-title">Group B — Students</h1>
+      <p class="proto-teacher-page-lead">
+        18 students enrolled
+        <span class="proto-dash-sep" aria-hidden="true">·</span>
+        9th Grade
+      </p>
+      <div class="proto-teacher-top-actions">
+        <button type="button" class="btn btn-ghost btn-sm btn-tight" data-proto-demo-alert>↻ Reset All Passwords</button>
+        <button type="button" class="btn btn-primary btn-sm btn-tight" data-proto-demo-alert>+ Add Student</button>
+      </div>
+    </header>
+
+    <div id="proto-student-toast" class="proto-toast" hidden>
+      <span class="proto-toast-icon">✓</span>
+      <span id="proto-student-toast-msg"></span>
+    </div>
+
+    <p class="proto-teacher-lead-paragraph">
+      Each student uses a unique join code to create their account and join this group. You manage the codes — Unfold Studio does not send them automatically. You will need to distribute the code yourself (print, email, hand out in class). Each code can only be used once.
+      <a href="#" data-proto-demo-alert>How join codes work →</a>
+    </p>
+
+    <div class="proto-teacher-table-wrap">
+      <table class="proto-teacher-table">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Username</th>
+            <th scope="col">Access code</th>
+            <th scope="col">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-student="Student 1" data-code="AB461">
+            <td>1</td>
+            <td>Student 1</td>
+            <td><code class="proto-teacher-code">AB461</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm btn-tight" data-action="reset">Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm btn-tight" data-action="remove">→ Remove</button>
+            </td>
+          </tr>
+          <tr data-student="Student 2" data-code="IK200">
+            <td>2</td>
+            <td>Student 2</td>
+            <td><code class="proto-teacher-code">IK200</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm btn-tight" data-action="reset">Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm btn-tight" data-action="remove">→ Remove</button>
+            </td>
+          </tr>
+          <tr data-student="Student 3" data-code="TH847">
+            <td>3</td>
+            <td>Student 3</td>
+            <td><code class="proto-teacher-code">TH847</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm btn-tight" data-action="reset">Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm btn-tight" data-action="remove">→ Remove</button>
+            </td>
+          </tr>
+          <tr data-student="Student 4" data-code="QR503">
+            <td>4</td>
+            <td>Student 4</td>
+            <td><code class="proto-teacher-code">QR503</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm btn-tight" data-action="reset">Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm btn-tight" data-action="remove">→ Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>5</td>
+            <td>Student 5</td>
+            <td><code class="proto-teacher-code">LJ318</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm" data-proto-demo-alert>→ Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>6</td>
+            <td>Student 6</td>
+            <td><code class="proto-teacher-code">NH652</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm" data-proto-demo-alert>→ Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>7</td>
+            <td>Student 7</td>
+            <td><code class="proto-teacher-code">PH094</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm" data-proto-demo-alert>→ Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>8</td>
+            <td>Student 8</td>
+            <td><code class="proto-teacher-code">YC731</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm" data-proto-demo-alert>→ Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>9</td>
+            <td>Student 9</td>
+            <td><code class="proto-teacher-code">BV285</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm" data-proto-demo-alert>→ Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>10</td>
+            <td>Student 10</td>
+            <td><code class="proto-teacher-code">FD419</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm" data-proto-demo-alert>→ Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>11</td>
+            <td>Student 11</td>
+            <td><code class="proto-teacher-code">MZ067</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm" data-proto-demo-alert>→ Remove</button>
+            </td>
+          </tr>
+          <tr>
+            <td>12</td>
+            <td>Student 12</td>
+            <td><code class="proto-teacher-code">GK523</code></td>
+            <td class="proto-teacher-table-actions">
+              <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>Reset Password</button>
+              <button type="button" class="btn btn-ghost-danger btn-sm" data-proto-demo-alert>→ Remove</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <nav class="proto-teacher-pagination" aria-label="Pagination">
+      <span class="proto-teacher-page-info">Showing 12 of 18 — scroll for more</span>
+      <button type="button" class="btn btn-ghost btn-sm" data-proto-demo-alert>+ 1 student</button>
+    </nav>
+
+    <nav class="proto-flow-nav" aria-label="Prototype flow navigation">
+      <a class="proto-flow-arrow" href="teacher-group-new.html" aria-label="Back">←</a>
+      <span class="proto-flow-hint">Teacher flow</span>
+      <span class="proto-flow-jump" data-flow-jump>
+        <input class="proto-flow-input" data-flow-input list="teacher-pages" placeholder="Go to (e.g. teacher-dashboard)" />
+        <button class="proto-flow-go" data-flow-go type="button">Go</button>
+      </span>
+      <a class="proto-flow-arrow" href="teacher-group-detail.html" aria-label="Next">→</a>
+    </nav>
+  </main>
+
+  <datalist id="teacher-pages">
+    <option value="teacher-dashboard"></option>
+    <option value="teacher-group-new"></option>
+    <option value="teacher-group-students"></option>
+    <option value="teacher-group-detail"></option>
+    <option value="teacher-prompt-new"></option>
+    <option value="teacher-prompt-submissions"></option>
+    <option value="teacher-feedback-sent"></option>
+    <option value="teacher-group-edit"></option>
+    <option value="teacher-prompt-edit"></option>
+    <option value="teacher-group-detail-inactive"></option>
+  </datalist>
+
+  <dialog id="proto-reset-dialog" class="proto-modal proto-modal--reset" aria-labelledby="proto-reset-title">
+    <div class="proto-modal-inner">
+      <button type="button" class="proto-modal-close" id="proto-reset-close" aria-label="Close">×</button>
+      <h2 id="proto-reset-title">Reset Password</h2>
+      <p>Are you sure you want to reset the password for <strong id="proto-reset-student">Student 1</strong> (Access Code: <span class="proto-reset-codepill" id="proto-reset-code">AB461</span>)</p>
+      <p class="proto-dash-muted">A new temporary password will be generated. The student will need to use it on their next login.</p>
+      <div class="proto-modal-actions proto-modal-actions--teacher">
+        <button type="button" class="btn btn-primary" id="proto-reset-generate">Generate New Password</button>
+        <button type="button" class="btn btn-outline" id="proto-reset-cancel">Cancel</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="proto-reset-done" class="proto-modal proto-modal--reset" aria-labelledby="proto-reset-done-title">
+    <div class="proto-modal-inner">
+      <button type="button" class="proto-modal-close" id="proto-reset-done-close" aria-label="Close">×</button>
+      <h2 id="proto-reset-done-title"><span style="color:#0a7a2f;">✓</span> Password Reset</h2>
+      <p class="proto-dash-muted">New temporary password for Student 1.</p>
+      <div class="proto-pass-box">
+        <div class="proto-pass-value" id="proto-reset-pass">Mn7xQ2</div>
+        <div class="proto-pass-hint">Temporary password — share with student</div>
+      </div>
+      <div class="proto-pass-warn">This password will only be shown once. Copy it now.</div>
+      <div class="proto-modal-actions proto-modal-actions--teacher" style="margin-top:12px;">
+        <button type="button" class="btn btn-primary" id="proto-reset-copy">Copy Password</button>
+        <button type="button" class="btn btn-outline" id="proto-reset-done-done">Done</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+  <script src="teacher-flow.js"></script>
+</body>
+</html>

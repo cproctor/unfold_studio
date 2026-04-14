@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Join codes — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-teacher-page>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-session">
+          <span class="proto-nav-username" id="account-teacher-codes-username"></span>
+          <a href="#" id="account-teacher-codes-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-teacher-page" data-account-teacher-codes-page>
+    <p class="proto-teacher-breadcrumb">
+      <a href="teacher-dashboard.html">← My dashboard</a>
+    </p>
+
+    <header class="proto-teacher-page-header">
+      <h1 class="proto-teacher-page-title">Join codes</h1>
+      <p class="proto-teacher-page-lead">
+        Generate single‑use codes for students to create accounts and join your group.
+      </p>
+      <hr class="proto-dash-rule" />
+    </header>
+
+    <section class="proto-teacher-section" aria-labelledby="gen-heading">
+      <div class="proto-teacher-section-head">
+        <h2 id="gen-heading" class="proto-teacher-section-title">Generate codes</h2>
+      </div>
+
+      <form id="account-generate-codes-form" class="proto-teacher-form" action="#" method="post">
+        <div class="proto-field">
+          <label class="proto-field-label" for="account-generate-quantity">Quantity</label>
+          <input class="proto-field-input" id="account-generate-quantity" name="quantity" type="number" min="1" max="50" value="5" />
+          <p class="proto-field-hint">Creates that many new single‑use codes for Group B.</p>
+        </div>
+        <div class="proto-teacher-form-actions">
+          <button type="submit" class="btn btn-primary">Generate</button>
+          <a href="account-join-student.html" class="btn btn-outline">Open student join page</a>
+        </div>
+      </form>
+    </section>
+
+    <section class="proto-teacher-section" aria-labelledby="codes-heading">
+      <hr class="proto-dash-rule proto-dash-rule--section-end" />
+      <div class="proto-teacher-section-head">
+        <h2 id="codes-heading" class="proto-teacher-section-title">Codes</h2>
+        <span class="proto-dash-muted" id="account-codes-count"></span>
+      </div>
+
+      <div class="proto-teacher-table-wrap">
+        <table class="proto-teacher-table">
+          <thead>
+            <tr>
+              <th scope="col">Code</th>
+              <th scope="col">Assigned to</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="account-codes-tbody">
+            <!-- filled by JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <nav class="proto-flow-nav" aria-label="Prototype flow navigation">
+      <a class="proto-flow-arrow" href="teacher-dashboard.html" aria-label="Back">←</a>
+      <span class="proto-flow-hint">Join code flow</span>
+      <a class="proto-flow-arrow" href="account-signup.html" aria-label="Next">→</a>
+    </nav>
+  </main>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+
+  <script src="account-flow.js"></script>
+</body>
+</html>
+

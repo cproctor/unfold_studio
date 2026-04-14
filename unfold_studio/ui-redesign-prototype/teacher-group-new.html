@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Create a new group — Unfold Studio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-teacher-page>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <form class="proto-nav-search js-proto-search-form" role="search" action="#">
+        <input class="js-proto-search-input" type="search" placeholder="Search…" aria-label="Search" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html">Log in</a>
+          <a href="login.html#signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-teacher-form-page">
+    <p class="proto-teacher-breadcrumb">
+      <a href="teacher-dashboard.html">← My dashboard</a>
+    </p>
+
+    <header class="proto-teacher-page-header">
+      <h1 class="proto-teacher-page-title">Create a new group</h1>
+      <p class="proto-teacher-page-lead">Groups can be classes, writing clubs, or any collection of people writing together.</p>
+      <hr class="proto-dash-rule" />
+    </header>
+
+    <form id="proto-teacher-new-group-form" class="proto-teacher-form" action="#" method="post">
+      <div class="proto-field">
+        <label class="proto-field-label" for="tg-name">Group name</label>
+        <input class="proto-field-input" id="tg-name" name="name" type="text" placeholder="e.g. Group B, Writing Club, 9th grade ELA" required />
+      </div>
+
+      <div class="proto-field">
+        <label class="proto-field-label" for="tg-grade">Grade level <span class="proto-dash-muted">(optional)</span></label>
+        <select class="proto-field-input" id="tg-grade" name="grade_level">
+          <option value="" selected>— select —</option>
+          <option value="6">6th Grade</option>
+          <option value="7">7th Grade</option>
+          <option value="8">8th Grade</option>
+          <option value="9">9th Grade</option>
+          <option value="10">10th Grade</option>
+          <option value="11">11th Grade</option>
+          <option value="12">12th Grade</option>
+          <option value="mixed">Mixed grades</option>
+        </select>
+      </div>
+
+      <div class="proto-field">
+        <label class="proto-field-label" for="tg-desc">Description <span class="proto-dash-muted">(optional)</span></label>
+        <textarea class="proto-field-input proto-field-textarea" id="tg-desc" name="description" rows="4" placeholder="Brief note about your group."></textarea>
+      </div>
+
+      <fieldset class="proto-teacher-fieldset">
+        <legend class="proto-field-label">Status</legend>
+        <label class="proto-teacher-check">
+          <input type="checkbox" name="active" checked />
+          Active — students can join and write
+        </label>
+        <label class="proto-teacher-check">
+          <input type="checkbox" name="inactive" />
+          Inactive — archived, no new activity
+        </label>
+      </fieldset>
+
+      <div class="proto-teacher-form-actions">
+        <button type="submit" class="btn btn-primary">Create group</button>
+        <a href="teacher-dashboard.html" class="btn btn-outline">Cancel</a>
+      </div>
+
+      <p class="proto-teacher-note">
+        After creating the group you will be taken to the add students page to generate join codes.
+      </p>
+    </form>
+
+    <nav class="proto-flow-nav" aria-label="Prototype flow navigation">
+      <a class="proto-flow-arrow" href="teacher-dashboard.html" aria-label="Back">←</a>
+      <span class="proto-flow-hint">Teacher flow</span>
+      <span class="proto-flow-jump" data-flow-jump>
+        <input class="proto-flow-input" data-flow-input list="teacher-pages" placeholder="Go to (e.g. teacher-group-detail)" />
+        <button class="proto-flow-go" data-flow-go type="button">Go</button>
+      </span>
+      <a class="proto-flow-arrow" href="teacher-group-students.html" aria-label="Next">→</a>
+    </nav>
+  </main>
+
+  <datalist id="teacher-pages">
+    <option value="teacher-dashboard"></option>
+    <option value="teacher-group-new"></option>
+    <option value="teacher-group-students"></option>
+    <option value="teacher-group-detail"></option>
+    <option value="teacher-prompt-new"></option>
+    <option value="teacher-prompt-submissions"></option>
+    <option value="teacher-feedback-sent"></option>
+    <option value="teacher-group-edit"></option>
+    <option value="teacher-prompt-edit"></option>
+    <option value="teacher-group-detail-inactive"></option>
+  </datalist>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+  <script src="teacher-flow.js"></script>
+</body>
+</html>

@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Books — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html" class="is-active">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <form class="proto-nav-search js-proto-search-form" role="search" action="#">
+        <input class="js-proto-search-input" type="search" placeholder="Search…" aria-label="Search books" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html" id="proto-nav-login">Log in</a>
+          <a href="login.html#signup" id="proto-nav-signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-books-page" data-search-scope data-books-page>
+    <div class="section-head">
+      <h2>Books</h2>
+    </div>
+    <p class="browse-page-intro">
+      Books are collections of stories. Use Refine to filter by genre—books can belong to multiple genres.
+    </p>
+
+    <div class="books-layout">
+      <aside class="filters" aria-label="Refine">
+        <h3>Refine</h3>
+        <div class="filter-group">
+          <label>Genre</label>
+          <div class="filter-chips" data-proto-filter-type="book-genre">
+            <button type="button" class="is-on" data-genre="all">All</button>
+            <button type="button" data-genre="mystery">Mystery</button>
+            <button type="button" data-genre="classroom">Classroom</button>
+            <button type="button" data-genre="adventure">Adventure</button>
+          </div>
+        </div>
+      </aside>
+
+      <div>
+        <div class="books-toolbar">
+          <div class="books-toolbar-search">
+            <input class="js-proto-search-input" type="search" placeholder="Search books by title, curator, or keyword…" aria-label="Search books" autocomplete="off" />
+          </div>
+        </div>
+
+    <p id="proto-books-empty" class="proto-search-empty" hidden>No books match that search or genre. Clear the search box or choose All.</p>
+
+    <div class="books-shelf-stack">
+      <section class="books-shelf" data-shelf-genre="mystery">
+        <h3 class="books-shelf-title">Mystery &amp; clues</h3>
+        <div class="books-shelf-row">
+          <a class="book-tile" href="browse.html?book=cipher_curriculum#all" data-book-card data-book-id="cipher_curriculum" data-genre="mystery classroom" data-search="cipher curriculum footnotes classroom okonkwo anthology" aria-label="Cipher Curriculum — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">Cipher Curriculum</p>
+              <p class="book-tile-desc">Classroom mysteries built from footnotes, marginalia, and tiny choices.</p>
+              <p class="book-tile-meta">14 stories · literacy group · curator N. Okonkwo</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">Cipher Curriculum</p>
+              <p class="book-tile-desc">14 stories · literacy group · curator N. Okonkwo</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+          <a class="book-tile" href="browse.html?book=cold_case_club#all" data-book-card data-book-id="cold_case_club" data-genre="mystery" data-search="cold case book club short mysteries winter read" aria-label="Cold Case Book Club — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">Cold Case Book Club</p>
+              <p class="book-tile-desc">Short mysteries for quick reads—each one ends with a fork.</p>
+              <p class="book-tile-meta">9 stories · public · weekly picks</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">Cold Case Book Club</p>
+              <p class="book-tile-desc">9 stories · public · weekly picks</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+          <a class="book-tile" href="browse.html?book=after_midnight_pack#all" data-book-card data-book-id="after_midnight_pack" data-genre="mystery adventure" data-search="after midnight lighthouse keeper storm coast archive" aria-label="After Midnight reader pack — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">After Midnight reader pack</p>
+              <p class="book-tile-desc">Night stories: coastlines, storms, and lantern light in the fog.</p>
+              <p class="book-tile-meta">6 stories · fan bundle · lighthouse highlight</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">After Midnight reader pack</p>
+              <p class="book-tile-desc">6 stories · fan bundle · lighthouse highlight</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="books-shelf" data-shelf-genre="classroom">
+        <h3 class="books-shelf-title">Classroom &amp; workshops</h3>
+        <div class="books-shelf-row">
+          <a class="book-tile" href="browse.html?book=civic_lab_set#all" data-book-card data-book-id="civic_lab_set" data-genre="classroom" data-search="civic lab ortiz discussion literacy branching" aria-label="Civic Lab: discussion set — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">Civic Lab: discussion set</p>
+              <p class="book-tile-desc">Discussion-ready branches for one class period—no single “win.”</p>
+              <p class="book-tile-meta">11 stories · fork-friendly · Mr. Ortiz</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">Civic Lab: discussion set</p>
+              <p class="book-tile-desc">11 stories · fork-friendly · Mr. Ortiz</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+          <a class="book-tile" href="browse.html?book=greenhouse_unit#all" data-book-card data-book-id="greenhouse_unit" data-genre="classroom adventure" data-search="greenhouse climate ecolit unit science" aria-label="Greenhouse unit — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">Greenhouse unit</p>
+              <p class="book-tile-desc">A climate unit with branching experiments and reflection prompts.</p>
+              <p class="book-tile-meta">7 stories · EcoLit Club · one class period branches</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">Greenhouse unit</p>
+              <p class="book-tile-desc">7 stories · EcoLit Club · one class period branches</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+          <a class="book-tile" href="browse.html?book=peer_review_pack#all" data-book-card data-book-id="peer_review_pack" data-genre="classroom" data-search="peer review writing workshop ink comedy cwilk" aria-label="First drafts / peer review — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">First drafts / peer review</p>
+              <p class="book-tile-desc">Workshop humor and revision choices—built for peer feedback.</p>
+              <p class="book-tile-meta">10 stories · writing workshop · humor</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">First drafts / peer review</p>
+              <p class="book-tile-desc">10 stories · writing workshop · humor</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+          <a class="book-tile" href="browse.html?book=quiet_room_allies#all" data-book-card data-book-id="quiet_room_allies" data-genre="classroom" data-search="quiet room mental health patel gentle allies" aria-label="Quiet room &amp; allies — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">Quiet room &amp; allies</p>
+              <p class="book-tile-desc">Gentle branches about anxiety, allies, and asking for help.</p>
+              <p class="book-tile-meta">8 stories · staff picks · Dr. Patel</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">Quiet room &amp; allies</p>
+              <p class="book-tile-desc">8 stories · staff picks · Dr. Patel</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+        </div>
+      </section>
+
+      <section class="books-shelf" data-shelf-genre="adventure">
+        <h3 class="books-shelf-title">Adventure &amp; strange roads</h3>
+        <div class="books-shelf-row">
+          <a class="book-tile" href="browse.html?book=transit_detours#all" data-book-card data-book-id="transit_detours" data-genre="adventure" data-search="riverdelta transit urban fantasy addison street tour" aria-label="Transit maps &amp; detours — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">Transit maps &amp; detours</p>
+              <p class="book-tile-desc">Urban fantasy routes—each stop changes what you remember.</p>
+              <p class="book-tile-meta">5 stories · riverdelta · memory at every stop</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">Transit maps &amp; detours</p>
+              <p class="book-tile-desc">5 stories · riverdelta · memory at every stop</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+          <a class="book-tile" href="browse.html?book=coast_storm_anthology#all" data-book-card data-book-id="coast_storm_anthology" data-genre="adventure mystery" data-search="lighthouse coast storm ferry lantern keeper" aria-label="Coast &amp; storm anthology — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">Coast &amp; storm anthology</p>
+              <p class="book-tile-desc">Coastlines and weather—choices that turn with the tide.</p>
+              <p class="book-tile-meta">12 stories · storm season · opens with Lighthouse Keeper</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">Coast &amp; storm anthology</p>
+              <p class="book-tile-desc">12 stories · storm season · opens with Lighthouse Keeper</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+          <a class="book-tile" href="browse.html?book=speculative_brunch#all" data-book-card data-book-id="speculative_brunch" data-genre="adventure" data-search="sci fi brunch speculative quick read sunday" aria-label="Speculative brunch reads — open collection">
+            <div class="book-tile-body">
+              <span class="book-tile-peek">Book</span>
+              <p class="book-tile-title">Speculative brunch reads</p>
+              <p class="book-tile-desc">Short, strange, and sweet—perfect for a Sunday serial mood.</p>
+              <p class="book-tile-meta">5 stories · short · Sunday serial vibe</p>
+            </div>
+            <div class="book-tile-reveal">
+              <p class="book-tile-title">Speculative brunch reads</p>
+              <p class="book-tile-desc">5 stories · short · Sunday serial vibe</p>
+              <ul class="book-storylist" data-book-storylist></ul>
+              <p class="book-tile-reveal-hint">View collection</p>
+            </div>
+          </a>
+        </div>
+      </section>
+      </div>
+    </div>
+  </main>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

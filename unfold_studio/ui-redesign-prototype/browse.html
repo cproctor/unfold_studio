@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Browse stories — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html" class="is-active">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <form class="proto-nav-search js-proto-search-form" role="search" action="#">
+        <input class="js-proto-search-input" type="search" name="q" placeholder="Search…" aria-label="Search stories" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html" id="proto-nav-login">Log in</a>
+          <a href="login.html#signup" id="proto-nav-signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main" data-search-scope>
+    <div data-browse-root>
+      <div class="section-head">
+        <h2>Browse stories</h2>
+      </div>
+      <p class="browse-page-intro">
+        <strong>Top</strong> / <strong>New</strong> switches lists. Use either search box (header or below) to filter the <em>visible</em> list.
+        Hover a card for <strong>title and description</strong>; click through to open a story.
+      </p>
+
+      <div class="browse-layout">
+        <aside class="filters" aria-label="Filters (visual only)">
+          <h3>Refine</h3>
+          <div class="filter-group">
+            <label>Genre</label>
+            <div class="filter-chips" data-proto-filter-type="genre">
+              <button type="button" class="is-on" data-genre="all">All</button>
+              <button type="button" data-genre="mystery">Mystery</button>
+              <button type="button" data-genre="classroom">Classroom</button>
+              <button type="button" data-genre="adventure">Adventure</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label>Length</label>
+            <div class="filter-chips" data-proto-filter-type="length">
+              <button type="button" class="is-on" data-length="any">Any</button>
+              <button type="button" data-length="short">Short</button>
+              <button type="button" data-length="medium">Medium</button>
+            </div>
+          </div>
+        </aside>
+
+        <div>
+          <div class="browse-toolbar">
+            <form class="browse-search js-proto-search-form" action="#" onsubmit="return false;" aria-label="Search">
+              <input class="js-proto-search-input" type="search" placeholder="Search stories by title, author, or keywords…" aria-label="Search in list" autocomplete="off" />
+            </form>
+            <nav class="sort-toggle" aria-label="Sort">
+              <a href="#" data-sort-tab="all" class="is-active">All</a>
+              <a href="#" data-sort-tab="top">Top</a>
+              <a href="#" data-sort-tab="new">New</a>
+            </nav>
+          </div>
+
+          <p id="proto-search-empty" class="proto-search-empty" hidden>No stories in this list match that search. Clear the box or switch Top/New.</p>
+
+          <div data-browse-panel="top" class="is-visible">
+            <div class="card-grid">
+              <a class="story-card" href="story-preview.html?story=ciphers_margins" data-story-card data-story-id="ciphers_margins" data-genre="mystery" data-length="medium" data-search="ciphers margins okonkwo mystery footnotes classroom chat top week" aria-label="Ciphers in the Margins by N. Okonkwo — open story">
+                <div class="story-card-body">
+                  <span class="story-card-badge">Top · week</span>
+                  <p class="story-card-title">Ciphers in the Margins</p>
+                  <p class="story-card-desc">Mystery through footnotes and chat logs.</p>
+                  <div class="story-card-meta"><span><strong>By</strong> N. Okonkwo</span><span><strong>♥</strong> 512</span></div>
+                </div>
+                <div class="story-card-reveal">
+                  <p class="story-card-title">Ciphers in the Margins</p>
+                  <p class="story-card-desc">Mystery through footnotes and chat logs.</p>
+                  <p class="story-card-excerpt">The note is printed in the margin like it belongs there.
+But you don’t remember writing it.
+The librarian’s stamp is dated tomorrow.
+You turn the page and the cipher turns with you.</p>
+                  <p class="story-card-reveal-hint">Open story</p>
+                </div>
+              </a>
+
+              <a class="story-card" href="story-preview.html?story=greenhouse_shift" data-story-card data-story-id="greenhouse_shift" data-genre="classroom" data-length="medium" data-search="greenhouse climate ecolit club shift classroom top month" aria-label="Greenhouse Shift by EcoLit Club — open story">
+                <div class="story-card-body">
+                  <span class="story-card-badge">Top · month</span>
+                  <p class="story-card-title">Greenhouse Shift</p>
+                  <p class="story-card-desc">Climate branches for one class period.</p>
+                  <div class="story-card-meta"><span><strong>By</strong> EcoLit Club</span><span><strong>♥</strong> 361</span></div>
+                </div>
+                <div class="story-card-reveal">
+                  <p class="story-card-title">Greenhouse Shift</p>
+                  <p class="story-card-desc">Climate branches for one class period.</p>
+                  <p class="story-card-excerpt">The greenhouse door sticks in the heat.
+Inside, the seedlings are leaning toward the glass.
+You can change one variable today.
+What do you measure first?</p>
+                  <p class="story-card-reveal-hint">Open story</p>
+                </div>
+              </a>
+
+              <a class="story-card" href="story-preview.html?story=quiet_room" data-story-card data-story-id="quiet_room" data-genre="classroom" data-length="medium" data-search="quiet room patel anxiety staff mental health gentle" aria-label="The Quiet Room by Dr. Patel — open story">
+                <div class="story-card-body">
+                  <span class="story-card-badge">Staff pick</span>
+                  <p class="story-card-title">The Quiet Room</p>
+                  <p class="story-card-desc">Gentle branching about anxiety and allies.</p>
+                  <div class="story-card-meta"><span><strong>By</strong> Dr. Patel</span><span><strong>♥</strong> 290</span></div>
+                </div>
+                <div class="story-card-reveal">
+                  <p class="story-card-title">The Quiet Room</p>
+                  <p class="story-card-desc">Gentle branching about anxiety and allies.</p>
+                  <p class="story-card-excerpt">The hallway is loud in the way a storm is loud.
+You find the quiet room sign half-covered by a poster.
+Inside, the lights are dim and the chair is empty.
+Someone left a note: “Come back when you’re ready.”</p>
+                  <p class="story-card-reveal-hint">Open story</p>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <div data-browse-panel="new">
+            <div class="card-grid">
+              <a class="story-card" href="story-preview.html?story=addison_detour" data-story-card data-story-id="addison_detour" data-genre="adventure" data-length="medium" data-search="addison street riverdelta urban fantasy transit new" aria-label="Detour Through Addison Street by riverdelta — open story">
+                <div class="story-card-body">
+                  <span class="story-card-badge">New</span>
+                  <p class="story-card-title">Detour Through Addison Street</p>
+                  <p class="story-card-desc">Transit-map fantasy; memory at every stop.</p>
+                  <div class="story-card-meta"><span><strong>By</strong> riverdelta</span><span><strong>2h</strong></span></div>
+                </div>
+                <div class="story-card-reveal">
+                  <p class="story-card-title">Detour Through Addison Street</p>
+                  <p class="story-card-desc">Transit-map fantasy; memory at every stop.</p>
+                  <p class="story-card-excerpt">The bus arrives without a route number.
+The map in your pocket redraws itself.
+Every stop name feels almost familiar.
+You choose a seat and a past.</p>
+                  <p class="story-card-reveal-hint">Open story</p>
+                </div>
+              </a>
+
+              <a class="story-card" href="story-preview.html?story=peer_review_panic" data-story-card data-story-id="peer_review_panic" data-genre="classroom" data-length="short" data-search="peer review panic ink cwilk comedy deadline students" aria-label="Peer Review Panic (Ink) by cwilk — open story">
+                <div class="story-card-body">
+                  <span class="story-card-badge">New</span>
+                  <p class="story-card-title">Peer Review Panic (Ink)</p>
+                  <p class="story-card-desc">Comedy about deadlines for student writers.</p>
+                  <div class="story-card-meta"><span><strong>By</strong> cwilk</span><span><strong>Yesterday</strong></span></div>
+                </div>
+                <div class="story-card-reveal">
+                  <p class="story-card-title">Peer Review Panic (Ink)</p>
+                  <p class="story-card-desc">Comedy about deadlines for student writers.</p>
+                  <p class="story-card-excerpt">Your draft is due in an hour.
+The comments are… enthusiastic.
+You can revise, defend, or pivot entirely.
+Which sentence do you touch first?</p>
+                  <p class="story-card-reveal-hint">Open story</p>
+                </div>
+              </a>
+
+              <a class="story-card" href="story-preview.html?story=archive_room_7b" data-story-card data-story-id="archive_room_7b" data-genre="mystery" data-length="short" data-search="archive room 7b archive kid horror found footage" aria-label="Archive: Room 7B by archive_kid — open story">
+                <div class="story-card-body">
+                  <span class="story-card-badge">New</span>
+                  <p class="story-card-title">Archive: Room 7B</p>
+                  <p class="story-card-desc">Found-footage tone; inventory choices.</p>
+                  <div class="story-card-meta"><span><strong>By</strong> archive_kid</span><span><strong>3d</strong></span></div>
+                </div>
+                <div class="story-card-reveal">
+                  <p class="story-card-title">Archive: Room 7B</p>
+                  <p class="story-card-desc">Found-footage tone; inventory choices.</p>
+                  <p class="story-card-excerpt">The camera battery says 12%.
+The hallway hums like a freezer.
+Room 7B is on the map, but not on the door.
+You record anyway.</p>
+                  <p class="story-card-reveal-hint">Open story</p>
+                </div>
+              </a>
+            </div>
+          </div>
+
+          <nav class="pagination" aria-label="Pagination mock">
+            <span class="is-current">1</span>
+            <a href="#">2</a>
+            <a href="#">3</a>
+            <span>…</span>
+            <a href="#">Next</a>
+          </nav>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

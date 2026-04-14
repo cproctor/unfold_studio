@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Featured stories — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <form class="proto-nav-search js-proto-search-form" role="search" action="#">
+        <input class="js-proto-search-input" type="search" name="q" placeholder="Search…" aria-label="Search stories" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html" id="proto-nav-login">Log in</a>
+          <a href="login.html#signup" id="proto-nav-signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main" data-search-scope>
+    <div class="section-head">
+      <h2>Featured stories</h2>
+      <a href="browse.html">Browse all stories →</a>
+    </div>
+    <p class="browse-page-intro">
+      Filter by keyword (matches title, author, tags). Hover a card for <strong>title and description</strong>.
+    </p>
+
+    <p id="proto-search-empty" class="proto-search-empty" hidden>No featured stories match that search. Clear the search box or try another keyword.</p>
+
+    <div class="card-grid">
+      <a class="story-card" href="story-preview.html?story=lighthouse_keeper" data-story-card data-story-id="lighthouse_keeper" data-search="lighthouse keeper maya chen storm coast ferry harbour lantern featured interactive fiction" aria-label="The Last Lighthouse Keeper by Maya Chen — open story">
+        <div class="story-card-body">
+          <span class="story-card-badge">Featured</span>
+          <p class="story-card-title">The Last Lighthouse Keeper</p>
+          <p class="story-card-desc">Storm, coast, choices that change what the light reveals.</p>
+          <div class="story-card-meta">
+            <span><strong>By</strong> Maya Chen</span>
+            <span><strong>Updated</strong> 3d ago</span>
+            <span><strong>♥</strong> 128</span>
+          </div>
+        </div>
+        <div class="story-card-reveal">
+          <p class="story-card-title">The Last Lighthouse Keeper</p>
+          <p class="story-card-desc">Storm, coast, choices that change what the light reveals.</p>
+          <p class="story-card-excerpt">Once there was a lonely widow who lived in the woods near a Russian village.
+One day she decided to make a little girl out of the endless snow outside.
+She carved a delicate face and arms, then set her by the fire.
+The kettle began to warm—then someone knocked on the door.</p>
+          <p class="story-card-reveal-hint">Open story</p>
+        </div>
+      </a>
+
+      <a class="story-card" href="story-preview.html?story=civic_lab" data-story-card data-story-id="civic_lab" data-search="civic lab ortiz classroom fork road discussion literacy" aria-label="Fork in the Road: Civic Lab by Mr. Ortiz — open story">
+        <div class="story-card-body">
+          <span class="story-card-badge">Classroom</span>
+          <p class="story-card-title">Fork in the Road: Civic Lab</p>
+          <p class="story-card-desc">Branching civics scenarios for discussion—no single “win.”</p>
+          <div class="story-card-meta">
+            <span><strong>By</strong> Mr. Ortiz</span>
+            <span><strong>Updated</strong> 1w ago</span>
+          </div>
+        </div>
+        <div class="story-card-reveal">
+          <p class="story-card-title">Fork in the Road: Civic Lab</p>
+          <p class="story-card-desc">Branching civics scenarios for discussion—no single “win.”</p>
+          <p class="story-card-excerpt">The bell rings and the room shifts.
+On the board: “Who gets to decide what counts as fair?”
+You have ten minutes and three choices for how to start.
+The class is watching your next move.</p>
+          <p class="story-card-reveal-hint">Open story</p>
+        </div>
+      </a>
+
+      <a class="story-card" href="story-preview.html?story=letters_never_sent" data-story-card data-story-id="letters_never_sent" data-search="letters never sent sam writes epistolary memory" aria-label="Letters Never Sent by sam_writes — open story">
+        <div class="story-card-body">
+          <span class="story-card-badge">New voices</span>
+          <p class="story-card-title">Letters Never Sent</p>
+          <p class="story-card-desc">Epistolary ink—memory unlocks with each reply.</p>
+          <div class="story-card-meta">
+            <span><strong>By</strong> sam_writes</span>
+            <span><strong>Today</strong></span>
+          </div>
+        </div>
+        <div class="story-card-reveal">
+          <p class="story-card-title">Letters Never Sent</p>
+          <p class="story-card-desc">Epistolary ink—memory unlocks with each reply.</p>
+          <p class="story-card-excerpt">Dear you,
+I keep writing this letter and folding it into the same square.
+In the morning I hide it in the dictionary again.
+Today the page number changed.</p>
+          <p class="story-card-reveal-hint">Open story</p>
+        </div>
+      </a>
+    </div>
+  </main>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="index.html#about-teachers">About</a>
+        <a href="index.html#about-teachers">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

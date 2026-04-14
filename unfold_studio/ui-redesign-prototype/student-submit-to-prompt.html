@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Submit to prompt — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-student-submit-page>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+        <a href="new-story.html">New Story</a>
+      </nav>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html">Log in</a>
+          <a href="login.html#signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-student-submit">
+    <p class="proto-teacher-breadcrumb">
+      <a href="student-group-b.html">← Section B</a>
+    </p>
+
+    <h1 class="proto-student-submit-title">Submit to prompt</h1>
+    <p class="proto-student-submit-sub">Section B · Assignment 1</p>
+
+    <hr class="proto-dash-rule" />
+
+    <section class="proto-student-submit-block">
+      <div class="proto-student-submit-label">Prompt</div>
+      <div class="proto-student-submit-prompt">
+        <strong>Assignment 1 — Personal Narrative Story Draft</strong>
+        <p class="proto-dash-muted">
+          Write an interactive story set in a real or imagined city. Your character should face at least one meaningful choice.
+          Focus on voice, setting, and what the choice reveals about your character.
+        </p>
+        <p class="proto-dash-muted">Due: 2026-02-28</p>
+      </div>
+    </section>
+
+    <section class="proto-student-submit-block">
+      <div class="proto-student-submit-label">Choose a story to submit</div>
+      <form id="proto-submit-form" action="#" method="post">
+        <label class="proto-student-radio">
+          <input type="radio" name="story" checked />
+          <strong>My City Story</strong>
+          <span class="proto-dash-muted">· last edited Feb 24 · Public</span>
+        </label>
+        <label class="proto-student-radio">
+          <input type="radio" name="story" />
+          <strong>untitled draft</strong>
+          <span class="proto-dash-muted">· last edited Feb 22 · Private</span>
+        </label>
+
+        <div class="proto-teacher-callout" style="margin-top:14px;">
+          Your teacher will be able to see your story even if it is set to Private. Other students will only see it if it is Public.
+        </div>
+
+        <div class="proto-teacher-form-actions" style="margin-top:14px;">
+          <button type="submit" class="btn btn-primary">Submit story</button>
+          <a class="btn btn-outline" href="student-group-b.html">Cancel</a>
+        </div>
+      </form>
+    </section>
+  </main>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script>
+    (function () {
+      var f = document.getElementById("proto-submit-form");
+      if (!f) return;
+      f.addEventListener("submit", function (e) {
+        e.preventDefault();
+        window.location.href = "student-story-submitted.html";
+      });
+    })();
+  </script>
+</body>
+</html>
+

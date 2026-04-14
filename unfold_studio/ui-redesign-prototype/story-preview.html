@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Story — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <form class="proto-nav-search js-proto-search-form" role="search" action="#">
+        <input class="js-proto-search-input" type="search" placeholder="Search…" aria-label="Search stories" autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html" id="proto-nav-login">Log in</a>
+          <a href="login.html#signup" id="proto-nav-signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-main--story proto-story-page" data-proto-story-preview>
+    <div class="proto-story-toolbar">
+      <h2 class="story-title" data-story-title>The Last Lighthouse Keeper</h2>
+      <div class="description">
+        Public story
+        <span class="love" data-story-love>&lt;3 128</span>
+        <span class="proto-dash-sep" aria-hidden="true">·</span>
+        <span class="proto-dash-muted">By <span data-story-by>Maya Chen</span></span>
+        [<a id="replay_story" href="#">Replay</a>]
+        <span id="show_code_opt">[<a id="show_code" href="#">Show code</a>]</span>
+        <span id="hide_code_opt" style="display: none;">[<a id="hide_code" href="#">Hide code</a>]</span>
+        [<a href="#" id="proto-fork-trigger">Fork</a>]
+        [<a href="#">History</a>]
+      </div>
+    </div>
+
+    <div id="main">
+      <div class="twopane proto-twopane solo" id="twopane">
+        <div id="editor"><pre class="proto-ink-static" data-story-ink>=== start ===
+
+Loading…
+
+-&gt; END</pre></div>
+        <div class="split" aria-hidden="true"></div>
+        <div id="player">
+          <table class="expressionWatch">
+            <tbody></tbody>
+          </table>
+          <div class="scrollContainer">
+            <div class="innerText active" data-story-player></div>
+            <div class="hiddenBuffer" style="display: none;">
+              <div class="innerText"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <dialog id="proto-fork-dialog" class="proto-modal" aria-labelledby="proto-fork-dialog-title">
+    <div class="proto-modal-inner">
+      <p id="proto-fork-dialog-title">
+        To fork this story into your account, <a href="login.html#signup">sign up</a> or <a href="login.html">log in</a>.
+      </p>
+      <div class="proto-modal-actions">
+        <button type="button" id="proto-fork-close">Close</button>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+</body>
+</html>

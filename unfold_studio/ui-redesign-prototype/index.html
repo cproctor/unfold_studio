@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Unfold Studio — Home (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="proto-page-landing">
+  <div class="proto-landing-shell">
+    <header class="proto-landing-topbar proto-landing-topbar--match">
+      <a class="proto-landing-brand" href="index.html">
+        <span class="proto-landing-logo" aria-hidden="true"></span>
+        <span class="proto-landing-brand-text">Unfold Studio</span>
+      </a>
+      <div class="proto-landing-topbar-cta-only">
+        <a class="btn-landing btn-landing-yellow" href="featured.html">Start writing</a>
+        <a class="btn-landing btn-landing-blue" href="#about-teachers">About</a>
+      </div>
+    </header>
+
+    <main class="proto-landing-main">
+      <section class="proto-landing-hero-figma" aria-labelledby="landing-title">
+        <h1 id="landing-title">Unfold Studio</h1>
+        <p class="proto-landing-tagline">
+          A web app for reading and writing interactive stories, designed for interdisciplinary computer science and AI.
+        </p>
+      </section>
+
+      <figure class="proto-landing-product-figure">
+        <img
+          class="proto-landing-product-img"
+          src="assets/landing-product-screenshot.png"
+          alt="Unfold Studio in use: story reader with navigation, Snegurochka story, and interactive choices."
+          width="728"
+          height="334"
+          loading="eager"
+          decoding="async"
+        />
+      </figure>
+
+      <section class="proto-landing-teachers proto-landing-teachers--figma" id="about-teachers" aria-labelledby="teachers-heading">
+        <h2 id="teachers-heading">Teachers use Unfold Studio for…</h2>
+        <ul class="proto-landing-list">
+          <li>Introductory computer science, grounded in students’ lives and identities.</li>
+          <li>Interdisciplinary CS in English/Language Arts classes</li>
+          <li>Analyzing social reality in a sociology class</li>
+          <li>CS teacher preparation</li>
+          <li>Restorative justice</li>
+          <li>Fan fiction</li>
+        </ul>
+      </section>
+    </main>
+
+    <footer class="proto-landing-footer">
+      <div class="proto-landing-footer-row">
+        <nav class="proto-footer-nav" aria-label="Footer">
+          <a href="#">Help</a>
+          <a href="#about-teachers">About</a>
+          <a href="#about-teachers">For Teachers</a>
+        </nav>
+        <nav class="proto-landing-footer-auth" id="proto-nav-auth" aria-label="Account">
+          <span class="proto-auth-guest">
+            <a href="login.html" id="proto-nav-login">Log in</a>
+            <span class="proto-landing-footer-dot" aria-hidden="true">·</span>
+            <a href="login.html#signup" id="proto-nav-signup">Sign up</a>
+          </span>
+          <span class="proto-auth-session" hidden>
+            <span class="proto-nav-username" id="proto-nav-username"></span>
+            <a href="#" id="proto-nav-logout">[log out]</a>
+          </span>
+        </nav>
+      </div>
+    </footer>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>

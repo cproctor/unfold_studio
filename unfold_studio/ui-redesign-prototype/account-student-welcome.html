@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Joined your class — Unfold Studio (Prototype)</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-session">
+          <span class="proto-nav-username" id="account-welcome-username"></span>
+          <a href="#" id="account-welcome-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-auth" data-account-student-welcome-page>
+    <div class="proto-auth-card">
+      <h1 class="proto-auth-title-slab">You’re in!</h1>
+      <p class="proto-auth-lead">
+        You joined <strong id="account-welcome-group">your group</strong>.
+      </p>
+      <div class="proto-teacher-form-actions">
+        <a class="btn btn-primary" href="student-dashboard.html">Continue</a>
+        <a class="btn btn-outline" href="featured.html">Featured stories</a>
+      </div>
+      <p class="proto-field-hint" style="margin-top: 14px;">
+        (Prototype) Your join code is now marked as used.
+      </p>
+    </div>
+  </main>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+      <span class="proto-footer-note">Unfold Studio — redesign prototype only.</span>
+    </div>
+  </footer>
+
+  <script src="account-flow.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Group B — Unfold Studio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-teacher-page>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html">Log in</a>
+          <a href="login.html#signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-teacher-page">
+    <p class="proto-teacher-breadcrumb">
+      <a href="teacher-dashboard.html">← My dashboard</a>
+    </p>
+
+    <header class="proto-teacher-page-header">
+      <div class="proto-teacher-page-header-row">
+        <div>
+          <h1 class="proto-teacher-page-title">Group B</h1>
+          <p class="proto-teacher-page-lead">
+            9th Grade
+            <span class="proto-dash-sep" aria-hidden="true">·</span>
+            18 students
+            <span class="proto-dash-sep" aria-hidden="true">·</span>
+            <span class="proto-teacher-dot proto-teacher-dot--active" aria-hidden="true"></span>
+            <span class="proto-dash-muted">ACTIVE</span>
+          </p>
+        </div>
+        <div class="proto-teacher-page-header-actions">
+          <a href="teacher-group-edit.html" class="proto-teacher-action">Edit group</a>
+        </div>
+      </div>
+      <hr class="proto-dash-rule" />
+    </header>
+
+    <section class="proto-teacher-section" aria-labelledby="prompts-heading">
+      <div class="proto-teacher-section-head">
+        <h2 id="prompts-heading" class="proto-teacher-section-title">Prompts</h2>
+        <a class="proto-teacher-create-link" href="teacher-prompt-new.html">+ Add prompt</a>
+      </div>
+      <hr class="proto-dash-rule" />
+
+      <div class="proto-teacher-group-row">
+        <div class="proto-teacher-group-main">
+          <a href="teacher-prompt-submissions.html">Prompt 1 — Personal Narrative Story Draft</a>
+          <span class="proto-dash-muted">3 submissions</span>
+          <span class="proto-dash-sep" aria-hidden="true">·</span>
+          <span class="proto-dash-muted">deactivated by instructor</span>
+        </div>
+        <div class="proto-teacher-group-actions">
+          <a class="proto-teacher-action" href="teacher-prompt-submissions.html">view submissions</a>
+          <span class="proto-dash-sep" aria-hidden="true">·</span>
+          <a class="proto-teacher-action" href="#" data-proto-demo-alert>reactivate</a>
+          <span class="proto-dash-sep" aria-hidden="true">·</span>
+          <span class="proto-dash-muted">INACTIVE</span>
+        </div>
+      </div>
+
+      <div class="proto-teacher-group-row">
+        <div class="proto-teacher-group-main">
+          <a href="teacher-prompt-submissions.html#intro">Prompt 0 — Intro: Write anything!</a>
+          <span class="proto-dash-muted">16 submissions</span>
+          <span class="proto-dash-sep" aria-hidden="true">·</span>
+          <span class="proto-dash-muted">1 awaiting feedback</span>
+        </div>
+        <div class="proto-teacher-group-actions">
+          <a class="proto-teacher-action" href="teacher-prompt-submissions.html#intro">view submissions</a>
+          <span class="proto-dash-sep" aria-hidden="true">·</span>
+          <a class="proto-teacher-action" href="teacher-prompt-edit.html">edit</a>
+          <span class="proto-dash-sep" aria-hidden="true">·</span>
+          <a class="proto-teacher-action" href="#" data-proto-demo-alert>deactivate</a>
+          <span class="proto-dash-sep" aria-hidden="true">·</span>
+          <span class="proto-dash-muted">ACTIVE</span>
+        </div>
+      </div>
+
+      <p class="proto-teacher-help" style="margin-top: 14px;">
+        Inactive prompts are hidden from students but not deleted. You can reactivate them at any time — for example, to revisit past work from a previous term.
+      </p>
+    </section>
+
+    <nav class="proto-flow-nav" aria-label="Prototype flow navigation">
+      <a class="proto-flow-arrow" href="teacher-group-edit.html" aria-label="Back">←</a>
+      <span class="proto-flow-hint">Teacher flow</span>
+      <span class="proto-flow-jump" data-flow-jump>
+        <input class="proto-flow-input" data-flow-input list="teacher-pages" placeholder="Go to (e.g. teacher-group-students)" />
+        <button class="proto-flow-go" data-flow-go type="button">Go</button>
+      </span>
+      <a class="proto-flow-arrow" href="teacher-group-students.html" aria-label="Next">→</a>
+    </nav>
+  </main>
+
+  <datalist id="teacher-pages">
+    <option value="teacher-dashboard"></option>
+    <option value="teacher-group-new"></option>
+    <option value="teacher-group-students"></option>
+    <option value="teacher-group-detail"></option>
+    <option value="teacher-prompt-new"></option>
+    <option value="teacher-prompt-submissions"></option>
+    <option value="teacher-feedback-sent"></option>
+    <option value="teacher-group-edit"></option>
+    <option value="teacher-prompt-edit"></option>
+    <option value="teacher-group-detail-inactive"></option>
+  </datalist>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+  <script src="teacher-flow.js"></script>
+</body>
+</html>
+

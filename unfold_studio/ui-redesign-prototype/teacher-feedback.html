@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Send feedback — Unfold Studio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-teacher-page data-teacher-feedback-page>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html">Log in</a>
+          <a href="login.html#signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-teacher-page">
+    <p class="proto-teacher-breadcrumb">
+      <a href="teacher-prompt-submissions.html">← Prompt 1 submissions</a>
+    </p>
+
+    <div class="proto-teacher-feedback-layout">
+      <section class="proto-teacher-feedback-main" aria-label="Feedback form">
+        <p class="proto-dash-muted proto-teacher-feedback-kicker">STUDENT 1 · GROUP B · PROMPT 1</p>
+        <h1 class="proto-teacher-page-title" style="margin-top:6px;">My City Story</h1>
+        <p class="proto-dash-muted">Submitted: 2026-02-20 · <a href="student-story-completed.html#history">Read full story</a></p>
+
+        <hr class="proto-dash-rule" />
+
+        <h2 class="proto-teacher-section-title" style="margin-top:18px;">Story excerpt</h2>
+        <pre class="proto-student-excerpt">Sam had always wanted to explore the city alone. The subway map crinkled in
+her hands as she stepped off the train at 42nd Street.
+
+The buildings rose up like canyon walls. She took a deep breath of pretzel-
+cart air and grinned.
+
+She wandered south, past food trucks and street musicians. A woman handed
+her a flyer for a poetry slam...
+
+→ [story continues]</pre>
+
+        <h2 class="proto-teacher-section-title" style="margin-top:18px;">Your feedback</h2>
+        <p class="proto-dash-muted" style="margin:6px 0 10px;">Comments</p>
+        <textarea class="proto-teacher-feedback-text" rows="6">Really strong opening! The sensory detail of the "pretzel-cart air" immediately puts the reader on the street with Sam.
+
+The branching choice at the poetry slam is a great idea — I'd love to see you develop both paths more. The "Keep walking" branch feels short. What does Sam discover if she keeps going?
+
+Overall: solid voice, clear setting. Keep going!</textarea>
+
+        <div class="proto-teacher-form-actions" style="margin-top:10px;">
+          <a class="btn btn-primary" href="teacher-feedback-sent.html">Send feedback</a>
+          <button type="button" class="btn btn-outline" data-proto-demo-alert>Save draft</button>
+          <a class="proto-story-skip" href="#" data-proto-demo-alert>skip for now</a>
+        </div>
+      </section>
+
+      <aside class="proto-teacher-feedback-side" aria-label="Submission details">
+        <div class="proto-teacher-side-card">
+          <div class="proto-teacher-side-row">
+            <div class="proto-student-side-label">Student</div>
+            <div class="proto-student-side-value">Student 1 · <span class="proto-reset-codepill">AB461</span></div>
+          </div>
+          <div class="proto-teacher-side-row">
+            <div class="proto-student-side-label">Prompt</div>
+            <div class="proto-student-side-value">Prompt 1</div>
+          </div>
+          <div class="proto-teacher-side-row">
+            <div class="proto-student-side-label">Group</div>
+            <div class="proto-student-side-value">Group B</div>
+          </div>
+          <div class="proto-teacher-side-row">
+            <div class="proto-student-side-label">Submitted</div>
+            <div class="proto-student-side-value">2026-02-20</div>
+          </div>
+          <div class="proto-teacher-side-row">
+            <div class="proto-student-side-label">Previous feedback</div>
+            <div class="proto-student-side-value">None</div>
+          </div>
+
+          <hr class="proto-dash-rule" style="margin:14px 0;" />
+
+          <div class="proto-teacher-side-nav">
+            <a href="#">← Student 1 of 3</a><br />
+            <a href="teacher-feedback.html?student=2">Next: Student 2 →</a>
+          </div>
+        </div>
+      </aside>
+    </div>
+
+    <nav class="proto-flow-nav" aria-label="Prototype flow navigation">
+      <a class="proto-flow-arrow" href="teacher-prompt-submissions.html" aria-label="Back">←</a>
+      <span class="proto-flow-hint">Teacher flow</span>
+      <span class="proto-flow-jump" data-flow-jump>
+        <input class="proto-flow-input" data-flow-input list="teacher-pages" placeholder="Go to (e.g. teacher-group-students)" />
+        <button class="proto-flow-go" data-flow-go type="button">Go</button>
+      </span>
+      <a class="proto-flow-arrow" href="teacher-feedback-sent.html" aria-label="Next">→</a>
+    </nav>
+  </main>
+
+  <datalist id="teacher-pages">
+    <option value="teacher-dashboard"></option>
+    <option value="teacher-group-new"></option>
+    <option value="teacher-group-students"></option>
+    <option value="teacher-group-detail"></option>
+    <option value="teacher-prompt-new"></option>
+    <option value="teacher-prompt-submissions"></option>
+    <option value="teacher-feedback"></option>
+    <option value="teacher-feedback-sent"></option>
+    <option value="teacher-group-edit"></option>
+    <option value="teacher-prompt-edit"></option>
+    <option value="teacher-group-detail-inactive"></option>
+  </datalist>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="teacher-flow.js"></script>
+</body>
+</html>
+

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Edit prompt — Unfold Studio</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body data-teacher-page>
+  <header class="proto-site-header">
+    <div class="proto-nav-inner">
+      <a class="proto-brand" href="featured.html">
+        <span class="proto-logo-diamond" aria-hidden="true"></span>
+        <span class="proto-brand-name">Unfold Studio</span>
+      </a>
+      <nav class="proto-nav-inline" aria-label="Site">
+        <a href="browse.html">Browse stories</a>
+        <a href="books.html">Books</a>
+      </nav>
+      <a class="proto-nav-newstory" href="new-story.html">New story</a>
+      <span class="proto-nav-grow" aria-hidden="true"></span>
+      <nav class="proto-nav-auth" id="proto-nav-auth" aria-label="Account">
+        <span class="proto-auth-guest">
+          <a href="login.html">Log in</a>
+          <a href="login.html#signup">Sign up</a>
+        </span>
+        <span class="proto-auth-session" hidden>
+          <span class="proto-nav-username" id="proto-nav-username"></span>
+          <a href="#" id="proto-nav-logout">[log out]</a>
+        </span>
+      </nav>
+    </div>
+  </header>
+
+  <main class="proto-main proto-teacher-form-page">
+    <p class="proto-teacher-breadcrumb">
+      <a href="teacher-group-detail.html">← Group B</a>
+    </p>
+
+    <header class="proto-teacher-page-header">
+      <h1 class="proto-teacher-page-title">Edit prompt</h1>
+      <p class="proto-teacher-page-lead">Group B <span class="proto-dash-sep" aria-hidden="true">·</span> Prompt 1</p>
+      <hr class="proto-dash-rule" />
+    </header>
+
+    <form class="proto-teacher-form" action="#" method="post">
+      <div class="proto-field">
+        <label class="proto-field-label" for="ep-title">Title</label>
+        <input class="proto-field-input" id="ep-title" name="title" type="text" value="Personal narrative story draft" />
+      </div>
+
+      <div class="proto-field">
+        <label class="proto-field-label" for="ep-desc">Description / instructions</label>
+        <textarea class="proto-field-input proto-field-textarea" id="ep-desc" name="description" rows="6">Write an interactive story set in a real or imagined city. Your character should have at least one meaningful choice. Focus on voice, setting, and what the choice reveals about your character.</textarea>
+      </div>
+
+      <fieldset class="proto-teacher-fieldset">
+        <legend class="proto-field-label">Status</legend>
+        <label class="proto-teacher-check">
+          <input type="checkbox" checked />
+          Active — visible to students now
+        </label>
+        <label class="proto-teacher-check">
+          <input type="checkbox" />
+          Inactive — hidden from students
+        </label>
+      </fieldset>
+
+      <fieldset class="proto-teacher-fieldset">
+        <legend class="proto-field-label">Active period</legend>
+        <div class="proto-teacher-dates">
+          <label class="proto-teacher-date">
+            <span class="proto-dash-muted">From</span>
+            <input class="proto-field-input" type="date" value="2026-02-01" />
+          </label>
+          <label class="proto-teacher-date">
+            <span class="proto-dash-muted">to</span>
+            <input class="proto-field-input" type="date" value="2026-02-28" />
+          </label>
+        </div>
+        <p class="proto-teacher-help">Leave blank to keep open-ended. You can deactivate it manually at any time.</p>
+      </fieldset>
+
+      <div class="proto-teacher-form-actions">
+        <button type="button" class="btn btn-primary" onclick="location.href='teacher-group-detail.html'">Save changes</button>
+        <a class="btn btn-outline" href="teacher-group-detail.html">Cancel</a>
+      </div>
+    </form>
+
+    <nav class="proto-flow-nav" aria-label="Prototype flow navigation">
+      <a class="proto-flow-arrow" href="teacher-group-detail.html" aria-label="Back">←</a>
+      <span class="proto-flow-hint">Teacher flow</span>
+      <span class="proto-flow-jump" data-flow-jump>
+        <input class="proto-flow-input" data-flow-input list="teacher-pages" placeholder="Go to (e.g. teacher-group-students)" />
+        <button class="proto-flow-go" data-flow-go type="button">Go</button>
+      </span>
+      <a class="proto-flow-arrow" href="teacher-prompt-submissions.html" aria-label="Next">→</a>
+    </nav>
+  </main>
+
+  <datalist id="teacher-pages">
+    <option value="teacher-dashboard"></option>
+    <option value="teacher-group-new"></option>
+    <option value="teacher-group-students"></option>
+    <option value="teacher-group-detail"></option>
+    <option value="teacher-prompt-new"></option>
+    <option value="teacher-prompt-submissions"></option>
+    <option value="teacher-feedback-sent"></option>
+    <option value="teacher-group-edit"></option>
+    <option value="teacher-prompt-edit"></option>
+    <option value="teacher-group-detail-inactive"></option>
+  </datalist>
+
+  <footer class="proto-footer">
+    <div class="proto-footer-inner">
+      <nav class="proto-footer-nav" aria-label="Footer">
+        <a href="#">Help</a>
+        <a href="#">About</a>
+        <a href="#">For Teachers</a>
+      </nav>
+    </div>
+  </footer>
+  <script src="script.js"></script>
+  <script src="teacher-flow.js"></script>
+</body>
+</html>
+
