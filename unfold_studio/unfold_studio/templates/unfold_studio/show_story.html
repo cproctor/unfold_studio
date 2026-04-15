@@ -108,24 +108,36 @@
   {% if feedback_mode %}
   <div id="feedback-terminal" class="feedback-terminal open">
     <div class="feedback-terminal-header">
-      <span class="feedback-terminal-tab active">Feedback <span class="feedback-terminal-info">i</span></span>
+      <span class="feedback-terminal-tab active">Feedback</span>
       <div class="feedback-terminal-controls">
         <button id="feedback-minimize" title="Minimize">&#8964;</button>
-        <button id="feedback-close" title="Close">&#10005;</button>
       </div>
     </div>
     <div class="feedback-terminal-body" id="feedback-terminal-body">
       <div class="feedback-prompt-label">Viewing a submission for prompt: {{ prompt_name }}</div>
-      <div class="feedback-comments-label">COMMENTS</div>
-      <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-form">
-        {% csrf_token %}
-        <textarea id="feedback-textarea" name="comment" placeholder="Write feedback for the student here...">{% if draft_feedback %}{{ draft_feedback }}{% endif %}</textarea>
-        <div class="feedback-actions">
-          <button type="submit" name="action" value="send" class="feedback-btn feedback-send-btn">Send feedback</button>
-          <button type="submit" name="action" value="draft" class="feedback-btn feedback-draft-btn">Save draft</button>
-          <button type="button" class="feedback-btn feedback-skip-btn" id="feedback-skip">Skip for now</button>
+
+      {% if is_teacher %}
+        <div class="feedback-comments-label">COMMENTS</div>
+        <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-form">
+          {% csrf_token %}
+          <textarea id="feedback-textarea" name="comment" placeholder="Write feedback for the student here...">{% if draft_feedback %}{{ draft_feedback }}{% endif %}</textarea>
+          <div class="feedback-actions">
+            <button type="submit" name="action" value="send" class="feedback-btn feedback-send-btn">Send feedback</button>
+            <button type="submit" name="action" value="draft" class="feedback-btn feedback-draft-btn">Save draft</button>
+            <button type="button" class="feedback-btn feedback-skip-btn" id="feedback-skip">Skip for now</button>
+          </div>
+        </form>
+      {% elif feedback_readonly %}
+        <div class="feedback-comments-label">TEACHER FEEDBACK</div>
+        <div id="feedback-readonly-box" class="feedback-readonly-box">
+          {% if teacher_feedback %}
+	    <div class="feedback-readonly-text">{{ teacher_feedback|linebreaksbr }}</div>
+          {% else %}
+            <span class="feedback-empty-message">No feedback yet.<br>Your teacher’s feedback for this submission will appear here once it has been added.
+            </span>
+          {% endif %}
         </div>
-      </form>
+      {% endif %}
     </div>
   </div>
   {% endif %}
@@ -150,13 +162,13 @@
 
 {% if feedback_mode %}
 <style>
-  /* Feedback terminal styling*/
+  /*feedback terminal styling*/
   #story-twopane {
-    bottom: 180px !important;
+    bottom: 222px !important;
   }
   .feedback-terminal {
     position: fixed;
-    bottom: 0;
+    bottom:42px;
     left: 0;
     right: 0;
     background: #e8e8e8;
@@ -183,10 +195,6 @@
     border-bottom: none;
     border-radius: 3px 3px 0 0;
     cursor: default;
-  }
-  .feedback-terminal-info {
-    color: #888;
-    font-size: 11px;
   }
   .feedback-terminal-controls {
     display: flex;
@@ -266,28 +274,50 @@
     color: #444;
     background: none;
   }
-  /* Make panels scrollable if long story*/
+  /*panels scrollable if long story*/
   #editor {
     overflow-y: auto !important;
   }
   #player .scrollContainer {
     overflow-y: auto !important;
   }
+
+.feedback-readonly-box {
+  width: 100%;
+  min-height: 90px;
+  max-height: 120px;
+  overflow-y: auto;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 8px;
+  border: 1px solid #bbb;
+  box-sizing: border-box;
+  background: #fff;
+  color: #333;
+  white-space: pre-wrap;
+  text-align: left;
+  line-height: 1.4;
+}
+
+.feedback-empty-message {
+  color: #777;
+}
+
 </style>
 <script>
   document.getElementById('feedback-minimize').addEventListener('click', function() {
     var terminal = document.getElementById('feedback-terminal');
     var isMin = terminal.classList.toggle('minimized');
     this.innerHTML = isMin ? '&#8963;' : '&#8964;'; // up/down arrows
-    document.getElementById('story-twopane').style.bottom = isMin ? '28px' : '180px';
+    document.getElementById('story-twopane').style.bottom = isMin ? '70px' : '222px';
   });
-  document.getElementById('feedback-close').addEventListener('click', function() {
-    document.getElementById('feedback-terminal').style.display = 'none';
-    document.getElementById('story-twopane').style.bottom = '0';
-  });
-  document.getElementById('feedback-skip').addEventListener('click', function() {
-    window.history.back();
-  });
+  var skipBtn = document.getElementById('feedback-skip');
+  if (skipBtn) {
+    skipBtn.addEventListener('click', function() {
+      window.history.back();
+    });
+  }
+
 </script>
 {% endif %}
 

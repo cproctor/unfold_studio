@@ -36,6 +36,7 @@ from comments.forms import CommentForm
 from django.utils import timezone
 from django.db import transaction
 from literacy_groups.models import JoinCode
+from django.http import HttpResponseForbidden
 
 log = structlog.get_logger("unfold_studio")    
 
@@ -164,18 +165,43 @@ def show_story(request, story_id):
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
 
     #Feedback terminal
-    feedback_mode = request.GET.get('feedback') == '1' and request.user.is_authenticated
+    is_teacher = request.user.is_authenticated and request.user.profile.is_teacher
+    is_story_author = request.user.is_authenticated and story.author == request.user
+
+    feedback_mode = is_teacher or is_story_author
+    feedback_readonly = is_story_author and not is_teacher
+
     prompt_name = ''
     draft_feedback = ''
+    teacher_feedback = ''
+
     if feedback_mode:
         from prompts.models import PromptStory
         from comments.models import Comment
+
         ps = PromptStory.objects.filter(story=story).select_related('prompt').first()
         if ps:
             prompt_name = ps.prompt.name
-        draft = Comment.objects.filter(story=story, author=request.user, deleted=False).order_by('-creation_date').first()
-        if draft:
-            draft_feedback = draft.message
+
+        if is_teacher:
+            draft = Comment.objects.filter(
+                story=story,
+                author=request.user,
+                deleted=False
+            ).order_by('-creation_date').first()
+
+            if draft:
+                draft_feedback = draft.message
+
+        if is_story_author:
+            latest_teacher_feedback = Comment.objects.filter(
+                story=story,
+                author__profile__is_teacher=True,
+                deleted=False
+            ).order_by('-creation_date').first()
+
+            if latest_teacher_feedback:
+                teacher_feedback = latest_teacher_feedback.message
 
     return render(request, 'unfold_studio/show_story.html', {
         'story': story, 
@@ -183,8 +209,12 @@ def show_story(request, story_id):
         'commentable': story.user_may_comment(request.user),
         'addableBooks': addableBooks,
         'feedback_mode': feedback_mode,
+	'feedback_readonly': feedback_readonly,
+	'is_teacher': is_teacher,
+	'is_story_author': is_story_author,
         'prompt_name': prompt_name,
         'draft_feedback': draft_feedback,
+	'teacher_feedback': teacher_feedback,
     })
 
 def show_json(request, story_id):
@@ -682,10 +712,14 @@ def embed_entry_point(request):
     return render(request, 'unfold_studio/embed_entry_point.js', content_type="application/javascript")
 
 class SendFeedbackView(LoginRequiredMixin, View):
-    """Teacher sends or drafts feedback on a student's story using the terminal tab"""
+    """Teacher sends feedback or saves it as a draft on a student's story using the terminal tab"""
 
     def post(self, request, story_id):
         from comments.models import Comment
+
+        if not request.user.profile.is_teacher:
+            return HttpResponseForbidden("Only teachers can send feedback.")
+
         story = get_object_or_404(Story, pk=story_id)
         action = request.POST.get('action', 'send')
         message = request.POST.get('comment', '').strip()
@@ -704,4 +738,4 @@ class SendFeedbackView(LoginRequiredMixin, View):
                 return redirect('show_prompt', ps.prompt.literacy_group.id, ps.prompt.id)
             return redirect('show_story_versions', story.id)
         else:
-            return redirect('{}?feedback=1'.format(reverse('show_story', args=[story.id])))
+            return redirect(reverse('show_story', args=[story.id]))
