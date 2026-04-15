@@ -88,7 +88,7 @@
 
 {# FROM INKY #}
 <div id="main">
-  <div class="twopane{% if not story.author == request.user and not story.public %} solo{%endif%}">
+  <div class="twopane{% if not story.author == request.user and not story.public %} solo{%endif%}" id="story-twopane">
     <div id="editor"></div>
     <div class="split"></div>
     <div id="player">
@@ -104,11 +104,35 @@
       </div>
     </div>
   </div>
+
+  {% if feedback_mode %}
+  <div id="feedback-terminal" class="feedback-terminal open">
+    <div class="feedback-terminal-header">
+      <span class="feedback-terminal-tab active">Feedback <span class="feedback-terminal-info">i</span></span>
+      <div class="feedback-terminal-controls">
+        <button id="feedback-minimize" title="Minimize">&#8964;</button>
+        <button id="feedback-close" title="Close">&#10005;</button>
+      </div>
+    </div>
+    <div class="feedback-terminal-body" id="feedback-terminal-body">
+      <div class="feedback-prompt-label">Viewing a submission for prompt: {{ prompt_name }}</div>
+      <div class="feedback-comments-label">COMMENTS</div>
+      <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-form">
+        {% csrf_token %}
+        <textarea id="feedback-textarea" name="comment" placeholder="Write feedback for the student here...">{% if draft_feedback %}{{ draft_feedback }}{% endif %}</textarea>
+        <div class="feedback-actions">
+          <button type="submit" name="action" value="send" class="feedback-btn feedback-send-btn">Send feedback</button>
+          <button type="submit" name="action" value="draft" class="feedback-btn feedback-draft-btn">Save draft</button>
+          <button type="button" class="feedback-btn feedback-skip-btn" id="feedback-skip">Skip for now</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 
 {# END FROM INKY #}
-
 
 {# Inky imports Ace as a global, so I will follow #}
 <!--<script src="{% static 'lib/ace/ace.js'%}" type="text/javascript" charset="utf-8"></script>
@@ -123,5 +147,148 @@
     LOG_READING_URL = "{% url 'log_reading_event' %}";
 </script>
 <script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
+
+{% if feedback_mode %}
+<style>
+  /* Feedback terminal styling*/
+  #story-twopane {
+    bottom: 180px !important;
+  }
+  .feedback-terminal {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: #e8e8e8;
+    border-top: 1px solid #bbb;
+    z-index: 100;
+    font-family: monospace;
+    display: flex;
+    flex-direction: column;
+  }
+  .feedback-terminal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: #d4d4d4;
+    border-bottom: 1px solid #bbb;
+    padding: 0 8px;
+    height: 28px;
+  }
+  .feedback-terminal-tab {
+    font-size: 13px;
+    padding: 4px 10px;
+    background: #e8e8e8;
+    border: 1px solid #bbb;
+    border-bottom: none;
+    border-radius: 3px 3px 0 0;
+    cursor: default;
+  }
+  .feedback-terminal-info {
+    color: #888;
+    font-size: 11px;
+  }
+  .feedback-terminal-controls {
+    display: flex;
+    gap: 4px;
+  }
+  .feedback-terminal-controls button {
+    background: none;
+    border: 1px solid #bbb;
+    border-radius: 2px;
+    cursor: pointer;
+    font-size: 12px;
+    padding: 1px 5px;
+    color: #555;
+  }
+  .feedback-terminal-controls button:hover {
+    background: #ccc;
+  }
+  .feedback-terminal-body {
+    padding: 8px 12px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .feedback-terminal.minimized .feedback-terminal-body {
+    display: none;
+  }
+  .feedback-prompt-label {
+    font-size: 12px;
+    color: #444;
+    margin-bottom: 2px;
+  }
+  .feedback-comments-label {
+    font-size: 11px;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    color: #555;
+    margin-bottom: 4px;
+  }
+  #feedback-textarea {
+    width: 100%;
+    height: 90px;
+    font-family: monospace;
+    font-size: 13px;
+    padding: 8px;
+    border: 1px solid #bbb;
+    resize: vertical;
+    box-sizing: border-box;
+    background: #fff;
+  }
+  .feedback-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 6px;
+    align-items: center;
+  }
+  .feedback-btn {
+    font-family: monospace;
+    font-size: 13px;
+    padding: 4px 12px;
+    border: 1px solid #aaa;
+    background: #e0e0e0;
+    cursor: pointer;
+    border-radius: 2px;
+  }
+  .feedback-btn:hover {
+    background: #d0d0d0;
+  }
+  .feedback-send-btn {
+    font-weight: bold;
+  }
+  .feedback-skip-btn {
+    color: #888;
+    border-color: transparent;
+    background: none;
+  }
+  .feedback-skip-btn:hover {
+    color: #444;
+    background: none;
+  }
+  /* Make panels scrollable if long story*/
+  #editor {
+    overflow-y: auto !important;
+  }
+  #player .scrollContainer {
+    overflow-y: auto !important;
+  }
+</style>
+<script>
+  document.getElementById('feedback-minimize').addEventListener('click', function() {
+    var terminal = document.getElementById('feedback-terminal');
+    var isMin = terminal.classList.toggle('minimized');
+    this.innerHTML = isMin ? '&#8963;' : '&#8964;'; // up/down arrows
+    document.getElementById('story-twopane').style.bottom = isMin ? '28px' : '180px';
+  });
+  document.getElementById('feedback-close').addEventListener('click', function() {
+    document.getElementById('feedback-terminal').style.display = 'none';
+    document.getElementById('story-twopane').style.bottom = '0';
+  });
+  document.getElementById('feedback-skip').addEventListener('click', function() {
+    window.history.back();
+  });
+</script>
+{% endif %}
 
 {% endblock %}

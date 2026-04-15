@@ -162,12 +162,30 @@ def show_story(request, story_id):
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
     editable = int(story.author == request.user or story.public)
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
+
+    #Feedback terminal
+    feedback_mode = request.GET.get('feedback') == '1' and request.user.is_authenticated
+    prompt_name = ''
+    draft_feedback = ''
+    if feedback_mode:
+        from prompts.models import PromptStory
+        from comments.models import Comment
+        ps = PromptStory.objects.filter(story=story).select_related('prompt').first()
+        if ps:
+            prompt_name = ps.prompt.name
+        draft = Comment.objects.filter(story=story, author=request.user, deleted=False).order_by('-creation_date').first()
+        if draft:
+            draft_feedback = draft.message
+
     return render(request, 'unfold_studio/show_story.html', {
         'story': story, 
         'editable': editable, 
         'commentable': story.user_may_comment(request.user),
-        'addableBooks': addableBooks}
-    )
+        'addableBooks': addableBooks,
+        'feedback_mode': feedback_mode,
+        'prompt_name': prompt_name,
+        'draft_feedback': draft_feedback,
+    })
 
 def show_json(request, story_id):
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
@@ -490,10 +508,33 @@ class StoryVersionListView(DetailView):
             }
             for e in history
         ]
+
+        feedback_prompt = story.prompts_submitted.filter(
+            literacy_group__leaders=self.request.user,
+            deleted=False
+        ).distinct().first()
+
+        context['feedback_prompt'] = feedback_prompt
+
+        if feedback_prompt:
+            context['skip_url'] = reverse(
+                'show_prompt',
+                args=[feedback_prompt.literacy_group.id, feedback_prompt.id]
+            )
+        else:
+            context['skip_url'] = reverse('show_story', args=[story.id])
+
         if story.user_may_comment(self.request.user):
             form = CommentForm()
-            form.fields['comment'].label = "Add a comment"
+            form.fields['comment'].label = "COMMENTS"
+            form.fields['comment'].widget.attrs.update({
+                'class': 'feedback-textarea',
+                'placeholder': 'Write feedback for the student here...',
+                'rows': 8,
+                'autocomplete': 'off',
+            })
             context['commentForm'] = form
+
         return context
 
 class CreateBookView(LoginRequiredMixin, CreateView):
@@ -639,3 +680,28 @@ def require_entry_point(request):
 
 def embed_entry_point(request):
     return render(request, 'unfold_studio/embed_entry_point.js', content_type="application/javascript")
+
+class SendFeedbackView(LoginRequiredMixin, View):
+    """Teacher sends or drafts feedback on a student's story using the terminal tab"""
+
+    def post(self, request, story_id):
+        from comments.models import Comment
+        story = get_object_or_404(Story, pk=story_id)
+        action = request.POST.get('action', 'send')
+        message = request.POST.get('comment', '').strip()
+
+        if message:
+            Comment.objects.create(
+                author=request.user,
+                story=story,
+                message=message,
+            )
+
+        if action == 'send':
+            from prompts.models import PromptStory
+            ps = PromptStory.objects.filter(story=story).select_related('prompt__literacy_group').first()
+            if ps:
+                return redirect('show_prompt', ps.prompt.literacy_group.id, ps.prompt.id)
+            return redirect('show_story_versions', story.id)
+        else:
+            return redirect('{}?feedback=1'.format(reverse('show_story', args=[story.id])))

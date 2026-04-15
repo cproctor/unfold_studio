@@ -56,7 +56,7 @@
             </td>
             <td>
                 {% if needs_feedback %}
-                    <a href="{% url 'show_story_versions' submission.id %}">-></a>
+                    <a href="{% url 'show_story' submission.id %}?feedback=1">-></a>
                 {% endif %}
             </td>
         </tr>
