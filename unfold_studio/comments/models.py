@@ -17,7 +17,7 @@ class CommentManager(models.Manager):
         """
         if not story.author:
             return self.get_queryset().none()
-
+        
         viewer_permitted = (
             viewer == story.author or
             (viewer.is_authenticated and story.author.profile.following.filter(user=viewer).exists()) or
