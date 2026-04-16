@@ -1,0 +1,95 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block style %}
+<style>
+    .form-group {
+        margin-bottom: 10px;
+    }
+
+    .registration-form .form-group input[type="text"],
+    .registration-form .form-group input[type="password"] {
+        width: 100%;
+        box-sizing: border-box;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<h1>Join as a Student</h1>
+<p>Enter the course access code given by your teacher to create your account and join the class.</p>
+
+<div class="registration-container">
+    <div>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-danger">
+            <strong>{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {% if form.errors %}
+        {% for error in form.non_field_errors %}
+        <div class="alert alert-danger">
+            <strong>{{ error|escape }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="post" action="{% url 'join_student' %}" class="registration-form">
+            {% csrf_token %}
+            <input type="hidden" name="user_type" value="student" />
+
+            <div class="form-group">
+                <label for="id_join_code">Course Access Code:</label>
+                <input type="text" name="join_code" id="id_join_code" required />
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">{{ form.username.label }}:</label>
+                {{ form.username }}
+            </div>
+            {% for error in form.username.errors %}
+            <div class="alert alert-danger">
+                <strong>&#9888; {{ error|escape }}</strong>
+            </div>
+            {% endfor %}
+
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">{{ form.password1.label }}:</label>
+                {{ form.password1 }}
+            </div>
+            {% for error in form.password1.errors %}
+            <div class="alert alert-danger">
+                <strong>&#9888; {{ error|escape }}</strong>
+            </div>
+            {% endfor %}
+
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">{{ form.password2.label }}:</label>
+                {{ form.password2 }}
+            </div>
+            {% for error in form.password2.errors %}
+            <div class="alert alert-danger">
+                <strong>&#9888; {{ error|escape }}</strong>
+            </div>
+            {% endfor %}
+
+            <input type="submit" value="join as student" />
+        </form>
+
+        <p style="align-self: center;">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+        <p style="align-self: center;"><a href="{% url 'signup' %}">Back to sign up</a></p>
+    </div>
+    <hr>
+    <div>
+        <p><strong>Password Requirements:</strong></p>
+        <ul>
+            <li>Must use at least 8 characters</li>
+            <li>Cannot be too similar to e-mail</li>
+            <li>Cannot be too similar to username</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
