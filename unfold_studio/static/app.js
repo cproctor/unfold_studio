@@ -258,8 +258,8 @@ define(
                 });
 
                 $('#edit_story').click(presave_story);
-                $('#share_story').click(presave_story);
-                $('#unshare_story').click(presave_story);
+                // $('#share_story').click(presave_story);
+                // $('#unshare_story').click(presave_story);
                 $('#save_version').click(presave_story);
 
                 $('#replay_story').click(function() {
