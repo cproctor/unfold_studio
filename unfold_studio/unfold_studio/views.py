@@ -49,8 +49,6 @@ def u(request):
     "Helper to return username"
     return request.user.username if request.user.is_authenticated else "<anonymous>"
 
-def anonymous_welcome(request):
-    return render(request, 'anonymous_mode_entry.html')
 
 
 def home(request):
