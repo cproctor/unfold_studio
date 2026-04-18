@@ -34,17 +34,40 @@ define(
             // parse errors from story object for use with ace editor
             // returns list of error objects
             function parseErrors(storyObj) {
-                const errors = storyObj.error.split("\n")
-                const errList = []
-                
-                for (err of errors) {
-                    const errObj = {};
-                    errObj.message = err.slice(err.indexOf(":") + 1).trim();
-                    errObj.lineNumber = Number(err[err.indexOf(":") - 1]);
-                    errList.push(errObj);
+                // Successful compiles send error: ""; "".split("\n") is [""] — feeding that into Ace
+                // produced NaN row markers and broke the editor/player.
+                if (!storyObj.error || !String(storyObj.error).trim()) {
+                    return [];
+                }
+                const errList = [];
+                for (let err of String(storyObj.error).split("\n")) {
+                    err = err.trim();
+                    if (!err) {
+                        continue;
+                    }
+                    let lineNumber = null;
+                    const lineMatch = err.match(/line\s+(\d+)/i);
+                    if (lineMatch) {
+                        lineNumber = parseInt(lineMatch[1], 10);
+                    } else {
+                        const colon = err.indexOf(":");
+                        if (colon > 0) {
+                            const ch = err[colon - 1];
+                            if (/^\d$/.test(ch)) {
+                                lineNumber = parseInt(ch, 10);
+                            }
+                        }
+                    }
+                    if (!lineNumber || lineNumber < 1 || !Number.isFinite(lineNumber)) {
+                        continue;
+                    }
+                    const msgAt = err.lastIndexOf(":");
+                    const message = msgAt >= 0 ? err.slice(msgAt + 1).trim() : err;
+                    errList.push({ lineNumber: lineNumber, message: message || err });
                 }
                 return errList;
             }
+
 
             Story.setEvents({
                 newStory: function(story) {
