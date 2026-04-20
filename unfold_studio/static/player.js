@@ -137,7 +137,7 @@ InkPlayer.prototype = {
         if (!resp.result || typeof resp.result !== "object") return false;
         const r = resp.result;
 
-        if (r.character_text !== undefined && typeof r.character_text !== "string") return false;
+        if (r.character_text !== null && r.character_text !== undefined && typeof r.character_text !== "string") return false;
         if (!r.continue_decision || typeof r.continue_decision !== "object") return false;
         if (typeof r.continue_decision.direction !== "string") return false;
         if (r.continue_decision.content !== undefined && typeof r.continue_decision.content !== "object") return false;
@@ -512,14 +512,18 @@ InkPlayer.prototype = {
             const decision = agentResult.continue_decision || {};
             const direction = decision.direction || "NEEDS_INPUT";
             const content = decision.content || {};
-
+            
+            if (direction === "DIRECT_CONTINUE") {
+                this.continueStory();
+                return;
+            }
             if (characterText) {
                 this.safeAddContent({ 
-		    text: characterText, 
-		    tags: ["agent"]
-		});
+		            text: characterText, 
+		            tags: ["agent"]
+		        });
 
-		this.createStoryPlayRecord(
+		        this.createStoryPlayRecord(
                     this.getStoryPlayInstanceUUID(),
                     "AI_GENERATED_TEXT",
                     characterText

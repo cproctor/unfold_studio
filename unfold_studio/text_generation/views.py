@@ -6,8 +6,7 @@ from commons.base.views import BaseView
 from .models import StoryTransitionRecord
 from .services.unfold_studio import UnfoldStudioService
 from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
-from .constants import AGENT_SYSTEM_PROMPT, AGENT_USER_PROMPT_TEMPLATE
-
+from .constants import AGENT_CHARACTER_SYSTEM_PROMPT, AGENT_CHARACTER_USER_PROMPT_TEMPLATE
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -204,28 +203,37 @@ class GetNextDirectionView(BaseView):
 class AgentView(BaseView):
 
     def validate_request(self, request_body):
-       required_fields = ['user_input', 'character_knot_name', 'target_knot_name', 'story_play_instance_uuid']
-       for field in required_fields:
-           if not request_body.get(field):
-               return False, f"Missing required field: {field}"
-       return True, None
+        required_fields = ['user_input', 'character_knot_name', 'target_knot_name', 'story_play_instance_uuid']
+        for field in required_fields:
+            if not request_body.get(field):
+                return False, f"Missing required field: {field}"
+        return True, None
 
-    def generate_character_text(self, character_knot_data, story_history, user_input, seed):
+    def generate_character_text(self, character_knot_data, story_history, user_input, direction, seed):
         backend = TextGenerationFactory.create(settings.TEXT_GENERATION)
-        system_prompt, user_prompt = self.build_agent_prompts(character_knot_data, story_history, user_input)
+
+        character_voice = [ln.strip() for ln in character_knot_data.get("knotContents", []) if ln.strip()]
+        voice_block = "\n".join(character_voice)
+
+        timeline = story_history.get("timeline", [])
+        truncated_history = {"timeline": timeline[-10:]}
+
+        user_prompt = AGENT_CHARACTER_USER_PROMPT_TEMPLATE % {
+            "character_knot": voice_block,
+            "history": json.dumps(truncated_history, indent=2),
+            "user_input": user_input,
+            "direction": direction
+        }
 
         try:
-            text = backend.get_ai_response_by_system_and_user_prompt(
-            system_prompt, user_prompt, seed, hit_cache=True,
+            return backend.get_ai_response_by_system_and_user_prompt(
+                AGENT_CHARACTER_SYSTEM_PROMPT, user_prompt, seed, hit_cache=True
             )
-            return text
         except Exception as e:
             print("ERROR in generate_character_text:", repr(e))
-            # fallback that still behaves “in character-ish”
             voice_lines = [ln.strip() for ln in character_knot_data.get("knotContents", []) if ln.strip()]
             voice_hint = voice_lines[0] if voice_lines else "…"
             return f"{voice_hint}\n\nWhat do you want?"
-
 
     def post(self, request):
         try:
@@ -241,10 +249,10 @@ class AgentView(BaseView):
             print("story_play_instance_uuid", story_play_instance_uuid)
             print("user_input", user_input)
             print("seed", seed)
-          
+
             validation_successful, failure_reason = self.validate_request(request_body)
             if not validation_successful:
-               return JsonResponse({"error": failure_reason}, status=400)
+                return JsonResponse({"error": failure_reason}, status=400)
 
             story_id = UnfoldStudioService.get_story_id_from_play_instance_uuid(story_play_instance_uuid)
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
@@ -257,13 +265,7 @@ class AgentView(BaseView):
             if not target_knot_data:
                 return JsonResponse({"error": f"Target knot not found or empty: {target_knot_name}"}, status=404)
 
-            character_text = self.generate_character_text(
-                character_knot_data=character_knot_data,
-                story_history=story_play_history,
-                user_input=user_input,
-                seed=seed
-            )
-
+            # Call 1 — direction + bridge (target knot aware)
             direction_view = GetNextDirectionView()
             direction, content = direction_view.get_next_direction_details_for_story(
                 target_knot_data=target_knot_data,
@@ -271,50 +273,75 @@ class AgentView(BaseView):
                 user_input=user_input,
                 seed=seed
             )
-            if direction in (StoryContinueDirections.NEEDS_INPUT, StoryContinueDirections.INVALID_USER_INPUT):
-                content["guidance_text"] = character_text 
+
+            if direction == StoryContinueDirections.DIRECT_CONTINUE:
+                return JsonResponse({"result": {
+                    "character_text": None,
+                    "continue_decision": {
+                        "direction": direction,
+                        "content": content,
+                    },
+                }}, status=200)
+
             
+            # Call 2 — character voice (target knot blind)
+            character_text = self.generate_character_text(
+                character_knot_data=character_knot_data,
+                story_history=story_play_history,
+                user_input=user_input,
+                direction=direction,
+                seed=seed
+            )
 
-            if direction in (StoryContinueDirections.BRIDGE_AND_CONTINUE):
-                # Blend the two: Maya speaks, then the narrator describes the movement
-                integrated_bridge = f"{character_text}\n\n{content['bridge_text']}"
-                content['bridge_text'] = integrated_bridge
-                # Clear character_text so the frontend doesn't show it twice
-                character_text = None
+            if direction in (StoryContinueDirections.NEEDS_INPUT, StoryContinueDirections.INVALID_USER_INPUT):
+                # Character speaks AND ends with a question — shown as character_text, not guidance
+                result = {
+                    "character_text": character_text,
+                    "continue_decision": {
+                        "direction": direction,
+                        "content": content,
+                        },
+                    }
 
-            result = {
-                "character_text": character_text,
-                "continue_decision": {
-                    "direction": direction,
-                    "content": content,
-                },
-            }
+            elif direction == StoryContinueDirections.BRIDGE_AND_CONTINUE:
+                if not content.get("bridge_text"):
+                    print("BRIDGE_AND_CONTINUE selected but bridge_text missing, falling back to NEEDS_INPUT")
+                    direction = StoryContinueDirections.NEEDS_INPUT
+                    content = {
+                        "guidance_text": "What would you like to do next?",
+                        "reason": "Bridge text missing from AI response"
+                    }
+                    result = {
+                    "character_text": character_text,  # still show the character reply
+                    "continue_decision": {
+                        "direction": direction,
+                        "content": content,
+                        },
+                    }   
+                else:
+                    result = {
+                        "character_text": character_text,  # closing line, no question
+                        "continue_decision": {
+                            "direction": direction,
+                            "content": content,
+                        },
+                    }
+            else:
+                # Fallback
+                result = {
+                    "character_text": character_text,
+                    "continue_decision": {
+                        "direction": direction,
+                        "content": content,
+                    },
+                }
             return JsonResponse({"result": result}, status=200)
 
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
         except Exception as e:
+            print(str(e))
             return JsonResponse({"error": str(e)}, status=500)
-
-    def build_agent_prompts(self, character_knot_data, story_history, user_input):
-
-        character_voice = [ln.strip() for ln in character_knot_data.get("knotContents", []) if ln.strip()]
-        voice_block = "\n".join(character_voice)
-
-        timeline = story_history.get("timeline", [])
-        truncated_history = {"timeline": timeline[-10:]}
-
-        system_prompt = AGENT_SYSTEM_PROMPT
-        user_prompt = AGENT_USER_PROMPT_TEMPLATE % {
-            "character_knot": voice_block,
-            "history": json.dumps(truncated_history, indent=2),
-            "user_input": user_input
-        }
-        print("Character voice:", len(character_voice))
-        print("VOICE block length:", len(voice_block))
-        print("HISTORY timeline length:", len(truncated_history.get("timeline", [])))
-
-        return system_prompt, user_prompt
 
     def get(self, request):
         return JsonResponse({"result": {"text": "agent endpoint: ok (GET)"}})
