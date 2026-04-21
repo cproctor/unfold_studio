@@ -44,12 +44,10 @@
             <h2 class="genre-section-title">{{ genre_label }}</h2>
             <div class="book-cards-row">
               {% for book in books %}
-                <div class="book-card" data-book-id="{{ book.id }}">
+                <div class="book-card">
                   <div class="book-card-inner">
                     <span class="book-card-type">BOOK</span>
-                    <h3 class="book-card-title">
-                      <a href="{% url 'show_book' book.id %}">{{ book.title }}</a>
-                    </h3>
+                    <h3 class="book-card-title">{{ book.title }}</h3>
                     {% if book.description %}
                       <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
                     {% endif %}
@@ -58,8 +56,7 @@
                       · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
                     </p>
                   </div>
-                  <!-- Hover overlay: list of stories -->
-                  <div class="book-card-hover">
+                  <a href="{% url 'show_book' book.id %}" class="book-card-hover">
                     <ul class="book-story-list">
                       {% for story in book.stories.all|slice:":5" %}
                         <li>{{ story.title }} — {{ story.author }}</li>
@@ -67,8 +64,8 @@
                         <li>No stories yet.</li>
                       {% endfor %}
                     </ul>
-                    <a href="{% url 'show_book' book.id %}" class="view-collection-link">View collection</a>
-                  </div>
+                    <span class="view-collection-link">View collection →</span>
+                  </a>
                 </div>
               {% endfor %}
             </div>
@@ -95,7 +92,7 @@
                     · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
                   </p>
                 </div>
-                <div class="book-card-hover">
+                <a href="{% url 'show_book' book.id %}" class="book-card-hover">
                   <ul class="book-story-list">
                     {% for story in book.stories.all|slice:":5" %}
                       <li>{{ story.title }} — {{ story.author }}</li>
@@ -103,8 +100,8 @@
                       <li>No stories yet.</li>
                     {% endfor %}
                   </ul>
-                  <a href="{% url 'show_book' book.id %}" class="view-collection-link">View collection</a>
-                </div>
+                  <span class="view-collection-link">View collection →</span>
+                </a>
               </div>
             {% endfor %}
           </div>
@@ -123,67 +120,91 @@
 </div>
 
 <style>
+/* ── Page ── */
 .books-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
 .books-header h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
 .books-header p { color: #555; margin-bottom: 1.5rem; }
 
-.books-layout { display: flex; gap: 2rem; align-items: flex-start; }
+/* ── Layout ── */
+.books-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  align-items: flex-start;
+  height: calc(100vh - 200px);  
+}
 
-/* Sidebar */
-.books-sidebar { flex: 0 0 180px; }
+/* ── Sidebar ── */
+.books-sidebar { flex: 0 0 200px; min-width: 0; position: sticky; top: 1rem; }
 .refine-box { border: 1px solid #e0e0e0; border-radius: 10px; padding: 1rem 1.2rem; }
 .refine-label { font-weight: 700; margin: 0 0 0.6rem; }
 .genre-label { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; margin: 0 0 0.5rem; }
-.genre-pills { display: flex; flex-direction: column; gap: 0.4rem; }
+.genre-pills { display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start; }
 .pill {
-  display: inline-block; padding: 0.3rem 0.8rem; border-radius: 999px;
-  border: 1px solid #ccc; font-size: 0.85rem; text-decoration: none; color: #333;
-  transition: background 0.15s;
+  white-space: nowrap; padding: 0.3rem 0.8rem; border-radius: 999px;
+  border: 1px solid #ccc; font-size: 0.85rem; text-decoration: none;
+  color: #333; transition: background 0.15s;
 }
 .pill:hover { background: #f0f0f0; }
 .pill--active { background: #6366f1; color: #fff; border-color: #6366f1; }
 
-/* Main */
-.books-main { flex: 1; min-width: 0; }
+/* ── Main column ── */
+.books-main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; height: 100%; padding-right: 0.5rem;}
+
+/* ── Search ── */
 .books-search-form { margin-bottom: 1.5rem; }
 .books-search-input {
   width: 100%; padding: 0.6rem 1rem; border: 1px solid #ddd;
   border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;
 }
 
-/* Genre sections */
-.book-genre-section { margin-bottom: 2.5rem; }
+/* ── Genre sections ── */
+.book-genre-section { margin-bottom: 2.5rem; width: 100%; }
 .genre-section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
-.book-cards-row { display: flex; gap: 1rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.5rem; }
 
-/* Book cards */
+/* ── Card row (horizontal scroll) ── */
+.book-cards-row {
+  display: flex; flex-direction: row; gap: 1rem;
+  flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.75rem;
+  scrollbar-width: thin; scrollbar-color: #ccc transparent;
+}
+.book-cards-row::-webkit-scrollbar { height: 4px; }
+.book-cards-row::-webkit-scrollbar-track { background: transparent; }
+.book-cards-row::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
+
+/* ── Book cards ── */
 .book-card {
-  position: relative; flex: 0 0 220px; border: 1px solid #e5e5e5;
-  border-radius: 10px; overflow: hidden; cursor: pointer;
-  transition: box-shadow 0.2s;
+  position: relative; flex: 0 0 220px; height: 200px;
+  border: 1px solid #e5e5e5; border-radius: 10px;
+  overflow: hidden; cursor: pointer; transition: box-shadow 0.2s;
 }
 .book-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
-.book-card-inner { padding: 1rem; }
+.book-card-inner { padding: 1rem; height: 100%; box-sizing: border-box; }
 .book-card-type { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; }
-.book-card-title { font-size: 1rem; margin: 0.3rem 0 0.5rem; }
+.book-card-title { font-size: 1rem; font-weight: 700; margin: 0.3rem 0 0.5rem; }
 .book-card-title a { text-decoration: none; color: inherit; }
 .book-card-title a:hover { text-decoration: underline; }
 .book-card-desc { font-size: 0.82rem; color: #555; margin: 0 0 0.5rem; line-height: 1.4; }
 .book-card-meta { font-size: 0.78rem; color: #888; margin: 0; }
 .book-card-meta a { color: #6366f1; text-decoration: none; }
 
-/* Hover overlay */
+/* ── Hover overlay ── */
 .book-card-hover {
   position: absolute; inset: 0;
   background: rgba(30, 30, 30, 0.92); color: #fff;
   padding: 1rem; opacity: 0; transition: opacity 0.18s;
   display: flex; flex-direction: column; justify-content: space-between;
+  text-decoration: none;
 }
 .book-card:hover .book-card-hover { opacity: 1; }
-.book-story-list { list-style: disc; padding-left: 1.2rem; margin: 0 0 0.8rem; font-size: 0.85rem; line-height: 1.6; }
-.view-collection-link { font-size: 0.8rem; color: #aaa; text-decoration: none; }
-.view-collection-link:hover { color: #fff; }
+.book-story-list {
+  list-style: disc; padding-left: 1.2rem;
+  margin: 0 0 0.8rem; font-size: 0.85rem; line-height: 1.6;
+}
+.view-collection-link { font-size: 0.8rem; color: #aaa; }
+.book-card-hover:hover .view-collection-link { color: #fff; }
 
+/* ── Misc ── */
 .no-books-msg { color: #777; font-style: italic; }
 .create-book-link { margin-top: 1.5rem; }
 .create-book-link a { color: #6366f1; }
