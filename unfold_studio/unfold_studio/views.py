@@ -378,9 +378,7 @@ class NewStoryVersionView(StoryMethodView):
 
     def get(self, request, *args, **kwargs):
         story = self.get_object()
-        version = Version.objects.get_for_object(story).first()
-        initial = {'comment': version.revision.comment} if version else {}
-        form = StoryVersionForm(initial=initial)
+        form = StoryVersionForm()
         return render(request, self.template, {'form': form, 'story': story})
 
     def post(self, request, *args, **kwargs):
