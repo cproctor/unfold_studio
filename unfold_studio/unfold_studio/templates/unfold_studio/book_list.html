@@ -2,22 +2,190 @@
 {% load static %}
 
 {% block content %}
-<h1>All books</h1>
-<p>
-    Books are collections of stories. 
-    {% if request.user.is_authenticated %}
-        <a href="{% url 'create_book' %}">Create a new book</a>.
-    {% else %}
-        When you are logged in, you can create your own books. 
-    {% endif %}
-</p>
+<div class="books-page">
+  <div class="books-header">
+    <h1>Books</h1>
+    <p>Books are collections of stories. Use Refine to filter by genre—books can belong to multiple genres.</p>
+  </div>
 
-<ul>
-{% for book in object_list %}
-    <li><a href="{% url 'show_book' book.id %}">{{book.title}}</a> 
-    (<a href="{% url 'show_user' book.owner %}">{{book.owner}}</a>)
-{% endfor %}
-<ul>
+  <div class="books-layout">
+    <!-- Left sidebar: genre filter -->
+    <aside class="books-sidebar">
+      <div class="refine-box">
+        <p class="refine-label">Refine</p>
+        <p class="genre-label">GENRE</p>
+        <div class="genre-pills">
+          <a href="?{% if query %}query={{ query }}&{% endif %}"
+             class="pill {% if not active_genre %}pill--active{% endif %}">All</a>
+          {% for key, label in genre_choices %}
+            <a href="?{% if query %}query={{ query }}&{% endif %}genre={{ key }}"
+               class="pill {% if active_genre == key %}pill--active{% endif %}">{{ label }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right: search + books -->
+    <div class="books-main">
+      <form method="get" class="books-search-form">
+        {% if active_genre %}<input type="hidden" name="genre" value="{{ active_genre }}">{% endif %}
+        <input
+          type="text"
+          name="query"
+          value="{{ query }}"
+          placeholder="Search books by title, curator, or keyword…"
+          class="books-search-input"
+        />
+      </form>
+
+      {% if genre_groups %}
+        {% for genre_label, books in genre_groups.items %}
+          <section class="book-genre-section">
+            <h2 class="genre-section-title">{{ genre_label }}</h2>
+            <div class="book-cards-row">
+              {% for book in books %}
+                <div class="book-card" data-book-id="{{ book.id }}">
+                  <div class="book-card-inner">
+                    <span class="book-card-type">BOOK</span>
+                    <h3 class="book-card-title">
+                      <a href="{% url 'show_book' book.id %}">{{ book.title }}</a>
+                    </h3>
+                    {% if book.description %}
+                      <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
+                    {% endif %}
+                    <p class="book-card-meta">
+                      {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
+                      · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+                    </p>
+                  </div>
+                  <!-- Hover overlay: list of stories -->
+                  <div class="book-card-hover">
+                    <ul class="book-story-list">
+                      {% for story in book.stories.all|slice:":5" %}
+                        <li>{{ story.title }} — {{ story.author }}</li>
+                      {% empty %}
+                        <li>No stories yet.</li>
+                      {% endfor %}
+                    </ul>
+                    <a href="{% url 'show_book' book.id %}" class="view-collection-link">View collection</a>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          </section>
+        {% endfor %}
+      {% endif %}
+
+      {% if ungenred_books %}
+        <section class="book-genre-section">
+          <h2 class="genre-section-title">Other</h2>
+          <div class="book-cards-row">
+            {% for book in ungenred_books %}
+              <div class="book-card" data-book-id="{{ book.id }}">
+                <div class="book-card-inner">
+                  <span class="book-card-type">BOOK</span>
+                  <h3 class="book-card-title">
+                    <a href="{% url 'show_book' book.id %}">{{ book.title }}</a>
+                  </h3>
+                  {% if book.description %}
+                    <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
+                  {% endif %}
+                  <p class="book-card-meta">
+                    {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
+                    · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+                  </p>
+                </div>
+                <div class="book-card-hover">
+                  <ul class="book-story-list">
+                    {% for story in book.stories.all|slice:":5" %}
+                      <li>{{ story.title }} — {{ story.author }}</li>
+                    {% empty %}
+                      <li>No stories yet.</li>
+                    {% endfor %}
+                  </ul>
+                  <a href="{% url 'show_book' book.id %}" class="view-collection-link">View collection</a>
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
+      {% if not genre_groups and not ungenred_books %}
+        <p class="no-books-msg">No books found{% if query %} for "{{ query }}"{% endif %}.</p>
+      {% endif %}
+
+      {% if request.user.is_authenticated %}
+        <p class="create-book-link"><a href="{% url 'create_book' %}">+ Create a new book</a></p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<style>
+.books-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+.books-header h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.books-header p { color: #555; margin-bottom: 1.5rem; }
+
+.books-layout { display: flex; gap: 2rem; align-items: flex-start; }
+
+/* Sidebar */
+.books-sidebar { flex: 0 0 180px; }
+.refine-box { border: 1px solid #e0e0e0; border-radius: 10px; padding: 1rem 1.2rem; }
+.refine-label { font-weight: 700; margin: 0 0 0.6rem; }
+.genre-label { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; margin: 0 0 0.5rem; }
+.genre-pills { display: flex; flex-direction: column; gap: 0.4rem; }
+.pill {
+  display: inline-block; padding: 0.3rem 0.8rem; border-radius: 999px;
+  border: 1px solid #ccc; font-size: 0.85rem; text-decoration: none; color: #333;
+  transition: background 0.15s;
+}
+.pill:hover { background: #f0f0f0; }
+.pill--active { background: #6366f1; color: #fff; border-color: #6366f1; }
+
+/* Main */
+.books-main { flex: 1; min-width: 0; }
+.books-search-form { margin-bottom: 1.5rem; }
+.books-search-input {
+  width: 100%; padding: 0.6rem 1rem; border: 1px solid #ddd;
+  border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;
+}
+
+/* Genre sections */
+.book-genre-section { margin-bottom: 2.5rem; }
+.genre-section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+.book-cards-row { display: flex; gap: 1rem; flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.5rem; }
+
+/* Book cards */
+.book-card {
+  position: relative; flex: 0 0 220px; border: 1px solid #e5e5e5;
+  border-radius: 10px; overflow: hidden; cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.book-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
+.book-card-inner { padding: 1rem; }
+.book-card-type { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; }
+.book-card-title { font-size: 1rem; margin: 0.3rem 0 0.5rem; }
+.book-card-title a { text-decoration: none; color: inherit; }
+.book-card-title a:hover { text-decoration: underline; }
+.book-card-desc { font-size: 0.82rem; color: #555; margin: 0 0 0.5rem; line-height: 1.4; }
+.book-card-meta { font-size: 0.78rem; color: #888; margin: 0; }
+.book-card-meta a { color: #6366f1; text-decoration: none; }
+
+/* Hover overlay */
+.book-card-hover {
+  position: absolute; inset: 0;
+  background: rgba(30, 30, 30, 0.92); color: #fff;
+  padding: 1rem; opacity: 0; transition: opacity 0.18s;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.book-card:hover .book-card-hover { opacity: 1; }
+.book-story-list { list-style: disc; padding-left: 1.2rem; margin: 0 0 0.8rem; font-size: 0.85rem; line-height: 1.6; }
+.view-collection-link { font-size: 0.8rem; color: #aaa; text-decoration: none; }
+.view-collection-link:hover { color: #fff; }
+
+.no-books-msg { color: #777; font-style: italic; }
+.create-book-link { margin-top: 1.5rem; }
+.create-book-link a { color: #6366f1; }
+</style>
 {% endblock %}
-
-

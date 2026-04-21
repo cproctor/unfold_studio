@@ -7,7 +7,7 @@ from django.http import JsonResponse
 from django.contrib.auth import login
 import json
 import structlog
-from .forms import StoryForm, StoryVersionForm
+from .forms import StoryForm, StoryVersionForm, BookForm, GENRE_CHOICES
 from .models import Story, Book, StoryPlayInstance, StoryPlayRecord
 from profiles.models import Profile
 from django.views.generic.detail import SingleObjectMixin, DetailView
@@ -433,7 +433,7 @@ class StoryVersionListView(DetailView):
 
 class CreateBookView(LoginRequiredMixin, CreateView):
     model = Book
-    fields = ['title', 'description']
+    form_class = BookForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -442,26 +442,64 @@ class CreateBookView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         _book = Book(owner=request.user)
-        form = self.get_form_class()(request.POST, instance=_book)
+        form = BookForm(request.POST, instance=_book)
         if form.is_valid():
-            book = form.save()
+            book = form.save(commit=False)
+            book.genres = form.cleaned_data.get('genres', [])
+            book.save()
             book.sites.add(get_current_site(request))
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.PUBLISHED_BOOK,
                 subject=request.user,
                 book=book
             )
-            log.info("{} created book {} (id {})".format(request.user, book.title, book.id))
             return redirect('show_book', book.id)
         else:
             context = self.get_context_data(form=form)
-            return render('book_form', context)
+            return render(request, 'unfold_studio/book_form.html', context)
 
 class BookListView(ListView):
     model = Book
+    template_name = 'unfold_studio/books_list.html'
 
     def get_queryset(self):
-        return Book.objects.filter(sites__id=get_current_site(self.request).id).select_related('owner')
+        site = get_current_site(self.request)
+        qs = Book.objects.filter(sites__id=site.id).select_related('owner').prefetch_related('stories')
+        query = self.request.GET.get('query', '').strip()
+        if query:
+            qs = qs.filter(
+                Q(title__icontains=query) | Q(owner__username__icontains=query) | Q(description__icontains=query)
+            )
+        return qs
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        genre_filter = self.request.GET.get('genre', '')
+        query = self.request.GET.get('query', '')
+        all_books = context['object_list']
+
+        # Filter by genre if one is selected
+        if genre_filter:
+            all_books = [b for b in all_books if genre_filter in (b.genres or [])]
+
+        # Group books by genre for display
+        genre_label_map = dict(GENRE_CHOICES)
+        genre_groups = {}
+        ungenred = []
+        for book in all_books:
+            if book.genres:
+                for g in book.genres:
+                    label = genre_label_map.get(g, g.title())
+                    genre_groups.setdefault(label, []).append(book)
+            else:
+                ungenred.append(book)
+
+        context['genre_groups'] = genre_groups
+        context['ungenred_books'] = ungenred
+        context['genre_choices'] = GENRE_CHOICES
+        context['active_genre'] = genre_filter
+        context['query'] = query
+        return context
 
 class BookDetailView(DetailView):
     # TODO: Use this as a model for using Mixins. get_context_data is needlessly verbose.
@@ -478,7 +516,7 @@ class BookDetailView(DetailView):
 
 class UpdateBookView(UpdateView):
     model = Book
-    fields = ['title', 'description']
+    form_class = BookForm
 
     def get_queryset(self):
         if self.request.user.is_authenticated:
