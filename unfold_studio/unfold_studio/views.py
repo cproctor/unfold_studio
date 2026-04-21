@@ -510,9 +510,35 @@ class BookDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user if self.request.user.is_authenticated else None
-        context['stories'] = self.get_object().stories.for_request(self.request).select_related('author').prefetch_related('loves')
+        stories = self.get_object().stories.for_request(self.request).select_related('author').prefetch_related('loves')
+        
+        stories_with_snippets = []
+        for story in stories:
+            snippet = self._extract_snippet(story)
+            stories_with_snippets.append((story, snippet))
+        
+        context['stories'] = stories
+        context['stories_with_snippets'] = stories_with_snippets
         return context
+    
+    def _extract_snippet(self, story):
+        if not story.ink:
+            return None
+        import re
+        lines = []
+        for line in story.ink.split('\n'):
+            line = line.strip()
+            # Skip knot headers, diverts, variable declarations, includes, choices, comments
+            if not line:
+                continue
+            if re.match(r'^(===|->|VAR |CONST |INCLUDE |//|\*|\+)', line):
+                continue
+            if line.startswith('#'):
+                continue
+            lines.append(line)
+            if len(' '.join(lines)) > 180:
+                break
+        return ' '.join(lines)[:180] if lines else None
 
 class UpdateBookView(UpdateView):
     model = Book

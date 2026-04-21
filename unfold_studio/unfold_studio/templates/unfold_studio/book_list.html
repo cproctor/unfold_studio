@@ -9,33 +9,27 @@
   </div>
 
   <div class="books-layout">
-    <!-- Left sidebar: genre filter -->
     <aside class="books-sidebar">
       <div class="refine-box">
         <p class="refine-label">Refine</p>
         <p class="genre-label">GENRE</p>
-        <div class="genre-pills">
-          <a href="?{% if query %}query={{ query }}&{% endif %}"
-             class="pill {% if not active_genre %}pill--active{% endif %}">All</a>
+        <div class="genre-pills" id="genre-pills">
+          <span class="pill {% if not active_genre %}pill--active{% endif %}"
+                data-genre="" style="cursor:pointer;">All</span>
           {% for key, label in genre_choices %}
-            <a href="?{% if query %}query={{ query }}&{% endif %}genre={{ key }}"
-               class="pill {% if active_genre == key %}pill--active{% endif %}">{{ label }}</a>
+            <span class="pill {% if key == active_genre %}pill--active{% endif %}"
+                  data-genre="{{ key }}" style="cursor:pointer;">{{ label }}</span>
           {% endfor %}
         </div>
       </div>
     </aside>
 
-    <!-- Right: search + books -->
     <div class="books-main">
       <form method="get" class="books-search-form">
         {% if active_genre %}<input type="hidden" name="genre" value="{{ active_genre }}">{% endif %}
-        <input
-          type="text"
-          name="query"
-          value="{{ query }}"
+        <input type="text" name="query" value="{{ query }}"
           placeholder="Search books by title, curator, or keyword…"
-          class="books-search-input"
-        />
+          class="books-search-input" />
       </form>
 
       {% if genre_groups %}
@@ -64,6 +58,9 @@
                         <li>No stories yet.</li>
                       {% endfor %}
                     </ul>
+                    {% if book.stories.count > 5 %}
+                      <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                    {% endif %}
                     <span class="view-collection-link">View collection →</span>
                   </a>
                 </div>
@@ -78,12 +75,10 @@
           <h2 class="genre-section-title">Other</h2>
           <div class="book-cards-row">
             {% for book in ungenred_books %}
-              <div class="book-card" data-book-id="{{ book.id }}">
+              <div class="book-card">
                 <div class="book-card-inner">
                   <span class="book-card-type">BOOK</span>
-                  <h3 class="book-card-title">
-                    <a href="{% url 'show_book' book.id %}">{{ book.title }}</a>
-                  </h3>
+                  <h3 class="book-card-title">{{ book.title }}</h3>
                   {% if book.description %}
                     <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
                   {% endif %}
@@ -100,6 +95,9 @@
                       <li>No stories yet.</li>
                     {% endfor %}
                   </ul>
+                  {% if book.stories.count > 5 %}
+                    <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                  {% endif %}
                   <span class="view-collection-link">View collection →</span>
                 </a>
               </div>
@@ -127,11 +125,8 @@
 
 /* ── Layout ── */
 .books-layout {
-  display: flex;
-  flex-direction: row;
-  gap: 2rem;
-  align-items: flex-start;
-  height: calc(100vh - 200px);  
+  display: flex; flex-direction: row; gap: 2rem;
+  align-items: flex-start; height: calc(100vh - 200px);
 }
 
 /* ── Sidebar ── */
@@ -139,17 +134,20 @@
 .refine-box { border: 1px solid #e0e0e0; border-radius: 10px; padding: 1rem 1.2rem; }
 .refine-label { font-weight: 700; margin: 0 0 0.6rem; }
 .genre-label { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; margin: 0 0 0.5rem; }
-.genre-pills { display: flex; flex-direction: column; gap: 0.4rem; align-items: flex-start; }
+.genre-pills { display: flex; flex-direction: row; flex-wrap: wrap; gap: 0.35rem; }
 .pill {
-  white-space: nowrap; padding: 0.3rem 0.8rem; border-radius: 999px;
-  border: 1px solid #ccc; font-size: 0.85rem; text-decoration: none;
-  color: #333; transition: background 0.15s;
+  white-space: nowrap; padding: 0.25rem 0.7rem; border-radius: 999px;
+  border: 1px solid #ccc; font-size: 0.8rem; text-decoration: none;
+  color: #333; transition: background 0.15s; cursor: pointer;
 }
 .pill:hover { background: #f0f0f0; }
 .pill--active { background: #6366f1; color: #fff; border-color: #6366f1; }
 
 /* ── Main column ── */
-.books-main { flex: 1; min-width: 0; display: flex; flex-direction: column; overflow-y: auto; height: 100%; padding-right: 0.5rem;}
+.books-main {
+  flex: 1; min-width: 0; display: flex; flex-direction: column;
+  overflow-y: auto; height: 100%; padding-right: 0.5rem;
+}
 
 /* ── Search ── */
 .books-search-form { margin-bottom: 1.5rem; }
@@ -162,7 +160,7 @@
 .book-genre-section { margin-bottom: 2.5rem; width: 100%; }
 .genre-section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
 
-/* ── Card row (horizontal scroll) ── */
+/* ── Card row ── */
 .book-cards-row {
   display: flex; flex-direction: row; gap: 1rem;
   flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.75rem;
@@ -179,11 +177,9 @@
   overflow: hidden; cursor: pointer; transition: box-shadow 0.2s;
 }
 .book-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
-.book-card-inner { padding: 1rem; height: 100%; box-sizing: border-box; }
+.book-card-inner { padding: 1rem; height: 100%; box-sizing: border-box; overflow: hidden; }
 .book-card-type { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; }
 .book-card-title { font-size: 1rem; font-weight: 700; margin: 0.3rem 0 0.5rem; }
-.book-card-title a { text-decoration: none; color: inherit; }
-.book-card-title a:hover { text-decoration: underline; }
 .book-card-desc { font-size: 0.82rem; color: #555; margin: 0 0 0.5rem; line-height: 1.4; }
 .book-card-meta { font-size: 0.78rem; color: #888; margin: 0; }
 .book-card-meta a { color: #6366f1; text-decoration: none; }
@@ -191,22 +187,42 @@
 /* ── Hover overlay ── */
 .book-card-hover {
   position: absolute; inset: 0;
-  background: rgba(30, 30, 30, 0.92); color: #fff;
-  padding: 1rem; opacity: 0; transition: opacity 0.18s;
+  background: linear-gradient(to bottom, #3a3a3a, #1a1a1a);
+  color: #fff; padding: 1rem; opacity: 0; transition: opacity 0.18s;
   display: flex; flex-direction: column; justify-content: space-between;
   text-decoration: none;
 }
 .book-card:hover .book-card-hover { opacity: 1; }
 .book-story-list {
   list-style: disc; padding-left: 1.2rem;
-  margin: 0 0 0.8rem; font-size: 0.85rem; line-height: 1.6;
+  margin: 0 0 0.5rem; font-size: 0.85rem; line-height: 1.6; color: #fff;
 }
-.view-collection-link { font-size: 0.8rem; color: #aaa; }
-.book-card-hover:hover .view-collection-link { color: #fff; }
+.book-story-list li { color: #fff; }
+.more-stories-hint { font-size: 0.75rem; color: #aaa; display: block; margin-bottom: 0.4rem; }
+.view-collection-link { font-size: 0.8rem; color: #999; }
 
 /* ── Misc ── */
 .no-books-msg { color: #777; font-style: italic; }
 .create-book-link { margin-top: 1.5rem; }
 .create-book-link a { color: #6366f1; }
 </style>
+
+<script>
+const pills = document.querySelectorAll('#genre-pills .pill');
+const params = new URLSearchParams(window.location.search);
+
+pills.forEach(pill => {
+  pill.addEventListener('click', () => {
+    const genre = pill.dataset.genre;
+    const current = params.get('genre');
+
+    params.delete('genre');
+    if (genre && current !== genre) {
+      params.set('genre', genre);
+    }
+
+    window.location.search = params.toString();
+  });
+});
+</script>
 {% endblock %}
