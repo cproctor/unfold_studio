@@ -6,6 +6,7 @@ from django.views import generic
 from django.http import JsonResponse                                  
 from django.contrib.auth import login
 import json
+import re
 import structlog
 from .forms import StoryForm, StoryVersionForm
 from .models import Story, Book, StoryPlayInstance, StoryPlayRecord
@@ -26,16 +27,85 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q, F, Window
 from django.db.models.functions import RowNumber
 from django.db import OperationalError
-from django.core.paginator import Paginator, PageNotAnInteger
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from unfold_studio.mixins import StoryMixin
-from unfold_studio.forms import SearchForm
-from literacy_events.models import LiteracyEvent
+from unfold_studio.forms import SearchForm, GENRE_CHOICES
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from comments.models import Comment
 from comments.forms import CommentForm
 from django.utils import timezone
+from datetime import timedelta
 
-log = structlog.get_logger("unfold_studio")    
+log = structlog.get_logger("unfold_studio")
+
+BROWSE_STORIES_PER_PAGE = 10
+
+def extract_compiled_story_preview(story):
+    """
+    Prefer readable prose from compiled Ink JSON in story.json.
+    Fall back to story.description if needed.
+    """
+    desc = (story.description or "").strip()
+
+    if not story.json:
+        return desc
+
+    try:
+        compiled = json.loads(story.json)
+    except Exception:
+        return desc
+
+    # Ink compiled story JSON marks narrative text with a leading caret (^).
+    # Keep only those chunks to avoid runtime/control metadata.
+    chunks = []
+
+    def walk(node):
+        if len(chunks) >= 12:
+            return
+        if isinstance(node, str):
+            s = node.strip()
+            if s.startswith("^"):
+                s = s.lstrip("^").strip()
+                s = re.sub(r"\s+", " ", s)
+                if s:
+                    chunks.append(s)
+            return
+        if isinstance(node, list):
+            for item in node:
+                walk(item)
+                if len(chunks) >= 12:
+                    return
+            return
+        if isinstance(node, dict):
+            for v in node.values():
+                walk(v)
+                if len(chunks) >= 12:
+                    return
+
+    start = compiled.get("root", compiled) if isinstance(compiled, dict) else compiled
+    walk(start)
+
+    preview = " ".join(chunks).strip()
+    if preview:
+        words = preview.split()
+        return " ".join(words[:60]) + ("…" if len(words) > 60 else "")
+
+    return desc
+
+
+def browse_mode_badge_label(sort, has_search):
+    if has_search:
+        return ""
+    if sort == "top":
+        return "Top"
+    if sort == "top_week":
+        return "Top · week"
+    if sort == "top_month":
+        return "Top · month"
+    if sort == "new":
+        return "New"
+    return ""
+
 
 def u(request):
     "Helper to return username"
@@ -53,8 +123,10 @@ def home(request):
         site = get_current_site(request)
         stories = Story.objects.for_site_anonymous_user(site)
 
-    stories = stories[:s.STORIES_ON_HOMEPAGE]
-    return render(request, 'unfold_studio/home.html', {'stories': stories})
+    story_list = list(stories[:s.STORIES_ON_HOMEPAGE])
+    for st in story_list:
+        st.hover_preview = extract_compiled_story_preview(st)
+    return render(request, 'unfold_studio/home.html', {'stories': story_list})
 
 def browse(request):
     "Shows all stories, sorted by priority. Someday, I'll need to paginate this."
@@ -64,30 +136,103 @@ def browse(request):
     else:
         stories = Story.objects.for_site_anonymous_user(site)
 
-    if request.GET.get('query'):
-        form = SearchForm(request.GET)
-        if form.is_valid():
-            query = SearchQuery(form.cleaned_data['query'])
-            stories = stories.annotate(
-                rank=SearchRank(F('search'), query), 
-                score=F('rank') * F('priority') / (F('rank') + F('priority'))
-            ).filter(Q(rank__gte=s.SEARCH_RANK_CUTOFF)|Q(author__username__icontains=form.cleaned_data['query'])).order_by('-score')
-        else:
+    genre_keys = {c[0] for c in GENRE_CHOICES}
+    genre_param = (request.GET.get('genre') or '').strip()
+    if genre_param and genre_param != 'all' and genre_param in genre_keys:
+        stories = stories.filter(genres__contains=[genre_param])
+
+    sort = (request.GET.get('sort') or 'all').strip()
+    if sort not in ('all', 'top', 'top_week', 'top_month', 'new'):
+        sort = 'all'
+
+    query_text = (request.GET.get('query') or '').strip()
+    has_query = bool(query_text)
+
+    if has_query:
+        form = SearchForm({'query': query_text})
+        if not form.is_valid():
             messages.warning(request, "Please enter a valid search query")
             return redirect('list_stories')
+
+        q = form.cleaned_data['query'].strip()
+        query = SearchQuery(q)
+        stories = stories.annotate(
+            rank=SearchRank(F('search'), query),
+        ).filter(
+            Q(rank__gte=s.SEARCH_RANK_CUTOFF) |
+            Q(title__icontains=q) |
+            Q(description__icontains=q) |
+            Q(author__username__icontains=q)
+        ).order_by('-rank', '-priority', '-id')
     else:
         form = SearchForm()
+        now_ts = timezone.now()
+        if sort == 'all':
+            stories = stories.order_by('-priority', '-id')
+        elif sort == 'new':
+            stories = stories.order_by('-edit_date', '-id')
+        elif sort == 'top_week':
+            week_ago = now_ts - timedelta(days=7)
+            stories = stories.filter(edit_date__gte=week_ago).order_by('-priority', '-id')
+        elif sort == 'top_month':
+            month_ago = now_ts - timedelta(days=30)
+            stories = stories.filter(edit_date__gte=month_ago).order_by('-priority', '-id')
+        elif sort == 'top':
+            stories = stories.order_by('-priority', '-id')
+        else:
+            stories = stories.order_by('-priority', '-id')
 
     if request.user.is_authenticated:
         stories = stories.select_related('author').prefetch_related('loves')
 
-    paginator = Paginator(stories, s.STORIES_PER_PAGE)
+    def browse_qs(removals=(), **updates):
+        q = request.GET.copy()
+        q.pop('page', None)
+        for key in removals:
+            q.pop(key, None)
+        for key, val in updates.items():
+            q[key] = val
+        return q.urlencode()
+
+    genre_links = [{'slug': 'all', 'label': 'All', 'qs': browse_qs(removals=('genre',))}]
+    for slug, label in GENRE_CHOICES:
+        genre_links.append({'slug': slug, 'label': label, 'qs': browse_qs(genre=slug)})
+
+    preserve = request.GET.copy()
+    preserve.pop('page', None)
+    browse_querystring = preserve.urlencode()
+
+    paginator = Paginator(stories, BROWSE_STORIES_PER_PAGE)
     page = request.GET.get('page', 1)
     try:
-        story_page = paginator.page(page)
+        try:
+            story_page = paginator.page(page)
+        except PageNotAnInteger:
+            story_page = paginator.page(1)
+        except EmptyPage:
+            story_page = paginator.page(paginator.num_pages)
+
+        has_search = bool(has_query and form.is_valid())
+        browse_mode_badge = browse_mode_badge_label(sort, has_search)
+        for st in story_page:
+            st.hover_preview = extract_compiled_story_preview(st)
+
         return render(request, 'unfold_studio/list_stories.html', {
-            'stories': story_page, 
-            'form': form
+            'stories': story_page,
+            'form': form,
+            'search_value': query_text,
+            'browse_querystring': browse_querystring,
+            'genre_links': genre_links,
+            'current_sort': sort,
+            'current_genre': genre_param or 'all',
+            'has_search_query': has_search,
+            'browse_mode_badge': browse_mode_badge,
+            'qs_sort_all': browse_qs(sort='all'),
+            'qs_sort_top': browse_qs(sort='top'),
+            'qs_sort_top_week': browse_qs(sort='top_week'),
+            'qs_sort_top_month': browse_qs(sort='top_month'),
+            'qs_sort_new': browse_qs(sort='new'),
+            'qs_refine_all': browse_qs(removals=('genre', 'sort')),
         })
     except OperationalError:
         messages.warning(request, "Search is not supported using the current database.")

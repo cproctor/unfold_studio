@@ -1,16 +1,54 @@
 {% extends 'base/base.html' %}
 
+{% block style %}
+<style>
+.page-featured h2 { margin-top: 0; }
+.page-featured-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+</style>
+{% endblock %}
+
 {% block content %}
+<div class="page-featured">
     {% if stories %}
         <h2>Featured stories</h2>
-        <ul>
+        <ul class="page-featured-grid">
         {% for story in stories %}
-            <li>{% include 'unfold_studio/story.html'%}</li>
+            <li>
+                <a class="story-card" href="{% url 'show_story' story.id %}">
+                    <div class="story-card__body">
+                        <div class="story-card__body-main">
+                            <p class="story-card__title">{{ story.title }}</p>
+                            <p class="story-card__desc">{{ story.description }}</p>
+                            <div class="story-card__meta">
+                                {% if story.edit_date %}
+                                <span><strong>Updated</strong> {{ story.edit_date|timesince }} ago</span>
+                                {% endif %}
+                                {% if story.loves.count %}
+                                <span><strong>♥</strong> {{ story.loves.count }}</span>
+                                {% endif %}
+                                {% if story.author %}
+                                <span class="story-card__author"><strong>By</strong> {{ story.author.username }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="story-card__reveal" aria-hidden="true">
+                        <p class="story-card__preview">{{ story.hover_preview }}</p>
+                        <p class="story-card__hint">Public story</p>
+                    </div>
+                </a>
+            </li>
         {% endfor %}
         </ul>
     {% else %}
         <h2>Sorry, there are no featured stories right now.</h2>
     {% endif %}
-
-
+</div>
 {% endblock %}
