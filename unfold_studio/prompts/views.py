@@ -93,14 +93,8 @@ class ShowPromptView(LiteracyGroupContextMixin, DetailView):
         if form.is_valid():
             prompt = self.get_object()
             story = Story.objects.get_editable_for_request_or_404(self.request, pk=form.cleaned_data['story'])
-            with reversion.create_revision():
-                story.save()
-                reversion.set_user(self.request.user)
-                reversion.set_comment("")
-
-            version = Version.objects.get_for_object(story).order_by('-pk').first()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
-                    submitted_story_version=version)
+                    submitted_story_version=None)
             log.info(name="Prompt Alert", event="Story Submission", 
                      args={"user": u(self.request), "story": story, "prompt": self.get_object()})
             LiteracyEvent.objects.create(
