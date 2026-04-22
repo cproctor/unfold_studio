@@ -199,7 +199,7 @@ class GetNextDirectionView(BaseView):
             print(str(e))
             return JsonResponse({"error": str(e)}, status=500)
 
-@method_decorator(csrf_exempt, name="dispatch")
+#@method_decorator(csrf_exempt, name="dispatch")
 class AgentView(BaseView):
 
     def validate_request(self, request_body):
