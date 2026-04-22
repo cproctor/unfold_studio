@@ -24,6 +24,6 @@ class Command(BaseCommand):
         else:
             model.report_evaluation_results()
         if options["errors"]:
-            if not options["stats-csv"]:
+            if not options["stats_csv"]:
                 model.report_error_analysis()
             model.save_error_analysis(options["errors"])
