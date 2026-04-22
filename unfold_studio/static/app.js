@@ -70,21 +70,16 @@ define(
                 return errList;
             }
 
-
             Story.setEvents({
                 newStory: function(story) {
                 },
                 storyFetched: function(story) {
-                    mergeDraftIntoStory(story);
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
                     EditorView.setErrors(parseErrors(story));
-                    attachDraftBackupListeners(story);
-                    writeDraftBackup(story);
                     player.play(story);
                 },
                 storySaved: function(story) {
-                    clearDraftBackup();
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
                     EditorView.setErrors(parseErrors(story));
@@ -111,15 +106,6 @@ define(
                 // Don't autosave on beforeunload: the XHR is commonly canceled by navigation,
                 // which triggers a noisy "Save failed" alert. Explicit Save and other actions
                 // (rename/share/version) already presave.
-
-                if (typeof window.DRAFT_LOCAL_BACKUP !== "undefined" && window.DRAFT_LOCAL_BACKUP) {
-                    setInterval(function() {
-                        writeDraftBackup(story);
-                    }, 4000);
-                    window.addEventListener("beforeunload", function() {
-                        writeDraftBackup(story);
-                    });
-                }
 
                 $('#save_story').click(function() {
                     story.save();

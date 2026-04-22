@@ -149,6 +149,8 @@ class Story(models.Model):
     sites = models.ManyToManyField(Site)
     search = SearchVectorField(null=True)
     description = models.CharField(max_length=512)
+    # NOTE: required by current DB schema (NOT NULL); default keeps inserts safe.
+    genres = models.JSONField(default=list, blank=True)
 
     objects = StoryManager()
 
@@ -341,11 +343,7 @@ class Story(models.Model):
         with open(fqn, 'w', encoding='utf-8') as inkfile:
             inkfile.write(ink)
         try:
-            inklecate_argv = list(getattr(settings, "INKLECATE_PREFIX", [])) + [
-                str(settings.INKLECATE),
-                fqn,
-            ]
-            warnings = subprocess.check_output(inklecate_argv).decode("utf-8-sig")
+            warnings = subprocess.check_output([settings.INKLECATE, fqn]).decode("utf-8-sig")
             for warning in warnings.split('\n'):
                 if warning.strip():
                     self.create_inklecate_error(warning, offset)
@@ -356,18 +354,6 @@ class Story(models.Model):
             for error in errors.split('\n'):
                 if error.strip():
                     self.create_inklecate_error(error, offset)
-            self.json = None
-        except OSError as e:
-            log.error(name="Application Alert", event="Inklecate OS Error", arg={"story": self.id, "error": str(e)})
-            self.errors.create(
-                story_version=self.latest_version(),
-                error_type=StoryError.ErrorTypes.OTHER.value,
-                line=None,
-                message=(
-                    "Inklecate could not run ({!s}). On Apple Silicon Macs, install Rosetta "
-                    "or set INKLECATE / INKLECATE_NO_ROSETTA in settings."
-                ).format(e),
-            )
             self.json = None
         if self.errors.exists():
             raise Story.CompileError()

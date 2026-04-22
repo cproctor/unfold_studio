@@ -83,15 +83,6 @@ InkPlayer.prototype = {
         this.content = content;
         this.aiSeed = null;
 
-        var isLocalHost =
-            typeof window !== "undefined" &&
-            window.location &&
-            /^(127\.0\.0\.1|localhost)$/i.test(window.location.hostname);
-        var localCompileHint = isLocalHost
-            ? "\n\n— Local dev: inklecate must run successfully for this preview. On Apple Silicon, use Rosetta " +
-              "(settings INKLECATE_PREFIX / INKLECATE_NO_ROSETTA), then click Save to recompile."
-            : "";
-
         if (content.status != "ok" || content.compiled == null || content.compiled === undefined) {
             var msg = (content.error && String(content.error).trim()) ? content.error : "";
             if (!msg) {
@@ -99,7 +90,7 @@ InkPlayer.prototype = {
                     "This story is not compiled yet (no playable JSON). " +
                     "Fix any Ink errors and click Save.";
             }
-            this.events.reportError.bind(this)(msg + localCompileHint);
+            this.events.reportError.bind(this)(msg);
             return;
         }
         try {
@@ -107,8 +98,7 @@ InkPlayer.prototype = {
         } catch (err) {
             this.events.reportError.bind(this)(
                 "Compiled story JSON could not be loaded: " +
-                    (err && err.message ? err.message : err) +
-                    localCompileHint
+                    (err && err.message ? err.message : err)
             );
             return;
         }

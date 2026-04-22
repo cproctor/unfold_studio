@@ -38,9 +38,6 @@ function(ace, InkMode, fetch_story, save_story) {
                 self.compiled = data.compiled;
                 self.error = data.error;
                 self.error_line = data.error_line;
-                self.edit_date_ms = data.edit_date_ms;
-                self._serverEditMs = data.edit_date_ms != null ? Number(data.edit_date_ms) : 0;
-                self._serverInk = data.ink != null ? data.ink : '';
                 self.setAceValue(self.ink);
                 Story.events.storyFetched(self);
             })
@@ -56,9 +53,6 @@ function(ace, InkMode, fetch_story, save_story) {
                 self.compiled = data.compiled;
                 self.error = data.error;
                 self.error_line = data.error_line;
-                self.edit_date_ms = data.edit_date_ms;
-                self._serverEditMs = data.edit_date_ms != null ? Number(data.edit_date_ms) : 0;
-                self._serverInk = data.ink != null ? data.ink : '';
                 Story.events.storySaved(self);
             }).fail(function(xhr, status, err) {
                 var msg = "Save failed";

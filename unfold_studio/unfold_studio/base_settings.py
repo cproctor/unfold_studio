@@ -147,13 +147,6 @@ INK_DIR = Path(BASE_DIR).parent / "ink"
 INKLECATE = Path(os.environ["INKLECATE"]) if os.environ.get("INKLECATE") else (
     Path(BASE_DIR).parent / f"inklecate_{INK_VERSION}" / "inklecate"
 )
-INKLECATE_PREFIX = []
-if (
-    sys.platform == "darwin"
-    and platform.machine() == "arm64"
-    and not os.environ.get("INKLECATE_NO_ROSETTA")
-):
-    INKLECATE_PREFIX = ["arch", "-x86_64"]
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/1.9/howto/static-files/

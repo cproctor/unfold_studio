@@ -81,14 +81,17 @@ def browse(request):
             if not raw_q:
                 messages.warning(request, "Please enter a valid search query")
                 return redirect('list_stories')
+
             # websearch: friendlier multi-word matching than plainto_tsquery.
             query = SearchQuery(raw_q, search_type='websearch')
+
             # Substring fallback: FTS misses many title/ink cases; also match each word (len>=3).
             text_q = Q(title__icontains=raw_q) | Q(ink__icontains=raw_q)
             for w in raw_q.split():
                 w = w.strip('.,!?\"\'()[]')
                 if len(w) >= 3:
                     text_q |= Q(title__icontains=w) | Q(ink__icontains=w)
+
             stories = stories.annotate(
                 rank=SearchRank(F('search'), query),
                 score=Coalesce(
@@ -124,13 +127,15 @@ def browse(request):
         messages.warning(request, "Search is not supported using the current database.")
         return redirect('list_stories')
 
+
 def new_story(request):
     if request.method == "POST":
         if request.user.is_authenticated:
             story = Story(
                 author=request.user, 
                 creation_date=now(), 
-                edit_date=now()
+                edit_date=now(),
+                genres=[],
             )
         else:
             story = Story(
@@ -139,6 +144,7 @@ def new_story(request):
                 edit_date=now(),
                 public=False,
                 shared=False,
+                genres=[],
             )
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():
@@ -205,7 +211,6 @@ def show_story(request, story_id):
     editable = int(may_edit)
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
     ai_enabled = request.user.is_authenticated
-    draft_local_backup = (not request.user.is_authenticated) and may_edit
     return render(request, 'unfold_studio/show_story.html', {
         'story': story,
         'editable': editable,
@@ -213,7 +218,6 @@ def show_story(request, story_id):
         'commentable': story.user_may_comment(request.user),
         'addableBooks': addableBooks,
         'ai_enabled': ai_enabled,
-        'draft_local_backup': draft_local_backup,
         'can_fork_anonymously': (
             not request.user.is_authenticated and (story.public or story.shared)
         ),
@@ -394,6 +398,7 @@ class ForkStoryView(SingleObjectMixin, View):
                 ink=parent.ink,
                 creation_date=now(),
                 edit_date=now(),
+                genres=getattr(parent, "genres", []) or [],
             )
             with reversion.create_revision():
                 story.save()
@@ -426,6 +431,7 @@ class ForkStoryView(SingleObjectMixin, View):
             edit_date=now(),
             public=False,
             shared=False,
+            genres=getattr(parent, "genres", []) or [],
         )
         with reversion.create_revision():
             story.save()
