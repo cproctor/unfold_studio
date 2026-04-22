@@ -27,8 +27,14 @@ class ListGroupsView(LoginRequiredMixin, ListView):
     template_name = 'literacy_groups/list_groups.html'
 
     def get_queryset(self):
-        qs = self.request.user.literacy_groups.filter(site=get_current_site(self.request))
-        qs = qs.order_by('name')
+        qs = self.request.user.literacy_groups.filter(
+            site=get_current_site(self.request),
+            deleted=False,
+        )
+        qs = qs.annotate(
+            member_total=Count('members', distinct=True),
+            prompt_total=Count('prompts', filter=Q(prompts__deleted=False), distinct=True),
+        ).prefetch_related('leaders').order_by('name')
         return qs
 
 class CreateGroupView(LoginRequiredMixin, CreateView):
@@ -81,6 +87,8 @@ class ShowGroupView(LiteracyGroupContextMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['leader'] = self.user_is_leader
         context['prompts'] = self.group.prompts.filter(deleted=False).all()
+        context['member_total'] = self.group.members.count()
+        context['prompt_total'] = context['prompts'].count()
         return context
 
     def get_queryset(self):

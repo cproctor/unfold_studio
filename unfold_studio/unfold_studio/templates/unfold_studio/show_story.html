@@ -11,6 +11,9 @@
     <link rel="stylesheet" href="{% static 'style/sms.css' %}">
     <link rel="stylesheet" href="{% static 'lib/inky/main.css' %}">
     <link rel="stylesheet" href="{% static 'lib/inky/inkTheme.css' %}">
+    {% if feedback_mode %}
+    <link rel="stylesheet" href="{% static 'style/feedback_terminal.css' %}">
+    {% endif %}
 
 {% endblock %}
 
@@ -106,92 +109,117 @@
   </div>
 
   {% if feedback_mode %}
-  <div id="feedback-terminal" class="feedback-terminal open">
-    <div class="feedback-terminal-header">
-      <div class="feedback-terminal-tabs">
-        <span class="feedback-terminal-tab active" id="feedback-tab">Feedback</span>
-        <span class="feedback-terminal-tab" id="feedback-history-tab">History</span>
+    <div id="feedback-terminal"
+        class="feedback-terminal"
+        data-default-height="{% if is_teacher %}320{% else %}260{% endif %}"
+        data-min-height="{% if is_teacher %}240{% else %}220{% endif %}">
+      <div id="feedback-resize-handle" class="feedback-terminal-resize-handle" title="Drag to resize"></div>
+
+      <div class="feedback-terminal-header">
+        <div class="feedback-terminal-tabs">
+          <button type="button" class="feedback-terminal-tab active" id="feedback-tab">Feedback</button>
+          <button type="button" class="feedback-terminal-tab" id="feedback-history-tab">History</button>
+        </div>
+        <div class="feedback-terminal-controls">
+          <button type="button" id="feedback-minimize" title="Minimize">&#8964;</button>
+        </div>
       </div>
-      <div class="feedback-terminal-controls">
-        <button id="feedback-expand" title="Expand">&#8645;</button>
-	<button id="feedback-minimize" title="Minimize">&#8964;</button>
-      </div>
-    </div>
 
-    <div class="feedback-terminal-body" id="feedback-terminal-body">
-      {% if not is_teacher %}
-        <div class="feedback-prompt-label">Viewing a submission for prompt: {{ prompt_name }}</div>
-      {% endif %}
+      <div class="feedback-terminal-body" id="feedback-terminal-body">
+        {% if not is_teacher %}
+          <div class="feedback-prompt-label">Viewing a submission for prompt: {{ prompt_name }}</div>
+        {% endif %}
 
-      <div id="feedback-main-panel">
-        {% if is_teacher %}
-          <div class="feedback-comments-label">COMMENTS</div>
+        <div id="feedback-main-panel" class="feedback-panel">
+          {% if is_teacher %}
+            <div class="feedback-comments-label">COMMENTS</div>
 
-          {% if latest_student_reply %}
-            <div class="feedback-comments-label">LATEST STUDENT REPLY</div>
-            <textarea class="feedback-thread-box" readonly>{{ latest_student_reply.message }}</textarea>
-          {% endif %}
+            {% if latest_student_reply %}
+              <div class="feedback-comments-label">LATEST STUDENT REPLY</div>
+              <textarea class="feedback-thread-box" readonly>{{ latest_student_reply.message }}</textarea>
+            {% endif %}
 
-          <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-form">
-            {% csrf_token %}
-            <textarea id="feedback-textarea" name="comment" placeholder="Write feedback for the student here...">{% if draft_feedback %}{{ draft_feedback }}{% endif %}</textarea>
-            <div class="feedback-actions">
-              <button type="submit" name="action" value="send" class="feedback-btn feedback-send-btn">Send feedback</button>
-              <button type="submit" name="action" value="draft" class="feedback-btn feedback-draft-btn">Save draft</button>
-              <button type="button" class="feedback-btn feedback-skip-btn" id="feedback-skip">Skip for now</button>
-            </div>
-          </form>
-
-        {% elif feedback_readonly %}
-          <div class="feedback-comments-label">FEEDBACK</div>
-
-          {% if latest_feedback_thread %}
-            <textarea class="feedback-thread-box" readonly>{{ latest_feedback_thread }}</textarea>
-          {% else %}
-            <div class="feedback-empty-message">
-              No feedback yet.<br>
-              Your teacher’s feedback for this submission will appear here once it has been added.
-            </div>
-          {% endif %}
-
-          {% if latest_teacher_feedback %}
-            <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-reply-form">
+            <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-form">
               {% csrf_token %}
-              <textarea id="feedback-reply-textarea" name="comment" placeholder="Write a reply to your teacher..."></textarea>
+              <textarea id="feedback-textarea" name="comment" placeholder="Write feedback for the student here...">{% if draft_feedback %}{{ draft_feedback }}{% endif %}</textarea>
               <div class="feedback-actions">
-                <button type="submit" name="action" value="reply" class="feedback-btn feedback-send-btn">Reply</button>
+                <button type="submit" name="action" value="send" class="feedback-btn feedback-send-btn">Send feedback</button>
+                <button type="submit" name="action" value="draft" class="feedback-btn feedback-draft-btn">Save draft</button>
+                <button type="button" class="feedback-btn feedback-skip-btn" id="feedback-skip">Skip for now</button>
               </div>
             </form>
-          {% endif %}
-        {% endif %}
-      </div>
-      <div id="feedback-history-panel" class="feedback-history-panel" style="display:none;">
-        <div class="feedback-comments-label">HISTORY</div>
 
-        <div class="feedback-history-list">
-          {% if feedback_history_comments %}
-            {% for comment in feedback_history_comments %}
-              <div class="feedback-history-line">
-                <span class="feedback-history-name">
-      	          {% if comment.author.profile.is_teacher %}
-                    Teacher
-                  {% elif comment.author == story.author %}
-                    You
-                  {% else %}
-                    {{ comment.author.username }}
-                  {% endif %}
-		<span>
-                <span class="feedback-history-sep">:</span>
-                <span class="feedback-history-text">{{ comment.message }}</span>
+          {% elif feedback_readonly %}
+            <div class="feedback-comments-label">FEEDBACK</div>
+
+            {% if latest_feedback_thread %}
+              <textarea class="feedback-thread-box" readonly>{{ latest_feedback_thread }}</textarea>
+            {% else %}
+              <div class="feedback-empty-message">
+                No feedback yet.<br>
+                Your teacher’s feedback for this submission will appear here once it has been added.
               </div>
-            {% endfor %}
-          {% else %}
-            <div class="feedback-empty-message">No feedback history yet.</div>
+            {% endif %}
+
+            {% if latest_teacher_feedback %}
+              <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-reply-form">
+                {% csrf_token %}
+                <textarea id="feedback-reply-textarea" name="comment" placeholder="Write a reply to your teacher..."></textarea>
+                <div class="feedback-actions">
+                  <button type="submit" name="action" value="reply" class="feedback-btn feedback-send-btn">Reply</button>
+                </div>
+              </form>
+            {% endif %}
           {% endif %}
+        </div>
+
+        <div id="feedback-history-panel" class="feedback-panel feedback-history-panel is-hidden">
+          <div class="feedback-comments-label">HISTORY</div>
+
+          <div class="feedback-history-list">
+            {% if feedback_history_comments %}
+              {% for comment in feedback_history_comments %}
+                <div class="feedback-history-line">
+                  <div class="feedback-history-meta">
+                    <span class="feedback-history-time">{{ comment.creation_date|timesince }} ago</span>
+
+                    <span class="feedback-history-name">
+                      {% if comment.author == request.user %}
+                        You
+                      {% elif comment.author.profile.is_teacher %}
+                        Teacher
+                      {% elif comment.author == story.author %}
+                        Student
+                      {% else %}
+                        {{ comment.author.username }}
+                      {% endif %}
+                    </span>
+
+                    <span class="feedback-history-action">
+                      {% if comment.author == request.user %}
+                        {% if request.user.profile.is_teacher %}
+                          commented
+                        {% else %}
+                          replied
+                        {% endif %}
+                      {% elif comment.author.profile.is_teacher %}
+                        commented
+                      {% else %}
+                        replied
+                      {% endif %}
+                    </span>
+                  </div>
+
+                  <div class="feedback-history-text">{{ comment.message }}</div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="feedback-empty-message">No feedback history yet.</div>
+            {% endif %}
+          </div>
         </div>
       </div>
     </div>
-  </div>
   {% endif %}
 </div>
 
@@ -210,291 +238,8 @@
     LOG_READING_URL = "{% url 'log_reading_event' %}";
 </script>
 <script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
-
 {% if feedback_mode %}
-<style>
-  /*feedback terminal styling*/
-  #story-twopane {
-    bottom: 222px !important;
-  }
-  .feedback-terminal {
-    position: fixed;
-    bottom:42px;
-    left: 0;
-    right: 0;
-    background: #e8e8e8;
-    border-top: 1px solid #bbb;
-    z-index: 100;
-    font-family: monospace;
-    display: flex;
-    flex-direction: column;
-  }
-  .feedback-terminal-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: #d4d4d4;
-    border-bottom: 1px solid #bbb;
-    padding: 0 8px;
-    height: 28px;
-  }
-  .feedback-terminal-tab {
-    font-size: 13px;
-    padding: 4px 10px;
-    background: #e8e8e8;
-    border: 1px solid #bbb;
-    border-bottom: none;
-    border-radius: 3px 3px 0 0;
-    cursor: default;
-  }
-  .feedback-terminal-controls {
-    display: flex;
-    gap: 4px;
-  }
-  .feedback-terminal-controls button {
-    background: none;
-    border: 1px solid #bbb;
-    border-radius: 2px;
-    cursor: pointer;
-    font-size: 12px;
-    padding: 1px 5px;
-    color: #555;
-  }
-  .feedback-terminal-controls button:hover {
-    background: #ccc;
-  }
-.feedback-terminal-body {
-  padding: 8px 12px 10px;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  height: 190px;
-  box-sizing: border-box;
-}
-
-  .feedback-terminal.minimized .feedback-terminal-body {
-    display: none;
-  }
-  .feedback-prompt-label {
-    font-size: 12px;
-    color: #444;
-    margin-bottom: 2px;
-  }
-  .feedback-comments-label {
-    font-size: 11px;
-    font-weight: bold;
-    letter-spacing: 0.05em;
-    color: #555;
-    margin-bottom: 4px;
-  }
-  #feedback-textarea {
-    width: 100%;
-    height: 90px;
-    font-family: monospace;
-    font-size: 13px;
-    padding: 8px;
-    border: 1px solid #bbb;
-    resize: vertical;
-    box-sizing: border-box;
-    background: #fff;
-  }
-  .feedback-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 6px;
-    align-items: center;
-  }
-  .feedback-btn {
-    font-family: monospace;
-    font-size: 13px;
-    padding: 4px 12px;
-    border: 1px solid #aaa;
-    background: #e0e0e0;
-    cursor: pointer;
-    border-radius: 2px;
-  }
-  .feedback-btn:hover {
-    background: #d0d0d0;
-  }
-  .feedback-send-btn {
-    font-weight: bold;
-  }
-  .feedback-skip-btn {
-    color: #888;
-    border-color: transparent;
-    background: none;
-  }
-  .feedback-skip-btn:hover {
-    color: #444;
-    background: none;
-  }
-  /*panels scrollable if long story*/
-  #editor {
-    overflow-y: auto !important;
-  }
-  #player .scrollContainer {
-    overflow-y: auto !important;
-  }
-
-.feedback-readonly-box {
-  width: 100%;
-  min-height: 90px;
-  max-height: 120px;
-  overflow-y: auto;
-  font-family: monospace;
-  font-size: 13px;
-  padding: 8px;
-  border: 1px solid #bbb;
-  box-sizing: border-box;
-  background: #fff;
-  color: #333;
-  white-space: pre-wrap;
-  text-align: left;
-  line-height: 1.4;
-}
-
-.feedback-empty-message {
-  color: #777;
-}
-.feedback-terminal-tabs {
-  display: flex;
-  gap: 4px;
-  align-items: end;
-}
-
-.feedback-terminal-tab {
-  cursor: pointer;
-}
-
-.feedback-terminal-tab.active {
-  font-weight: bold;
-}
-
-.feedback-thread-box {
-  width: 100%;
-  height: 90px;
-  font-family: monospace;
-  font-size: 13px;
-  padding: 8px;
-  border: 1px solid #bbb;
-  resize: none;
-  box-sizing: border-box;
-  background: #fff;
-  margin-bottom: 8px;
-}
-
-  #feedback-reply-textarea {
-    width: 100%;
-    height: 70px;
-    font-family: monospace;
-    font-size: 13px;
-    padding: 8px;
-    border: 1px solid #bbb;
-    resize: vertical;
-    box-sizing: border-box;
-    background: #fff;
-  }
-
-.feedback-history-panel {
-  padding-top: 2px;
-  height: 100%;
-  box-sizing: border-box;
-}
-
-.feedback-history-list {
-  background: #fff;
-  border: 1px solid #bbb;
-  padding: 8px;
-  height: 140px;
-  overflow-y: auto;
-  font-size: 13px;
-  line-height: 1.35;
-  box-sizing: border-box;
-}
-.feedback-history-line {
-  margin-bottom: 6px;
-  text-align: left;
-}
-
-.feedback-history-name {
-  font-weight: bold;
-}
-
-.feedback-history-sep {
-  margin-right: 4px;
-}
-
-.feedback-history-text {
-  white-space: pre-wrap;
-}
-
-.feedback-terminal.expanded .feedback-terminal-body {
-  height: 340px;
-}
-
-.feedback-terminal.expanded #story-twopane {
-  bottom: 372px !important;
-}
-
-</style>
-<script>
-  document.getElementById('feedback-minimize').addEventListener('click', function() {
-    var terminal = document.getElementById('feedback-terminal');
-    var isMin = terminal.classList.toggle('minimized');
-    this.innerHTML = isMin ? '&#8963;' : '&#8964;';
-
-    if (isMin) {
-      document.getElementById('story-twopane').style.bottom = '70px';
-    } else if (terminal.classList.contains('expanded')) {
-      document.getElementById('story-twopane').style.bottom = '372px';
-    } else {
-      document.getElementById('story-twopane').style.bottom = '222px';
-    }
-  });
-
-  var expandBtn = document.getElementById('feedback-expand');
-  if (expandBtn) {
-    expandBtn.addEventListener('click', function() {
-      var terminal = document.getElementById('feedback-terminal');
-      var isExpanded = terminal.classList.toggle('expanded');
-
-      if (isExpanded) {
-        document.getElementById('story-twopane').style.bottom = '372px';
-      } else {
-        document.getElementById('story-twopane').style.bottom = '222px';
-      }
-    });
-  }
-
-  var skipBtn = document.getElementById('feedback-skip');
-  if (skipBtn) {
-    skipBtn.addEventListener('click', function() {
-      window.history.back();
-    });
-  }
-
-  var feedbackTab = document.getElementById('feedback-tab');
-  var historyTab = document.getElementById('feedback-history-tab');
-  var mainPanel = document.getElementById('feedback-main-panel');
-  var historyPanel = document.getElementById('feedback-history-panel');
-
-  if (feedbackTab && historyTab && mainPanel && historyPanel) {
-    feedbackTab.addEventListener('click', function() {
-      feedbackTab.classList.add('active');
-      historyTab.classList.remove('active');
-      mainPanel.style.display = 'block';
-      historyPanel.style.display = 'none';
-    });
-
-    historyTab.addEventListener('click', function() {
-      historyTab.classList.add('active');
-      feedbackTab.classList.remove('active');
-      historyPanel.style.display = 'block';
-      mainPanel.style.display = 'none';
-    });
-  }
-</script>
-
+<script src="{% static 'scripts/feedback_terminal.js' %}"></script>
 {% endif %}
 
 {% endblock %}
