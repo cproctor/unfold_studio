@@ -498,7 +498,6 @@ class Story(models.Model):
             "id": self.id,
             "compiled": json.loads(self.json) if self.json else None,
             "ink": self.ink,
-            "edit_date_ms": edit_date_ms,
             "status": "error" if self.errors.exists() else "ok",
             "error": "\n".join(e.message for e in self.errors.all()),
             # "errors": [e.message for e in self.errors.all()],
