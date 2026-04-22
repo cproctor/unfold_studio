@@ -173,35 +173,42 @@ def show_story(request, story_id):
 
     prompt_name = ''
     draft_feedback = ''
-    teacher_feedback = ''
+    latest_teacher_feedback = None
+    latest_student_reply = None
+    latest_feedback_thread = ''
+    feedback_history_comments = []
 
     if feedback_mode:
         from prompts.models import PromptStory
-        from comments.models import Comment
 
         ps = PromptStory.objects.filter(story=story).select_related('prompt').first()
         if ps:
             prompt_name = ps.prompt.name
 
         if is_teacher:
-            draft = Comment.objects.filter(
-                story=story,
-                author=request.user,
-                deleted=False
-            ).order_by('-creation_date').first()
+            draft_feedback = request.session.get(f'draft_{story.id}', '')
 
-            if draft:
-                draft_feedback = draft.message
+        latest_teacher_feedback = Comment.objects.filter(
+            story=story,
+            author__profile__is_teacher=True,
+            deleted=False
+        ).order_by('-creation_date').first()
 
-        if is_story_author:
-            latest_teacher_feedback = Comment.objects.filter(
-                story=story,
-                author__profile__is_teacher=True,
-                deleted=False
-            ).order_by('-creation_date').first()
+        latest_student_reply = Comment.objects.filter(
+            story=story,
+            author=story.author,
+            deleted=False
+        ).order_by('-creation_date').first()
 
-            if latest_teacher_feedback:
-                teacher_feedback = latest_teacher_feedback.message
+        feedback_history_comments = Comment.objects.for_story(story).order_by('creation_date')
+
+        if latest_teacher_feedback:
+            latest_feedback_thread = "Teacher:\n{}".format(latest_teacher_feedback.message)
+
+        if latest_student_reply:
+            if latest_feedback_thread:
+                latest_feedback_thread += "\n\n"
+            latest_feedback_thread += "You:\n{}".format(latest_student_reply.message)
 
     return render(request, 'unfold_studio/show_story.html', {
         'story': story, 
@@ -209,12 +216,15 @@ def show_story(request, story_id):
         'commentable': story.user_may_comment(request.user),
         'addableBooks': addableBooks,
         'feedback_mode': feedback_mode,
-	'feedback_readonly': feedback_readonly,
-	'is_teacher': is_teacher,
-	'is_story_author': is_story_author,
+        'feedback_readonly': feedback_readonly,
+        'is_teacher': is_teacher,
+        'is_story_author': is_story_author,
         'prompt_name': prompt_name,
         'draft_feedback': draft_feedback,
-	'teacher_feedback': teacher_feedback,
+        'latest_teacher_feedback': latest_teacher_feedback,
+        'latest_student_reply': latest_student_reply,
+        'latest_feedback_thread': latest_feedback_thread,
+        'feedback_history_comments': feedback_history_comments,
     })
 
 def show_json(request, story_id):
@@ -715,27 +725,42 @@ class SendFeedbackView(LoginRequiredMixin, View):
     """Teacher sends feedback or saves it as a draft on a student's story using the terminal tab"""
 
     def post(self, request, story_id):
-        from comments.models import Comment
-
-        if not request.user.profile.is_teacher:
-            return HttpResponseForbidden("Only teachers can send feedback.")
-
         story = get_object_or_404(Story, pk=story_id)
-        action = request.POST.get('action', 'send')
+
+        action = request.POST.get('action')
         message = request.POST.get('comment', '').strip()
 
-        if message:
-            Comment.objects.create(
-                author=request.user,
-                story=story,
-                message=message,
-            )
-
+        # only teachers can send feedback
         if action == 'send':
-            from prompts.models import PromptStory
-            ps = PromptStory.objects.filter(story=story).select_related('prompt__literacy_group').first()
-            if ps:
-                return redirect('show_prompt', ps.prompt.literacy_group.id, ps.prompt.id)
-            return redirect('show_story_versions', story.id)
-        else:
-            return redirect(reverse('show_story', args=[story.id]))
+            if not request.user.profile.is_teacher:
+                return HttpResponseForbidden("Only teachers can send feedback.")
+
+            if message:
+                Comment.objects.create(
+                    author=request.user,
+                    story=story,
+                    message=message,
+                )
+
+            request.session.pop(f'draft_{story.id}', None)
+
+        # draft only saved in session and not db
+        elif action == 'draft':
+            if not request.user.profile.is_teacher:
+                return HttpResponseForbidden("Only teachers can save feedback drafts.")
+
+            request.session[f'draft_{story.id}'] = message
+
+        # student reply
+        elif action == 'reply':
+            if request.user != story.author:
+                return HttpResponseForbidden("Only the story author can reply.")
+
+            if message:
+                Comment.objects.create(
+                    author=request.user,
+                    story=story,
+                    message=message,
+                )
+
+        return redirect('show_story', story.id)
