@@ -96,7 +96,7 @@ class ShowPromptView(LiteracyGroupContextMixin, DetailView):
             with reversion.create_revision():
                 story.save()
                 reversion.set_user(self.request.user)
-                reversion.set_comment("Submitted to prompt: {}".format(prompt.name))
+                reversion.set_comment("")
 
             version = Version.objects.get_for_object(story).order_by('-pk').first()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
