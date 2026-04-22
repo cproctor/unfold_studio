@@ -168,8 +168,15 @@ def show_story(request, story_id):
     is_teacher = request.user.is_authenticated and request.user.profile.is_teacher
     is_story_author = request.user.is_authenticated and story.author == request.user
 
-    feedback_mode = is_teacher or is_story_author
-    feedback_readonly = is_story_author and not is_teacher
+    teacher_has_feedback_access = False
+    if is_teacher:
+        teacher_has_feedback_access = story.prompts_submitted.filter(
+            literacy_group__leaders=request.user,
+            deleted=False
+        ).exists()
+
+    feedback_mode = teacher_has_feedback_access or is_story_author
+    feedback_readonly = is_story_author and not teacher_has_feedback_access
 
     prompt_name = ''
     draft_feedback = ''
@@ -185,7 +192,7 @@ def show_story(request, story_id):
         if ps:
             prompt_name = ps.prompt.name
 
-        if is_teacher:
+        if teacher_has_feedback_access:
             draft_feedback = request.session.get(f'draft_{story.id}', '')
 
         latest_teacher_feedback = Comment.objects.filter(
@@ -217,7 +224,7 @@ def show_story(request, story_id):
         'addableBooks': addableBooks,
         'feedback_mode': feedback_mode,
         'feedback_readonly': feedback_readonly,
-        'is_teacher': is_teacher,
+        'is_teacher': teacher_has_feedback_access,
         'is_story_author': is_story_author,
         'prompt_name': prompt_name,
         'draft_feedback': draft_feedback,
@@ -730,10 +737,17 @@ class SendFeedbackView(LoginRequiredMixin, View):
         action = request.POST.get('action')
         message = request.POST.get('comment', '').strip()
 
-        # only teachers can send feedback
+        teacher_has_feedback_access = False
+        if request.user.profile.is_teacher:
+            teacher_has_feedback_access = story.prompts_submitted.filter(
+                literacy_group__leaders=request.user,
+                deleted=False
+            ).exists()
+
+        #only the teacher can send feedback
         if action == 'send':
-            if not request.user.profile.is_teacher:
-                return HttpResponseForbidden("Only teachers can send feedback.")
+            if not teacher_has_feedback_access:
+                return HttpResponseForbidden("You do not have permission to send feedback on this story.")
 
             if message:
                 Comment.objects.create(
@@ -746,8 +760,8 @@ class SendFeedbackView(LoginRequiredMixin, View):
 
         # draft only saved in session and not db
         elif action == 'draft':
-            if not request.user.profile.is_teacher:
-                return HttpResponseForbidden("Only teachers can save feedback drafts.")
+            if not teacher_has_feedback_access:
+                return HttpResponseForbidden("You do not have permission to save a draft on this story.")
 
             request.session[f'draft_{story.id}'] = message
 

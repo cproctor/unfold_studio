@@ -113,12 +113,15 @@
         <span class="feedback-terminal-tab" id="feedback-history-tab">History</span>
       </div>
       <div class="feedback-terminal-controls">
-        <button id="feedback-minimize" title="Minimize">&#8964;</button>
+        <button id="feedback-expand" title="Expand">&#8645;</button>
+	<button id="feedback-minimize" title="Minimize">&#8964;</button>
       </div>
     </div>
 
     <div class="feedback-terminal-body" id="feedback-terminal-body">
-      <div class="feedback-prompt-label">Viewing a submission for prompt: {{ prompt_name }}</div>
+      {% if not is_teacher %}
+        <div class="feedback-prompt-label">Viewing a submission for prompt: {{ prompt_name }}</div>
+      {% endif %}
 
       <div id="feedback-main-panel">
         {% if is_teacher %}
@@ -162,28 +165,30 @@
           {% endif %}
         {% endif %}
       </div>
-
       <div id="feedback-history-panel" class="feedback-history-panel" style="display:none;">
         <div class="feedback-comments-label">HISTORY</div>
 
-        {% if feedback_history_comments %}
-          {% for comment in feedback_history_comments %}
-            <div class="feedback-history-item">
-              <div class="feedback-history-author">
-                {% if comment.author.profile.is_teacher %}
-                  Teacher
-                {% elif comment.author == story.author %}
-                  You
-                {% else %}
-                  {{ comment.author.username }}
-                {% endif %}
+        <div class="feedback-history-list">
+          {% if feedback_history_comments %}
+            {% for comment in feedback_history_comments %}
+              <div class="feedback-history-line">
+                <span class="feedback-history-name">
+      	          {% if comment.author.profile.is_teacher %}
+                    Teacher
+                  {% elif comment.author == story.author %}
+                    You
+                  {% else %}
+                    {{ comment.author.username }}
+                  {% endif %}
+		<span>
+                <span class="feedback-history-sep">:</span>
+                <span class="feedback-history-text">{{ comment.message }}</span>
               </div>
-              <div class="feedback-history-message">{{ comment.message|linebreaksbr }}</div>
-            </div>
-          {% endfor %}
-        {% else %}
-          <div class="feedback-empty-message">No feedback history yet.</div>
-        {% endif %}
+            {% endfor %}
+          {% else %}
+            <div class="feedback-empty-message">No feedback history yet.</div>
+          {% endif %}
+        </div>
       </div>
     </div>
   </div>
@@ -258,12 +263,15 @@
   .feedback-terminal-controls button:hover {
     background: #ccc;
   }
-  .feedback-terminal-body {
-    padding: 8px 12px 10px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-  }
+.feedback-terminal-body {
+  padding: 8px 12px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  height: 190px;
+  box-sizing: border-box;
+}
+
   .feedback-terminal.minimized .feedback-terminal-body {
     display: none;
   }
@@ -348,32 +356,32 @@
 .feedback-empty-message {
   color: #777;
 }
-  .feedback-terminal-tabs {
-    display: flex;
-    gap: 4px;
-    align-items: end;
-  }
+.feedback-terminal-tabs {
+  display: flex;
+  gap: 4px;
+  align-items: end;
+}
 
-  .feedback-terminal-tab {
-    cursor: pointer;
-  }
+.feedback-terminal-tab {
+  cursor: pointer;
+}
 
-  .feedback-terminal-tab.active {
-    font-weight: bold;
-  }
+.feedback-terminal-tab.active {
+  font-weight: bold;
+}
 
-  .feedback-thread-box {
-    width: 100%;
-    height: 90px;
-    font-family: monospace;
-    font-size: 13px;
-    padding: 8px;
-    border: 1px solid #bbb;
-    resize: none;
-    box-sizing: border-box;
-    background: #fff;
-    margin-bottom: 8px;
-  }
+.feedback-thread-box {
+  width: 100%;
+  height: 90px;
+  font-family: monospace;
+  font-size: 13px;
+  padding: 8px;
+  border: 1px solid #bbb;
+  resize: none;
+  box-sizing: border-box;
+  background: #fff;
+  margin-bottom: 8px;
+}
 
   #feedback-reply-textarea {
     width: 100%;
@@ -387,37 +395,76 @@
     background: #fff;
   }
 
-  .feedback-history-panel {
-    padding-top: 2px;
-  }
+.feedback-history-panel {
+  padding-top: 2px;
+  height: 100%;
+  box-sizing: border-box;
+}
 
-  .feedback-history-item {
-    background: #fff;
-    border: 1px solid #bbb;
-    padding: 8px;
-    margin-bottom: 8px;
-  }
+.feedback-history-list {
+  background: #fff;
+  border: 1px solid #bbb;
+  padding: 8px;
+  height: 140px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.35;
+  box-sizing: border-box;
+}
+.feedback-history-line {
+  margin-bottom: 6px;
+  text-align: left;
+}
 
-  .feedback-history-author {
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
+.feedback-history-name {
+  font-weight: bold;
+}
 
-  .feedback-history-message {
-    white-space: normal;
-    text-align: left;
-    line-height: 1.4;
-  }
+.feedback-history-sep {
+  margin-right: 4px;
+}
+
+.feedback-history-text {
+  white-space: pre-wrap;
+}
+
+.feedback-terminal.expanded .feedback-terminal-body {
+  height: 340px;
+}
+
+.feedback-terminal.expanded #story-twopane {
+  bottom: 372px !important;
+}
 
 </style>
-
 <script>
   document.getElementById('feedback-minimize').addEventListener('click', function() {
     var terminal = document.getElementById('feedback-terminal');
     var isMin = terminal.classList.toggle('minimized');
     this.innerHTML = isMin ? '&#8963;' : '&#8964;';
-    document.getElementById('story-twopane').style.bottom = isMin ? '70px' : '222px';
+
+    if (isMin) {
+      document.getElementById('story-twopane').style.bottom = '70px';
+    } else if (terminal.classList.contains('expanded')) {
+      document.getElementById('story-twopane').style.bottom = '372px';
+    } else {
+      document.getElementById('story-twopane').style.bottom = '222px';
+    }
   });
+
+  var expandBtn = document.getElementById('feedback-expand');
+  if (expandBtn) {
+    expandBtn.addEventListener('click', function() {
+      var terminal = document.getElementById('feedback-terminal');
+      var isExpanded = terminal.classList.toggle('expanded');
+
+      if (isExpanded) {
+        document.getElementById('story-twopane').style.bottom = '372px';
+      } else {
+        document.getElementById('story-twopane').style.bottom = '222px';
+      }
+    });
+  }
 
   var skipBtn = document.getElementById('feedback-skip');
   if (skipBtn) {
