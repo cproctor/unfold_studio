@@ -132,7 +132,6 @@
     EDITABLE = {{editable}};
     LOG_READING_URL = "{% url 'log_reading_event' %}";
     window.AI_ENABLED = {{ ai_enabled|yesno:"true,false" }};
-    window.DRAFT_LOCAL_BACKUP = {{ draft_local_backup|yesno:"true,false" }};
 </script>
 <script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
 

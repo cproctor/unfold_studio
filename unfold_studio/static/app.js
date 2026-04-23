@@ -103,10 +103,6 @@ define(
                     await story.save();
                 }
 
-                // Don't autosave on beforeunload: the XHR is commonly canceled by navigation,
-                // which triggers a noisy "Save failed" alert. Explicit Save and other actions
-                // (rename/share/version) already presave.
-
                 $('#save_story').click(function() {
                     story.save();
                     return false;
