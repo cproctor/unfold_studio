@@ -504,6 +504,7 @@ class BookListView(ListView):
 class BookDetailView(DetailView):
     # TODO: Use this as a model for using Mixins. get_context_data is needlessly verbose.
     model = Book
+    template_name = 'unfold_studio/book_detail.html'
 
     def get_queryset(self):
         return Book.objects.filter(sites__id=get_current_site(self.request).id)
@@ -522,23 +523,43 @@ class BookDetailView(DetailView):
         return context
     
     def _extract_snippet(self, story):
-        if not story.ink:
-            return None
-        import re
-        lines = []
-        for line in story.ink.split('\n'):
-            line = line.strip()
-            # Skip knot headers, diverts, variable declarations, includes, choices, comments
-            if not line:
-                continue
-            if re.match(r'^(===|->|VAR |CONST |INCLUDE |//|\*|\+)', line):
-                continue
-            if line.startswith('#'):
-                continue
-            lines.append(line)
-            if len(' '.join(lines)) > 180:
-                break
-        return ' '.join(lines)[:180] if lines else None
+        import json, re
+        desc = (story.description or "").strip()
+        if not story.json:
+            return desc
+        try:
+            compiled = json.loads(story.json)
+        except Exception:
+            return desc
+        chunks = []
+        def walk(node):
+            if len(chunks) >= 12:
+                return
+            if isinstance(node, str):
+                s = node.strip()
+                if s.startswith("^"):
+                    s = s.lstrip("^").strip()
+                    s = re.sub(r"\s+", " ", s)
+                    if s:
+                        chunks.append(s)
+                return
+            if isinstance(node, list):
+                for item in node:
+                    walk(item)
+                    if len(chunks) >= 12:
+                        return
+            if isinstance(node, dict):
+                for v in node.values():
+                    walk(v)
+                    if len(chunks) >= 12:
+                        return
+        start = compiled.get("root", compiled) if isinstance(compiled, dict) else compiled
+        walk(start)
+        preview = " ".join(chunks).strip()
+        if preview:
+            words = preview.split()
+            return " ".join(words[:60]) + ("…" if len(words) > 60 else "")
+        return desc
 
 class UpdateBookView(UpdateView):
     model = Book

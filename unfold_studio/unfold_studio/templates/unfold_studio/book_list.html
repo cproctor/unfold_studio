@@ -5,6 +5,9 @@
 <div class="books-page">
   <div class="books-header">
     <h1>Books</h1>
+    {% if request.user.is_authenticated %}
+        [<a href="{% url 'create_book' %}">+ Create a new book</a>]
+    {% endif %}
     <p>Books are collections of stories. Use Refine to filter by genre—books can belong to multiple genres.</p>
   </div>
 
@@ -35,9 +38,16 @@
       {% if genre_groups %}
         {% for genre_label, books in genre_groups.items %}
           <section class="book-genre-section">
-            <h2 class="genre-section-title">{{ genre_label }}</h2>
+            <div class="genre-section-header">
+              <h2 class="genre-section-title">{{ genre_label }}</h2>
+              {% for key, label in genre_choices %}
+                {% if label == genre_label %}
+                  [<a href="?genre={{ key }}" class="view-all-link">View all</a>]
+                {% endif %}
+              {% endfor %}
+            </div>
             <div class="book-cards-row">
-              {% for book in books %}
+              {% for book in books|slice:":3" %}
                 <div class="book-card">
                   <div class="book-card-inner">
                     <span class="book-card-type">BOOK</span>
@@ -51,16 +61,18 @@
                     </p>
                   </div>
                   <a href="{% url 'show_book' book.id %}" class="book-card-hover">
-                    <ul class="book-story-list">
-                      {% for story in book.stories.all|slice:":5" %}
-                        <li>{{ story.title }} — {{ story.author }}</li>
-                      {% empty %}
-                        <li>No stories yet.</li>
-                      {% endfor %}
-                    </ul>
-                    {% if book.stories.count > 5 %}
-                      <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
-                    {% endif %}
+                    <div class="book-card-hover__body">
+                      <ul class="book-story-list">
+                        {% for story in book.stories.all|slice:":5" %}
+                          <li>{{ story.title }} — {{ story.author }}</li>
+                        {% empty %}
+                          <li>No stories yet.</li>
+                        {% endfor %}
+                      </ul>
+                      {% if book.stories.count > 5 %}
+                        <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                      {% endif %}
+                    </div>
                     <span class="view-collection-link">View collection →</span>
                   </a>
                 </div>
@@ -72,9 +84,11 @@
 
       {% if ungenred_books %}
         <section class="book-genre-section">
-          <h2 class="genre-section-title">Other</h2>
+          <div class="genre-section-header">
+            <h2 class="genre-section-title">Other</h2>
+          </div>
           <div class="book-cards-row">
-            {% for book in ungenred_books %}
+            {% for book in ungenred_books|slice:":3" %}
               <div class="book-card">
                 <div class="book-card-inner">
                   <span class="book-card-type">BOOK</span>
@@ -88,16 +102,18 @@
                   </p>
                 </div>
                 <a href="{% url 'show_book' book.id %}" class="book-card-hover">
-                  <ul class="book-story-list">
-                    {% for story in book.stories.all|slice:":5" %}
-                      <li>{{ story.title }} — {{ story.author }}</li>
-                    {% empty %}
-                      <li>No stories yet.</li>
-                    {% endfor %}
-                  </ul>
-                  {% if book.stories.count > 5 %}
-                    <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
-                  {% endif %}
+                  <div class="book-card-hover__body">
+                    <ul class="book-story-list">
+                      {% for story in book.stories.all|slice:":5" %}
+                        <li>{{ story.title }} — {{ story.author }}</li>
+                      {% empty %}
+                        <li>No stories yet.</li>
+                      {% endfor %}
+                    </ul>
+                    {% if book.stories.count > 5 %}
+                      <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                    {% endif %}
+                  </div>
                   <span class="view-collection-link">View collection →</span>
                 </a>
               </div>
@@ -110,9 +126,7 @@
         <p class="no-books-msg">No books found{% if query %} for "{{ query }}"{% endif %}.</p>
       {% endif %}
 
-      {% if request.user.is_authenticated %}
-        <p class="create-book-link"><a href="{% url 'create_book' %}">+ Create a new book</a></p>
-      {% endif %}
+
     </div>
   </div>
 </div>
@@ -126,7 +140,7 @@
 /* ── Layout ── */
 .books-layout {
   display: flex; flex-direction: row; gap: 2rem;
-  align-items: flex-start; height: calc(100vh - 200px);
+  align-items: flex-start;
 }
 
 /* ── Sidebar ── */
@@ -146,7 +160,6 @@
 /* ── Main column ── */
 .books-main {
   flex: 1; min-width: 0; display: flex; flex-direction: column;
-  overflow-y: auto; height: 100%; padding-right: 0.5rem;
 }
 
 /* ── Search ── */
@@ -158,53 +171,101 @@
 
 /* ── Genre sections ── */
 .book-genre-section { margin-bottom: 2.5rem; width: 100%; }
-.genre-section-title { font-size: 1.1rem; font-weight: 700; margin-bottom: 1rem; }
+.genre-section-header {
+  display: flex; align-items: baseline; gap: 10px; margin-bottom: 1rem;
+}
+.genre-section-title { font-size: 1.1rem; font-weight: 700; margin: 0; }
+.view-all-link { font-size: 0.82rem; color: #3498db; text-decoration: none; }
+.view-all-link:hover { text-decoration: underline; }
 
-/* ── Card row ── */
+/* ── Card row — 3 columns, no scroll ── */
 .book-cards-row {
-  display: flex; flex-direction: row; gap: 1rem;
-  flex-wrap: nowrap; overflow-x: auto; padding-bottom: 0.75rem;
-  scrollbar-width: thin; scrollbar-color: #ccc transparent;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
 }
-.book-cards-row::-webkit-scrollbar { height: 4px; }
-.book-cards-row::-webkit-scrollbar-track { background: transparent; }
-.book-cards-row::-webkit-scrollbar-thumb { background: #ccc; border-radius: 4px; }
 
-/* ── Book cards ── */
+/* ── Book cards — match story-card sizing ── */
 .book-card {
-  position: relative; flex: 0 0 220px; height: 200px;
-  border: 1px solid #e5e5e5; border-radius: 10px;
-  overflow: hidden; cursor: pointer; transition: box-shadow 0.2s;
+  position: relative;
+  display: block;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  min-height: 220px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
 }
-.book-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.13); }
-.book-card-inner { padding: 1rem; height: 100%; box-sizing: border-box; overflow: hidden; }
-.book-card-type { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; }
-.book-card-title { font-size: 1rem; font-weight: 700; margin: 0.3rem 0 0.5rem; }
-.book-card-desc { font-size: 0.82rem; color: #555; margin: 0 0 0.5rem; line-height: 1.4; }
-.book-card-meta { font-size: 0.78rem; color: #888; margin: 0; }
-.book-card-meta a { color: #6366f1; text-decoration: none; }
+.book-card:hover { box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1); }
 
-/* ── Hover overlay ── */
+.book-card-inner {
+  padding: 14px 16px 16px;
+  min-height: 220px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.book-card:hover .book-card-inner {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.book-card-type { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; margin-bottom: 6px; }
+.book-card-title { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; color: #111; }
+.book-card-desc { font-size: 0.85rem; color: #555; margin: 0 0 8px; line-height: 1.4; flex: 1; }
+.book-card-meta {
+  font-size: 0.78rem; color: #888; margin: 0;
+  margin-top: auto; padding-top: 10px; border-top: 1px solid #d9d9d9;
+}
+.book-card-meta a { color: #3498db; text-decoration: none; }
+
+/* ── Hover overlay — match story-card__reveal ── */
 .book-card-hover {
-  position: absolute; inset: 0;
-  background: linear-gradient(to bottom, #3a3a3a, #1a1a1a);
-  color: #fff; padding: 1rem; opacity: 0; transition: opacity 0.18s;
-  display: flex; flex-direction: column; justify-content: space-between;
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.94) 0%,
+    rgba(0, 0, 0, 0.72) 45%,
+    rgba(0, 0, 0, 0.22) 100%
+  );
+  color: #f1f3f5;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
   text-decoration: none;
 }
-.book-card:hover .book-card-hover { opacity: 1; }
-.book-story-list {
-  list-style: disc; padding-left: 1.2rem;
-  margin: 0 0 0.5rem; font-size: 0.85rem; line-height: 1.6; color: #fff;
+.book-card:hover .book-card-hover {
+  opacity: 1;
+  visibility: visible;
 }
-.book-story-list li { color: #fff; }
-.more-stories-hint { font-size: 0.75rem; color: #aaa; display: block; margin-bottom: 0.4rem; }
-.view-collection-link { font-size: 0.8rem; color: #999; }
+
+.book-card-hover__body { flex: 1; }
+.book-story-list {
+  list-style: none; padding: 0; margin: 0 0 0.5rem;
+  font-size: 0.82rem; line-height: 1.6;
+}
+.book-story-list li { color: rgba(255,255,255,0.92); }
+.more-stories-hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); display: block; margin-bottom: 0.4rem; }
+.view-collection-link { font-size: 0.68rem; color: rgba(255,255,255,0.5); display: block; }
 
 /* ── Misc ── */
 .no-books-msg { color: #777; font-style: italic; }
 .create-book-link { margin-top: 1.5rem; }
-.create-book-link a { color: #6366f1; }
+.create-book-link a { color: #3498db; }
 </style>
 
 <script>
