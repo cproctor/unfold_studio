@@ -33,6 +33,7 @@
         <input type="text" name="query" value="{{ query }}"
           placeholder="Search books by title, curator, or keyword…"
           class="books-search-input" />
+          <button type="submit">Search</button>
       </form>
 
       {% if genre_groups %}
@@ -163,10 +164,31 @@
 }
 
 /* ── Search ── */
-.books-search-form { margin-bottom: 1.5rem; }
+.books-search-form {
+  margin-bottom: 1.5rem;
+  display: flex;
+  gap: 8px;
+}
 .books-search-input {
-  width: 100%; padding: 0.6rem 1rem; border: 1px solid #ddd;
-  border-radius: 8px; font-size: 0.95rem; box-sizing: border-box;
+  flex: 1;
+  padding: 0.6rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+.books-search-form button {
+  padding: 0.6rem 1.2rem;
+  background: #8e44ad;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  cursor: pointer;
+}
+.books-search-form button:hover {
+  background: #2980b9;
 }
 
 /* ── Genre sections ── */
