@@ -26,17 +26,11 @@
                         <div class="story-card__body-main">
                             <p class="story-card__title">{{ story.title }}</p>
                             <p class="story-card__desc">{{ story.description }}</p>
+                            {% if story.author %}
                             <div class="story-card__meta">
-                                {% if story.edit_date %}
-                                <span><strong>Updated</strong> {{ story.edit_date|timesince }} ago</span>
-                                {% endif %}
-                                {% if story.loves.count %}
-                                <span><strong>♥</strong> {{ story.loves.count }}</span>
-                                {% endif %}
-                                {% if story.author %}
                                 <span class="story-card__author"><strong>By</strong> {{ story.author.username }}</span>
-                                {% endif %}
                             </div>
+                            {% endif %}
                         </div>
                     </div>
                     <div class="story-card__reveal" aria-hidden="true">

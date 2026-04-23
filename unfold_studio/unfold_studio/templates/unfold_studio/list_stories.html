@@ -149,11 +149,6 @@
             />
             <button type="submit">Search</button>
         </form>
-        <nav class="page-browse-topbar__tabs" aria-label="All Top New">
-            <a href="{% url 'list_stories' %}?{{ qs_sort_all }}" class="{% if current_sort == 'all' %}is-active{% endif %}">All</a>
-            <a href="{% url 'list_stories' %}?{{ qs_sort_top }}" class="{% if current_sort == 'top' %}is-active{% endif %}">Top</a>
-            <a href="{% url 'list_stories' %}?{{ qs_sort_new }}" class="{% if current_sort == 'new' %}is-active{% endif %}">New</a>
-        </nav>
     </div>
 
     {% if has_search_query %}
@@ -196,17 +191,11 @@
                                     {% endif %}
                                     <p class="story-card__title">{{ story.title }}</p>
                                     <p class="story-card__desc">{{ story.description }}</p>
+                                    {% if story.author %}
                                     <div class="story-card__meta">
-                                        {% if story.edit_date %}
-                                        <span><strong>Updated</strong> {{ story.edit_date|timesince }} ago</span>
-                                        {% endif %}
-                                        {% if story.loves.count %}
-                                        <span><strong>♥</strong> {{ story.loves.count }}</span>
-                                        {% endif %}
-                                        {% if story.author %}
                                         <span class="story-card__author"><strong>By</strong> {{ story.author.username }}</span>
-                                        {% endif %}
                                     </div>
+                                    {% endif %}
                                 </div>
                             </div>
                             <div class="story-card__reveal" aria-hidden="true">
