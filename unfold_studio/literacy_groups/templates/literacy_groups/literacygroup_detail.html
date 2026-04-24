@@ -21,8 +21,8 @@
 
         <div class="group-detail-actions">
             {% if group in user.literacy_groups_leading.all %}
-                <a class="group-action-link" href="{% url 'update_group' group.id %}">Edit group</a>
-                <a class="group-action-link" href="{% url 'invite_to_group' group.id %}">Invite people</a>
+                <span>[<a class="group-action-link" href="{% url 'update_group' group.id %}">Edit group</a>]</span>
+                <span>[<a class="group-action-link" href="{% url 'invite_to_group' group.id %}">Invite people</a>]</span>
             {% else %}
                 <form action="{% url 'leave_group' group.id %}" method="post" class="group-leave-form">
                     {% csrf_token %}

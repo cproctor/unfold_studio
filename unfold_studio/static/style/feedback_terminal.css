@@ -149,6 +149,13 @@
     color: #222;
 }
 
+.feedback-thread-box[readonly] {
+    background: #f3f3f3;
+    border-color: #c8c8c8;
+    color: #555;
+    cursor: default;
+}
+
 #feedback-form,
 #feedback-reply-form {
     display: flex;
