@@ -8,7 +8,7 @@ from django.contrib.auth import login
 import json
 import re
 import structlog
-from .forms import StoryForm, StoryVersionForm
+from .forms import StoryForm, StoryVersionForm, BookForm, GENRE_CHOICES
 from .models import Story, Book, StoryPlayInstance, StoryPlayRecord
 from profiles.models import Profile
 from django.views.generic.detail import SingleObjectMixin, DetailView
@@ -578,7 +578,7 @@ class StoryVersionListView(DetailView):
 
 class CreateBookView(LoginRequiredMixin, CreateView):
     model = Book
-    fields = ['title', 'description']
+    form_class = BookForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -587,43 +587,153 @@ class CreateBookView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         _book = Book(owner=request.user)
-        form = self.get_form_class()(request.POST, instance=_book)
+        form = BookForm(request.POST, instance=_book)
         if form.is_valid():
-            book = form.save()
+            book = form.save(commit=False)
+            book.genres = form.cleaned_data.get('genres', [])
+            book.save()
             book.sites.add(get_current_site(request))
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.PUBLISHED_BOOK,
                 subject=request.user,
                 book=book
             )
-            log.info("{} created book {} (id {})".format(request.user, book.title, book.id))
             return redirect('show_book', book.id)
         else:
             context = self.get_context_data(form=form)
-            return render('book_form', context)
+            return render(request, 'unfold_studio/book_form.html', context)
 
 class BookListView(ListView):
     model = Book
+    template_name = 'unfold_studio/books_list.html'
 
     def get_queryset(self):
-        return Book.objects.filter(sites__id=get_current_site(self.request).id).select_related('owner')
+        site = get_current_site(self.request)
+        qs = Book.objects.filter(sites__id=site.id).select_related('owner').prefetch_related('stories')
+        query = self.request.GET.get('query', '').strip()
+        if query:
+            qs = qs.filter(
+                Q(title__icontains=query) | Q(owner__username__icontains=query) | Q(description__icontains=query)
+            )
+        return qs
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        genre_filter = self.request.GET.get('genre', '')
+        query = self.request.GET.get('query', '').strip()
+        all_books = list(context['object_list'])
+
+        # If searching, filter by genre if one is active, then show flat results
+        if query:
+            if genre_filter == 'other':
+                search_results = [b for b in all_books if not b.genres]
+            elif genre_filter:
+                search_results = [b for b in all_books if genre_filter in (b.genres or [])]
+            else:
+                search_results = all_books
+
+            context['genre_groups'] = {}
+            context['ungenred_books'] = []
+            context['search_results'] = search_results
+            context['genre_choices'] = GENRE_CHOICES
+            context['active_genre'] = genre_filter
+            context['query'] = query
+            context['is_search'] = True
+            return context
+
+        # Genre filtering
+        if genre_filter == 'other':
+            all_books = [b for b in all_books if not b.genres]
+        elif genre_filter:
+            all_books = [b for b in all_books if genre_filter in (b.genres or [])]
+
+        # Group books by genre for display
+        genre_label_map = dict(GENRE_CHOICES)
+        genre_groups = {}
+        ungenred = []
+        for book in all_books:
+            if book.genres:
+                for g in book.genres:
+                    if genre_filter and genre_filter != 'other' and g != genre_filter:
+                        continue
+                    label = genre_label_map.get(g, g.title())
+                    genre_groups.setdefault(label, []).append(book)
+            else:
+                ungenred.append(book)
+
+        context['genre_groups'] = genre_groups
+        context['ungenred_books'] = ungenred
+        context['search_results'] = []
+        context['genre_choices'] = GENRE_CHOICES
+        context['active_genre'] = genre_filter
+        context['query'] = query
+        context['is_search'] = False
+        return context
+ 
 
 class BookDetailView(DetailView):
     # TODO: Use this as a model for using Mixins. get_context_data is needlessly verbose.
     model = Book
+    template_name = 'unfold_studio/book_detail.html'
 
     def get_queryset(self):
         return Book.objects.filter(sites__id=get_current_site(self.request).id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user if self.request.user.is_authenticated else None
-        context['stories'] = self.get_object().stories.for_request(self.request).select_related('author').prefetch_related('loves')
+        stories = self.get_object().stories.for_request(self.request).select_related('author').prefetch_related('loves')
+        
+        stories_with_snippets = []
+        for story in stories:
+            snippet = self._extract_snippet(story)
+            stories_with_snippets.append((story, snippet))
+        
+        context['stories'] = stories
+        context['stories_with_snippets'] = stories_with_snippets
         return context
+    
+    def _extract_snippet(self, story):
+        import json, re
+        desc = (story.description or "").strip()
+        if not story.json:
+            return desc
+        try:
+            compiled = json.loads(story.json)
+        except Exception:
+            return desc
+        chunks = []
+        def walk(node):
+            if len(chunks) >= 12:
+                return
+            if isinstance(node, str):
+                s = node.strip()
+                if s.startswith("^"):
+                    s = s.lstrip("^").strip()
+                    s = re.sub(r"\s+", " ", s)
+                    if s:
+                        chunks.append(s)
+                return
+            if isinstance(node, list):
+                for item in node:
+                    walk(item)
+                    if len(chunks) >= 12:
+                        return
+            if isinstance(node, dict):
+                for v in node.values():
+                    walk(v)
+                    if len(chunks) >= 12:
+                        return
+        start = compiled.get("root", compiled) if isinstance(compiled, dict) else compiled
+        walk(start)
+        preview = " ".join(chunks).strip()
+        if preview:
+            words = preview.split()
+            return " ".join(words[:60]) + ("…" if len(words) > 60 else "")
+        return desc
 
 class UpdateBookView(UpdateView):
     model = Book
-    fields = ['title', 'description']
+    form_class = BookForm
 
     def get_queryset(self):
         if self.request.user.is_authenticated:

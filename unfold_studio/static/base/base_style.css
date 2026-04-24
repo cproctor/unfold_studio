@@ -408,7 +408,7 @@ form button[type="submit"]:hover {
     margin-top: 0;
 }
 
-/* Story cards (featured home + browse): full-card hover overlay */
+/* Story cards (featured home + browse + books): full-card hover*/
 .story-card {
     position: relative;
     display: block;
@@ -439,19 +439,6 @@ form button[type="submit"]:hover {
     flex-direction: column;
 }
 
-.story-card__badge {
-    display: inline-block;
-    font-size: 0.72rem;
-    font-weight: 600;
-    color: #111;
-    background: #f4f4f4;
-    border: 1px solid #d9d9d9;
-    padding: 4px 8px;
-    border-radius: 4px;
-    margin-bottom: 8px;
-    align-self: flex-start;
-}
-
 .story-card__body-main {
     flex: 1;
     display: flex;
@@ -473,6 +460,7 @@ form button[type="submit"]:hover {
     font-size: 1.22rem;
     font-weight: 700;
     line-height: 1.25;
+    color: #111;
 }
 
 .story-card__desc {
@@ -552,4 +540,17 @@ form button[type="submit"]:hover {
     margin: 12px 0 0;
     font-size: 0.68rem;
     color: rgba(255, 255, 255, 0.5);
+}
+
+.story-card__badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #111;
+    background: #f4f4f4;
+    border: 1px solid #d9d9d9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    align-self: flex-start;
 }
