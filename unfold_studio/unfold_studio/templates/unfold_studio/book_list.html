@@ -90,11 +90,13 @@
             <section class="book-genre-section">
               <div class="genre-section-header">
                 <h2 class="genre-section-title">{{ genre_label }}</h2>
-                {% for key, label in genre_choices %}
-                  {% if label == genre_label %}
-                    [<a href="?genre={{ key }}" class="view-all-link">View all</a>]
-                  {% endif %}
-                {% endfor %}
+                {% if not active_genre %}
+                  {% for key, label in genre_choices %}
+                    {% if label == genre_label %}
+                      [<a href="?genre={{ key }}" class="view-all-link">View all</a>]
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
               </div>
               <div class="book-cards-row">
                 {% for book in books %}
@@ -138,7 +140,9 @@
           <section class="book-genre-section">
             <div class="genre-section-header">
               <h2 class="genre-section-title">Other</h2>
-              [<a href="?genre=other" class="view-all-link">View all</a>]
+              {% if not active_genre %}
+                [<a href="?genre=other" class="view-all-link">View all</a>]
+              {% endif %}
             </div>
             <div class="book-cards-row">
               {% for book in ungenred_books %}
