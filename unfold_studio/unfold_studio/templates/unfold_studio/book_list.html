@@ -31,27 +31,118 @@
 
     <div class="books-main">
       <form method="get" class="books-search-form">
-        {% if active_genre %}<input type="hidden" name="genre" value="{{ active_genre }}">{% endif %}
+        {% if active_genre %}
+          <input type="hidden" name="genre" value="{{ active_genre }}">
+        {% endif %}
         <input type="text" name="query" value="{{ query }}"
           placeholder="Search books by title, curator, or keyword…"
           class="books-search-input" />
         <button type="submit">Search</button>
       </form>
 
-      {% if genre_groups %}
-        {% for genre_label, books in genre_groups.items %}
+      {% if is_search %}
+        {% if search_results %}
           <section class="book-genre-section">
             <div class="genre-section-header">
-              <h2 class="genre-section-title">{{ genre_label }}</h2>
-              {% for key, label in genre_choices %}
-                {% if label == genre_label %}
-                  [<a href="?genre={{ key }}" class="view-all-link">View all</a>]
-                {% endif %}
-              {% endfor %}
+              <h2 class="genre-section-title">Search results for "{{ query }}"</h2>
             </div>
             <div class="book-cards-row">
-              {% for book in books %}
-                {% if active_genre or forloop.counter <= 3 %}
+              {% for book in search_results %}
+                <div class="book-card">
+                  <div class="book-card-inner">
+                    <span class="book-card-type">BOOK</span>
+                    <h3 class="book-card-title">{{ book.title }}</h3>
+                    {% if book.description %}
+                      <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
+                    {% endif %}
+                    <p class="book-card-meta">
+                      {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
+                      · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+                    </p>
+                  </div>
+                  <a href="{% url 'show_book' book.id %}" class="book-card-hover">
+                    <div class="book-card-hover__body">
+                      <ul class="book-story-list">
+                        {% for story in book.stories.all|slice:":5" %}
+                          <li>{{ story.title }} — {{ story.author }}</li>
+                        {% empty %}
+                          <li>No stories yet.</li>
+                        {% endfor %}
+                      </ul>
+                      {% if book.stories.count > 5 %}
+                        <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                      {% endif %}
+                    </div>
+                    <span class="view-collection-link">View collection →</span>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </section>
+        {% else %}
+          <p class="no-books-msg">No books found for "{{ query }}".</p>
+        {% endif %}
+
+      {% else %}
+
+        {% if genre_groups %}
+          {% for genre_label, books in genre_groups.items %}
+            <section class="book-genre-section">
+              <div class="genre-section-header">
+                <h2 class="genre-section-title">{{ genre_label }}</h2>
+                {% for key, label in genre_choices %}
+                  {% if label == genre_label %}
+                    [<a href="?genre={{ key }}" class="view-all-link">View all</a>]
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <div class="book-cards-row">
+                {% for book in books %}
+                  {% if active_genre or forloop.counter <= 3 %}
+                    <div class="book-card">
+                      <div class="book-card-inner">
+                        <span class="book-card-type">BOOK</span>
+                        <h3 class="book-card-title">{{ book.title }}</h3>
+                        {% if book.description %}
+                          <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
+                        {% endif %}
+                        <p class="book-card-meta">
+                          {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
+                          · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+                        </p>
+                      </div>
+                      <a href="{% url 'show_book' book.id %}" class="book-card-hover">
+                        <div class="book-card-hover__body">
+                          <ul class="book-story-list">
+                            {% for story in book.stories.all|slice:":5" %}
+                              <li>{{ story.title }} — {{ story.author }}</li>
+                            {% empty %}
+                              <li>No stories yet.</li>
+                            {% endfor %}
+                          </ul>
+                          {% if book.stories.count > 5 %}
+                            <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                          {% endif %}
+                        </div>
+                        <span class="view-collection-link">View collection →</span>
+                      </a>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </section>
+          {% endfor %}
+        {% endif %}
+
+        {% if ungenred_books %}
+          <section class="book-genre-section">
+            <div class="genre-section-header">
+              <h2 class="genre-section-title">Other</h2>
+              [<a href="?genre=other" class="view-all-link">View all</a>]
+            </div>
+            <div class="book-cards-row">
+              {% for book in ungenred_books %}
+                {% if active_genre == 'other' or forloop.counter <= 3 %}
                   <div class="book-card">
                     <div class="book-card-inner">
                       <span class="book-card-type">BOOK</span>
@@ -84,54 +175,12 @@
               {% endfor %}
             </div>
           </section>
-        {% endfor %}
-      {% endif %}
+        {% endif %}
 
-      {% if ungenred_books %}
-        <section class="book-genre-section">
-          <div class="genre-section-header">
-            <h2 class="genre-section-title">Other</h2>
-            [<a href="?genre=other" class="view-all-link">View all</a>]
-          </div>
-          <div class="book-cards-row">
-            {% for book in ungenred_books %}
-              {% if active_genre == 'other' or forloop.counter <= 3 %}
-                <div class="book-card">
-                  <div class="book-card-inner">
-                    <span class="book-card-type">BOOK</span>
-                    <h3 class="book-card-title">{{ book.title }}</h3>
-                    {% if book.description %}
-                      <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
-                    {% endif %}
-                    <p class="book-card-meta">
-                      {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
-                      · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
-                    </p>
-                  </div>
-                  <a href="{% url 'show_book' book.id %}" class="book-card-hover">
-                    <div class="book-card-hover__body">
-                      <ul class="book-story-list">
-                        {% for story in book.stories.all|slice:":5" %}
-                          <li>{{ story.title }} — {{ story.author }}</li>
-                        {% empty %}
-                          <li>No stories yet.</li>
-                        {% endfor %}
-                      </ul>
-                      {% if book.stories.count > 5 %}
-                        <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
-                      {% endif %}
-                    </div>
-                    <span class="view-collection-link">View collection →</span>
-                  </a>
-                </div>
-              {% endif %}
-            {% endfor %}
-          </div>
-        </section>
-      {% endif %}
+        {% if not genre_groups and not ungenred_books %}
+          <p class="no-books-msg">No books found.</p>
+        {% endif %}
 
-      {% if not genre_groups and not ungenred_books %}
-        <p class="no-books-msg">No books found{% if query %} for "{{ query }}"{% endif %}.</p>
       {% endif %}
 
     </div>
@@ -196,9 +245,7 @@
   font-family: inherit;
   cursor: pointer;
 }
-.books-search-form button:hover {
-  background: #2980b9;
-}
+.books-search-form button:hover { background: #2980b9; }
 
 /* ── Genre sections ── */
 .book-genre-section { margin-bottom: 2.5rem; width: 100%; }
@@ -216,7 +263,7 @@
   gap: 16px;
 }
 
-/* ── Book cards — match story-card sizing ── */
+/* ── Book cards ── */
 .book-card {
   position: relative;
   display: block;
@@ -242,10 +289,7 @@
   visibility: visible;
   transition: opacity 0.2s ease, visibility 0.2s ease;
 }
-.book-card:hover .book-card-inner {
-  opacity: 0;
-  visibility: hidden;
-}
+.book-card:hover .book-card-inner { opacity: 0; visibility: hidden; }
 
 .book-card-type { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; margin-bottom: 6px; }
 .book-card-title { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; color: #111; }
@@ -256,7 +300,7 @@
 }
 .book-card-meta a { color: #3498db; text-decoration: none; }
 
-/* ── Hover overlay — match story-card__reveal ── */
+/* ── Hover overlay ── */
 .book-card-hover {
   position: absolute;
   inset: 0;
@@ -279,10 +323,7 @@
   transition: opacity 0.22s ease, visibility 0.22s ease;
   text-decoration: none;
 }
-.book-card:hover .book-card-hover {
-  opacity: 1;
-  visibility: visible;
-}
+.book-card:hover .book-card-hover { opacity: 1; visibility: visible; }
 
 .book-card-hover__body { flex: 1; }
 .book-story-list {
@@ -305,12 +346,10 @@ pills.forEach(pill => {
   pill.addEventListener('click', () => {
     const genre = pill.dataset.genre;
     const current = params.get('genre');
-
     params.delete('genre');
     if (genre && current !== genre) {
       params.set('genre', genre);
     }
-
     window.location.search = params.toString();
   });
 });

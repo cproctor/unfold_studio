@@ -475,8 +475,28 @@ class BookListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         genre_filter = self.request.GET.get('genre', '')
-        query = self.request.GET.get('query', '')
-        all_books = context['object_list']
+        query = self.request.GET.get('query', '').strip()
+        all_books = list(context['object_list'])
+
+        # If searching, filter by genre if one is active, then show flat results
+        if query:
+            if genre_filter == 'other':
+                search_results = [b for b in all_books if not b.genres]
+            elif genre_filter:
+                search_results = [b for b in all_books if genre_filter in (b.genres or [])]
+            else:
+                search_results = all_books
+
+            context['genre_groups'] = {}
+            context['ungenred_books'] = []
+            context['search_results'] = search_results
+            context['genre_choices'] = GENRE_CHOICES
+            context['active_genre'] = genre_filter
+            context['query'] = query
+            context['is_search'] = True
+            return context
+
+        # Genre filtering
         if genre_filter == 'other':
             all_books = [b for b in all_books if not b.genres]
         elif genre_filter:
@@ -489,7 +509,6 @@ class BookListView(ListView):
         for book in all_books:
             if book.genres:
                 for g in book.genres:
-                # If a genre filter is active, only put book in that genre's group
                     if genre_filter and genre_filter != 'other' and g != genre_filter:
                         continue
                     label = genre_label_map.get(g, g.title())
@@ -499,10 +518,13 @@ class BookListView(ListView):
 
         context['genre_groups'] = genre_groups
         context['ungenred_books'] = ungenred
+        context['search_results'] = []
         context['genre_choices'] = GENRE_CHOICES
         context['active_genre'] = genre_filter
         context['query'] = query
+        context['is_search'] = False
         return context
+ 
 
 class BookDetailView(DetailView):
     # TODO: Use this as a model for using Mixins. get_context_data is needlessly verbose.
