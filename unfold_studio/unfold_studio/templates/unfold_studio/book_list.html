@@ -4,10 +4,12 @@
 {% block content %}
 <div class="books-page">
   <div class="books-header">
-    <h1>Books</h1>
-    {% if request.user.is_authenticated %}
+    <div class="books-header-top">
+      <h1>Books</h1>
+      {% if request.user.is_authenticated %}
         [<a href="{% url 'create_book' %}">+ Create a new book</a>]
-    {% endif %}
+      {% endif %}
+    </div>
     <p>Books are collections of stories. Use Refine to filter by genre—books can belong to multiple genres.</p>
   </div>
 
@@ -33,7 +35,7 @@
         <input type="text" name="query" value="{{ query }}"
           placeholder="Search books by title, curator, or keyword…"
           class="books-search-input" />
-          <button type="submit">Search</button>
+        <button type="submit">Search</button>
       </form>
 
       {% if genre_groups %}
@@ -48,7 +50,52 @@
               {% endfor %}
             </div>
             <div class="book-cards-row">
-              {% for book in books|slice:":3" %}
+              {% for book in books %}
+                {% if active_genre or forloop.counter <= 3 %}
+                  <div class="book-card">
+                    <div class="book-card-inner">
+                      <span class="book-card-type">BOOK</span>
+                      <h3 class="book-card-title">{{ book.title }}</h3>
+                      {% if book.description %}
+                        <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
+                      {% endif %}
+                      <p class="book-card-meta">
+                        {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
+                        · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+                      </p>
+                    </div>
+                    <a href="{% url 'show_book' book.id %}" class="book-card-hover">
+                      <div class="book-card-hover__body">
+                        <ul class="book-story-list">
+                          {% for story in book.stories.all|slice:":5" %}
+                            <li>{{ story.title }} — {{ story.author }}</li>
+                          {% empty %}
+                            <li>No stories yet.</li>
+                          {% endfor %}
+                        </ul>
+                        {% if book.stories.count > 5 %}
+                          <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                        {% endif %}
+                      </div>
+                      <span class="view-collection-link">View collection →</span>
+                    </a>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endfor %}
+      {% endif %}
+
+      {% if ungenred_books %}
+        <section class="book-genre-section">
+          <div class="genre-section-header">
+            <h2 class="genre-section-title">Other</h2>
+            [<a href="?genre=other" class="view-all-link">View all</a>]
+          </div>
+          <div class="book-cards-row">
+            {% for book in ungenred_books %}
+              {% if active_genre == 'other' or forloop.counter <= 3 %}
                 <div class="book-card">
                   <div class="book-card-inner">
                     <span class="book-card-type">BOOK</span>
@@ -77,47 +124,7 @@
                     <span class="view-collection-link">View collection →</span>
                   </a>
                 </div>
-              {% endfor %}
-            </div>
-          </section>
-        {% endfor %}
-      {% endif %}
-
-      {% if ungenred_books %}
-        <section class="book-genre-section">
-          <div class="genre-section-header">
-            <h2 class="genre-section-title">Other</h2>
-          </div>
-          <div class="book-cards-row">
-            {% for book in ungenred_books|slice:":3" %}
-              <div class="book-card">
-                <div class="book-card-inner">
-                  <span class="book-card-type">BOOK</span>
-                  <h3 class="book-card-title">{{ book.title }}</h3>
-                  {% if book.description %}
-                    <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
-                  {% endif %}
-                  <p class="book-card-meta">
-                    {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
-                    · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
-                  </p>
-                </div>
-                <a href="{% url 'show_book' book.id %}" class="book-card-hover">
-                  <div class="book-card-hover__body">
-                    <ul class="book-story-list">
-                      {% for story in book.stories.all|slice:":5" %}
-                        <li>{{ story.title }} — {{ story.author }}</li>
-                      {% empty %}
-                        <li>No stories yet.</li>
-                      {% endfor %}
-                    </ul>
-                    {% if book.stories.count > 5 %}
-                      <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
-                    {% endif %}
-                  </div>
-                  <span class="view-collection-link">View collection →</span>
-                </a>
-              </div>
+              {% endif %}
             {% endfor %}
           </div>
         </section>
@@ -127,7 +134,6 @@
         <p class="no-books-msg">No books found{% if query %} for "{{ query }}"{% endif %}.</p>
       {% endif %}
 
-
     </div>
   </div>
 </div>
@@ -135,7 +141,10 @@
 <style>
 /* ── Page ── */
 .books-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
-.books-header h1 { font-size: 1.6rem; margin-bottom: 0.3rem; }
+.books-header-top {
+  display: flex; align-items: baseline; gap: 12px; margin-bottom: 0.3rem;
+}
+.books-header-top h1 { font-size: 1.6rem; margin: 0; }
 .books-header p { color: #555; margin-bottom: 1.5rem; }
 
 /* ── Layout ── */
@@ -286,8 +295,6 @@
 
 /* ── Misc ── */
 .no-books-msg { color: #777; font-style: italic; }
-.create-book-link { margin-top: 1.5rem; }
-.create-book-link a { color: #3498db; }
 </style>
 
 <script>

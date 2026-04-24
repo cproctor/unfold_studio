@@ -477,9 +477,9 @@ class BookListView(ListView):
         genre_filter = self.request.GET.get('genre', '')
         query = self.request.GET.get('query', '')
         all_books = context['object_list']
-
-        # Filter by genre if one is selected
-        if genre_filter:
+        if genre_filter == 'other':
+            all_books = [b for b in all_books if not b.genres]
+        elif genre_filter:
             all_books = [b for b in all_books if genre_filter in (b.genres or [])]
 
         # Group books by genre for display
