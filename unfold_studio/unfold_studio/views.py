@@ -489,6 +489,9 @@ class BookListView(ListView):
         for book in all_books:
             if book.genres:
                 for g in book.genres:
+                # If a genre filter is active, only put book in that genre's group
+                    if genre_filter and genre_filter != 'other' and g != genre_filter:
+                        continue
                     label = genre_label_map.get(g, g.title())
                     genre_groups.setdefault(label, []).append(book)
             else:
