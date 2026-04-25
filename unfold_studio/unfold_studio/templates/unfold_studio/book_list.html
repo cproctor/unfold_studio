@@ -86,7 +86,7 @@
             </div>
           </section>
         {% else %}
-          <p class="no-books-msg">No books found for "{{ query }}".</p>
+          <h2 class="no-books-msg">Sorry, No books found for "{{ query }}".</h2>
         {% endif %}
 
       {% else %}
@@ -188,7 +188,7 @@
         {% endif %}
 
         {% if not genre_groups and not ungenred_books %}
-          <p class="no-books-msg">No books found.</p>
+          <h2 class="no-books-msg"> Sorry, no books were found.</h2>
         {% endif %}
 
       {% endif %}
