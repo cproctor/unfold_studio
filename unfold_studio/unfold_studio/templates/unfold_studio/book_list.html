@@ -193,14 +193,14 @@
 
       {% endif %}
 
-      {% if page_obj.paginator.num_pages > 1 %}
+      {% if genre_page_obj and genre_page_obj.paginator.num_pages > 1 %}
         <div class="description books-pagination">
-          Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
-          {% if page_obj.has_previous %}
-            [<a href="?{% if query %}query={{ query|urlencode }}&amp;{% endif %}{% if active_genre %}genre={{ active_genre }}&amp;{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>]
+          Page {{ genre_page_obj.number }} of {{ genre_page_obj.paginator.num_pages }}
+          {% if genre_page_obj.has_previous %}
+            [<a href="?{% if query %}query={{ query|urlencode }}&amp;{% endif %}{% if active_genre %}genre={{ active_genre }}&amp;{% endif %}page={{ genre_page_obj.previous_page_number }}">Previous</a>]
           {% endif %}
-          {% if page_obj.has_next %}
-            [<a href="?{% if query %}query={{ query|urlencode }}&amp;{% endif %}{% if active_genre %}genre={{ active_genre }}&amp;{% endif %}page={{ page_obj.next_page_number }}">Next</a>]
+          {% if genre_page_obj.has_next %}
+            [<a href="?{% if query %}query={{ query|urlencode }}&amp;{% endif %}{% if active_genre %}genre={{ active_genre }}&amp;{% endif %}page={{ genre_page_obj.next_page_number }}">Next</a>]
           {% endif %}
         </div>
       {% endif %}
