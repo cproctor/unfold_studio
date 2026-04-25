@@ -35,6 +35,7 @@ from comments.models import Comment
 from comments.forms import CommentForm
 from django.utils import timezone
 from datetime import timedelta
+from literacy_events.models import LiteracyEvent
 
 log = structlog.get_logger("unfold_studio")
 
@@ -661,8 +662,25 @@ class BookListView(ListView):
             else:
                 ungenred.append(book)
 
-        context['genre_groups'] = genre_groups
-        context['ungenred_books'] = ungenred
+    # Paginate genre sections on the main /books/ page.
+    # Keep active genre pages showing all books for that genre.
+        if not genre_filter:
+            genre_sections = list(genre_groups.items())
+
+            if ungenred:
+                genre_sections.append(("Other", ungenred))
+
+            genre_paginator = Paginator(genre_sections, 3)
+            page_number = self.request.GET.get("page", 1)
+            genre_page_obj = genre_paginator.get_page(page_number)
+
+            context["genre_groups"] = dict(genre_page_obj.object_list)
+            context["ungenred_books"] = []
+            context["genre_page_obj"] = genre_page_obj
+        else:
+            context["genre_groups"] = genre_groups
+            context["ungenred_books"] = ungenred
+            context["genre_page_obj"] = None
         context['search_results'] = []
         context['genre_choices'] = GENRE_CHOICES
         context['active_genre'] = genre_filter
