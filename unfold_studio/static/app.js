@@ -89,7 +89,7 @@ define(
                            $('#hide_code_opt').show();
                        }
                     });
-                  }  else if (EDITABLE) {
+                  }  else {
                         story.fetch().then(function() {
                         if (story.status === "error") {
                            $('.twopane.solo').removeClass('solo');
