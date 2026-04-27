@@ -1,5 +1,36 @@
 {% extends 'base/base.html' %}
 
+{% block style %}
+    <style>
+        .genre-flex {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .genre-flex label {
+            display: inline-block;
+            padding: 7px 16px;
+            border-radius: 999px;
+            border: 1px solid #ccc;
+            background: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.15s, border-color 0.15s, color 0.15s;
+        }
+        .genre-flex input[type="checkbox"] {
+            display: none;
+        }
+        .genre-flex label:has(input[type="checkbox"]:checked) {
+            background: #e8e6fd;
+            border-color: #7F77DD;
+            color: #3C3489;
+            font-weight: 500;
+        }
+    </style>
+{% endblock %}
+
 {% block content %}
     <h1>Rename {{story.title}}</h1>
     <form action="{% url 'edit_story' story.id %}" method="POST" class="new_story_form">
@@ -15,6 +46,23 @@
             <textarea name="description" id="{{ form.description.id_for_label }}" rows="4" cols="40" style="resize: vertical;">{{ form.description.value|default_if_none:'' }}</textarea>
         </div>
 
+        <div>
+            <label>Genres:</label>
+            <p style="font-size: 13px; color: #666; margin: 4px 0 0;">Pick one or more genres that fit your story.</p>
+            <div id="genre-hidden" style="display: none;">{{ form.genres }}</div>
+            <div class="genre-flex" id="genre-flex"></div>
+        </div>
+
         <input type="submit" value="Submit" />
     </form>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const flex = document.getElementById('genre-flex');
+            const hidden = document.getElementById('genre-hidden');
+            hidden.querySelectorAll('label').forEach(function(label) {
+                flex.appendChild(label);
+            });
+        });
+    </script>
 {% endblock %}

@@ -34,10 +34,11 @@ define(
             // parse errors from story object for use with ace editor
             // returns list of error objects
             function parseErrors(storyObj) {
+                if (!storyObj.error) return [];  // add this guard
                 const errors = storyObj.error.split("\n")
                 const errList = []
-                
                 for (err of errors) {
+                    if (!err.trim()) continue;  // skip empty lines
                     const errObj = {};
                     errObj.message = err.slice(err.indexOf(":") + 1).trim();
                     errObj.lineNumber = Number(err[err.indexOf(":") - 1]);
@@ -65,13 +66,38 @@ define(
 
             $(function() {
                 story = new Story(STORY_ID);
-                story.fetch().then(function() {
-                    if (story.status === "error") {
-                        $('.twopane.solo').removeClass('solo');
-                        $('#show_code_opt').hide();
-                        $('#hide_code_opt').show();
-                    }
-                })
+
+                if (typeof STORY_JSON !== 'undefined' && STORY_JSON) {
+                    story.compiled = STORY_JSON;
+                    story.ink = typeof STORY_INK !== 'undefined' ? STORY_INK : "";  
+                    story.status = "ok";
+                    story.error = "";
+                    story.error_line = [];
+                    story.setAceValue(story.ink);
+                    setTimeout(function() {
+                        Story.events.storyFetched(story);
+                        setTimeout(function() {
+                            EditorView.setValue(story.ink);
+                        }, 50);
+                    }, 100);
+                    Story.events.storyFetched(story);
+                    var fetchPromise = $.Deferred().resolve().promise();
+                    fetchPromise.then(function() {
+                      if (story.status === "error") {
+                           $('.twopane.solo').removeClass('solo');
+                           $('#show_code_opt').hide();
+                           $('#hide_code_opt').show();
+                       }
+                    });
+                  }  else {
+                        story.fetch().then(function() {
+                        if (story.status === "error") {
+                           $('.twopane.solo').removeClass('solo');
+                           $('#show_code_opt').hide();
+                           $('#hide_code_opt').show();
+                        }
+                    });
+               }
 
                 // A function which blocks until a story is saved. Useful to bind
                 // to actions like "share" which potentially fail to save the story.
@@ -288,6 +314,7 @@ LiveCompiler.setEvents({
 
 EditorView.setEvents({
     "change": () => {
+        if (!EDITABLE) return; 
         LiveCompiler.setEdited();
     },
     "jumpToSymbol": (symbolName, contextPos) => {

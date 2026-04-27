@@ -24,14 +24,14 @@
 {% endif %}
 {{comment|linkrefs:user}}
 <br/>
-[{% if previousVersion is not None %}<a href="{% url 'show_story_version' pk=story.id version=previousVersion %}">&lt;</a>{% endif %}
+[{% if previousVersion is not None %}<a href="{% url 'show_story_version' pk=story_id version=previousVersion %}">&lt;</a>{% endif %}
 Version {{version}}
-{% if nextVersion is not None %}<a href="{% url 'show_story_version' pk=story.id version=nextVersion %}">&gt;</a>{% endif %}
-<a href="{% url 'show_story' story.id %}">&gt;&gt;</a>]
+{% if nextVersion is not None %}<a href="{% url 'show_story_version' pk=story_id version=nextVersion %}">&gt;</a>{% endif %}
+<a href="{% url 'show_story' story_id %}">&gt;&gt;</a>]
 [<a id="replay_story" href="">Replay</a>]
-<span id="show_code_opt" style="display: none;">[<a id="show_code" href="#">Show code</a>]</span>
+<span id="show_code_opt" style="display: none;"> [<a id="show_code" href="#">Show code</a>]</span>
 <span id="hide_code_opt">[<a id="hide_code" href="#">Hide code</a>]</span>
-[<a href="{% url 'show_story_versions' story.id %}">History</a>]
+[<a href="{% url 'show_story_versions' story_id %}">History</a>]
 </div>
 
 {# FROM INKY #}
@@ -65,7 +65,9 @@ Version {{version}}
 {# Main JS entry point #}
 <script src="{% static 'scripts/ink.js' %}"></script>
 <script>
-    STORY_ID = {{story.id}};
+    STORY_ID = {{story_id}};
+    STORY_JSON = {% if story_json %}{{ story_json|safe }}{% else %}null{% endif %};
+    STORY_INK = "{{story_ink|escapejs}}";
     CSRF = "{{csrf_token}}";
     EDITABLE = false;
     LOG_READING_URL = "{% url 'log_reading_event' %}";
