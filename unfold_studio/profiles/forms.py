@@ -55,3 +55,22 @@ class SignUpForm(UserCreationForm):
             Profile.objects.create(user=user, is_teacher=False)
         return user
     
+class StudentSignUpForm(UserCreationForm):
+    def clean_username(self):
+        if not re.match(r'^[0-9a-zA-Z_]+$', self.cleaned_data['username']):
+            raise ValidationError("Only letters, numbers, and _ are allowed in usernames")
+        if not re.match(r'^[a-zA-Z][0-9a-zA-Z_]+$', self.cleaned_data['username']):
+            raise ValidationError("Usernames must start with a letter")
+        return self.cleaned_data['username']
+
+    class Meta:
+        model = User
+        fields = ('username',)
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            from .models import Profile
+            Profile.objects.create(user=user, is_teacher=False)
+        return user

@@ -14,6 +14,12 @@ function InkPlayer(containerSelector) {
     this.currentStoryPoint = 0;
     this.aiSeed = null;
     this.generateInProgress = false;
+    
+    this.agentFunctionCalled = false;
+    this.currentAgentCharacter = null;
+    this.currentAgentTarget = null;
+    this.isAgentLoading = false;
+    this.agentLoading = null;
 }
 
 InkPlayer.prototype = {
@@ -50,6 +56,21 @@ InkPlayer.prototype = {
             this.scheduleInputBoxForContinue()
             return '';
         }.bind(this));
+
+//AGENT
+
+	story.BindExternalFunction("agent_call", function(characterKnot, targetKnot) {
+            var characterKnotName = characterKnot._componentsString;
+            var targetKnotName = targetKnot._componentsString;
+	    this.agentFunctionCalled = true;
+	    this.currentAgentCharacter = characterKnotName;
+	    this.currentAgentTarget = targetKnotName;
+
+	    this.scheduleAgentInputBox("Talk to " + this.currentAgentCharacter);
+	    return '';
+	}.bind(this));
+
+
         story.BindExternalFunction("input", function (placeholder = "Enter text...", variableName) {
             this.inputFunctionCalled = true;
             this.scheduleInputBox(placeholder, variableName);
@@ -58,7 +79,7 @@ InkPlayer.prototype = {
         
         
         
-        
+       
         // TODO: There is a race condition here: the ajax query is sent off
         // with a callback for when it returns. Meanwhile, a temporary span
         // is created with text "Loading..." and a unique ID. Once the query 
@@ -72,19 +93,73 @@ InkPlayer.prototype = {
             return '';
         }.bind(this));
     },
+
+    resetAgent: function() {
+        this.agentFunctionCalled = false;
+        this.currentAgentCharacter = null;
+        this.currentAgentTarget = null;
+
+        this.isAgentLoading = false;
+
+        if (this.agentLoading && this.agentLoading.parentNode) {
+            this.agentLoading.parentNode.removeChild(this.agentLoading);
+        }
+        this.agentLoading = null;
+    },
+
+    showAgentLoading: function(message = "Thinking...") {
+        this.hideAgentLoading();
+        const p = document.createElement("p");
+        p.classList.add("regular-text");
+        p.classList.add("story-content");
+        p.classList.add("agent-loading");
+        p.innerText = message;
+        p.classList.add("show");
+        this.container.appendChild(p);
+        this.agentLoading = p;
+        this.events.renderDidEnd.bind(this)();
+    },
+
+    hideAgentLoading: function() {
+        if (this.agentLoading&& this.agentLoading.parentNode) {
+            this.agentLoading.parentNode.removeChild(this.agentLoading);
+        }
+        this.agentLoading = null;
+    },
+
+    safeAddContent: function(contentObj) {
+        this.events.addContent.bind(this)(contentObj);
+        this.events.renderDidEnd.bind(this)();
+    },
+
+    isValidAgentResponse: function(resp) {
+        if (!resp || typeof resp !== "object") return false;
+        if (!resp.result || typeof resp.result !== "object") return false;
+        const r = resp.result;
+
+        if (r.character_text !== null && r.character_text !== undefined && typeof r.character_text !== "string") return false;
+        if (!r.continue_decision || typeof r.continue_decision !== "object") return false;
+        if (typeof r.continue_decision.direction !== "string") return false;
+        if (r.continue_decision.content !== undefined && typeof r.continue_decision.content !== "object") return false;
+
+        return true;
+    },
+
     play: function(content) {
         this.events.prepareToPlay.bind(this)();
+        this.resetAgent();
         this.content = content;
         this.aiSeed = null;
         if (content.status != 'ok') {
             this.events.reportError.bind(this)(content.error);
-            return 
-        } 
+            return;
+        }
         this.story = new inkjs.Story(content.compiled);
         this.bindExternalFunctions(this.story);
         this.running = true;
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
+
     generateAndInsertInDOM: async function(prompt_text) {
         if (prompt_text.includes("data-loaded")) {
             const el = new DOMParser().parseFromString(
@@ -150,6 +225,12 @@ InkPlayer.prototype = {
                     this.continueFunctionCalled = false;
                     return;
                 }
+
+		if (this.agentFunctionCalled) {
+		    this.agentFunctionCalled = false;
+		    this.events.renderScheduledInputBox.bind(this)();
+    		    return;
+		}
                 if (this.generateInProgress) {
                     await this.generateAndInsertInDOM(this.generatePrompt);
                 }
@@ -183,7 +264,9 @@ InkPlayer.prototype = {
     stop: function() { 
         this.timeouts.forEach(clearTimeout);
         this.running = false;
+        this.resetAgent();
     },
+
     logPath: function() {
         /*
         if (window.LOG_READING_URL) {
@@ -257,7 +340,36 @@ InkPlayer.prototype = {
         );
         this.inputBoxToInsert = formContainer;
     },
-    createInputForm: function(formType, eventHandler, placeholder, variableName=null) {
+
+    scheduleAgentInputBox: function(placeholder = "Enter text....") {
+        const eventHandler = (userInput) => {
+            if (this.isAgentLoading) {
+                return;
+            }
+
+            this.createStoryPlayRecord(
+                this.getStoryPlayInstanceUUID(),
+                "READERS_AGENT_ENTERED_TEXT",
+                userInput
+            );
+
+            this.handleUserInputForAgent(userInput);
+        };
+
+        const formContainer = this.createInputForm(
+            "AUTHORS_AGENT_INPUT_BOX",
+            eventHandler,
+            placeholder,
+            null,
+            true
+        );
+
+        this.inputBoxToInsert = formContainer;
+        this.events.renderScheduledInputBox.bind(this)();
+        this.events.renderDidEnd.bind(this)();
+    },
+
+    createInputForm: function(formType, eventHandler, placeholder, variableName=null, isAgentForm=false) {
         const formContainer = document.createElement("div");
         formContainer.classList.add("input-container");
 
@@ -288,7 +400,11 @@ InkPlayer.prototype = {
             eventHandler(userInput);
             
             inputElement.disabled = true;
-            buttonElement.disabled = true;
+            if (isAgentForm) {
+                buttonElement.parentNode.removeChild(buttonElement);
+            } else {
+                buttonElement.disabled = true;
+            }
             formElement.style.opacity = "0.5";
         });
 
@@ -349,6 +465,137 @@ InkPlayer.prototype = {
                 break;
         }
     },
+
+    // AGENT HANDLING INPUT
+    handleUserInputForAgent: async function(userInput) {
+        if (this.isAgentLoading) {
+            return;
+        }
+
+        this.isAgentLoading = true;
+        const who = this.currentAgentCharacter ? this.currentAgentCharacter : "The character";
+        this.showAgentLoading(who + " is thinking...");
+
+        try {
+            const response = await $.ajax("/agent/", {
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader("X-CSRFToken", CSRF);
+                },
+                method: "POST",
+                data: JSON.stringify({
+                    user_input: userInput,
+                    story_play_instance_uuid: this.getStoryPlayInstanceUUID(),
+                    character_knot_name: this.currentAgentCharacter,
+                    target_knot_name: this.currentAgentTarget,
+                    ai_seed: this.aiSeed
+                }),
+                contentType: "application/json"
+            });
+
+            this.hideAgentLoading();
+            this.isAgentLoading = false;
+
+            if (!this.isValidAgentResponse(response)) {
+                this.safeAddContent({
+                    text: "Hmm—something went wrong getting a reply. Please try again.",
+                    tags: ["agent"]
+                });
+                this.scheduleAgentInputBox("Try again...");
+                return;
+            }
+
+            const agentResult = response.result || response;
+            const characterText = typeof agentResult.character_text === "string"
+		? agentResult.character_text.trim()
+		: "";
+
+            const decision = agentResult.continue_decision || {};
+            const direction = decision.direction || "NEEDS_INPUT";
+            const content = decision.content || {};
+            
+            if (direction === "DIRECT_CONTINUE") {
+                this.continueStory();
+                return;
+            }
+            if (characterText) {
+                this.safeAddContent({ 
+		            text: characterText, 
+		            tags: ["agent"]
+		        });
+
+		        this.createStoryPlayRecord(
+                    this.getStoryPlayInstanceUUID(),
+                    "AI_GENERATED_TEXT",
+                    characterText
+                );
+
+            } else {
+                this.safeAddContent({
+                    text: "…No reply came back :( Please try again",
+                    tags: ["agent"]
+                });
+            }
+
+            switch (direction) {
+                case "NEEDS_INPUT":
+                    this.scheduleAgentInputBox();
+                    break;
+
+                case "INVALID_USER_INPUT":
+                    this.scheduleAgentInputBox("Input was not valid... Try again");
+                    break;
+
+                case "BRIDGE_AND_CONTINUE":
+                    if (
+		content.bridge_text && 
+		typeof content.bridge_text === "string" && 
+		content.bridge_text.trim()
+		) {
+                            this.safeAddContent({ 
+		        text: content.bridge_text, tags: ["bridge"] 
+		    });
+
+                            this.createStoryPlayRecord(
+                                this.getStoryPlayInstanceUUID(),
+                                "AI_GENERATED_TEXT",
+                                content.bridge_text
+                            );
+                    } else {
+                        this.safeAddContent({ 
+		    text: "Okay — let's continue.", tags: ["bridge"] 
+		    });
+                    }
+
+                    this.continueStory();
+                    break;
+
+                case "DIRECT_CONTINUE":
+                    this.continueStory();
+                    break;
+
+                default:
+                    this.safeAddContent({
+                        text: "I didn't understand what to do next — try again.",
+                        tags: ["agent"]
+                    });
+                    this.scheduleAgentInputBox("Try again...");
+                    break;
+            }
+        } catch (err) {
+            this.hideAgentLoading();
+            this.isAgentLoading = false;
+
+            console.error("Agent request failed:", err);
+
+            this.safeAddContent({
+                text: "Connection issue talking to the character. Please try again.",
+                tags: ["agent"]
+            });
+
+            this.scheduleAgentInputBox("Try again...");
+        }
+    },
+
     getStoryPlayInstanceUUID: function() {
         return this.storyPlayInstanceUUID;
     },

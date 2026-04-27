@@ -1,5 +1,5 @@
 {% extends 'base/base.html' %}
-
+{% load static %}
 {% block style %}
     <style>
         .genre-flex {
@@ -57,12 +57,12 @@
     </form>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const flex = document.getElementById('genre-flex');
-            const hidden = document.getElementById('genre-hidden');
-            hidden.querySelectorAll('label').forEach(function(label) {
-                flex.appendChild(label);
-            });
+    document.addEventListener('DOMContentLoaded', function() {
+        const flex = document.getElementById('genre-flex');
+        const hidden = document.getElementById('genre-hidden');
+        hidden.querySelectorAll('label').forEach(function(label) {
+            flex.appendChild(label);
         });
+    });
     </script>
 {% endblock %}

@@ -224,6 +224,30 @@ def signup(request):
 
     return render(request, 'registration/signup.html', {'form': form})
 
+def join_student(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    code_str = request.POST.get('join_code')
+                    try:
+                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                        user.literacy_groups.add(join_code.group)
+                        join_code.assigned_user = user
+                        join_code.save()
+                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+                    except JoinCode.DoesNotExist:
+                        raise ValueError("Invalid or expired join code.")
+            except ValueError as e:
+                messages.error(request, str(e))
+                return render(request, 'registration/join_student.html', {'form': form})
+    else:
+        form = SignUpForm()
+    return render(request, 'registration/join_student.html', {'form': form})
 
 class StoryVersionDetailView(View):
     verb = "viewed the history of"
@@ -239,15 +263,28 @@ class StoryVersionDetailView(View):
         comment = versions[vIndex - 1].revision.comment
         if len(comment) > 100:
             comment = comment[:100] + '...'
+        
+        versioned_story = versions[vIndex - 1]._object_version.object
+        story_ink = versioned_story.ink
+        story_json = versions[vIndex - 1].field_dict.get('json')
+        print("VERSION INDEX:", vIndex)
+        print("INK:", repr(story_ink[:80]))
+        print("JSON from snapshot:", repr(story_json))
+        # If json wasn't captured in the snapshot, compile from the versioned ink
+        if not story_json and story_ink:
+            versioned_story.compile()
+            story_json = versioned_story.json
+            print("COMPILED JSON:", story_json[:100] if story_json else "STILL NONE")
+
         return render(request, 'unfold_studio/show_story_version.html', {
-        'story': versions[vIndex - 1]._object_version.object,
-        'story_id': story.id,
-        'story_json': versions[vIndex - 1].field_dict.get('json') or 'null',
-        'story_ink': versions[vIndex - 1].field_dict.get('ink', ''),  # add this
-        'comment': comment,
-        'version': vIndex,
-        'previousVersion': vIndex - 1 if vIndex > 1 else None,
-        'nextVersion': vIndex + 1 if vIndex + 1 <= versions.count() else None
+            'story': versioned_story,
+            'story_id': story.id,
+            'story_json': story_json or 'null',
+            'story_ink': story_ink,
+            'comment': comment,
+            'version': vIndex,
+            'previousVersion': vIndex - 1 if vIndex > 1 else None,
+            'nextVersion': vIndex + 1 if vIndex + 1 <= versions.count() else None
         })
 
     def get_object(self):
