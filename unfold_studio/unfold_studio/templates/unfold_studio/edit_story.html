@@ -33,7 +33,7 @@
 
 {% block content %}
     <h1>Rename {{story.title}}</h1>
-    <form action="{% url 'edit_story' story.id %}" method="POST">
+    <form action="{% url 'edit_story' story.id %}" method="POST" class="new_story_form">
         {% csrf_token %}
 
         <div>
