@@ -5,7 +5,7 @@ from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.sites.shortcuts import get_current_site
-from literacy_groups.models import LiteracyGroup
+from literacy_groups.models import LiteracyGroup, JoinCode
 from literacy_groups.forms import LiteracyGroupForm
 from literacy_events.models import LiteracyEvent
 from django.db.models import Count
@@ -14,6 +14,9 @@ from django.db.models import Q
 import structlog
 from django.contrib import messages
 from literacy_groups.mixins import LiteracyGroupContextMixin
+
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 log = structlog.get_logger("unfold_studio")    
 
@@ -49,10 +52,10 @@ class CreateGroupView(LoginRequiredMixin, CreateView):
             group.members.add(request.user)
             group.leaders.add(request.user)
             log.info(name = "Literacy Groups Alert", event="New Literacy Group Created", args={"user": request.user, "group_name": group.name, "group_id": group.id})
-            return redirect('show_group', group.id)
+            return redirect('show_group', pk=group.id)
         else:
             context = self.get_context_data(form=form)
-            return render('literacy_groups/literacygroup_form.html', context=context)
+            return render(request,'literacy_groups/literacygroup_form.html', context=context)
 
 class UpdateGroupView(LiteracyGroupContextMixin, UpdateView):
     fields = ['name']
@@ -136,8 +139,11 @@ class JoinGroupView(LiteracyGroupContextMixin, View):
             messages.warning(request, "This code has already been used.")
             return redirect('home')
         
-        #Join the group and link the code
-        request.user.literacy_groups.add(self.group)
+        #Add the user to the group itself
+        if request.user not in self.group.members.all():
+            self.group.members.add(request.user)
+   
+       # Link the user to this specific code for the "Student X" replacement
         join_code.assigned_user = request.user
         join_code.save()
 
@@ -148,8 +154,8 @@ class JoinGroupView(LiteracyGroupContextMixin, View):
             literacy_group=self.group,
         )
         
-        messages.success(request, "Joined {}".format(self.group.name))
-        return redirect('show_group', self.group.id)
+        messages.success(request, f"Joined {self.group.name}")
+        return redirect('show_group', pk=self.group.id)
 
 class LeaveGroupView(LiteracyGroupContextMixin, View):
     url_group_key = "pk"
@@ -159,15 +165,20 @@ class LeaveGroupView(LiteracyGroupContextMixin, View):
             messages.warning(request, "You're not a member of {}".format(self.group.name))
             log.warning(name = "Literacy Groups Alert", event= "Failed Leaving Group", msg="User not a member",
                          args={"user": request.user, "group_name": self.group.name, "group_id": self.group.id})
+            return redirect('home')
+
         elif self.group in request.user.literacy_groups_leading.all():
             messages.warning(request, "You can't leave groups you lead".format(self.group.name))
             log.warning(name = "Literacy Groups Alert", event= "Failed Leaving Group", msg= "User is Leader", args={
                 "user": request.user, "group_name": self.group.name, "group_id": self.group.id})
+            return redirect('show_group', pk=self.group.id)
+
         else:
             #find the code the student used and free it
             JoinCode.objects.filter(group=self.group, assigned_user=request.user).update(assigned_user=None)
             #Remove the student from the group
-            request.user.literacy_groups.remove(self.group)
+            self.group.members.remove(request.user)
+
             messages.success(request, "Left {}".format(self.group.name))
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.LEFT_LITERACY_GROUP,
@@ -178,8 +189,8 @@ class LeaveGroupView(LiteracyGroupContextMixin, View):
                 "user": request.user, "group_name": self.group.name, "group_id": self.group.id})
         if request.user.literacy_groups.exists():
             return redirect('list_groups')
-        else:
-            return redirect('home')
+        
+        return redirect('home')
 
 class DeleteJoinCodeView(LiteracyGroupContextMixin, View):
     url_group_key = "pk"
@@ -205,16 +216,28 @@ class DeleteJoinCodeView(LiteracyGroupContextMixin, View):
             
         return redirect('invite_to_group', pk)
 
+
 class GenerateCodesView(LiteracyGroupContextMixin, View):
     url_group_key = "pk"
     require_leader = True
 
     def post(self, request, *args, **kwargs):
-        num_codes = int(request.POST.get('quantity', 5)) # Default to 5
-        for _ in range(num_codes):
+        # 1. Get quantity from the form, default to 1 if missing
+        raw_quantity = request.POST.get('quantity', 1)
+        
+        try:
+            quantity = int(raw_quantity)
+            # Safety check: don't allow negative or massive numbers
+            quantity = max(1, min(quantity, 50)) 
+        except ValueError:
+            quantity = 1
+
+        # 2. Loop and create the codes
+        for _ in range(quantity):
             JoinCode.objects.create(
                 group=self.group,
                 code=self.group.new_join_code() # Uses existing random generator
             )
-        messages.success(request, f"Generated {num_codes} new codes.")
+            
+        messages.success(request, f"Generated {quantity} new codes.")
         return redirect('invite_to_group', self.group.id)
