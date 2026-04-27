@@ -263,15 +263,28 @@ class StoryVersionDetailView(View):
         comment = versions[vIndex - 1].revision.comment
         if len(comment) > 100:
             comment = comment[:100] + '...'
+        
+        versioned_story = versions[vIndex - 1]._object_version.object
+        story_ink = versioned_story.ink
+        story_json = versions[vIndex - 1].field_dict.get('json')
+        print("VERSION INDEX:", vIndex)
+        print("INK:", repr(story_ink[:80]))
+        print("JSON from snapshot:", repr(story_json))
+        # If json wasn't captured in the snapshot, compile from the versioned ink
+        if not story_json and story_ink:
+            versioned_story.compile()
+            story_json = versioned_story.json
+            print("COMPILED JSON:", story_json[:100] if story_json else "STILL NONE")
+
         return render(request, 'unfold_studio/show_story_version.html', {
-        'story': versions[vIndex - 1]._object_version.object,
-        'story_id': story.id,
-        'story_json': versions[vIndex - 1].field_dict.get('json') or 'null',
-        'story_ink': versions[vIndex - 1].field_dict.get('ink', ''),  # add this
-        'comment': comment,
-        'version': vIndex,
-        'previousVersion': vIndex - 1 if vIndex > 1 else None,
-        'nextVersion': vIndex + 1 if vIndex + 1 <= versions.count() else None
+            'story': versioned_story,
+            'story_id': story.id,
+            'story_json': story_json or 'null',
+            'story_ink': story_ink,
+            'comment': comment,
+            'version': vIndex,
+            'previousVersion': vIndex - 1 if vIndex > 1 else None,
+            'nextVersion': vIndex + 1 if vIndex + 1 <= versions.count() else None
         })
 
     def get_object(self):

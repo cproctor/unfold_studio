@@ -80,7 +80,7 @@ define(
                             EditorView.setValue(story.ink);
                         }, 50);
                     }, 100);
-                    Story.events.storyFetched(story);
+                    //Story.events.storyFetched(story);
                     var fetchPromise = $.Deferred().resolve().promise();
                     fetchPromise.then(function() {
                       if (story.status === "error") {
@@ -89,7 +89,7 @@ define(
                            $('#hide_code_opt').show();
                        }
                     });
-                  }  else {
+                  }  else if (EDITABLE) {
                         story.fetch().then(function() {
                         if (story.status === "error") {
                            $('.twopane.solo').removeClass('solo');
