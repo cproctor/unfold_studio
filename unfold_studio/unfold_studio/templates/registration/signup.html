@@ -29,19 +29,12 @@
         {% endif %}
         <form method="post" action="{% url 'signup' %}" class="registration-form">
             {% csrf_token %}
-
-            {# user_type dropdown goes first #}
-            <div class="form-group">
-                <label for="{{ form.user_type.id_for_label }}">{{ form.user_type.label }}:</label>
-                {{ form.user_type }}
-            </div>
-            {% for error in form.user_type.errors %}
-            <div class="alert alert-danger">
-                <strong>&#9888; {{ error|escape }}</strong>
-            </div>
-            {% endfor %}
-
-            {# remaining fields, skipping user_type since we already rendered it #}
+            {% if claim_story_id %}
+            <input type="hidden" name="claim_story" value="{{ claim_story_id }}" />
+            {% endif %}
+            {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}" />
+            {% endif %}
             {% for field in form %}
             {% if field.name != 'user_type' %}
             <div class="form-group">

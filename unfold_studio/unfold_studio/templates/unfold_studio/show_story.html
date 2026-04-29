@@ -2,10 +2,11 @@
 {% load static %}
 {% load linkrefs %}
 
+{% block page_title %}{{ story.title }} | {{ SITE.name }}{% endblock %}
+
 {% block head %}
 
     <meta charset="utf-8">
-    <title>{{story.title}} | unfold.studio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'style/inkystyle.css' %}">
     <link rel="stylesheet" href="{% static 'style/sms.css' %}">
@@ -16,11 +17,16 @@
 
 {% block content %}
 <h2 class="story-title">{{story.title}}</h2>
+{% if owns_anonymous_story %}
+<p class="anonymous-claim-hint"><a href="{% url 'signup' %}?claim_story={{ story.id }}">Sign up</a> or <a href="{% url 'login' %}?claim_story={{ story.id }}">Log in</a> to keep this story on your account.</p>
+{% endif %}
 <div class="description">
 {% if story.public %}
     Public story
-{% else %}
+{% elif story.author %}
     by {{story.author.username | linkuser:user}}
+{% else %}
+    Private draft (not shown in browse or search)
 {% endif %}
 {% if story.parent %}
     (Forked from {{story.parent.id | linkstory:user}}{% if story.parent.author %} by {{story.parent.author.username | linkuser:user}}{% endif %})
@@ -36,10 +42,12 @@
 {% elif request.user == story.author and story.loves.count > 0 %}
     <span class="love">&lt;3 {{story.loves.count}}</span>
 {% endif %}
-{% if story.author == request.user or story.public %}
+{% if editable %}
     [<a id="save_story" href="">Save</a>]
-    [<a id="edit_story" href="{% url 'edit_story' story.id %}">Edit details</a>]
+    [<a id="edit_story" href="{% url 'edit_story' story.id %}">Rename</a>]
+    {% if request.user.is_authenticated %}
     [<a id="save_version" href="{% url 'new_story_version' story.id %}">Save this version</a>]
+    {% endif %}
     <span id="show_code_opt" style="display: none;">[<a id="show_code" href="#">Show code</a>]</span>
     <span id="hide_code_opt">[<a id="hide_code" href="#">Hide code</a>]</span>
 {% else %}
@@ -80,6 +88,8 @@
             }
         </script>
     {% endif %}
+{% elif can_fork_anonymously %}
+    [<form action="{% url 'fork_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Fork"></form>]
 {% endif %}
 {% if story.author %}
 [<a href="{% url 'show_story_versions' story.id %}">History{% if commentable %}/Comment{% endif %}</a>]
@@ -88,7 +98,7 @@
 
 {# FROM INKY #}
 <div id="main">
-  <div class="twopane{% if not story.author == request.user and not story.public %} solo{%endif%}">
+  <div class="twopane{% if not editable %} solo{% endif %}">
     <div id="editor"></div>
     <div class="split"></div>
     <div id="player">
@@ -121,6 +131,7 @@
     CSRF = "{{csrf_token}}";
     EDITABLE = {{editable}};
     LOG_READING_URL = "{% url 'log_reading_event' %}";
+    window.AI_ENABLED = {{ ai_enabled|yesno:"true,false" }};
 </script>
 <script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
 

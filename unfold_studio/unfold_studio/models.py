@@ -42,8 +42,23 @@ class StoryManager(models.Manager):
         site = get_current_site(request)
         if user.is_authenticated:
             return self.for_site_user(site, user)
-        else:
-            return self.for_site_anonymous_user(site)
+        from unfold_studio.anonymous_session import get_anonymous_owned_story_ids
+
+        public_shared = self.filter(
+            Q(sites=site),
+            Q(deleted=False),
+            Q(public=True) | Q(shared=True),
+        )
+        owned_ids = get_anonymous_owned_story_ids(request)
+        if not owned_ids:
+            return public_shared
+        session_owned = self.filter(
+            sites=site,
+            deleted=False,
+            author__isnull=True,
+            pk__in=owned_ids,
+        )
+        return (public_shared | session_owned).distinct()
 
     def for_site_user(self, site, user):
         literacy_groups = LiteracyGroup.objects.filter(
@@ -59,10 +74,11 @@ class StoryManager(models.Manager):
         ).distinct()
 
     def for_site_anonymous_user(self, site):
+        "Stories listed on browse/home for anonymous users (excludes session-only drafts)."
         return self.filter(
             Q(sites=site),
-            Q(public=True) | 
-            Q(shared=True)
+            Q(deleted=False),
+            Q(public=True) | Q(shared=True),
         )
 
     def editable_for_request(self, request):
@@ -72,7 +88,7 @@ class StoryManager(models.Manager):
         if user.is_authenticated:
             return self.editable_for_site_user(site, user)
         else:
-            return self.editable_for_site_anonymous_user(site)
+            return self.editable_for_site_anonymous_user(request)
 
     def editable_for_site_user(self, site, user):
         return self.filter(
@@ -83,11 +99,18 @@ class StoryManager(models.Manager):
             Q(author=user)
         )
 
-    def editable_for_site_anonymous_user(self, site):
+    def editable_for_site_anonymous_user(self, request):
+        from unfold_studio.anonymous_session import get_anonymous_owned_story_ids
+
+        site = get_current_site(request)
+        owned_ids = get_anonymous_owned_story_ids(request)
+        if not owned_ids:
+            return self.none()
         return self.filter(
             Q(sites=site),
             Q(deleted=False),
-            Q(public=True)
+            Q(author__isnull=True),
+            Q(pk__in=owned_ids),
         )
 
     def get_for_request_or_404(self, request, **kwargs):
@@ -126,7 +149,9 @@ class Story(models.Model):
     sites = models.ManyToManyField(Site)
     search = SearchVectorField(null=True)
     description = models.CharField(max_length=512)
+    # NOTE: required by current DB schema (NOT NULL); default keeps inserts safe.
     genres = models.JSONField(default=list, blank=True)
+
     objects = StoryManager()
 
     def visible_to_user(self, user):
@@ -511,6 +536,13 @@ class Story(models.Model):
 
     def for_json(self):
         "Returns JSON for the story in old format. Needs to be updated once the "
+        edit_date = self.edit_date
+        if edit_date is not None:
+            if timezone.is_naive(edit_date):
+                edit_date = timezone.make_aware(edit_date, timezone.get_current_timezone())
+            edit_date_ms = int(edit_date.timestamp() * 1000)
+        else:
+            edit_date_ms = 0
         return {
             "id": self.id,
             "compiled": json.loads(self.json) if self.json else None,

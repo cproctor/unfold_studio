@@ -1,10 +1,7 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-    <form action="{% url 'list_stories' %}" method="get">
-        {{form}}
-        <input type="submit" value="Search">
-    </form>
+
     {% if stories %}
         {% if form.is_bound %}
             <h2>Search results</h2>

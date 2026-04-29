@@ -2,7 +2,7 @@ import json
 from text_generation.backends import TextGenerationFactory
 from django.conf import settings
 from django.http import JsonResponse
-from commons.base.views import BaseView
+from commons.base.views import BaseView, AuthenticatedView
 from .models import StoryTransitionRecord
 from .services.unfold_studio import UnfoldStudioService
 from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
@@ -10,7 +10,7 @@ from .constants import AGENT_CHARACTER_SYSTEM_PROMPT, AGENT_CHARACTER_USER_PROMP
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
-class GenerateTextView(BaseView):
+class GenerateTextView(AuthenticatedView):
 
     def validate_request(self, request_body):
         prompt = request_body.get('prompt')
@@ -47,7 +47,7 @@ class GenerateTextView(BaseView):
             return JsonResponse({"error": str(e)}, status=500)
 
 
-class GetNextDirectionView(BaseView):
+class GetNextDirectionView(AuthenticatedView):
 
     def validate_request(self, request_body):
         required_fields = ['user_input', 'target_knot_name', 'story_play_instance_uuid']

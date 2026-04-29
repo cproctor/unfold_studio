@@ -4,6 +4,8 @@
 <!DOCTYPE html>
 <html>
     <head>
+        {# Browser tab + default when a child does not override #}
+        <title>{% block page_title %}{{ SITE.name }}{% endblock %}</title>
         <script src="{% static 'scripts/lib/jquery.2.1.4.js' %}"></script>
         <link rel="shortcut icon" href="{%  static 'favicon.png' %}">
         {% block head %}
