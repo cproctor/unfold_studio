@@ -152,10 +152,8 @@ def new_story(request):
             story.compile()
             story.update_priority()
             story.sites.add(get_current_site(request))
-            with reversion.create_revision():
-                story.save()
-                reversion.set_user(story.author)
-                reversion.set_comment("Initial version of @story:{}".format(story.id))
+
+            story.save()
             log.info(name="Application Alert", event="New Story Created", arg={"user": u(request), "story": story.id})
             if not request.user.is_authenticated:
                 add_anonymous_owned_story(request, story.id)
@@ -175,6 +173,7 @@ def edit_story(request, story_id):
             with reversion.create_revision():
                 story.save()
                 reversion.set_user(story.author)
+                reversion.set_comment("Edited")
             return redirect('show_story', story.id)
     else:
         form = StoryForm(instance=story)
@@ -327,6 +326,31 @@ def signup(request):
         'next_url': next_url,
     })
 
+def join_student(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    code_str = request.POST.get('join_code')
+                    try:
+                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                        user.literacy_groups.add(join_code.group)
+                        join_code.assigned_user = user
+                        join_code.save()
+                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+                    except JoinCode.DoesNotExist:
+                        raise ValueError("Invalid or expired join code.")
+            except ValueError as e:
+                messages.error(request, str(e))
+                return render(request, 'registration/join_student.html', {'form': form})
+    else:
+        form = SignUpForm()
+    return render(request, 'registration/join_student.html', {'form': form})
+
 class StoryVersionDetailView(View):
     verb = "viewed the history of"
 
@@ -341,8 +365,24 @@ class StoryVersionDetailView(View):
         comment = versions[vIndex - 1].revision.comment
         if len(comment) > 100:
             comment = comment[:100] + '...'
+        
+        versioned_story = versions[vIndex - 1]._object_version.object
+        story_ink = versioned_story.ink
+        story_json = versions[vIndex - 1].field_dict.get('json')
+        print("VERSION INDEX:", vIndex)
+        print("INK:", repr(story_ink[:80]))
+        print("JSON from snapshot:", repr(story_json))
+        # If json wasn't captured in the snapshot, compile from the versioned ink
+        if not story_json and story_ink:
+            versioned_story.compile()
+            story_json = versioned_story.json
+            print("COMPILED JSON:", story_json[:100] if story_json else "STILL NONE")
+
         return render(request, 'unfold_studio/show_story_version.html', {
-            'story': versions[vIndex - 1].object,
+            'story': versioned_story,
+            'story_id': story.id,
+            'story_json': story_json or 'null',
+            'story_ink': story_ink,
             'comment': comment,
             'version': vIndex,
             'previousVersion': vIndex - 1 if vIndex > 1 else None,
@@ -505,23 +545,23 @@ class NewStoryVersionView(StoryMethodView):
 
     def get(self, request, *args, **kwargs):
         story = self.get_object()
-        version = Version.objects.get_for_object(story).first()
-        form = StoryVersionForm(initial={'comment': version.revision.comment})
+        form = StoryVersionForm()
         return render(request, self.template, {'form': form, 'story': story})
 
     def post(self, request, *args, **kwargs):
         form = StoryVersionForm(request.POST)
         story = self.get_object()
         if form.is_valid():
-            version = Version.objects.get_for_object(story).first()
-            revision = version.revision
-            revision.comment = form.cleaned_data['comment']
-            revision.save()
+            with reversion.create_revision():
+                story.save() 
+                reversion.set_user(request.user)
+                reversion.set_comment(form.cleaned_data['comment'])
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.TAGGED_STORY_VERSION,
                 subject=request.user,
                 story=story
             )
+
             return redirect('show_story_versions', story.id)
         else:
             return render(request, self.template, {'form': form, 'story': story})

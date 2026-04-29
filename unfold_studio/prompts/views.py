@@ -20,6 +20,7 @@ from literacy_groups.mixins import LiteracyGroupContextMixin
 from collections import defaultdict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+import reversion
 
 log = structlog.get_logger("unfold_studio")    
 
@@ -92,9 +93,8 @@ class ShowPromptView(LiteracyGroupContextMixin, DetailView):
         if form.is_valid():
             prompt = self.get_object()
             story = Story.objects.get_editable_for_request_or_404(self.request, pk=form.cleaned_data['story'])
-            version = Version.objects.get_for_object(story).last()
             PromptStory.objects.create(prompt=self.get_object(), story=story, 
-                    submitted_story_version=version)
+                    submitted_story_version=None)
             log.info(name="Prompt Alert", event="Story Submission", 
                      args={"user": u(self.request), "story": story, "prompt": self.get_object()})
             LiteracyEvent.objects.create(
