@@ -2,6 +2,7 @@ import json
 from unittest.mock import patch, Mock
 import pytest
 from django.test import RequestFactory
+from django.contrib.auth.models import AnonymousUser, User
 from text_generation.views import GenerateTextView
 
 @pytest.fixture
@@ -82,4 +83,21 @@ class TestGenerateTextView:
 
         assert response.status_code == 500
         assert response_data == {"error": "Backend error"}
-        
+
+    def test_dispatch_requires_authentication(self, valid_request_data):
+        request = self._create_request(valid_request_data)
+        request.user = AnonymousUser()
+        response = GenerateTextView.as_view()(request)
+        assert response.status_code == 401
+
+    @pytest.mark.django_db
+    def test_dispatch_allows_authenticated_user(self, valid_request_data):
+        user = User.objects.create_user("aiuser", "ai@example.com", "password123")
+        request = self._create_request(valid_request_data)
+        request.user = user
+        with patch("text_generation.views.TextGenerationFactory") as mock_factory:
+            mock_backend = Mock()
+            mock_backend.generate.return_value = "ok"
+            mock_factory.create.return_value = mock_backend
+            response = GenerateTextView.as_view()(request)
+        assert response.status_code == 200

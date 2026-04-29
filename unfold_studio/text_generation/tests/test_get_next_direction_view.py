@@ -1,6 +1,8 @@
 import pytest
 from unittest.mock import Mock, patch
 from django.http import JsonResponse
+from django.contrib.auth.models import AnonymousUser, User
+from django.test import RequestFactory
 from text_generation.views import GetNextDirectionView
 from text_generation.constants import StoryContinueDirections
 import json
@@ -239,5 +241,39 @@ class TestGetNextDirectionView:
         
         assert isinstance(response, JsonResponse)
         assert response.status_code == 400
-        assert 'Missing required field' in response.content.decode() 
-        
+        assert 'Missing required field' in response.content.decode()
+
+    def test_dispatch_requires_authentication(self, valid_request_data):
+        factory = RequestFactory()
+        request = factory.post(
+            '/get_next_direction',
+            data=json.dumps(valid_request_data),
+            content_type='application/json',
+        )
+        request.user = AnonymousUser()
+        response = GetNextDirectionView.as_view()(request)
+        assert response.status_code == 401
+
+    @pytest.mark.django_db
+    def test_dispatch_allows_authenticated_user(
+        self, valid_request_data, mock_story_history, mock_knot_data, mock_ai_response,
+    ):
+        user = User.objects.create_user("continueuser", "c@example.com", "password123")
+        factory = RequestFactory()
+        request = factory.post(
+            '/get_next_direction',
+            data=json.dumps(valid_request_data),
+            content_type='application/json',
+        )
+        request.user = user
+        with patch('text_generation.views.UnfoldStudioService') as mock_unfold_service, \
+                patch('text_generation.views.TextGenerationFactory') as mock_factory, \
+                patch('text_generation.views.StoryTransitionRecord'):
+            mock_unfold_service.get_story_play_history.return_value = mock_story_history
+            mock_unfold_service.get_story_id_from_play_instance_uuid.return_value = 1
+            mock_unfold_service.get_knot_data.return_value = mock_knot_data
+            mock_backend = Mock()
+            mock_backend.get_ai_response_by_system_and_user_prompt.return_value = json.dumps(mock_ai_response)
+            mock_factory.create.return_value = mock_backend
+            response = GetNextDirectionView.as_view()(request)
+        assert response.status_code == 200

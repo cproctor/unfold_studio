@@ -42,8 +42,23 @@ class StoryManager(models.Manager):
         site = get_current_site(request)
         if user.is_authenticated:
             return self.for_site_user(site, user)
-        else:
-            return self.for_site_anonymous_user(site)
+        from unfold_studio.anonymous_session import get_anonymous_owned_story_ids
+
+        public_shared = self.filter(
+            Q(sites=site),
+            Q(deleted=False),
+            Q(public=True) | Q(shared=True),
+        )
+        owned_ids = get_anonymous_owned_story_ids(request)
+        if not owned_ids:
+            return public_shared
+        session_owned = self.filter(
+            sites=site,
+            deleted=False,
+            author__isnull=True,
+            pk__in=owned_ids,
+        )
+        return (public_shared | session_owned).distinct()
 
     def for_site_user(self, site, user):
         literacy_groups = LiteracyGroup.objects.filter(
@@ -59,10 +74,11 @@ class StoryManager(models.Manager):
         ).distinct()
 
     def for_site_anonymous_user(self, site):
+        "Stories listed on browse/home for anonymous users (excludes session-only drafts)."
         return self.filter(
             Q(sites=site),
-            Q(public=True) | 
-            Q(shared=True)
+            Q(deleted=False),
+            Q(public=True) | Q(shared=True),
         )
 
     def editable_for_request(self, request):
@@ -72,7 +88,7 @@ class StoryManager(models.Manager):
         if user.is_authenticated:
             return self.editable_for_site_user(site, user)
         else:
-            return self.editable_for_site_anonymous_user(site)
+            return self.editable_for_site_anonymous_user(request)
 
     def editable_for_site_user(self, site, user):
         return self.filter(
@@ -83,11 +99,18 @@ class StoryManager(models.Manager):
             Q(author=user)
         )
 
-    def editable_for_site_anonymous_user(self, site):
+    def editable_for_site_anonymous_user(self, request):
+        from unfold_studio.anonymous_session import get_anonymous_owned_story_ids
+
+        site = get_current_site(request)
+        owned_ids = get_anonymous_owned_story_ids(request)
+        if not owned_ids:
+            return self.none()
         return self.filter(
             Q(sites=site),
             Q(deleted=False),
-            Q(public=True)
+            Q(author__isnull=True),
+            Q(pk__in=owned_ids),
         )
 
     def get_for_request_or_404(self, request, **kwargs):
@@ -126,6 +149,8 @@ class Story(models.Model):
     sites = models.ManyToManyField(Site)
     search = SearchVectorField(null=True)
     description = models.CharField(max_length=512)
+    # NOTE: required by current DB schema (NOT NULL); default keeps inserts safe.
+    genres = models.JSONField(default=list, blank=True)
 
     objects = StoryManager()
 
@@ -245,23 +270,43 @@ class Story(models.Model):
         inkText = self.inject_input_call_indicators(inkText)
         inkText = self.inject_generate_call_indicators(inkText)
         inkText = self.inject_static_continue_knot(inkText)
+        inkText = self.inject_static_agent_knot(inkText)
+
+        debug_path = "/tmp/preprocessed_story.ink"
+        with open(debug_path, "w", encoding="utf-8") as f:
+            f.write(inkText)
+        print("WROTE PREPROCESSED INK TO:", debug_path)
 
         offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))
         return inkText, inclusions, variables, knots, offset
-    
+
     def inject_static_continue_knot(self, inkText):
         """
         Injects static continue knot text into the ink text.
         """
-        continue_knot = """
-        === continue(->target_knot) ===
-        ~ continue_function(target_knot)
-        Continue was called above
-        -> target_knot
-        """
+        continue_knot = (
+            "\n"
+            "=== continue(->target_knot) ===\n"
+            "~ continue_function(target_knot)\n"
+            "Continue was called above\n"
+            "-> target_knot\n"
+        )
         return inkText + continue_knot
-    
+
+    def inject_static_agent_knot(self, inkText):
+        """
+        Injects static agent knot text into the ink text.
+        """
+        agent_knot = (
+            "\n"
+            "=== agent(->character_knot, ->target_knot) ===\n"
+            "~ agent_call(character_knot, target_knot)\n"
+            "Agent was called above\n"
+            "-> target_knot\n"
+        )
+        return inkText + agent_knot
+
     def inject_input_call_indicators(self, inkText):
         """
         Injects input call indicators into the ink text.
@@ -305,6 +350,7 @@ class Story(models.Model):
             "EXTERNAL input(a,b)",
             "EXTERNAL SEED_AI(a)",
             "EXTERNAL continue_function(a)",
+            "EXTERNAL agent_call(a,b)",
         ]
 
     def ink_to_json(self, ink, offset=0):
@@ -317,6 +363,13 @@ class Story(models.Model):
         fqn = os.path.join(settings.INK_DIR, fn)
         with open(fqn, 'w', encoding='utf-8') as inkfile:
             inkfile.write(ink)
+
+        debug_copy = "/tmp/inklecate_input.ink"
+        with open(debug_copy, "w", encoding="utf-8") as f:
+            f.write(ink)
+        print("WROTE INKLECATE INPUT TO:", debug_copy)
+        print("INKLECATE FQN:", fqn)
+
         try:
             warnings = subprocess.check_output([settings.INKLECATE, fqn]).decode("utf-8-sig")
             for warning in warnings.split('\n'):
@@ -442,6 +495,27 @@ class Story(models.Model):
             'knotChoices': knot_choices
         }
 
+    def run_from_knot(self, knot_name: str) -> str:
+        #only extrafccts text from self.ink
+        if not knot_name or not isinstance(knot_name,str):
+            raise ValueError("knot_name must be a non-empty string")
+        knots = self.get_knots()  # OrderedDict(name -> (lineNum, knotText))
+        name = knot_name.strip()
+
+        if name not in knots:
+           raise KeyError(f"Knot '{knot_name}' not found")
+
+        _, knot_text = knots[name]
+
+        # knot_text includes the knot header line itself (e.g. "=== intro ===")
+        # We want everything AFTER that header.
+        if "\n" in knot_text:
+            _, content = knot_text.split("\n", 1)
+        else:
+            content = ""
+        return content.strip("\n")
+        #Does not handle choices, includes, or update StoryPlayRecords. Only returns raw ink source
+        
     # Using Hacker News gravity algorithm: 
     # https://medium.com/hacking-and-gonzo/how-hacker-news-ranking-algorithm-works-1d9b0cf2c08d
     def update_priority(self):
@@ -462,6 +536,13 @@ class Story(models.Model):
 
     def for_json(self):
         "Returns JSON for the story in old format. Needs to be updated once the "
+        edit_date = self.edit_date
+        if edit_date is not None:
+            if timezone.is_naive(edit_date):
+                edit_date = timezone.make_aware(edit_date, timezone.get_current_timezone())
+            edit_date_ms = int(edit_date.timestamp() * 1000)
+        else:
+            edit_date_ms = 0
         return {
             "id": self.id,
             "compiled": json.loads(self.json) if self.json else None,

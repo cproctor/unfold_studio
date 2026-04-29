@@ -104,6 +104,7 @@ class OpenAIBackend(TextGenerationBackendInterface):
             return result
         except APIError as err:
             log.error("Error calling OpenAI", error=str(err))
+            print("OPENAI APIError:", repr(err))
             return "...error generating text..."
 
     def generate(self, prompt, context_array, seed, hit_cache=True):
@@ -114,17 +115,20 @@ class OpenAIBackend(TextGenerationBackendInterface):
             hit_cache=hit_cache
         )
 
-    def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed, hit_cache=True):
+    def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed, hit_cache=True, force_json=False):
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ]
-        return self._create_chat_completion(
-            messages=messages,
-            seed=seed,
-            hit_cache=hit_cache,
-            response_format={"type": "json_object"}
-        )
+        kwargs = {
+            "hit_cache": hit_cache,
+            "seed": seed,
+            "messages": messages,
+        }
+        if force_json:
+            kwargs["response_format"] = {"type": "json_object"}
+
+        return self._create_chat_completion(**kwargs)
         
 
 

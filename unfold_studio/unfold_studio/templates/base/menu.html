@@ -18,7 +18,11 @@
     </div>
     <div class="menu-item menu-item-search">
         <form action="{% url 'list_stories' %}" method="get" class="menu-search-form">
-            <input type="text" name="query" placeholder="Search stories..." class="menu-search-input" />
+            <input type="text"
+       name="query"
+       value="{{ request.GET.query }}"
+       placeholder="Search stories..."
+       class="menu-search-input" />
             <button type="submit" class="menu-search-button">Search</button>
         </form>
     </div>

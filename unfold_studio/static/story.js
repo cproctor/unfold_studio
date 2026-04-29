@@ -54,7 +54,18 @@ function(ace, InkMode, fetch_story, save_story) {
                 self.error = data.error;
                 self.error_line = data.error_line;
                 Story.events.storySaved(self);
-            })
+            }).fail(function(xhr, status, err) {
+                var msg = "Save failed";
+                if (xhr.status) {
+                    msg += " (HTTP " + xhr.status + ")";
+                }
+                if (xhr.responseText && xhr.responseText.length < 500) {
+                    msg += ":\n" + xhr.responseText;
+                } else if (status === "error" && err) {
+                    msg += ": " + err;
+                }
+                window.alert(msg);
+            });
         },
         getAceValue: function() {
             return this.aceDocument.getValue();

@@ -3,6 +3,7 @@
 
 define(
     [
+        'jquery',
         'lib/inky/util', 
         'lib/inky/split', 
         'lib/inky/editorView', 
@@ -15,6 +16,7 @@ define(
         'player'
     ], 
     function(
+        $,
         util, 
         split, 
         EditorView, 
@@ -34,14 +36,36 @@ define(
             // parse errors from story object for use with ace editor
             // returns list of error objects
             function parseErrors(storyObj) {
-                const errors = storyObj.error.split("\n")
-                const errList = []
-                
-                for (err of errors) {
-                    const errObj = {};
-                    errObj.message = err.slice(err.indexOf(":") + 1).trim();
-                    errObj.lineNumber = Number(err[err.indexOf(":") - 1]);
-                    errList.push(errObj);
+                // Successful compiles send error: ""; "".split("\n") is [""] — feeding that into Ace
+                // produced NaN row markers and broke the editor/player.
+                if (!storyObj.error || !String(storyObj.error).trim()) {
+                    return [];
+                }
+                const errList = [];
+                for (let err of String(storyObj.error).split("\n")) {
+                    err = err.trim();
+                    if (!err) {
+                        continue;
+                    }
+                    let lineNumber = null;
+                    const lineMatch = err.match(/line\s+(\d+)/i);
+                    if (lineMatch) {
+                        lineNumber = parseInt(lineMatch[1], 10);
+                    } else {
+                        const colon = err.indexOf(":");
+                        if (colon > 0) {
+                            const ch = err[colon - 1];
+                            if (/^\d$/.test(ch)) {
+                                lineNumber = parseInt(ch, 10);
+                            }
+                        }
+                    }
+                    if (!lineNumber || lineNumber < 1 || !Number.isFinite(lineNumber)) {
+                        continue;
+                    }
+                    const msgAt = err.lastIndexOf(":");
+                    const message = msgAt >= 0 ? err.slice(msgAt + 1).trim() : err;
+                    errList.push({ lineNumber: lineNumber, message: message || err });
                 }
                 return errList;
             }
@@ -65,22 +89,44 @@ define(
 
             $(function() {
                 story = new Story(STORY_ID);
-                story.fetch().then(function() {
-                    if (story.status === "error") {
-                        $('.twopane.solo').removeClass('solo');
-                        $('#show_code_opt').hide();
-                        $('#hide_code_opt').show();
-                    }
-                })
+
+                if (typeof STORY_JSON !== 'undefined' && STORY_JSON) {
+                    story.compiled = STORY_JSON;
+                    story.ink = typeof STORY_INK !== 'undefined' ? STORY_INK : "";  
+                    story.status = "ok";
+                    story.error = "";
+                    story.error_line = [];
+                    story.setAceValue(story.ink);
+                    setTimeout(function() {
+                        Story.events.storyFetched(story);
+                        setTimeout(function() {
+                            EditorView.setValue(story.ink);
+                        }, 50);
+                    }, 100);
+                    //Story.events.storyFetched(story);
+                    var fetchPromise = $.Deferred().resolve().promise();
+                    fetchPromise.then(function() {
+                      if (story.status === "error") {
+                           $('.twopane.solo').removeClass('solo');
+                           $('#show_code_opt').hide();
+                           $('#hide_code_opt').show();
+                       }
+                    });
+                  }  else {
+                        story.fetch().then(function() {
+                        if (story.status === "error") {
+                           $('.twopane.solo').removeClass('solo');
+                           $('#show_code_opt').hide();
+                           $('#hide_code_opt').show();
+                        }
+                    });
+               }
 
                 // A function which blocks until a story is saved. Useful to bind
                 // to actions like "share" which potentially fail to save the story.
                 async function presave_story() {
                     await story.save();
                 }
-
-                // autosave story before refresh/leaving page
-                // window.addEventListener('beforeunload', presave_story);
 
                 $('#save_story').click(function() {
                     story.save();
@@ -288,6 +334,7 @@ LiveCompiler.setEvents({
 
 EditorView.setEvents({
     "change": () => {
+        if (!EDITABLE) return; 
         LiveCompiler.setEdited();
     },
     "jumpToSymbol": (symbolName, contextPos) => {
