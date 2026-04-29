@@ -1,0 +1,87 @@
+.prompt-form-shell {
+    max-width: 760px;
+    padding: 8px 0 30px;
+}
+
+.prompt-form {
+    margin-top: 18px;
+}
+
+.prompt-form-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.prompt-form-row label {
+    width: 110px;
+    padding-top: 8px;
+    box-sizing: border-box;
+}
+
+.prompt-form-field {
+    flex: 1;
+    max-width: 520px;
+}
+
+.prompt-form-field input[type="text"],
+.prompt-form-field input[type="date"],
+.prompt-form-field input[type="datetime-local"],
+.prompt-form-field textarea,
+.prompt-form-field select {
+    width: 100%;
+    box-sizing: border-box;
+    font: inherit;
+    padding: 6px 8px;
+    border: 1px solid #999;
+    background: #fff;
+}
+
+.prompt-form-field textarea {
+    min-height: 180px;
+    resize: vertical;
+}
+
+.prompt-form-actions {
+    margin-left: 128px;
+    margin-top: 6px;
+}
+
+.prompt-form-actions input[type="submit"] {
+    font: inherit;
+    padding: 6px 14px;
+    cursor: pointer;
+}
+
+.prompt-form-errors,
+.prompt-form-field .errorlist {
+    color: #c0392b;
+    margin: 0;
+    padding-left: 18px;
+}
+
+.prompt-form-field .errorlist {
+    margin-top: 6px;
+}
+
+@media (max-width: 700px) {
+    .prompt-form-row {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .prompt-form-row label {
+        width: 100%;
+        padding-top: 0;
+    }
+
+    .prompt-form-field {
+        max-width: 100%;
+        width: 100%;
+    }
+
+    .prompt-form-actions {
+        margin-left: 0;
+    }
+}

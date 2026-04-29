@@ -1,15 +1,72 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
-{% block content %}
-    <h1>Groups</h1>
-    <ul>
-    {% for group in groups %}
-        <li><a href="{% url 'show_group' group.id %}">{{group.name}}</a></li>
-    {% endfor %}
-    {% if user.profile.is_teacher %}
-        <li><a href="{% url 'create_group' %}">New group</a></li>
-    {% endif %}
-    </ul>
-
+{% block head %}
+<link rel="stylesheet" href="{% static 'style/groups.css' %}">
 {% endblock %}
 
+{% block content %}
+<div class="groups-shell">
+    <div class="groups-header">
+        <h1>Groups</h1>
+        <p class="groups-subtitle">
+            {% if user.profile.is_teacher %}
+                Instructor dashboard.
+            {% else %}
+                Groups you belong to.
+            {% endif %}
+        </p>
+    </div>
+
+    <div class="groups-card">
+        <div class="groups-card-header">
+            <h2>
+                {% if user.profile.is_teacher %}
+                    My groups
+                {% else %}
+                    Your groups
+                {% endif %}
+            </h2>
+
+            {% if user.profile.is_teacher %}
+                <a class="groups-create-link" href="{% url 'create_group' %}">+ Create new group</a>
+            {% endif %}
+        </div>
+
+        {% if groups %}
+            <div class="groups-list">
+                {% for group in groups %}
+                    <div class="groups-row">
+                        <div class="groups-row-main">
+                            <a class="groups-row-title" href="{% url 'show_group' group.id %}">{{ group.name }}</a>
+
+                            <div class="groups-row-meta">
+                                {% if group in user.literacy_groups_leading.all %}
+                                    <span>{{ group.member_total }} member{{ group.member_total|pluralize }}</span>
+                                    <span>&bull;</span>
+                                    <span>{{ group.prompt_total }} prompt{{ group.prompt_total|pluralize }}</span>
+                                {% else %}
+                                    <span>{{ group.prompt_total }} prompt{{ group.prompt_total|pluralize }}</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="groups-row-side">
+                            <span class="groups-status {% if group in user.literacy_groups_leading.all %}is-active{% else %}is-neutral{% endif %}">
+                                {% if group in user.literacy_groups_leading.all %}
+                                    Leader
+                                {% else %}
+                                    Member
+                                {% endif %}
+                            </span>
+                            <a class="groups-view-link" href="{% url 'show_group' group.id %}">view</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="groups-empty">No groups yet.</div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

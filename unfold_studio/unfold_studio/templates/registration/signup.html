@@ -9,6 +9,15 @@
 
     .registration-form .form-group select {
         float: right;
+        width: 100%;
+        box-sizing: border-box;
+    }
+
+    .registration-form .form-group input[type="text"],
+    .registration-form .form-group input[type="email"],
+    .registration-form .form-group input[type="password"] {
+        width: 100%;
+        box-sizing: border-box;
     }
 </style>
 {% endblock %}
@@ -20,6 +29,14 @@
 
 <div class="registration-container">
     <div>
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-danger">
+            <strong>{{ message }}</strong>
+        </div>
+        {% endfor %}
+        {% endif %}
+
         {% if form.errors %}
         {% for error in form.non_field_errors %}
         <div class="alert alert-danger">
@@ -29,12 +46,17 @@
         {% endif %}
         <form method="post" action="{% url 'signup' %}" class="registration-form">
             {% csrf_token %}
-            {% if claim_story_id %}
-            <input type="hidden" name="claim_story" value="{{ claim_story_id }}" />
-            {% endif %}
-            {% if next_url %}
-            <input type="hidden" name="next" value="{{ next_url }}" />
-            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.user_type.id_for_label }}">{{ form.user_type.label }}:</label>
+                {{ form.user_type }}
+            </div>
+            {% for error in form.user_type.errors %}
+            <div class="alert alert-danger">
+                <strong>&#9888; {{ error|escape }}</strong>
+            </div>
+            {% endfor %}
+
             {% for field in form %}
             {% if field.name != 'user_type' %}
             <div class="form-group">
@@ -52,7 +74,6 @@
             <input type="submit" value="sign up" />
         </form>
         <p style="align-self: center;">Or</p>
-        <!-- https://developers.google.com/identity/branding-guidelines -->
         <button class="gsi-material-button" onclick="location.href='{% url 'social:begin' 'google-oauth2' %}'">
             <div class="gsi-material-button-state"></div>
             <div class="gsi-material-button-content-wrapper">

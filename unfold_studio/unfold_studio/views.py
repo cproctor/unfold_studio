@@ -21,7 +21,7 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 import reversion
 from reversion.models import Version
-from profiles.forms import SignUpForm
+from profiles.forms import SignUpForm, StudentSignUpForm
 from django.utils.timezone import now
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q, F, Window, Value, FloatField
@@ -35,13 +35,9 @@ from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from comments.models import Comment
 from comments.forms import CommentForm
 from django.utils import timezone
-from django.utils.http import url_has_allowed_host_and_scheme
-from unfold_studio.anonymous_session import (
-    add_anonymous_owned_story,
-    get_anonymous_owned_story_ids,
-    owns_anonymous_story,
-    remove_anonymous_owned_story,
-)
+from django.db import transaction
+from literacy_groups.models import JoinCode
+from django.http import HttpResponseForbidden
 
 log = structlog.get_logger("unfold_studio")    
 
@@ -209,17 +205,76 @@ def show_story(request, story_id):
     may_edit = _user_may_edit_story(request, story)
     editable = int(may_edit)
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
-    ai_enabled = request.user.is_authenticated
+
+    #Feedback terminal
+    is_teacher = request.user.is_authenticated and request.user.profile.is_teacher
+    is_story_author = request.user.is_authenticated and story.author == request.user
+
+    teacher_has_feedback_access = False
+    if is_teacher:
+        teacher_has_feedback_access = story.prompts_submitted.filter(
+            literacy_group__leaders=request.user,
+            deleted=False
+        ).exists()
+
+    feedback_mode = teacher_has_feedback_access or is_story_author
+    feedback_readonly = is_story_author and not teacher_has_feedback_access
+
+    prompt_name = ''
+    draft_feedback = ''
+    latest_teacher_feedback = None
+    latest_student_reply = None
+    latest_feedback_thread = ''
+    feedback_history_comments = []
+
+    if feedback_mode:
+        from prompts.models import PromptStory
+
+        ps = PromptStory.objects.filter(story=story).select_related('prompt').first()
+        if ps:
+            prompt_name = ps.prompt.name
+
+        if teacher_has_feedback_access:
+            draft_feedback = request.session.get(f'draft_{story.id}', '')
+
+        latest_teacher_feedback = Comment.objects.filter(
+            story=story,
+            author__profile__is_teacher=True,
+            deleted=False
+        ).order_by('-creation_date').first()
+
+        latest_student_reply = Comment.objects.filter(
+            story=story,
+            author=story.author,
+            deleted=False
+        ).order_by('-creation_date').first()
+
+        feedback_history_comments = Comment.objects.for_story(story).order_by('creation_date')
+
+        if latest_teacher_feedback:
+            latest_feedback_thread = "Teacher:\n{}".format(latest_teacher_feedback.message)
+
+        if latest_student_reply:
+            if latest_feedback_thread:
+                latest_feedback_thread += "\n\n"
+            latest_feedback_thread += "You:\n{}".format(latest_student_reply.message)
+
     return render(request, 'unfold_studio/show_story.html', {
         'story': story,
         'editable': editable,
         'owns_anonymous_story': owns_anonymous_story(request, story),
         'commentable': story.user_may_comment(request.user),
         'addableBooks': addableBooks,
-        'ai_enabled': ai_enabled,
-        'can_fork_anonymously': (
-            not request.user.is_authenticated and (story.public or story.shared)
-        ),
+        'feedback_mode': feedback_mode,
+        'feedback_readonly': feedback_readonly,
+        'is_teacher': teacher_has_feedback_access,
+        'is_story_author': is_story_author,
+        'prompt_name': prompt_name,
+        'draft_feedback': draft_feedback,
+        'latest_teacher_feedback': latest_teacher_feedback,
+        'latest_student_reply': latest_student_reply,
+        'latest_feedback_thread': latest_feedback_thread,
+        'feedback_history_comments': feedback_history_comments,
     })
 
 def show_json(request, story_id):
@@ -281,32 +336,50 @@ def signup(request):
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request,
-                "Welcome to Unfold Studio! Have fun, and please be a good community member.")
-            log.info(name="Application Alert", event="New User Sign Up", arg={"user": u(request)})
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    role = form.cleaned_data.get('user_type')
 
-            if claim_story_id is not None and claim_story_id in get_anonymous_owned_story_ids(request):
-                story = Story.objects.filter(
-                    pk=claim_story_id,
-                    author__isnull=True,
-                ).first()
-                if story:
-                    story.author = user
-                    story.save()
-                    remove_anonymous_owned_story(request, claim_story_id)
-                    return redirect('show_story', claim_story_id)
+                    if role == 'student':
+                        code_str = request.POST.get('join_code')
+                        try:
+                            # Verify the code exists and isn't used
+                            join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                            
+                            # Link student to the group
+                            user.literacy_groups.add(join_code.group)
+                            
+                            # Claim the code
+                            join_code.assigned_user = user
+                            join_code.save()
+                            
+                            log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                            return redirect('home')
 
-            next_url = request.POST.get('next')
-            if next_url and url_has_allowed_host_and_scheme(
-                next_url,
-                allowed_hosts={request.get_host()},
-                require_https=request.is_secure(),
-            ):
-                return HttpResponseRedirect(next_url)
+                        except JoinCode.DoesNotExist:
+                            # Manually trigger a failure to roll back the user creation
+                            raise ValueError("Invalid or expired join code.")
 
-            return redirect('home')
+                    elif role == 'teacher':
+                        messages.info(request, 
+                        f"Account created! To gain instructor access, please contact Dr. Chris Proctor at chrisp@buffalo.edu to request access."
+                        f"Include your username: {user.username}, name, institution, and how you plan to use Unfold Studio. Until then, you can use the site as a regular user. "
+                        f"Once approved, your account will be upgraded to instructor status")
+                        log.info(event="Teacher Sign Up (Pending)", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+
+                    else: # Regular User
+                        log.info(event="New User Sign Up", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+
+            except ValueError as e:
+                messages.error(request, str(e))
+                # The transaction.atomic() ensures the User object is deleted if this happens
+                return render(request, 'registration/signup.html', {'form': form})
     else:
         form = SignUpForm()
 
@@ -349,6 +422,31 @@ def join_student(request):
                 return render(request, 'registration/join_student.html', {'form': form})
     else:
         form = SignUpForm()
+    return render(request, 'registration/join_student.html', {'form': form})
+
+def join_student(request):
+    if request.method == 'POST':
+        form = StudentSignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    code_str = request.POST.get('join_code')
+                    try:
+                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                        user.literacy_groups.add(join_code.group)
+                        join_code.assigned_user = user
+                        join_code.save()
+                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+                    except JoinCode.DoesNotExist:
+                        raise ValueError("Invalid or expired join code.")
+            except ValueError as e:
+                messages.error(request, str(e))
+                return render(request, 'registration/join_student.html', {'form': form})
+    else:
+        form = StudentSignUpForm()
     return render(request, 'registration/join_student.html', {'form': form})
 
 class StoryVersionDetailView(View):
@@ -630,10 +728,33 @@ class StoryVersionListView(DetailView):
             }
             for e in history
         ]
+
+        feedback_prompt = story.prompts_submitted.filter(
+            literacy_group__leaders=self.request.user,
+            deleted=False
+        ).distinct().first()
+
+        context['feedback_prompt'] = feedback_prompt
+
+        if feedback_prompt:
+            context['skip_url'] = reverse(
+                'show_prompt',
+                args=[feedback_prompt.literacy_group.id, feedback_prompt.id]
+            )
+        else:
+            context['skip_url'] = reverse('show_story', args=[story.id])
+
         if story.user_may_comment(self.request.user):
             form = CommentForm()
-            form.fields['comment'].label = "Add a comment"
+            form.fields['comment'].label = "COMMENTS"
+            form.fields['comment'].widget.attrs.update({
+                'class': 'feedback-textarea',
+                'placeholder': 'Write feedback for the student here...',
+                'rows': 8,
+                'autocomplete': 'off',
+            })
             context['commentForm'] = form
+
         return context
 
 class CreateBookView(LoginRequiredMixin, CreateView):
@@ -779,3 +900,54 @@ def require_entry_point(request):
 
 def embed_entry_point(request):
     return render(request, 'unfold_studio/embed_entry_point.js', content_type="application/javascript")
+
+class SendFeedbackView(LoginRequiredMixin, View):
+    """Teacher sends feedback or saves it as a draft on a student's story using the terminal tab"""
+
+    def post(self, request, story_id):
+        story = get_object_or_404(Story, pk=story_id)
+
+        action = request.POST.get('action')
+        message = request.POST.get('comment', '').strip()
+
+        teacher_has_feedback_access = False
+        if request.user.profile.is_teacher:
+            teacher_has_feedback_access = story.prompts_submitted.filter(
+                literacy_group__leaders=request.user,
+                deleted=False
+            ).exists()
+
+        #only the teacher can send feedback
+        if action == 'send':
+            if not teacher_has_feedback_access:
+                return HttpResponseForbidden("You do not have permission to send feedback on this story.")
+
+            if message:
+                Comment.objects.create(
+                    author=request.user,
+                    story=story,
+                    message=message,
+                )
+
+            request.session.pop(f'draft_{story.id}', None)
+
+        # draft only saved in session and not db
+        elif action == 'draft':
+            if not teacher_has_feedback_access:
+                return HttpResponseForbidden("You do not have permission to save a draft on this story.")
+
+            request.session[f'draft_{story.id}'] = message
+
+        # student reply
+        elif action == 'reply':
+            if request.user != story.author:
+                return HttpResponseForbidden("Only the story author can reply.")
+
+            if message:
+                Comment.objects.create(
+                    author=request.user,
+                    story=story,
+                    message=message,
+                )
+
+        return redirect('show_story', story.id)

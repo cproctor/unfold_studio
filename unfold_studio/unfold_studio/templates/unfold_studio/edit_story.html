@@ -46,13 +46,6 @@
             <textarea name="description" id="{{ form.description.id_for_label }}" rows="4" cols="40" style="resize: vertical;">{{ form.description.value|default_if_none:'' }}</textarea>
         </div>
 
-        <div>
-            <label>Genres:</label>
-            <p style="font-size: 13px; color: #666; margin: 4px 0 0;">Pick one or more genres that fit your story.</p>
-            <div id="genre-hidden" style="display: none;">{{ form.genres }}</div>
-            <div class="genre-flex" id="genre-flex"></div>
-        </div>
-
         <input type="submit" value="Submit" />
     </form>
 

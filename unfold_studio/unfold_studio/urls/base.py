@@ -75,6 +75,7 @@ urlpatterns = [
     path('stories/<int:pk>/share/', views.ShareStoryView.as_view(), name="share_story"), 
     path('stories/<int:pk>/unshare/', views.UnshareStoryView.as_view(), name="unshare_story"), 
     path('stories/<int:pk>/version/', views.NewStoryVersionView.as_view(), name="new_story_version"), 
+    path('stories/<int:story_id>/feedback/', views.SendFeedbackView.as_view(), name="send_feedback"),
     path('stories/<int:pk>/delete/', views.DeleteStoryView.as_view(), name="delete_story"), 
 
     path('books/', views.BookListView.as_view(), name='list_books'),

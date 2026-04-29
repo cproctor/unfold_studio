@@ -12,6 +12,9 @@
     <link rel="stylesheet" href="{% static 'style/sms.css' %}">
     <link rel="stylesheet" href="{% static 'lib/inky/main.css' %}">
     <link rel="stylesheet" href="{% static 'lib/inky/inkTheme.css' %}">
+    {% if feedback_mode %}
+    <link rel="stylesheet" href="{% static 'style/feedback_terminal.css' %}">
+    {% endif %}
 
 {% endblock %}
 
@@ -98,7 +101,7 @@
 
 {# FROM INKY #}
 <div id="main">
-  <div class="twopane{% if not editable %} solo{% endif %}">
+  <div class="twopane{% if not story.author == request.user and not story.public %} solo{%endif%}" id="story-twopane">
     <div id="editor"></div>
     <div class="split"></div>
     <div id="player">
@@ -114,11 +117,123 @@
       </div>
     </div>
   </div>
+
+  {% if feedback_mode %}
+    <div id="feedback-terminal"
+        class="feedback-terminal"
+        data-default-height="{% if is_teacher %}320{% else %}260{% endif %}"
+        data-min-height="{% if is_teacher %}240{% else %}220{% endif %}">
+      <div id="feedback-resize-handle" class="feedback-terminal-resize-handle" title="Drag to resize"></div>
+
+      <div class="feedback-terminal-header">
+        <div class="feedback-terminal-tabs">
+          <button type="button" class="feedback-terminal-tab active" id="feedback-tab">Feedback</button>
+          <button type="button" class="feedback-terminal-tab" id="feedback-history-tab">Feedback Log</button>
+        </div>
+        <div class="feedback-terminal-controls">
+          <button type="button" id="feedback-minimize" title="Minimize">&#8964;</button>
+        </div>
+      </div>
+
+      <div class="feedback-terminal-body" id="feedback-terminal-body">
+        {% if not is_teacher %}
+          <div class="feedback-prompt-label">Viewing a submission for prompt: {{ prompt_name }}</div>
+        {% endif %}
+
+        <div id="feedback-main-panel" class="feedback-panel">
+          {% if is_teacher %}
+            <div class="feedback-comments-label">COMMENTS</div>
+
+            {% if latest_student_reply %}
+              <div class="feedback-comments-label">LATEST STUDENT REPLY</div>
+              <textarea class="feedback-thread-box" readonly>{{ latest_student_reply.message }}</textarea>
+            {% endif %}
+
+            <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-form">
+              {% csrf_token %}
+              <textarea id="feedback-textarea" name="comment" placeholder="Write feedback for the student here...">{% if draft_feedback %}{{ draft_feedback }}{% endif %}</textarea>
+              <div class="feedback-actions">
+                <button type="submit" name="action" value="send" class="feedback-btn feedback-send-btn">Send feedback</button>
+                <button type="submit" name="action" value="draft" class="feedback-btn feedback-draft-btn">Save draft</button>
+                <button type="button" class="feedback-btn feedback-skip-btn" id="feedback-skip">Skip for now</button>
+              </div>
+            </form>
+
+          {% elif feedback_readonly %}
+            <div class="feedback-comments-label">FEEDBACK</div>
+
+            {% if latest_feedback_thread %}
+              <textarea class="feedback-thread-box" readonly>{{ latest_feedback_thread }}</textarea>
+            {% else %}
+              <div class="feedback-empty-message">
+                No feedback yet.<br>
+                Your teacher’s feedback for this submission will appear here once it has been added.
+              </div>
+            {% endif %}
+
+            {% if latest_teacher_feedback %}
+              <form method="post" action="{% url 'send_feedback' story.id %}" id="feedback-reply-form">
+                {% csrf_token %}
+                <textarea id="feedback-reply-textarea" name="comment" placeholder="Write a reply to your teacher..."></textarea>
+                <div class="feedback-actions">
+                  <button type="submit" name="action" value="reply" class="feedback-btn feedback-send-btn">Reply</button>
+                </div>
+              </form>
+            {% endif %}
+          {% endif %}
+        </div>
+
+        <div id="feedback-history-panel" class="feedback-panel feedback-history-panel is-hidden">
+          <div class="feedback-comments-label">FEEDBACK LOG</div>
+
+          <div class="feedback-history-list">
+            {% if feedback_history_comments %}
+              {% for comment in feedback_history_comments %}
+                <div class="feedback-history-line">
+                  <div class="feedback-history-meta">
+                    <span class="feedback-history-time">{{ comment.creation_date|timesince }} ago</span>
+
+                    <span class="feedback-history-name">
+                      {% if comment.author == request.user %}
+                        You
+                      {% elif comment.author.profile.is_teacher %}
+                        Teacher
+                      {% elif comment.author == story.author %}
+                        Student
+                      {% else %}
+                        {{ comment.author.username }}
+                      {% endif %}
+                    </span>
+
+                    <span class="feedback-history-action">
+                      {% if comment.author == request.user %}
+                        {% if request.user.profile.is_teacher %}
+                          commented
+                        {% else %}
+                          replied
+                        {% endif %}
+                      {% elif comment.author.profile.is_teacher %}
+                        commented
+                      {% else %}
+                        replied
+                      {% endif %}
+                    </span>
+                  </div>
+
+                  <div class="feedback-history-text">{{ comment.message }}</div>
+                </div>
+              {% endfor %}
+            {% else %}
+              <div class="feedback-empty-message">No feedback history yet.</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  {% endif %}
 </div>
 
-
 {# END FROM INKY #}
-
 
 {# Inky imports Ace as a global, so I will follow #}
 <!--<script src="{% static 'lib/ace/ace.js'%}" type="text/javascript" charset="utf-8"></script>
@@ -134,5 +249,8 @@
     window.AI_ENABLED = {{ ai_enabled|yesno:"true,false" }};
 </script>
 <script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
+{% if feedback_mode %}
+<script src="{% static 'scripts/feedback_terminal.js' %}"></script>
+{% endif %}
 
 {% endblock %}

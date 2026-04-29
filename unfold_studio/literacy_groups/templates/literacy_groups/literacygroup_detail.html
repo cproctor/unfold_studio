@@ -1,34 +1,130 @@
 {% extends 'base/base.html' %}
+{% load static %}
+
+{% block head %}
+<link rel="stylesheet" href="{% static 'style/groups.css' %}">
+{% endblock %}
 
 {% block content %}
-<h1>{{group.name}}</h1>
-<div class="description">
-{% if group in user.literacy_groups_leading.all %}
-    [<a href="{% url 'update_group' group.id %}">Edit</a>]
-    [<a href="{% url 'invite_to_group' group.id %}">Invite</a>]
-{% else %}
-    [<form action="{% url 'leave_group' group.id %}" method="post" class="link">{% csrf_token %}<input type="submit" class="danger" value="Leave group"></form>]
-{% endif %}
-</div>
+<div class="groups-shell">
+    <div class="groups-header group-detail-header">
+        <div>
+            <h1>{{ group.name }}</h1>
+            <p class="groups-subtitle">
+                {% if leader %}
+                    Group dashboard.
+                {% else %}
+                    Group overview.
+                {% endif %}
+            </p>
+        </div>
 
-<p>
-</p>
-<h2>Prompts</h2>
-<ul>
-    {% for prompt in prompts %}
-        <li><a href="{% url 'show_prompt' group.id prompt.id %}">{{prompt.name}}</a></li>
-    {% endfor %}
+        <div class="group-detail-actions">
+            {% if group in user.literacy_groups_leading.all %}
+                <span>[<a class="group-action-link" href="{% url 'update_group' group.id %}">Edit group</a>]</span>
+                <span>[<a class="group-action-link" href="{% url 'invite_to_group' group.id %}">Invite people</a>]</span>
+            {% else %}
+                <form action="{% url 'leave_group' group.id %}" method="post" class="group-leave-form">
+                    {% csrf_token %}
+                    <input type="submit" class="group-action-link danger-link" value="Leave group">
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="group-summary-grid">
+        {% if leader %}
+            <div class="group-summary-card">
+                <div class="group-summary-label">Members</div>
+                <div class="group-summary-value">{{ member_total }}</div>
+            </div>
+            <div class="group-summary-card">
+                <div class="group-summary-label">Prompts</div>
+                <div class="group-summary-value">{{ prompt_total }}</div>
+            </div>
+            <div class="group-summary-card">
+                <div class="group-summary-label">Your role</div>
+                <div class="group-summary-value">Leader</div>
+            </div>
+        {% else %}
+            <div class="group-summary-card">
+                <div class="group-summary-label">Group</div>
+                <div class="group-summary-value">{{ group.name }}</div>
+            </div>
+            <div class="group-summary-card">
+                <div class="group-summary-label">Prompts</div>
+                <div class="group-summary-value">{{ prompt_total }}</div>
+            </div>
+            <div class="group-summary-card">
+                <div class="group-summary-label">Your role</div>
+                <div class="group-summary-value">Member</div>
+            </div>
+        {% endif %}
+    </div>
+
+    <div class="groups-card">
+        <div class="groups-card-header">
+            <h2>Prompts</h2>
+            {% if leader %}
+                <a class="groups-create-link" href="{% url 'create_prompt' group.id %}">+ New prompt</a>
+            {% endif %}
+        </div>
+
+        {% if prompts %}
+            <div class="groups-list">
+                {% for prompt in prompts %}
+                    <div class="groups-row">
+                        <div class="groups-row-main">
+                            <a class="groups-row-title" href="{% url 'show_prompt' group.id prompt.id %}">{{ prompt.name }}</a>
+                            <div class="groups-row-meta">
+                                <span>Writing prompt</span>
+                            </div>
+                        </div>
+
+                        <div class="groups-row-side">
+                            <a class="groups-view-link" href="{% url 'show_prompt' group.id prompt.id %}">view</a>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="groups-empty">No prompts yet.</div>
+        {% endif %}
+    </div>
+
     {% if leader %}
-        <li><a href="{% url 'create_prompt' group.id %}">New prompt</a></li>
+    <div class="groups-card">
+        <div class="groups-card-header">
+            <h2>Members</h2>
+        </div>
+
+        <div class="groups-list">
+            {% for member in group.members.all %}
+                <div class="groups-row">
+                    <div class="groups-row-main">
+                        <a class="groups-row-title" href="{% url 'show_user' member.username %}">{{ member.username }}</a>
+                        <div class="groups-row-meta">
+                            {% if member in group.leaders.all %}
+                                <span>Group leader</span>
+                            {% else %}
+                                <span>Group member</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="groups-row-side">
+                        <span class="groups-status {% if member in group.leaders.all %}is-active{% else %}is-neutral{% endif %}">
+                            {% if member in group.leaders.all %}
+                                Leader
+                            {% else %}
+                                Member
+                            {% endif %}
+                        </span>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
     {% endif %}
-</ul>
-<h2>Members</h2>
-<ul>
-{% for member in group.members.all %}
-    <li>
-        {% if member in group.leaders.all %}[leader] {% endif %}
-        <a href="{% url 'show_user' member.username %}">{{member.username}}</a>
-    </li>
-{% endfor %}
-</ul>
+</div>
 {% endblock %}
