@@ -55,7 +55,7 @@ optional = true
 
 [tool.poetry.group.dev.dependencies]
 django-debug-toolbar = ">=4.4.2"
-pytest = ">=8.0.0"
+pytest = ">=9.0.3"
 pytest-django = ">=4.8.0"
 selenium = ">=4.18.1"
 webdriver-manager = ">=4.0.1"
