@@ -48,3 +48,18 @@ class SearchForm(Form):
 
 class StoryVersionForm(Form):
     comment = forms.CharField(widget=forms.Textarea())
+
+class BookForm(ModelForm):
+    genres = forms.MultipleChoiceField(
+        choices=GENRE_CHOICES,
+        widget=forms.CheckboxSelectMultiple,
+        required=False,
+    )
+    class Meta:
+        model = Book
+        fields = ['title', 'description', 'genres']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.initial['genres'] = self.instance.genres or []

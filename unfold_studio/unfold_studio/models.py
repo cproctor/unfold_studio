@@ -587,7 +587,7 @@ class Book(models.Model):
     sites = models.ManyToManyField(Site)
     priority = models.FloatField(default=0)
     deleted = models.BooleanField(default=False)
-
+    genres = models.JSONField(default=list, blank=True)
     objects = BookManager()
 
     def update_priority(self):

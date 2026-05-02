@@ -1,31 +1,86 @@
 {% extends 'base/base.html' %}
 {% load static %}
-{% load linkrefs %} 
+{% load linkrefs %}
 
-{% block content %}
-<h1>{{book.title}}</h1>
-{% if book.description %} <p class="description">{{book.description | linkrefs:user}}</p>{% endif %}
-{% if book.owner == request.user %} 
-    <p>[<a href="{% url 'edit_book' book.id %}">Edit</a>]</p>
-{% endif %}
-{% if stories %}
-<ul>
-    {% for story in stories %}
-        <li>
-            {% include 'unfold_studio/story.html'%}
-            {% if book.owner == request.user %}
-                [<form action="{% url 'remove_story_from_book' book.id story.id %}" method="post" class="link">
-                    {% csrf_token %}
-                    <input type="submit" class="danger" value="remove">
-                </form>]
-            {% endif %}
-        </li>
-    {% endfor %}
-</ul>
-{% else %}
-    <p>This book has no stories (or they are not shared).</p>
-{% endif %}
-    
-
+{% block style %}
+<style>
+.book-detail-page { max-width: 1100px; margin: 0 auto; padding: 2rem 1rem; }
+.book-detail-header {
+  margin-bottom: 2rem;
+}
+.book-detail-title { font-size: 1.7rem; margin: 0 0 0.4rem; }
+.book-detail-desc { color: #555; margin: 0 0 0.5rem; }
+.book-detail-meta { font-size: 0.85rem; color: #888; margin: 0; }
+.book-detail-meta a { color: #3498db; text-decoration: none; }
+.detail-stories-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.remove-form { margin-top: 6px; }
+.remove-btn {
+  background: none; border: none; color: #e55; font-size: 0.75rem;
+  cursor: pointer; padding: 0; text-decoration: underline;
+}
+.remove-btn:hover { color: #c00; }
+.no-stories-msg { color: #888; font-style: italic; }
+</style>
 {% endblock %}
 
+{% block content %}
+<div class="book-detail-page">
+
+  <div class="book-detail-header">
+    <h1 class="book-detail-title">{{ book.title }}</h1>
+    {% if book.description %}
+      <p class="book-detail-desc">{{ book.description | linkrefs:user }}</p>
+    {% endif %}
+    <p class="book-detail-meta">
+      Curated by <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+      · {{ stories|length }} {{ stories|length|pluralize:"story,stories" }}
+      {% if book.owner == request.user %}
+        [<a href="{% url 'edit_book' book.id %}">Edit book details</a>]
+      {% endif %}
+      [<a href="{% url 'list_books' %}">Back</a>]
+    </p>
+  </div>
+
+  {% if stories_with_snippets %}
+    <ul class="detail-stories-grid">
+      {% for story, snippet in stories_with_snippets %}
+        <li>
+          <a class="story-card" href="{% url 'show_story' story.id %}">
+            <div class="story-card__body">
+              <div class="story-card__body-main">
+                <p class="story-card__title">{{ story.title }}</p>
+                <p class="story-card__desc">{{ story.description }}</p>
+                {% if story.author %}
+                <div class="story-card__meta">
+                  <span class="story-card__author"><strong>By</strong> {{ story.author.username }}</span>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+            <div class="story-card__reveal" aria-hidden="true">
+              <p class="story-card__preview">{% if snippet %}{{ snippet }}{% else %}No preview available.{% endif %}</p>
+              <p class="story-card__hint">Public story</p>
+            </div>
+          </a>
+          {% if book.owner == request.user %}
+            <form action="{% url 'remove_story_from_book' book.id story.id %}" method="post" class="remove-form">
+              {% csrf_token %}
+              <button type="submit" class="remove-btn">Remove</button>
+            </form>
+          {% endif %}
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="no-stories-msg">This book has no stories (or they are not shared).</p>
+  {% endif %}
+
+</div>
+{% endblock %}

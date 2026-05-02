@@ -1,5 +1,9 @@
+/*
+ * WHAT BROKE: JS used to set #story-twopane bottom ≈ panel height, reserving a blank strip above
+ * the dock. FIX: force full-height twopane; fixed .feedback-terminal overlays (see feedback_terminal.js).
+ */
 #story-twopane {
-    transition: bottom 0.12s ease;
+    bottom: 0 !important;
 }
 
 .feedback-terminal {
@@ -105,6 +109,11 @@
 
 .feedback-terminal.minimized .feedback-terminal-body {
     display: none;
+}
+
+/* Minimized: thin strip only; shadow separates from editor content behind it */
+.feedback-terminal.minimized {
+    box-shadow: 0 -4px 14px rgba(0, 0, 0, 0.12);
 }
 
 .feedback-prompt-label {

@@ -7,8 +7,9 @@ from django.http import JsonResponse
 from django.contrib.auth import login
 from django.contrib.auth.views import LoginView
 import json
+import re
 import structlog
-from .forms import StoryForm, StoryVersionForm
+from .forms import StoryForm, StoryVersionForm, BookForm, GENRE_CHOICES
 from .models import Story, Book, StoryPlayInstance, StoryPlayRecord
 from profiles.models import Profile
 from django.views.generic.detail import SingleObjectMixin, DetailView
@@ -27,10 +28,9 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q, F, Window, Value, FloatField
 from django.db.models.functions import RowNumber, Coalesce
 from django.db import OperationalError
-from django.core.paginator import Paginator, PageNotAnInteger
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from unfold_studio.mixins import StoryMixin
-from unfold_studio.forms import SearchForm
-from literacy_events.models import LiteracyEvent
+from unfold_studio.forms import SearchForm, GENRE_CHOICES
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 from comments.models import Comment
 from comments.forms import CommentForm
@@ -38,8 +38,73 @@ from django.utils import timezone
 from django.db import transaction
 from literacy_groups.models import JoinCode
 from django.http import HttpResponseForbidden
+from literacy_events.models import LiteracyEvent
+# Anonymous draft stories: session tracks ids so visitors can edit/fork without login.
+# WHAT BROKE: merge dropped these imports → NameError on POST /stories/new/, GET show_story, claim flow.
+from .anonymous_session import (
+    add_anonymous_owned_story,
+    get_anonymous_owned_story_ids,
+    owns_anonymous_story,
+    remove_anonymous_owned_story,
+)
 
-log = structlog.get_logger("unfold_studio")    
+log = structlog.get_logger("unfold_studio")
+
+BROWSE_STORIES_PER_PAGE = 10
+
+
+def extract_compiled_story_preview(story):
+    """
+    Prefer readable prose from compiled Ink JSON in story.json.
+    Fall back to story.description if needed.
+    """
+    desc = (story.description or "").strip()
+
+    if not story.json:
+        return desc
+
+    try:
+        compiled = json.loads(story.json)
+    except Exception:
+        return desc
+
+    # Ink compiled story JSON marks narrative text with a leading caret (^).
+    # Keep only those chunks to avoid runtime/control metadata.
+    chunks = []
+
+    def walk(node):
+        if len(chunks) >= 12:
+            return
+        if isinstance(node, str):
+            s = node.strip()
+            if s.startswith("^"):
+                s = s.lstrip("^").strip()
+                s = re.sub(r"\s+", " ", s)
+                if s:
+                    chunks.append(s)
+            return
+        if isinstance(node, list):
+            for item in node:
+                walk(item)
+                if len(chunks) >= 12:
+                    return
+            return
+        if isinstance(node, dict):
+            for v in node.values():
+                walk(v)
+                if len(chunks) >= 12:
+                    return
+
+    start = compiled.get("root", compiled) if isinstance(compiled, dict) else compiled
+    walk(start)
+
+    preview = " ".join(chunks).strip()
+    if preview:
+        words = preview.split()
+        return " ".join(words[:60]) + ("…" if len(words) > 60 else "")
+
+    return desc
+
 
 def u(request):
     "Helper to return username"
@@ -59,16 +124,28 @@ def home(request):
         site = get_current_site(request)
         stories = Story.objects.for_site_anonymous_user(site)
 
-    stories = stories[:s.STORIES_ON_HOMEPAGE]
-    return render(request, 'unfold_studio/home.html', {'stories': stories})
+    story_list = list(stories[:s.STORIES_ON_HOMEPAGE])
+    for st in story_list:
+        st.hover_preview = extract_compiled_story_preview(st)
+    return render(request, 'unfold_studio/home.html', {'stories': story_list})
 
 def browse(request):
-    "Shows all stories, sorted by priority. Someday, I'll need to paginate this."
+    """Browse/search stories. Merge note: story-books-ui added genre filters + card UI; we kept
+    development search (websearch + rank×priority blend + title/ink fallbacks). Removed sort=top|new
+    branches — they fought default priority ordering and client expectations for scoring."""
     site = get_current_site(request)
     if request.user.is_authenticated:
         stories = Story.objects.for_site_user(site, request.user)
     else:
         stories = Story.objects.for_site_anonymous_user(site)
+
+    genre_keys = {c[0] for c in GENRE_CHOICES}
+    genre_param = (request.GET.get('genre') or '').strip()
+    if genre_param and genre_param != 'all' and genre_param in genre_keys:
+        stories = stories.filter(genres__contains=[genre_param])
+
+    query_text = (request.GET.get('query') or '').strip()
+    has_search_query = False
 
     if request.GET.get('query'):
         form = SearchForm(request.GET)
@@ -78,16 +155,15 @@ def browse(request):
                 messages.warning(request, "Please enter a valid search query")
                 return redirect('list_stories')
 
-            # websearch: friendlier multi-word matching than plainto_tsquery.
             query = SearchQuery(raw_q, search_type='websearch')
 
-            # Substring fallback: FTS misses many title/ink cases; also match each word (len>=3).
             text_q = Q(title__icontains=raw_q) | Q(ink__icontains=raw_q)
             for w in raw_q.split():
                 w = w.strip('.,!?\"\'()[]')
                 if len(w) >= 3:
                     text_q |= Q(title__icontains=w) | Q(ink__icontains=w)
 
+            # Hybrid relevance: Postgres rank × story priority (development behaviour).
             stories = stories.annotate(
                 rank=SearchRank(F('search'), query),
                 score=Coalesce(
@@ -102,22 +178,56 @@ def browse(request):
             ).exclude(
                 author__isnull=True, public=False, shared=False
             ).order_by('-score', '-priority')
+            query_text = raw_q
+            has_search_query = True
         else:
             messages.warning(request, "Please enter a valid search query")
             return redirect('list_stories')
     else:
         form = SearchForm()
+        stories = stories.order_by('-priority', '-id')
 
     if request.user.is_authenticated:
         stories = stories.select_related('author').prefetch_related('loves')
 
-    paginator = Paginator(stories, s.STORIES_PER_PAGE)
+    def browse_qs(removals=(), **updates):
+        q = request.GET.copy()
+        q.pop('page', None)
+        for key in removals:
+            q.pop(key, None)
+        for key, val in updates.items():
+            q[key] = val
+        return q.urlencode()
+
+    genre_links = [{'slug': 'all', 'label': 'All', 'qs': browse_qs(removals=('genre',))}]
+    for slug, label in GENRE_CHOICES:
+        genre_links.append({'slug': slug, 'label': label, 'qs': browse_qs(genre=slug)})
+
+    preserve = request.GET.copy()
+    preserve.pop('page', None)
+    browse_querystring = preserve.urlencode()
+
+    paginator = Paginator(stories, BROWSE_STORIES_PER_PAGE)
     page = request.GET.get('page', 1)
     try:
-        story_page = paginator.page(page)
+        try:
+            story_page = paginator.page(page)
+        except PageNotAnInteger:
+            story_page = paginator.page(1)
+        except EmptyPage:
+            story_page = paginator.page(paginator.num_pages)
+
+        for st in story_page:
+            st.hover_preview = extract_compiled_story_preview(st)
+
         return render(request, 'unfold_studio/list_stories.html', {
-            'stories': story_page, 
-            'form': form
+            'stories': story_page,
+            'form': form,
+            'search_value': query_text,
+            'browse_querystring': browse_querystring,
+            'genre_links': genre_links,
+            'current_genre': genre_param or 'all',
+            'has_search_query': has_search_query,
         })
     except OperationalError:
         messages.warning(request, "Search is not supported using the current database.")
@@ -152,7 +262,7 @@ def new_story(request):
             story.save()
             log.info(name="Application Alert", event="New Story Created", arg={"user": u(request), "story": story.id})
             if not request.user.is_authenticated:
-                add_anonymous_owned_story(request, story.id)
+                add_anonymous_owned_story(request, story.id)  # else session does not own draft → cannot edit
             return redirect('show_story', story.id)
     else:
         form = StoryForm()
@@ -196,6 +306,7 @@ def compile_story(request, story_id):
 def _user_may_edit_story(request, story):
     if request.user.is_authenticated:
         return story.author_id == request.user.id or bool(story.public)
+    # Anonymous: only session-listed draft ids may edit (see add_anonymous_owned_story above).
     return owns_anonymous_story(request, story)
 
 
@@ -577,7 +688,7 @@ class ForkStoryView(SingleObjectMixin, View):
             reversion.set_comment("{} forked from @story:{}".format(story.title, parent.id))
         story.compile()
         story.sites.add(site)
-        add_anonymous_owned_story(request, story.id)
+        add_anonymous_owned_story(request, story.id)  # same session ownership as anonymous new_story
         return redirect('show_story', story.id)
 
 class DeleteStoryView(StoryMethodView):
@@ -586,7 +697,7 @@ class DeleteStoryView(StoryMethodView):
         story = self.get_object()
         if not request.user.is_authenticated:
             messages.warning(request, "You need to be logged in to delete stories")
-            return redirect('show_story', parent.id) 
+            return redirect('show_story', story.id)  # was parent.id after merge → NameError
         if story.author != request.user:
             messages.warning(request, "You can only delete your own stories")
             return redirect('show_story', story.id)
@@ -759,7 +870,7 @@ class StoryVersionListView(DetailView):
 
 class CreateBookView(LoginRequiredMixin, CreateView):
     model = Book
-    fields = ['title', 'description']
+    form_class = BookForm
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -768,43 +879,173 @@ class CreateBookView(LoginRequiredMixin, CreateView):
 
     def post(self, request, *args, **kwargs):
         _book = Book(owner=request.user)
-        form = self.get_form_class()(request.POST, instance=_book)
+        form = BookForm(request.POST, instance=_book)
         if form.is_valid():
-            book = form.save()
+            book = form.save(commit=False)
+            book.genres = form.cleaned_data.get('genres', [])
+            book.save()
             book.sites.add(get_current_site(request))
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.PUBLISHED_BOOK,
                 subject=request.user,
                 book=book
             )
-            log.info("{} created book {} (id {})".format(request.user, book.title, book.id))
             return redirect('show_book', book.id)
         else:
             context = self.get_context_data(form=form)
-            return render('book_form', context)
+            return render(request, 'unfold_studio/book_form.html', context)
 
 class BookListView(ListView):
     model = Book
-    paginate_by = 12
+    template_name = 'unfold_studio/book_list.html'
+    # WHAT BROKE: paginate_by=12 made Django treat ?page=2 as "books 13–24". Fewer than 13 books
+    # → EmptyPage 404. The template uses the same ?page= for genre *section* pages (genre_page_obj).
+    # Fix: no ListView pagination; all books load for grouping; only genre_sections paginate.
+
     def get_queryset(self):
-        return Book.objects.filter(sites__id=get_current_site(self.request).id).select_related('owner')
+        site = get_current_site(self.request)
+        qs = Book.objects.filter(sites__id=site.id).select_related('owner').prefetch_related('stories')
+        query = self.request.GET.get('query', '').strip()
+        if query:
+            qs = qs.filter(
+                Q(title__icontains=query) | Q(owner__username__icontains=query) | Q(description__icontains=query)
+            )
+        return qs
+        
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        genre_filter = self.request.GET.get('genre', '')
+        query = self.request.GET.get('query', '').strip()
+        all_books = list(context['object_list'])
+
+        # If searching, filter by genre if one is active, then show flat results
+        if query:
+            if genre_filter == 'other':
+                search_results = [b for b in all_books if not b.genres]
+            elif genre_filter:
+                search_results = [b for b in all_books if genre_filter in (b.genres or [])]
+            else:
+                search_results = all_books
+
+            context['genre_groups'] = {}
+            context['ungenred_books'] = []
+            context['search_results'] = search_results
+            context['genre_choices'] = GENRE_CHOICES
+            context['active_genre'] = genre_filter
+            context['query'] = query
+            context['is_search'] = True
+            return context
+
+        # Genre filtering
+        if genre_filter == 'other':
+            all_books = [b for b in all_books if not b.genres]
+        elif genre_filter:
+            all_books = [b for b in all_books if genre_filter in (b.genres or [])]
+
+        # Group books by genre for display
+        genre_label_map = dict(GENRE_CHOICES)
+        genre_groups = {}
+        ungenred = []
+        for book in all_books:
+            if book.genres:
+                for g in book.genres:
+                    if genre_filter and genre_filter != 'other' and g != genre_filter:
+                        continue
+                    label = genre_label_map.get(g, g.title())
+                    genre_groups.setdefault(label, []).append(book)
+            else:
+                ungenred.append(book)
+
+    # Paginate genre sections on the main /books/ page.
+    # Keep active genre pages showing all books for that genre.
+        if not genre_filter:
+            genre_sections = list(genre_groups.items())
+
+            if ungenred:
+                genre_sections.append(("Other", ungenred))
+
+            genre_paginator = Paginator(genre_sections, 3)
+            page_number = self.request.GET.get("page", 1)
+            genre_page_obj = genre_paginator.get_page(page_number)
+
+            context["genre_groups"] = dict(genre_page_obj.object_list)
+            context["ungenred_books"] = []
+            context["genre_page_obj"] = genre_page_obj
+        else:
+            context["genre_groups"] = genre_groups
+            context["ungenred_books"] = ungenred
+            context["genre_page_obj"] = None
+        context['search_results'] = []
+        context['genre_choices'] = GENRE_CHOICES
+        context['active_genre'] = genre_filter
+        context['query'] = query
+        context['is_search'] = False
+        return context
+ 
 
 class BookDetailView(DetailView):
     # TODO: Use this as a model for using Mixins. get_context_data is needlessly verbose.
     model = Book
+    template_name = 'unfold_studio/book_detail.html'
 
     def get_queryset(self):
         return Book.objects.filter(sites__id=get_current_site(self.request).id)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        user = self.request.user if self.request.user.is_authenticated else None
-        context['stories'] = self.get_object().stories.for_request(self.request).select_related('author').prefetch_related('loves')
+        stories = self.get_object().stories.for_request(self.request).select_related('author').prefetch_related('loves')
+        
+        stories_with_snippets = []
+        for story in stories:
+            snippet = self._extract_snippet(story)
+            stories_with_snippets.append((story, snippet))
+        
+        context['stories'] = stories
+        context['stories_with_snippets'] = stories_with_snippets
         return context
+    
+    def _extract_snippet(self, story):
+        import json, re
+        desc = (story.description or "").strip()
+        if not story.json:
+            return desc
+        try:
+            compiled = json.loads(story.json)
+        except Exception:
+            return desc
+        chunks = []
+        def walk(node):
+            if len(chunks) >= 12:
+                return
+            if isinstance(node, str):
+                s = node.strip()
+                if s.startswith("^"):
+                    s = s.lstrip("^").strip()
+                    s = re.sub(r"\s+", " ", s)
+                    if s:
+                        chunks.append(s)
+                return
+            if isinstance(node, list):
+                for item in node:
+                    walk(item)
+                    if len(chunks) >= 12:
+                        return
+            if isinstance(node, dict):
+                for v in node.values():
+                    walk(v)
+                    if len(chunks) >= 12:
+                        return
+        start = compiled.get("root", compiled) if isinstance(compiled, dict) else compiled
+        walk(start)
+        preview = " ".join(chunks).strip()
+        if preview:
+            words = preview.split()
+            return " ".join(words[:60]) + ("…" if len(words) > 60 else "")
+        return desc
 
 class UpdateBookView(UpdateView):
     model = Book
-    fields = ['title', 'description']
+    form_class = BookForm
 
     def get_queryset(self):
         if self.request.user.is_authenticated:

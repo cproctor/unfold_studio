@@ -1,34 +1,403 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{# Books list (/books/): merge resolution kept this full layout (search, genre pills, grouped cards).
+   WHAT BROKE: Git merged a broken HEAD fragment (orphan </p></ul> pagination) into the form —
+   fixed by keeping the story-books-ui markup only. Pagination for genre *sections* uses ?page=
+   (see BookListView); ListView.paginate_by was removed in views so ?page= is not stolen for 12-book pages. #}
 
 {% block content %}
-<h1>All books</h1>
-<p>
-    Books are collections of stories. 
-    {% if request.user.is_authenticated %}
-        <a href="{% url 'create_book' %}">Create a new book</a>.
-    {% else %}
-        When you are logged in, you can create your own books. 
-    {% endif %}
-</p>
-</ul>
-<div class="description">
-    Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+<div class="books-page">
+  <div class="books-header">
+    <div class="books-header-top">
+      <h1>Books</h1>
+      {% if request.user.is_authenticated %}
+        [<a href="{% url 'create_book' %}">+ Create a new book</a>]
+      {% endif %}
+    </div>
+    <p>Books are collections of stories. Use Refine to filter by genre—books can belong to multiple genres.</p>
+  </div>
 
-    {% if page_obj.has_previous %}
-        [<a href="?page={{ page_obj.previous_page_number }}">Previous</a>]
+  <form method="get" class="books-search-form">
+    {% if active_genre %}
+      <input type="hidden" name="genre" value="{{ active_genre }}">
     {% endif %}
+    <input
+      type="text"
+      name="query"
+      value="{{ query }}"
+      placeholder="Search books by title, curator, or keyword…"
+      class="books-search-input"
+      aria-label="Search books"
+    />
+    <button type="submit">Search</button>
+  </form>
 
-    {% if page_obj.has_next %}
-        [<a href="?page={{ page_obj.next_page_number }}">Next</a>]
-    {% endif %}
+  <div class="books-layout">
+    <aside class="books-sidebar">
+      <div class="refine-box">
+        <p class="refine-label">Refine</p>
+        <p class="genre-label">GENRE</p>
+        <div class="genre-pills" id="genre-pills">
+          <span class="pill {% if not active_genre %}pill--active{% endif %}"
+                data-genre="" style="cursor:pointer;">All</span>
+          {% for key, label in genre_choices %}
+            <span class="pill {% if key == active_genre %}pill--active{% endif %}"
+                  data-genre="{{ key }}" style="cursor:pointer;">{{ label }}</span>
+          {% endfor %}
+        </div>
+      </div>
+    </aside>
+
+    <div class="books-main">
+
+      {% if is_search %}
+        {% if search_results %}
+          <section class="book-genre-section">
+            <div class="genre-section-header">
+              <h2 class="genre-section-title">Search results for "{{ query }}"</h2>
+            </div>
+            <div class="book-cards-row">
+              {% for book in search_results %}
+                <div class="book-card">
+                  <div class="book-card-inner">
+                    <span class="book-card-type">BOOK</span>
+                    <h3 class="book-card-title">{{ book.title }}</h3>
+                    {% if book.description %}
+                      <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
+                    {% endif %}
+                    <p class="book-card-meta">
+                      {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
+                      · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+                    </p>
+                  </div>
+                  <a href="{% url 'show_book' book.id %}" class="book-card-hover">
+                    <div class="book-card-hover__body">
+                      <ul class="book-story-list">
+                        {% for story in book.stories.all|slice:":5" %}
+                          <li>{{ story.title }} — {{ story.author }}</li>
+                        {% empty %}
+                          <li>No stories yet.</li>
+                        {% endfor %}
+                      </ul>
+                      {% if book.stories.count > 5 %}
+                        <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                      {% endif %}
+                    </div>
+                    <span class="view-collection-link">View collection →</span>
+                  </a>
+                </div>
+              {% endfor %}
+            </div>
+          </section>
+        {% else %}
+          <h2 class="no-books-msg">Sorry, No books found for "{{ query }}".</h2>
+        {% endif %}
+
+      {% else %}
+
+        {% if genre_groups %}
+          {% for genre_label, books in genre_groups.items %}
+            <section class="book-genre-section">
+              <div class="genre-section-header">
+                <h2 class="genre-section-title">{{ genre_label }}</h2>
+                {% if not active_genre %}
+                  {% for key, label in genre_choices %}
+                    {% if label == genre_label %}
+                      [<a href="?genre={{ key }}" class="view-all-link">View all</a>]
+                    {% endif %}
+                  {% endfor %}
+                {% endif %}
+              </div>
+              <div class="book-cards-row">
+                {% for book in books %}
+                  {% if active_genre or forloop.counter <= 3 %}
+                    <div class="book-card">
+                      <div class="book-card-inner">
+                        <span class="book-card-type">BOOK</span>
+                        <h3 class="book-card-title">{{ book.title }}</h3>
+                        {% if book.description %}
+                          <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
+                        {% endif %}
+                        <p class="book-card-meta">
+                          {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
+                          · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+                        </p>
+                      </div>
+                      <a href="{% url 'show_book' book.id %}" class="book-card-hover">
+                        <div class="book-card-hover__body">
+                          <ul class="book-story-list">
+                            {% for story in book.stories.all|slice:":5" %}
+                              <li>{{ story.title }} — {{ story.author }}</li>
+                            {% empty %}
+                              <li>No stories yet.</li>
+                            {% endfor %}
+                          </ul>
+                          {% if book.stories.count > 5 %}
+                            <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                          {% endif %}
+                        </div>
+                        <span class="view-collection-link">View collection →</span>
+                      </a>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </section>
+          {% endfor %}
+        {% endif %}
+
+        {% if ungenred_books %}
+          <section class="book-genre-section">
+            <div class="genre-section-header">
+              <h2 class="genre-section-title">Other</h2>
+              {% if not active_genre %}
+                [<a href="?genre=other" class="view-all-link">View all</a>]
+              {% endif %}
+            </div>
+            <div class="book-cards-row">
+              {% for book in ungenred_books %}
+                {% if active_genre == 'other' or forloop.counter <= 3 %}
+                  <div class="book-card">
+                    <div class="book-card-inner">
+                      <span class="book-card-type">BOOK</span>
+                      <h3 class="book-card-title">{{ book.title }}</h3>
+                      {% if book.description %}
+                        <p class="book-card-desc">{{ book.description|truncatechars:80 }}</p>
+                      {% endif %}
+                      <p class="book-card-meta">
+                        {{ book.stories.count }} {{ book.stories.count|pluralize:"story,stories" }}
+                        · <a href="{% url 'show_user' book.owner %}">{{ book.owner }}</a>
+                      </p>
+                    </div>
+                    <a href="{% url 'show_book' book.id %}" class="book-card-hover">
+                      <div class="book-card-hover__body">
+                        <ul class="book-story-list">
+                          {% for story in book.stories.all|slice:":5" %}
+                            <li>{{ story.title }} — {{ story.author }}</li>
+                          {% empty %}
+                            <li>No stories yet.</li>
+                          {% endfor %}
+                        </ul>
+                        {% if book.stories.count > 5 %}
+                          <span class="more-stories-hint">+{{ book.stories.count|add:"-5" }} more…</span>
+                        {% endif %}
+                      </div>
+                      <span class="view-collection-link">View collection →</span>
+                    </a>
+                  </div>
+                {% endif %}
+              {% endfor %}
+            </div>
+          </section>
+        {% endif %}
+
+        {% if not genre_groups and not ungenred_books %}
+          <h2 class="no-books-msg"> Sorry, no books were found.</h2>
+        {% endif %}
+
+      {% endif %}
+
+      {% if genre_page_obj and genre_page_obj.paginator.num_pages > 1 %}
+        <div class="description books-pagination">
+          Page {{ genre_page_obj.number }} of {{ genre_page_obj.paginator.num_pages }}
+          {% if genre_page_obj.has_previous %}
+            [<a href="?{% if query %}query={{ query|urlencode }}&amp;{% endif %}{% if active_genre %}genre={{ active_genre }}&amp;{% endif %}page={{ genre_page_obj.previous_page_number }}">Previous</a>]
+          {% endif %}
+          {% if genre_page_obj.has_next %}
+            [<a href="?{% if query %}query={{ query|urlencode }}&amp;{% endif %}{% if active_genre %}genre={{ active_genre }}&amp;{% endif %}page={{ genre_page_obj.next_page_number }}">Next</a>]
+          {% endif %}
+        </div>
+      {% endif %}
+
+    </div>
+  </div>
 </div>
-<ul>
-{% for book in object_list %}
-    <li><a href="{% url 'show_book' book.id %}">{{book.title}}</a> 
-    (<a href="{% url 'show_user' book.owner %}">{{book.owner}}</a>)
-{% endfor %}
-<ul>
+
+<style>
+/* ── Page ── */
+.books-page { margin: 0; padding: 0; }
+.books-header-top { display: flex; align-items: baseline; gap: 12px; }
+.books-header-top h1 { margin: 0; }
+.books-create-link { font-size: 0.85rem; font-weight: 600; text-decoration: none; }
+.books-desc {
+  margin: 6px 0 10px;
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 820px) {
+  .books-desc { white-space: normal; overflow: visible; text-overflow: clip; }
+}
+
+/* ── Search row (match /stories/) ── */
+.books-search-form { display: flex; gap: 8px; align-items: center; margin: 10px 0 14px; }
+.books-search-input {
+  flex: 1;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #d9d9d9;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  box-sizing: border-box;
+}
+.books-search-form button {
+  padding: 10px 12px;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  border-radius: 10px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* ── Layout (match /stories/) ── */
+.books-layout { display: grid; grid-template-columns: 210px 1fr; gap: 20px; align-items: start; }
+@media (max-width: 820px) { .books-layout { grid-template-columns: 1fr; } }
+.books-sidebar { min-width: 0; }
+.books-main { min-width: 0; }
+.refine-box {
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  padding: 14px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+.refine-label { font-size: 0.8rem; margin: 0 0 12px; font-weight: 700; }
+.genre-label {
+  display: block;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: #666;
+  margin: 0 0 6px;
+}
+.genre-pills { display: flex; flex-wrap: wrap; gap: 6px; }
+.pill {
+  font-size: 0.76rem;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid #d9d9d9;
+  background: #fff;
+  color: #111;
+  line-height: 1.2;
+}
+.pill--active { background: #e7f0ff; border-color: #74b0ff; color: #003d82; }
+
+/* ── Genre sections ── */
+.book-genre-section { margin-bottom: 2.5rem; width: 100%; }
+.genre-section-header {
+  display: flex; align-items: baseline; gap: 10px; margin-bottom: 1rem;
+}
+.genre-section-title { font-size: 1.1rem; font-weight: 700; margin: 0; }
+.view-all-link { font-size: 0.82rem; color: #3498db; text-decoration: none; }
+.view-all-link:hover { text-decoration: underline; }
+
+/* ── Card row — 3 columns, no scroll ── */
+.book-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* ── Card row — 3 columns, no scroll ── */
+.book-cards-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* ── Book cards ── */
+.book-card {
+  position: relative;
+  display: block;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  min-height: 220px;
+  box-sizing: border-box;
+  cursor: pointer;
+  transition: box-shadow 0.2s;
+}
+.book-card:hover { box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1); }
+
+.book-card-inner {
+  padding: 14px 16px 16px;
+  min-height: 220px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  opacity: 1;
+  visibility: visible;
+  transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+.book-card:hover .book-card-inner { opacity: 0; visibility: hidden; }
+
+.book-card-type { font-size: 0.7rem; letter-spacing: 0.08em; color: #888; margin-bottom: 6px; }
+.book-card-title { font-size: 1.1rem; font-weight: 700; margin: 0 0 8px; color: #111; }
+.book-card-desc { font-size: 0.85rem; color: #555; margin: 0 0 8px; line-height: 1.4; flex: 1; }
+.book-card-meta {
+  font-size: 0.78rem; color: #888; margin: 0;
+  margin-top: auto; padding-top: 10px; border-top: 1px solid #d9d9d9;
+}
+.book-card-meta a { color: #3498db; text-decoration: none; }
+
+/* ── Hover overlay ── */
+.book-card-hover {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: inherit;
+  padding: 16px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.94) 0%,
+    rgba(0, 0, 0, 0.72) 45%,
+    rgba(0, 0, 0, 0.22) 100%
+  );
+  color: #f1f3f5;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.22s ease, visibility 0.22s ease;
+  text-decoration: none;
+}
+.book-card:hover .book-card-hover { opacity: 1; visibility: visible; }
+
+.book-card-hover__body { flex: 1; }
+.book-story-list {
+  list-style: none; padding: 0; margin: 0 0 0.5rem;
+  font-size: 0.82rem; line-height: 1.6;
+}
+.book-story-list li { color: rgba(255,255,255,0.92); }
+.more-stories-hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); display: block; margin-bottom: 0.4rem; }
+.view-collection-link { font-size: 0.68rem; color: rgba(255,255,255,0.5); display: block; }
+
+/* ── Misc ── */
+.books-pagination { margin-top: 14px; font-size: 0.85rem; }
+.no-books-msg { color: #777; font-style: italic; }
+</style>
+
+<script>
+const pills = document.querySelectorAll('#genre-pills .pill');
+const params = new URLSearchParams(window.location.search);
+
+pills.forEach(pill => {
+  pill.addEventListener('click', () => {
+    const genre = pill.dataset.genre;
+    const current = params.get('genre');
+    params.delete('genre');
+    if (genre && current !== genre) {
+      params.set('genre', genre);
+    }
+    window.location.search = params.toString();
+  });
+});
+</script>
 {% endblock %}
-
-

@@ -1,3 +1,9 @@
+/**
+ * Feedback terminal on story page (?feedback=1). WHAT BROKE: JS set #story-twopane { bottom: Npx }
+ * (N = panel height) to "reserve" space above the fixed dock. That shrunk the editor and left a
+ * huge blank band (Ace showed empty area). FIX: only resize the fixed .feedback-terminal height;
+ * keep #story-twopane filling #main (CSS bottom:0 !important); panel overlays bottom; dispatch resize.
+ */
 (function () {
     var terminal = document.getElementById('feedback-terminal');
     if (!terminal) {
@@ -47,22 +53,14 @@
 
     function applyExpandedHeight(nextHeight) {
         var clampedHeight = Math.max(minHeight, Math.min(nextHeight, getMaxExpandedHeight()));
-        terminal.style.height = clampedHeight + 'px';
-
-        if (storyPane) {
-            storyPane.style.bottom = clampedHeight + 'px';
-        }
-
+        terminal.style.height = clampedHeight + 'px'; // do not set story-twopane.bottom — see file header
         lastExpandedHeight = clampedHeight;
     }
 
     function applyCollapsedHeight() {
-        var collapsedHeight = getCollapsedHeight();
+        terminal.style.height = 'auto';
+        var collapsedHeight = terminal.offsetHeight || getCollapsedHeight();
         terminal.style.height = collapsedHeight + 'px';
-
-        if (storyPane) {
-            storyPane.style.bottom = collapsedHeight + 'px';
-        }
     }
 
     function syncLayout() {
@@ -73,6 +71,12 @@
         } else {
             applyExpandedHeight(lastExpandedHeight);
         }
+
+        // Clear any legacy inline bottom from older script versions; Ace needs a resize after layout.
+        if (storyPane) {
+            storyPane.style.removeProperty('bottom');
+        }
+        window.dispatchEvent(new Event('resize'));
     }
 
     if (minimizeBtn) {
