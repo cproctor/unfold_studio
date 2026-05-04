@@ -1147,7 +1147,7 @@ class SendFeedbackView(LoginRequiredMixin, View):
 
     def post(self, request, story_id):
         story = get_object_or_404(Story, pk=story_id)
-
+        story_was_submitted_to_prompt = story.prompts_submitted.filter(deleted=False).exists()
         action = request.POST.get('action')
         message = request.POST.get('comment', '').strip()
 
@@ -1160,9 +1160,9 @@ class SendFeedbackView(LoginRequiredMixin, View):
 
         #only the teacher can send feedback
         if action == 'send':
-            if not teacher_has_feedback_access:
+            if not teacher_has_feedback_access or not story_was_submitted_to_prompt:
                 return HttpResponseForbidden("You do not have permission to send feedback on this story.")
-
+ 
             if message:
                 Comment.objects.create(
                     author=request.user,
@@ -1174,8 +1174,8 @@ class SendFeedbackView(LoginRequiredMixin, View):
 
         # draft only saved in session and not db
         elif action == 'draft':
-            if not teacher_has_feedback_access:
-                return HttpResponseForbidden("You do not have permission to save a draft on this story.")
+            if not teacher_has_feedback_access or not story_was_submitted_to_prompt:
+                return HttpResponseForbidden("You can't save a draft on this story.")
 
             request.session[f'draft_{story.id}'] = message
 
@@ -1183,6 +1183,9 @@ class SendFeedbackView(LoginRequiredMixin, View):
         elif action == 'reply':
             if request.user != story.author:
                 return HttpResponseForbidden("Only the story author can reply.")
+
+            if not story_was_submitted_to_prompt:
+                return HttpResponseForbidden("Feedback replies are only allowed for prompt submissions.")
 
             if message:
                 Comment.objects.create(
