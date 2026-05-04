@@ -101,7 +101,7 @@
 
 {# FROM INKY #}
 <div id="main">
-  <div class="twopane{% if not story.author == request.user and not story.public %} solo{%endif%}" id="story-twopane">
+  <div class="twopane{% if not editable %} solo{% endif %}" id="story-twopane">
     <div id="editor"></div>
     <div class="split"></div>
     <div id="player">
