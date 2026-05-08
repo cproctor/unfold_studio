@@ -17,7 +17,7 @@ keywords = [
 ]
 requires-python = ">=3.12"
 dependencies = [
-    "django >= 5.2.13",
+    "django >= 5.2.14",
     "django-storages >= 1.14.3",
     "django-reversion >= 5.0.12",
     "django-cors-headers >= 4.4.0",
