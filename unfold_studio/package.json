@@ -1,0 +1,26 @@
+{
+  "name": "unfold-studio",
+  "private": true,
+  "version": "0.0.1",
+  "scripts": {
+    "dev": "vite build --watch",
+    "build": "vite build",
+    "lint": "eslint src --ext .ts,.vue",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "dompurify": "^3.2.6",
+    "pinia": "^2.3.1",
+    "vue": "^3.5.16",
+    "vue-i18n": "^11.1.3"
+  },
+  "devDependencies": {
+    "@types/dompurify": "^3.0.5",
+    "@vitejs/plugin-vue": "^5.2.4",
+    "eslint": "^9.29.0",
+    "globals": "^16.2.0",
+    "typescript": "^5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.4"
+  }
+}

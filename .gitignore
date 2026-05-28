@@ -12,6 +12,7 @@ analysis/
 **/.DS_Store
 .unfold_studio/
 node_modules/
+unfold_studio/static/dist/
 playwright-report/
 test-results/
 **/__pycache__/

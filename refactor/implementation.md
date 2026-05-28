@@ -92,12 +92,12 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 8 — Frontend Infrastructure: Vite + TypeScript (P1)
 
-- [ ] Add `package.json` at Django project root; install `vite`, `typescript`, `vue`, `@vitejs/plugin-vue`, `dompurify`, `@types/dompurify`, `vue-i18n`, `pinia` (§2.1)
-- [ ] Add `vite.config.ts` with manifest build, `app` and `embed` entry points, output to `static/dist/` (§2.1)
-- [ ] Add `tsconfig.json` (§2.1)
-- [ ] Add `vite_asset` Django template tag that reads `static/dist/manifest.json` (§2.1)
-- [ ] Add `Makefile` with `dev` (Django + Vite + Celery), `build`, `test`, and `lint` targets (§2.1 / §12.3)
-- [ ] Add ESLint config with `no-undef` rule (§4.5)
+- [x] Add `package.json` at Django project root; install `vite`, `typescript`, `vue`, `@vitejs/plugin-vue`, `dompurify`, `@types/dompurify`, `vue-i18n`, `pinia` (§2.1)
+- [x] Add `vite.config.ts` with manifest build, `app` and `embed` entry points, output to `static/dist/` (§2.1)
+- [x] Add `tsconfig.json` (§2.1)
+- [x] Add `vite_asset` Django template tag that reads `static/dist/manifest.json` (§2.1)
+- [x] Add `Makefile` with `dev` (Django + Vite + Celery), `build`, `test`, and `lint` targets (§2.1 / §12.3)
+- [x] Add ESLint config with `no-undef` rule (§4.5)
 
 ---
 
