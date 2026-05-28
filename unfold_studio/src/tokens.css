@@ -1,0 +1,30 @@
+:root {
+  /* Brand colors */
+  --color-primary: #8e44ad;
+  --color-primary-hover: #2980b9;
+  --color-link: #3498db;
+  --color-link-visited: #2980b9;
+  --color-danger: #c0392b;
+  --color-danger-hover: #e74c3c;
+
+  /* Neutrals */
+  --color-menu-bg: #444;
+  --color-code-bg: #ececec;
+  --color-messages-bg: #ecf0f1;
+  --color-success: #27ae60;
+  --color-warning: #c0392b;
+
+  /* Typography */
+  --font-mono: Courier, monospace;
+  --font-base: sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 30px;
+
+  /* Layout */
+  --container-width: 1000px;
+  --border-radius: 4px;
+}

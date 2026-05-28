@@ -9,6 +9,11 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@codemirror/commands": "^6.8.1",
+    "@codemirror/language": "^6.10.8",
+    "@codemirror/legacy-modes": "^6.5.1",
+    "@codemirror/state": "^6.5.2",
+    "@codemirror/view": "^6.36.3",
     "dompurify": "^3.2.6",
     "pinia": "^2.3.1",
     "vue": "^3.5.16",

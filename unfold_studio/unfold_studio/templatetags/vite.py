@@ -3,9 +3,14 @@ import functools
 from pathlib import Path
 from django import template
 from django.conf import settings
-from django.utils.html import format_html
+from django.utils.html import format_html, escapejs
 
 register = template.Library()
+
+
+@register.filter
+def to_json(value):
+    return json.dumps(value)
 
 
 @functools.cache

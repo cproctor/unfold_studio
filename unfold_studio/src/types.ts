@@ -11,13 +11,18 @@ export interface UnfoldConfig {
   storyId: number
   csrfToken: string
   editable: boolean
+  shared?: boolean
   debugMode: boolean
+  storyJson?: StoryContent
   urls: {
     json: string
-    compile: string
-    generate: string
-    getNextDir: string
+    compile?: string
+    generate?: string
+    getNextDir?: string
     playInstance: string
     playRecord: string
+    fork?: string
+    share?: string
+    unshare?: string
   }
 }

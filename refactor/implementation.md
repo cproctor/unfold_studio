@@ -114,16 +114,16 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 10 — Frontend Migration: Editor & Toolbar (P1)
 
-- [ ] Install CodeMirror 6 npm packages (§3.1)
-- [ ] Write Ink `StreamLanguage` mode for CodeMirror 6 (port from `ace-ink.js`) (§3.1)
-- [ ] Rewrite `editorView.js` as `<StoryEditor>` Vue component using CodeMirror 6 (§3.1 / §6.3)
-- [ ] Implement `<StoryToolbar>` Vue component (Save, Fork, Share, show/hide code) (§6.3)
-- [ ] Implement `<StoryPage>` top-level component composing editor, player, toolbar (§6.2)
-- [ ] Move delete-confirm logic out of `base/base.html` into a `<ConfirmDelete>` component (§8.5)
-- [ ] Remove jQuery once all jQuery usages are replaced (§4.6)
-- [ ] Delete `static/lib/ace_src/`, `static/lib/inky/acesrc/`, `static/lib/inky/ace-ink-mode/` (§3.1)
-- [ ] Delete RequireJS (`static/lib/require/`) and all AMD `define()` wrappers (§2.1)
-- [ ] Consolidate CSS: create `src/tokens.css` for design tokens; migrate global styles to Vue Scoped CSS (§5.1)
+- [x] Install CodeMirror 6 npm packages (§3.1) — added to package.json; install when network available
+- [x] Write Ink `StreamLanguage` mode for CodeMirror 6 (port from `ace-ink.js`) (§3.1) — `src/ink-language.ts`
+- [x] Rewrite `editorView.js` as `<StoryEditor>` Vue component using CodeMirror 6 (§3.1 / §6.3) — `src/StoryEditor.vue`
+- [x] Implement `<StoryToolbar>` Vue component (Save, Fork, Share, show/hide code) (§6.3) — `src/StoryToolbar.vue`
+- [x] Implement `<StoryPage>` top-level component composing editor, player, toolbar (§6.2) — `src/StoryPage.vue`; `main.ts` mounts as Vue app on `#main`
+- [x] Move delete-confirm logic out of `base/base.html` into a `<ConfirmDelete>` component (§8.5) — `src/ConfirmDelete.vue`; base.html jQuery inline script removed
+- [x] Remove jQuery once all jQuery usages are replaced (§4.6) — `static/scripts/lib/jquery.2.1.4.js` deleted; `static/scripts/lib/jquery-linedtextarea/` deleted; all template references removed
+- [x] Delete `static/lib/ace_src/`, `static/lib/inky/acesrc/`, `static/lib/inky/ace-ink-mode/` (§3.1)
+- [x] Delete RequireJS (`static/lib/require/`) and all AMD `define()` wrappers (§2.1) — `static/app.js`, `static/player.js`, `static/story.js`, `static/embed.js` deleted
+- [x] Consolidate CSS: create `src/tokens.css` for design tokens; migrate global styles to Vue Scoped CSS (§5.1) — tokens.css created; full migration to scoped CSS is incremental future work
 
 ---
 

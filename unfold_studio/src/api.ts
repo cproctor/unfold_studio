@@ -23,13 +23,21 @@ export class StoryAPI {
   }
 
   async compileStory(ink: string): Promise<Record<string, unknown>> {
-    const res = await fetch(this.urls.compile, {
+    const res = await fetch(this.urls.compile!, {
       method: 'POST',
-      headers: this.headers(),
-      body: JSON.stringify({ ink }),
+      headers: { 'X-CSRFToken': this.csrfToken },
+      body: new URLSearchParams({ ink }),
     })
     if (!res.ok) throw new Error(`Compile failed: ${res.status}`)
     return res.json()
+  }
+
+  async formPost(url: string): Promise<Response> {
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'X-CSRFToken': this.csrfToken },
+      body: new URLSearchParams(),
+    })
   }
 
   async generate(promptText: string, contextArray: string[], aiSeed: number | null): Promise<{ result: string }> {

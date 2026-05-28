@@ -1,10 +1,9 @@
 {% load static %}
-{% load linkrefs %} 
+{% load linkrefs %}
 
 <!DOCTYPE html>
 <html>
     <head>
-        <script src="{% static 'scripts/lib/jquery.2.1.4.js' %}"></script>
         <link rel="shortcut icon" href="{%  static 'favicon.png' %}">
         {% block head %}
         {% endblock %}
@@ -27,14 +26,5 @@
         </div>
         {% include 'base/footer.html' %}
         {% include 'base/analytics.html' %}
-        <script>
-            $('#delete_prompt').hide()
-            $('#delete_confirm').hide()
-            $('#delete').click(function() {
-                $('#delete').hide()
-                $('#delete_prompt').show()
-                $('#delete_confirm').show()
-            })
-        </script>
     </body>
 </html>

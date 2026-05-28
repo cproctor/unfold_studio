@@ -1,11 +1,4 @@
 {% extends 'base/base.html' %}
-{% load static %}
-
-{% block head %}
-    <script src="{% static 'scripts/lib/jquery-linedtextarea/jquery-linedtextarea.js' %}"></script>
-
-    <link rel="stylesheet" href="{% static 'scripts/lib/jquery-linedtextarea/jquery-linedtextarea.css' %}">
-{% endblock %}
 
 {% block content %}
     <h1>Create New Story</h1>
@@ -22,7 +15,6 @@
             <textarea name="description" id="{{ form.description.id_for_label }}" rows="4" cols="40" style="resize: vertical;">{{ form.description.value|default_if_none:'' }}</textarea>
         </div>
 
-        <!-- <button type="submit">Submit</button> -->
         <input type="submit" value="Create Story" />
     </form>
 {% endblock %}

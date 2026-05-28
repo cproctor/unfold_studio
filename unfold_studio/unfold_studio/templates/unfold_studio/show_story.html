@@ -38,24 +38,11 @@
     <span class="love">&lt;3 {{story.loves.count}}</span>
 {% endif %}
 {% if story.author == request.user or story.public %}
-    [<a id="save_story" href="">Save</a>]
-    [<a id="edit_story" href="{% url 'edit_story' story.id %}">Rename</a>]
-    [<a id="save_version" href="{% url 'new_story_version' story.id %}">Save this version</a>]
-    <span id="show_code_opt" style="display: none;">[<a id="show_code" href="#">Show code</a>]</span>
-    <span id="hide_code_opt">[<a id="hide_code" href="#">Hide code</a>]</span>
-{% else %}
-    [<a id="replay_story" href="">Replay</a>]
-    <span id="show_code_opt">[<a id="show_code" href="#">Show code</a>]</span>
-    <span id="hide_code_opt" style="display: none;">[<a id="hide_code" href="#">Hide code</a>]</span>
+    [<a href="{% url 'edit_story' story.id %}">Rename</a>]
+    [<a href="{% url 'new_story_version' story.id %}">Save this version</a>]
 {% endif %}
 {% if request.user.is_authenticated %}
-    {% if story.author == request.user %}
-        {% if story.shared %}
-            [Public. <form action="{% url 'unshare_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Unshare?"></form>]
-        {% else %}
-            [Private. <form action="{% url 'share_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Share?"></form>]
-        {% endif %}
-    {% else %}
+    {% if story.author != request.user %}
         {% if request.user.profile not in story.loves.all %}
             {% if story.loves.count > 0 %}
                 [<form action="{% url 'love_story' story.id %}" method="post" class="link"><input type="submit" value="&lt;3 (loved by {{story.loves.count}})">{% csrf_token %}</form>]
@@ -64,7 +51,6 @@
             {% endif %}
         {% endif %}
     {% endif %}
-    [<form action="{% url 'fork_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Fork"></form>]
     {% if addableBooks %}
         [<form action="{% url 'add_story_to_book' addableBooks.0.id story.id %}" id="add-book-form" method="post" class="link">{% csrf_token %}<input type="submit" value="Add to book"></form>
          <select id="select-book" onchange="setBook(this)" autocomplete="off">
@@ -73,7 +59,7 @@
             {% endfor %}
          </select>]
         <script type="text/javascript">
-            function setBook(el) { 
+            function setBook(el) {
                 let form = document.getElementById('add-book-form');
                 let urlParts = form.action.split('/');
                 urlParts[4] = el.value;
@@ -87,29 +73,7 @@
 {% endif %}
 </div>
 
-{# FROM INKY #}
-<div id="main">
-  <div class="twopane{% if not story.author == request.user and not story.public %} solo{%endif%}">
-    <div id="editor"></div>
-    <div class="split"></div>
-    <div id="player">
-      <table class="expressionWatch">
-        <tbody>
-        </tbody>
-      </table>
-      <div class="scrollContainer">
-        <div class="innerText active"></div>
-        <div class="hiddenBuffer">
-          <div class="innerText"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-
-{# END FROM INKY #}
-
+<div id="main"></div>
 
 <script src="{% static 'scripts/ink.js' %}"></script>
 <script>
@@ -117,12 +81,18 @@ window.__UNFOLD__ = {
     storyId: {{ story.id }},
     csrfToken: "{{ csrf_token }}",
     editable: {{ editable|lower }},
+    shared: {{ story.shared|lower }},
     debugMode: {{ request.user.is_staff|lower }},
     urls: {
         json:         "{% url 'show_json' story.id %}",
+        {% if editable %}
         compile:      "{% url 'compile_story' story.id %}",
         generate:     "{% url 'generate' %}",
         getNextDir:   "{% url 'get_next_direction' %}",
+        fork:         "{% url 'fork_story' story.id %}",
+        share:        "{% url 'share_story' story.id %}",
+        unshare:      "{% url 'unshare_story' story.id %}",
+        {% endif %}
         playInstance: "{% url 'new_story_play_instance' %}",
         playRecord:   "{% url 'new_story_play_record' %}",
     }

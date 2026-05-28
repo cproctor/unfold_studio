@@ -27,9 +27,11 @@ export class InkPlayer {
   private api: StoryAPI
   private config: UnfoldConfig
 
-  constructor(containerSelector: string, config: UnfoldConfig) {
-    const el = document.querySelector<HTMLElement>(containerSelector)
-    if (!el) throw new Error(`Container not found: ${containerSelector}`)
+  constructor(container: HTMLElement | string, config: UnfoldConfig) {
+    const el = typeof container === 'string'
+      ? document.querySelector<HTMLElement>(container)
+      : container
+    if (!el) throw new Error(`Container not found: ${container}`)
     this.container = el
     this.config = config
     this.api = new StoryAPI(config)

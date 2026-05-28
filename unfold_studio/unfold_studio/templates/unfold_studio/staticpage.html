@@ -1,5 +1,6 @@
 {% extends 'base/base.html' %}
 {% load static %}
+{% load vite %}
 
 {% block head %}
 
@@ -15,42 +16,23 @@
 {% block content %}
 <h2>{{story.title}}</h2>
 
-{# FROM INKY #}
-<div id="main">
-  <div class="twopane solo">
-    <div id="editor"></div>
-    <div class="split"></div>
-    <div id="player">
-      <table class="expressionWatch">
-        <tbody>
-        </tbody>
-      </table>
-      <div class="scrollContainer">
-        <div class="innerText active"></div>
-        <div class="hiddenBuffer">
-          <div class="innerText"></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
+<div id="main"></div>
 
-
-{# END FROM INKY #}
-
-
-{# Inky imports Ace as a global, so I will follow #}
-<!--<script src="{% static 'lib/ace/ace.js'%}" type="text/javascript" charset="utf-8"></script>
-<script src="{% static 'lib/ace/ext-language_tools.js'%}"></script>-->
-
-{# Main JS entry point #}
 <script src="{% static 'scripts/ink.js' %}"></script>
 <script>
-    STORY_ID = {{story.id}};
-    CSRF = "{{csrf_token}}";
-    EDITABLE = false;
+window.__UNFOLD__ = {
+    storyId: {{ story.id }},
+    csrfToken: "{{ csrf_token }}",
+    editable: false,
+    debugMode: false,
+    storyJson: {{ story.for_json|to_json|safe }},
+    urls: {
+        json:         "{% url 'show_json' story.id %}",
+        playInstance: "{% url 'new_story_play_instance' %}",
+        playRecord:   "{% url 'new_story_play_record' %}",
+    }
+};
 </script>
-<script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
+{% vite_asset 'src/main.ts' %}
 
 {% endblock %}
-
