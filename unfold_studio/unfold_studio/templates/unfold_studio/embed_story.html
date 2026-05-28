@@ -1,0 +1,38 @@
+{% load static %}
+{% load vite %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>{{ story.title }} | unfold.studio</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{% static 'style/inkystyle.css' %}">
+    <link rel="stylesheet" href="{% static 'style/sms.css' %}">
+    <style>
+        * { box-sizing: border-box; }
+        html, body { margin: 0; padding: 0; height: 100%; font-family: Courier, monospace; }
+        #embed-app { display: flex; flex-direction: column; height: 100%; }
+    </style>
+</head>
+<body>
+<div id="embed-app"></div>
+
+<script src="{% static 'scripts/ink.js' %}"></script>
+<script>
+window.__UNFOLD__ = {
+    storyId: {{ story.id }},
+    csrfToken: "{{ csrf_token }}",
+    editable: false,
+    debugMode: false,
+    storyJson: {{ story.for_json|to_json|safe }},
+    urls: {
+        json:         "{% url 'show_json' story.id %}",
+        playInstance: "{% url 'new_story_play_instance' %}",
+        playRecord:   "{% url 'new_story_play_record' %}",
+    }
+};
+</script>
+{% vite_asset 'src/embed.ts' %}
+
+</body>
+</html>

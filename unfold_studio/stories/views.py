@@ -116,6 +116,14 @@ def show_json(request, story_id):
     return JsonResponse(story.for_json())
 
 
+def embed_story(request, story_id):
+    try:
+        story = Story.objects.get(Q(shared=True) | Q(public=True), pk=story_id)
+    except Story.DoesNotExist:
+        return render(request, 'unfold_studio/embed_error.html', {'reason': 'not_found'}, status=404)
+    return render(request, 'unfold_studio/embed_story.html', {'story': story})
+
+
 def compile_story_async(request, story_id):
     "Enqueues a Celery compilation task and returns the task_id for polling."
     from stories.tasks import compile_story_task

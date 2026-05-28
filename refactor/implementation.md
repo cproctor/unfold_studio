@@ -129,11 +129,11 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 11 — New Frontend Feature: Story Embed (Proposal)
 
-- [ ] Add `/stories/{id}/embed` URL and view (shared stories only; styled error page for ineligible stories) (§0.2)
-- [ ] Implement `<EmbedPlayer>` Vue component (logo header linked to base URL, reuses `<StoryPlayer>`) (§0.2 / §6.2)
-- [ ] Add `embed.ts` Vite entry point; compile `<EmbedPlayer>` (§2.1)
-- [ ] Delete old `embed.js`, `embed_entry_point.js`, and RequireJS-based embed instructions in user guide (§4.8)
-- [ ] Remove `CORS_ORIGIN_ALLOW_ALL` from both settings files (§0.2)
+- [x] Add `/stories/{id}/embed` URL and view (shared stories only; styled error page for ineligible stories) (§0.2) — `stories/views.py::embed_story`, URL at `stories/<id>/embed/`
+- [x] Implement `<EmbedPlayer>` Vue component (logo header linked to base URL, reuses `<StoryPlayer>`) (§0.2 / §6.2) — `src/EmbedPlayer.vue`
+- [x] Add `embed.ts` Vite entry point; compile `<EmbedPlayer>` (§2.1) — `src/embed.ts` updated
+- [x] Delete old `embed.js`, `embed_entry_point.js`, and RequireJS-based embed instructions in user guide (§4.8) — `static/embed.js` deleted in Phase 10; no RequireJS embed instructions found in documentation
+- [x] Remove `CORS_ORIGIN_ALLOW_ALL` from both settings files (§0.2) — removed from `base_settings.py`; not present in site_settings
 
 ---
 

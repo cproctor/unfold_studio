@@ -61,6 +61,7 @@ urlpatterns = [
     path('stories/<int:story_id>/compile_async/', story_views.compile_story_async, name="compile_story_async"),
     path('stories/<int:story_id>/compile_status/<str:task_id>/', story_views.compile_story_status, name="compile_story_status"),
     path('stories/<int:story_id>/json/', story_views.show_json, name="show_json"),
+    path('stories/<int:story_id>/embed/', story_views.embed_story, name="embed_story"),
     path('stories/<int:story_id>/edit/', story_views.edit_story, name="edit_story"),
     path('stories/<int:pk>/love/', story_views.LoveStoryView.as_view(), name="love_story"),
     path('stories/<int:pk>/fork/', story_views.ForkStoryView.as_view(), name="fork_story"),
