@@ -1,6 +1,7 @@
 {% extends 'base/base.html' %}
 {% load static %}
 {% load linkrefs %}
+{% load vite %}
 
 {% block head %}
 
@@ -110,18 +111,23 @@
 {# END FROM INKY #}
 
 
-{# Inky imports Ace as a global, so I will follow #}
-<!--<script src="{% static 'lib/ace/ace.js'%}" type="text/javascript" charset="utf-8"></script>
-<script src="{% static 'lib/ace/ext-language_tools.js'%}"></script>-->
-
-{# Main JS entry point #}
 <script src="{% static 'scripts/ink.js' %}"></script>
 <script>
-    STORY_ID = {{story.id}};
-    CSRF = "{{csrf_token}}";
-    EDITABLE = {{editable}};
-    LOG_READING_URL = "{% url 'log_reading_event' %}";
+window.__UNFOLD__ = {
+    storyId: {{ story.id }},
+    csrfToken: "{{ csrf_token }}",
+    editable: {{ editable|lower }},
+    debugMode: {{ request.user.is_staff|lower }},
+    urls: {
+        json:         "{% url 'show_json' story.id %}",
+        compile:      "{% url 'compile_story' story.id %}",
+        generate:     "{% url 'generate' %}",
+        getNextDir:   "{% url 'get_next_direction' %}",
+        playInstance: "{% url 'new_story_play_instance' %}",
+        playRecord:   "{% url 'new_story_play_record' %}",
+    }
+};
 </script>
-<script data-main="{% url 'require_entry_point' %}" src="{% static 'lib/require/require.js' %}"></script>
+{% vite_asset 'src/main.ts' %}
 
 {% endblock %}

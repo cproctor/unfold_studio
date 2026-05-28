@@ -91,9 +91,3 @@ def signup(request):
     return render(request, 'registration/signup.html', {'form': form})
 
 
-def require_entry_point(request):
-    return render(request, 'unfold_studio/require_entry_point.js', content_type="application/javascript")
-
-
-def embed_entry_point(request):
-    return render(request, 'unfold_studio/embed_entry_point.js', content_type="application/javascript")

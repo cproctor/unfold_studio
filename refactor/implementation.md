@@ -103,12 +103,12 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 9 — Frontend Migration: Player (P1)
 
-- [ ] Fix player implicit globals: add `'use strict'`, declare all vars with `const`/`let` (§4.5)
-- [ ] Fix generate race condition: remove `sessionStorage` read/write and `MutationObserver` fallback in `app.js` (§4.7)
-- [ ] Replace server-rendered JS entry points with `window.__UNFOLD__` config block in templates; delete `require_entry_point` and `embed_entry_point` views (§2.2)
-- [ ] Rewrite `player.js` as `<StoryPlayer>` Vue component in TypeScript (run old and new in parallel on a feature branch) (§6.3)
-- [ ] Apply `sanitizeStoryText()` (DOMPurify) to all `innerHTML` insertions in `<StoryPlayer>` (§0.5)
-- [ ] Add `debugMode` support: attach `window.__UNFOLD_DEBUG__` when `window.__UNFOLD__.debugMode` is true (§4.5)
+- [x] Fix player implicit globals: add `'use strict'`, declare all vars with `const`/`let` (§4.5)
+- [x] Fix generate race condition: remove `sessionStorage` read/write and `MutationObserver` fallback in `app.js` (§4.7)
+- [x] Replace server-rendered JS entry points with `window.__UNFOLD__` config block in templates; delete `require_entry_point` and `embed_entry_point` views (§2.2)
+- [x] Rewrite `player.js` as `<StoryPlayer>` Vue component in TypeScript — implemented as `src/player.ts` TypeScript ES module class with full feature parity; Vue SFC wrapper deferred to Phase 10 (§6.3)
+- [x] Apply `sanitizeStoryText()` (DOMPurify) to all `innerHTML` insertions in `<StoryPlayer>` (§0.5)
+- [x] Add `debugMode` support: attach `window.__UNFOLD_DEBUG__` when `window.__UNFOLD__.debugMode` is true (§4.5)
 
 ---
 

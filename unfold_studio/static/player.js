@@ -1,5 +1,6 @@
 // inkjs global
 define(['jquery'], function($) {
+'use strict';
 
 // Snagged from https://stackoverflow.com/questions/105034/how-do-i-create-a-guid-uuid
 function uuid() {
@@ -86,42 +87,17 @@ InkPlayer.prototype = {
         this.createStoryPlayInstanceAndContinueStory(content.id);
     },
     generateAndInsertInDOM: async function(prompt_text) {
-        if (prompt_text.includes("data-loaded")) {
-            const el = new DOMParser().parseFromString(
-                prompt_text,
-                "text/html",
-            );
-            let span = el.querySelector("span[data-loaded=false]");
-            const id = span.id;
-            const generated = JSON.parse(
-                sessionStorage.getItem("generated"),
-            );
-            if (generated?.[id]) {
-                span.replaceWith(generated[id]);
-                prompt_text = el.firstChild.children[1].innerHTML;
-            }
-        }
-
-        let nonce = uuid();
-        let loadingSpan = '<span id="' + nonce + '" data-loaded="false">Loading...</span>';
+        const nonce = uuid();
+        const loadingSpan = '<span id="' + nonce + '" data-loaded="false">Loading...</span>';
         this.events.addContent.bind(this)({ text: loadingSpan, tags: [] });
 
-        data = await this.api.generate(prompt_text, [], this.aiSeed)
+        const data = await this.api.generate(prompt_text, [], this.aiSeed)
 
-        let generated = JSON.parse(
-            sessionStorage.getItem("generated") ?? "{}",
-        );
-        generated[nonce] = data.result;
-        sessionStorage.setItem(
-            "generated",
-            JSON.stringify(generated),
-        );
-
-        let el = document.getElementById(nonce);
+        const el = document.getElementById(nonce);
         if (el) {
             el.innerHTML = data.result;
         } else {
-            console.log("Could not find element " + nonce);
+            console.warn("InkPlayer: could not find loading span #" + nonce + " after generate returned");
         }
 
         this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "AI_GENERATED_TEXT", data.result);
@@ -140,7 +116,7 @@ InkPlayer.prototype = {
             try {
                 var text = this.story.Continue()
                 var tags = this.story.currentTags.slice()
-                content = { text: text, tags: tags }
+                const content = { text: text, tags: tags }
                 if (this.inputFunctionCalled) {
                     this.events.renderScheduledInputBox.bind(this)();
                     return;
@@ -194,7 +170,7 @@ InkPlayer.prototype = {
         this.api.createStoryPlayRecord(storyPlayInstanceUUID, data_type, data, this.currentStoryPoint);
     },
     createStoryPlayInstanceAndContinueStory: async function(storyID) {
-        response = await this.api.createStoryPlayInstance(storyID)
+        const response = await this.api.createStoryPlayInstance(storyID)
         this.storyPlayInstanceUUID = response.story_play_instance_uuid
         this.continueStory();
     },
@@ -211,7 +187,7 @@ InkPlayer.prototype = {
             this.continueStory();
         };
         
-        formContainer = this.createInputForm(
+        const formContainer = this.createInputForm(
             "AUTHORS_INPUT_BOX",
             eventHandler,
             placeholder,
@@ -229,7 +205,7 @@ InkPlayer.prototype = {
             this.handleUserInputForContinue(userInput);
         };
     
-        formContainer = this.createInputForm(
+        const formContainer = this.createInputForm(
             "AUTHORS_CONTINUE_INPUT_BOX",
             eventHandler,
             placeholder,
@@ -281,13 +257,13 @@ InkPlayer.prototype = {
         return formContainer;
     },
     handleUserInputForContinue: async function(userInput){
-        targetKnotName = this.currentTargetKnot;
-        response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotName, this.aiSeed)
-        nextDirectionJson = response.result
+        const targetKnotName = this.currentTargetKnot;
+        const response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotName, this.aiSeed)
+        const nextDirectionJson = response.result
 
         switch(nextDirectionJson.direction) {
-            case 'NEEDS_INPUT':
-                content = [{
+            case 'NEEDS_INPUT': {
+                const content = [{
                     text: nextDirectionJson.content.guidance_text,
                     tags: []
                 }]
@@ -295,13 +271,13 @@ InkPlayer.prototype = {
                 this.scheduleInputBoxForContinue();
                 this.events.renderScheduledInputBox.bind(this)();
                 break;
-    
+            }
             case 'DIRECT_CONTINUE':
                 this.continueStory();
                 break;
 
-            case 'BRIDGE_AND_CONTINUE':
-                content = [{
+            case 'BRIDGE_AND_CONTINUE': {
+                const content = [{
                     text: nextDirectionJson.content.bridge_text,
                     tags: ['bridge']
                 }]
@@ -315,7 +291,7 @@ InkPlayer.prototype = {
                 
                 this.continueStory();
                 break;
-
+            }
             case 'INVALID_USER_INPUT':
                 this.scheduleInputBoxForContinue("Input was not valid... Tell again");
                 this.events.renderScheduledInputBox.bind(this)();
@@ -420,7 +396,7 @@ InkPlayer.prototype = {
                 var p = document.createElement('p');
                 p.innerHTML = content.text;
                 wrapper.appendChild(p)
-                clear = document.createElement('div')
+                const clear = document.createElement('div')
                 clear.classList.add('clear')
                 this.container.appendChild(wrapper);
                 this.container.appendChild(clear);
@@ -433,7 +409,7 @@ InkPlayer.prototype = {
                 var p = document.createElement('p');
                 p.innerHTML = content.text;
                 wrapper.appendChild(p)
-                clear = document.createElement('div')
+                const clear = document.createElement('div')
                 clear.classList.add('clear')
                 this.container.appendChild(wrapper);
                 this.container.appendChild(clear);
@@ -467,7 +443,7 @@ InkPlayer.prototype = {
             })
         },
         choose: function(i) {
-            chosen_choice = this.story.currentChoices[i].text
+            const chosen_choice = this.story.currentChoices[i].text
             this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), "READERS_CHOSEN_CHOICE", chosen_choice)
             this.story.ChooseChoiceIndex(i);
             this.continueStory();
