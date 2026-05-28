@@ -128,9 +128,39 @@ class OpenAIBackend(TextGenerationBackendInterface):
         
 
 
+class AnthropicBackend(TextGenerationBackendInterface):
+    def __init__(self, config):
+        from anthropic import Anthropic
+        self.config = config
+        self.api_client = Anthropic(api_key=config['api_key'])
+        self.model = config.get('model', 'claude-sonnet-4-6')
+        self.temperature = config.get('temperature', 1.0)
+
+    def generate(self, prompt, context_array=None, seed=None, hit_cache=True):
+        system_parts = list(context_array or [])
+        system = "\n".join(system_parts) if system_parts else "You are a helpful assistant."
+        message = self.api_client.messages.create(
+            model=self.model,
+            max_tokens=1024,
+            system=system,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        return message.content[0].text
+
+    def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed=None, hit_cache=True):
+        message = self.api_client.messages.create(
+            model=self.model,
+            max_tokens=1024,
+            system=system_prompt,
+            messages=[{"role": "user", "content": user_prompt}]
+        )
+        return message.content[0].text
+
+
 class TextGenerationFactory:
     _registry = {
         "OpenAI": OpenAIBackend,
+        "Anthropic": AnthropicBackend,
     }
 
     @classmethod
@@ -144,5 +174,9 @@ class TextGenerationFactory:
             raise ValueError(f"Unsupported backend: {backend_name}")
 
         return backend_class(config)
-        
-        
+
+
+def get_llm_backend():
+    "Returns the configured LLM backend instance."
+    from django.conf import settings
+    return TextGenerationFactory.create(settings.TEXT_GENERATION)

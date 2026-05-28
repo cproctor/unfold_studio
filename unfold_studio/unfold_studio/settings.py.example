@@ -19,6 +19,10 @@ TEXT_GENERATION = {
     "model": "gpt-4o",
 }
 
+# Celery: run tasks synchronously in development (no Redis required).
+# Set to False and start Redis + a worker for async compilation.
+CELERY_TASK_ALWAYS_EAGER = True
+
 # Configure your local database:
 DATABASES = {
     "default": {

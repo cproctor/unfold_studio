@@ -1,0 +1,40 @@
+{% extends "base/base.html" %}
+
+{% block content %}
+<h2>Researcher API Key</h2>
+
+{% if messages %}
+  {% for message in messages %}
+    <p class="{{ message.tags }}">{{ message }}</p>
+  {% endfor %}
+{% endif %}
+
+{% if api_key %}
+  <p>Your active API key:</p>
+  {% if just_rotated %}
+    <pre><code>{{ api_key.key }}</code></pre>
+    <p><strong>Copy this key now.</strong> For security, it will be masked on future page loads.</p>
+  {% else %}
+    <pre><code>{{ api_key.key|slice:":8" }}…{{ api_key.key|slice:"-4:" }}</code></pre>
+    <p>Created: {{ api_key.created_at }}</p>
+    {% if api_key.last_used_at %}
+      <p>Last used: {{ api_key.last_used_at }}</p>
+    {% endif %}
+  {% endif %}
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Rotate key</button>
+  </form>
+{% else %}
+  <p>You have no active API key.</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Generate key</button>
+  </form>
+{% endif %}
+
+<h3>Usage</h3>
+<pre><code>http POST https://unfold.studio/research/compile \
+    Authorization:"Bearer &lt;key&gt;" \
+    ink=@story.ink</code></pre>
+{% endblock %}

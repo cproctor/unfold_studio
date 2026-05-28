@@ -60,8 +60,14 @@ INSTALLED_APPS = [
     'prompts',
     'comments',
     'text_generation',
-    'generated_text_evaluator'
+    'generated_text_evaluator',
 ]
+
+try:
+    import django_celery_results  # noqa: F401
+    INSTALLED_APPS += ['django_celery_results']
+except ImportError:
+    pass
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -214,3 +220,7 @@ SEARCH_RANK_CUTOFF = 0.01
 CORS_ORIGIN_ALLOW_ALL = True
 
 RESEARCH_USER = "research"
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_TASK_ALWAYS_EAGER = False

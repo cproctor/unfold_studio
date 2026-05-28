@@ -10,6 +10,7 @@ class Profile(models.Model):
     gender = models.CharField(max_length=100, null=True, blank=True)
     following = models.ManyToManyField('profiles.Profile', related_name='followers', blank=True)
     is_teacher = models.BooleanField(default=False)
+    is_researcher = models.BooleanField(default=False)
 
     def __str__(self):
         return self.user.username

@@ -116,6 +116,25 @@ def show_json(request, story_id):
     return JsonResponse(story.for_json())
 
 
+def compile_story_async(request, story_id):
+    "Enqueues a Celery compilation task and returns the task_id for polling."
+    from stories.tasks import compile_story_task
+    story = Story.objects.get_editable_for_request_or_404(request, pk=story_id)
+    story.ink = request.POST.get('ink', story.ink)
+    story.save(update_fields=['ink'])
+    task = compile_story_task.delay(story.id)
+    return JsonResponse({'task_id': task.id})
+
+
+def compile_story_status(request, story_id, task_id):
+    "Polls the status of an async compilation task."
+    from celery.result import AsyncResult
+    result = AsyncResult(task_id)
+    if result.ready():
+        return JsonResponse({'status': 'done', 'result': result.get()})
+    return JsonResponse({'status': result.state.lower()})
+
+
 def show_ink(request, story_id):
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
     return render(request, 'unfold_studio/show_ink.html', {'story': story})

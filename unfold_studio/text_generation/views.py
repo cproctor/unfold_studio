@@ -1,5 +1,5 @@
 import json
-from text_generation.backends import TextGenerationFactory
+from text_generation.backends import get_llm_backend
 from django.conf import settings
 from django.http import JsonResponse
 from commons.base.views import BaseView
@@ -26,8 +26,7 @@ class GenerateTextView(BaseView):
             if not validation_successful:
                 return JsonResponse({"error": failure_reason}, status=400)
 
-            backend_config = settings.TEXT_GENERATION
-            backend = TextGenerationFactory.create(backend_config)
+            backend = get_llm_backend()
 
             result = backend.generate(
                 prompt=prompt,
@@ -127,8 +126,7 @@ class GetNextDirectionView(BaseView):
         }
 
         try:
-            backend_config = settings.TEXT_GENERATION
-            backend = TextGenerationFactory.create(backend_config)
+            backend = get_llm_backend()
 
             system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
             response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt, seed, hit_cache=True)
