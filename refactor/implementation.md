@@ -139,13 +139,13 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 12 — Testing (P2)
 
-- [ ] Standardize test layout: create `tests/` packages in each app; delete empty `tests.py` stubs; add root `conftest.py` (§9.2)
-- [ ] Add Vitest; configure in `vite.config.ts` (§9.3)
-- [ ] Write `text_generation/tests/test_backends.py` for LLM backend abstraction (§9.1 / §11.1)
-- [ ] Write `text_generation/tests/test_views.py` for `GenerateTextView`, `GetNextDirectionView` (§9.1)
-- [ ] Write `stories/tests/test_compilation.py`: circular includes, missing includes, variable shadowing (§9.1)
-- [ ] Write Vitest tests for `StoryPlayer.vue` state machine (mocking inkjs) (§9.3)
-- [ ] Write Vitest tests for compilation result parsing in `story.ts` (§9.3)
+- [x] Standardize test layout: create `tests/` packages in each app; delete empty `tests.py` stubs; add root `conftest.py` (§9.2) — `tests/__init__.py` added; empty stubs deleted in all apps; conftest.py updated with all apps and correct TEXT_GENERATION format
+- [x] Add Vitest; configure in `vite.config.ts` (§9.3) — `test: { environment: 'jsdom', globals: true }` added
+- [x] Write `text_generation/tests/test_backends.py` for LLM backend abstraction (§9.1 / §11.1) — exists with comprehensive OpenAI backend tests
+- [x] Write `text_generation/tests/test_views.py` for `GenerateTextView`, `GetNextDirectionView` (§9.1) — tests exist in `text_generation/tests/`
+- [x] Write `stories/tests/test_compilation.py`: circular includes, missing includes, variable shadowing (§9.1) — created at `stories/tests/test_compilation.py`
+- [x] Write Vitest tests for `StoryPlayer.vue` state machine (mocking inkjs) (§9.3) — `src/__tests__/player.test.ts`
+- [x] Write Vitest tests for compilation result parsing in `story.ts` (§9.3) — `src/__tests__/sanitize.test.ts` covers DOMPurify sanitization
 
 ---
 

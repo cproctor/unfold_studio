@@ -1,7 +1,6 @@
 import os
 import sys
 import django
-from django.conf import settings
 
 # Add project root and unfold_studio directory to Python path
 project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -9,13 +8,12 @@ unfold_studio_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, project_root)
 sys.path.insert(0, unfold_studio_dir)
 
-# Configure Django settings
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'unfold_studio.settings')
 
-# Configure Django settings for testing
+from django.conf import settings
 settings.configure(
     DEBUG=False,
-    BASE_DIR=project_root,
+    BASE_DIR=unfold_studio_dir,
     DATABASES={
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
@@ -32,6 +30,9 @@ settings.configure(
         'django.contrib.sites',
         'reversion',
         'unfold_studio',
+        'stories',
+        'books',
+        'story_play',
         'text_generation',
         'generated_text_evaluator',
         'profiles',
@@ -40,6 +41,7 @@ settings.configure(
         'comments',
         'commons',
         'prompts',
+        'research',
     ],
     SECRET_KEY='test-key-not-for-production',
     MIDDLEWARE=[
@@ -54,14 +56,13 @@ settings.configure(
     ROOT_URLCONF='unfold_studio.urls',
     SITE_ID=1,
     TEXT_GENERATION={
-        'BACKEND': 'text_generation.backends.openai.OpenAIBackend',
-        'API_KEY': 'test-key',
-        'MODEL': 'gpt-3.5-turbo',
-        'MAX_TOKENS': 1000,
-        'TEMPERATURE': 0.7,
+        'backend': 'OpenAI',
+        'api_key': 'test-key',
+        'model': 'gpt-3.5-turbo',
+        'temperature': 0.7,
     },
     DEFAULT_AI_SEED=42,
+    STATIC_URL='/static/',
 )
 
-# Initialize Django
-django.setup() 
+django.setup()
