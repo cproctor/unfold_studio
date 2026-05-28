@@ -96,14 +96,29 @@ rm inklecate.zip
 ---
 
 
-## 8. Update Django Settings
+## 8. Set Environment Variables
 
-```bash
-cd unfold_studio/unfold_studio/
-nano settings.py
+All secrets are passed via environment variables. Add these to the Supervisor config
+(see step 10) or to `/etc/environment`:
+
+| Variable | Description | How to obtain |
+|---|---|---|
+| `SECRET_KEY` | Django secret key | `python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"` |
+| `OPENAI_API_KEY` | OpenAI API key (required if using OpenAI backend) | OpenAI dashboard |
+| `ANTHROPIC_API_KEY` | Anthropic API key (required if using Anthropic backend) | Anthropic console |
+
+> **Note:** Rotate `SECRET_KEY` on every new deployment. The key previously committed to git
+> history has been superseded; generate a fresh one for each environment.
+
+The production settings module (`unfold_studio.site_settings.unfold_studio`) reads these
+variables automatically. Do **not** create a `settings.py` on the production server.
+
+### Configure Django Settings Module
+
+Ensure the Supervisor config (step 10) sets:
 ```
-
-Paste your settings file into `settings.py`:
+DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio
+```
 
 
 ---
@@ -134,7 +149,7 @@ autorestart=true
 stderr_logfile=/var/log/unfold_studio.err.log
 stdout_logfile=/var/log/unfold_studio.out.log
 user=unfold_studio
-environment=PYTHONPATH="/opt/unfold_studio:/opt/unfold_studio/unfold_studio",DJANGO_SETTINGS_MODULE="unfold_studio.settings"
+environment=PYTHONPATH="/opt/unfold_studio:/opt/unfold_studio/unfold_studio",DJANGO_SETTINGS_MODULE="unfold_studio.site_settings.unfold_studio",SECRET_KEY="%(ENV_SECRET_KEY)s",OPENAI_API_KEY="%(ENV_OPENAI_API_KEY)s"
 redirect_stderr=true
 stdout_logfile_maxbytes=50MB
 stdout_logfile_backups=10

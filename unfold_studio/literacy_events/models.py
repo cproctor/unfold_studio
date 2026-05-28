@@ -161,9 +161,7 @@ class NotificationManager(models.Manager):
 
 
     def mark_all_seen_for_user(self, user):
-        for e in self.get_queryset().filter(recipient=user, seen=False).iterator(chunk_size=500):
-            e.seen = True
-            e.save()
+        self.filter(recipient=user, seen=False).update(seen=True)
 
 class Notification(models.Model):
     """

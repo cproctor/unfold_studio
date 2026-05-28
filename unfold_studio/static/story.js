@@ -36,8 +36,7 @@ function(ace, InkMode, fetch_story, save_story) {
                 self.status = data.status;
                 self.ink = data.ink;
                 self.compiled = data.compiled;
-                self.error = data.error;
-                self.error_line = data.error_line;
+                self.errors = data.errors;
                 self.setAceValue(self.ink);
                 Story.events.storyFetched(self);
             })
@@ -51,8 +50,7 @@ function(ace, InkMode, fetch_story, save_story) {
                 self.id = data.id;
                 self.ink = data.ink;
                 self.compiled = data.compiled;
-                self.error = data.error;
-                self.error_line = data.error_line;
+                self.errors = data.errors;
                 Story.events.storySaved(self);
             })
         },

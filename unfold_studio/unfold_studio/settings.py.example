@@ -1,0 +1,32 @@
+# Copy this file to settings.py for local development.
+# settings.py is gitignored — never commit it.
+from unfold_studio.base_settings import *
+
+DEBUG = True
+
+# Silk request profiler — dev only.
+INSTALLED_APPS += ['silk']
+MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
+
+INSTALLED_APPS.append("research")
+
+# Set OPENAI_API_KEY in your shell environment, or paste it here temporarily
+# (never commit an API key to version control).
+TEXT_GENERATION = {
+    "backend": "OpenAI",
+    "api_key": os.environ.get("OPENAI_API_KEY", ""),
+    "temperature": 1.0,
+    "model": "gpt-4o",
+}
+
+# Configure your local database:
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql",
+        "NAME": "unfold_studio",
+        "USER": "unfold_studio_dev",
+        "PASSWORD": "",
+        "HOST": "localhost",
+        "PORT": "5432",
+    }
+}

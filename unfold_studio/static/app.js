@@ -31,19 +31,12 @@ define(
         init: function() {
             const player = new InkPlayer('.innerText');
 
-            // parse errors from story object for use with ace editor
-            // returns list of error objects
-            function parseErrors(storyObj) {
-                const errors = storyObj.error.split("\n")
-                const errList = []
-                
-                for (err of errors) {
-                    const errObj = {};
-                    errObj.message = err.slice(err.indexOf(":") + 1).trim();
-                    errObj.lineNumber = Number(err[err.indexOf(":") - 1]);
-                    errList.push(errObj);
-                }
-                return errList;
+            // Map {line, message} error objects from the API to the {lineNumber, message}
+            // shape expected by EditorView.setErrors (ACE editor annotation format).
+            function mapErrors(story) {
+                return (story.errors || []).map(function(e) {
+                    return { lineNumber: e.line, message: e.message };
+                });
             }
 
             Story.setEvents({
@@ -52,13 +45,13 @@ define(
                 storyFetched: function(story) {
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
-                    EditorView.setErrors(parseErrors(story));
+                    EditorView.setErrors(mapErrors(story));
                     player.play(story);
                 },
                 storySaved: function(story) {
                     EditorView.showStory(story);
                     EditorView.setEnabled(EDITABLE);
-                    EditorView.setErrors(parseErrors(story));
+                    EditorView.setErrors(mapErrors(story));
                     player.play(story);
                 }
             });

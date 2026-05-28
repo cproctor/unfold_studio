@@ -78,8 +78,6 @@ class StoryManager(models.Manager):
         return self.filter(
             Q(sites=site),
             Q(deleted=False),
-            Q(author=user) |
-            Q(public=True) |
             Q(author=user)
         )
 
@@ -166,8 +164,6 @@ class Story(models.Model):
         self.errors.clear()
         try:
             ink, i, v, k, offset = self.preprocess_ink()
-            self.preprocessed_ink = ink # TODO DEBUG
-            
             self.ink_to_json(ink, offset=offset)
             self.includes.set(Story.objects.get(pk=pk) for pk in i.keys())
         except Story.PreprocessingError as e:
@@ -461,17 +457,13 @@ class Story(models.Model):
         return (timezone.now() - self.edit_date).total_seconds() / (60 * 60)
 
     def for_json(self):
-        "Returns JSON for the story in old format. Needs to be updated once the "
         return {
             "id": self.id,
             "compiled": json.loads(self.json) if self.json else None,
             "ink": self.ink,
             "status": "error" if self.errors.exists() else "ok",
-            "error": "\n".join(e.message for e in self.errors.all()),
-            # "errors": [e.message for e in self.errors.all()],
-            # "error_line": self.errors.first().line if self.errors.exists()  and self.errors.first() else 0,
-            "error_line": [e.line for e in self.errors.all() if e.line is not None] if self.errors.exists() else [0],
-            "author": self.author.username if self.author else None
+            "errors": [{"line": e.line, "message": e.message} for e in self.errors.all()],
+            "author": self.author.username if self.author else None,
         }
 
     class Meta:

@@ -19,11 +19,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_URL = 'http://local.unfoldstudio.net:8000'
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'afg+8)$-yk((4fppx2a6@vb1$49)2)obmd6pz3ijg+r7)qy@z^'
+# In production, set the SECRET_KEY environment variable. The fallback is for
+# local development only and must never be used in a deployed environment.
+SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-insecure-secret-key-change-in-production')
 SALT = "femqSwDDWMN"
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
 # Disables signals, for use during migration
 DISCONNECT_SIGNALS = False
@@ -70,10 +72,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     "django_structlog.middlewares.RequestMiddleware",
 ]
-
-if DEBUG:
-    INSTALLED_APPS += ['silk']
-    MIDDLEWARE += ['silk.middleware.SilkyMiddleware']
 
 ROOT_URLCONF = 'unfold_studio.urls.base'
 
@@ -162,10 +160,9 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 DEFAULT_AI_SEED = 45
 TEXT_GENERATION = {
     "backend": "OpenAI",
-    "api_key": "...",
+    "api_key": os.environ.get("OPENAI_API_KEY", ""),
     "temperature": 1.0,
-    "model": "gpt-4o-2024-05-13",
-    "memoize": False,
+    "model": "gpt-4o",
 }
 
 # Users in the given groups will be shown the following messages on the homepage

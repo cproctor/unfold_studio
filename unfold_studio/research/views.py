@@ -18,7 +18,7 @@ def compile_story(request):
     try:
         ink = json.loads(request.body.decode('utf8'))['ink']
     except:
-        return JsonResponse({"error": "request must contain JSON with key 'ink'"}, status_code=400)
+        return JsonResponse({"error": "request must contain JSON with key 'ink'"}, status=400)
     author, created = User.objects.get_or_create(username=settings.RESEARCH_USER)
     story = Story(
         title="Temporary", 
