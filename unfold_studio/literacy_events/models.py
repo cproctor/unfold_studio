@@ -23,62 +23,66 @@ class LiteracyEvent(models.Model):
     Represents significant things that happen at the user level.
     """
 
-    LOVED_STORY                     = '0'
-    COMMENTED_ON_STORY              = '1'
-    FORKED_STORY                    = '2'
-    PUBLISHED_STORY                 = '3'
-    UNPUBLISHED_STORY               = 'b'
-    PUBLISHED_BOOK                  = '4'
-    ADDED_STORY_TO_BOOK             = '5'
-    REMOVED_STORY_FROM_BOOK         = '9'
-    FOLLOWED                        = '6'
-    UNFOLLOWED                      = 'a'
-    SIGNED_UP                       = '8'
-    CREATED_PROMPT                  = 'c'
-    SUBMITTED_TO_PROMPT             = 'd'
-    UNSUBMITTED_FROM_PROMPT         = 'e'
-    STORY_READING                   = 'f'
-    PUBLISHED_PROMPT_AS_BOOK        = 'g'
-    UNPUBLISHED_PROMPT_AS_BOOK      = 'h'
-    TAGGED_STORY_VERSION            = 'i'
-    JOINED_LITERACY_GROUP           = 'j'
-    LEFT_LITERACY_GROUP             = 'k'
+    class EventType(models.TextChoices):
+        LOVED_STORY             = 'loved_story',            'Loved story'
+        COMMENTED               = 'commented',              'Commented on story'
+        FORKED                  = 'forked',                 'Forked a story'
+        PUBLISHED_STORY         = 'published_story',        'Published story'
+        UNPUBLISHED_STORY       = 'unpublished_story',      'Unpublished story'
+        PUBLISHED_BOOK          = 'published_book',         'Published book'
+        ADDED_TO_BOOK           = 'added_to_book',          'Added story to book'
+        REMOVED_FROM_BOOK       = 'removed_from_book',      'Removed story from book'
+        FOLLOWED                = 'followed',               'Followed'
+        UNFOLLOWED              = 'unfollowed',             'Unfollowed'
+        SIGNED_UP               = 'signed_up',              'Signed up'
+        CREATED_PROMPT          = 'created_prompt',         'Created prompt'
+        SUBMITTED_TO_PROMPT     = 'submitted_to_prompt',    'Submitted to prompt'
+        REMOVED_FROM_PROMPT     = 'removed_from_prompt',    'Removed from prompt'
+        READ_STORY              = 'read_story',             'Read story'
+        PUBLISHED_AS_BOOK       = 'published_as_book',      'Published prompt as book'
+        UNPUBLISHED_BOOK        = 'unpublished_book',       'Unpublished prompt book'
+        TAGGED_VERSION          = 'tagged_version',         'Tagged story version'
+        JOINED_GROUP            = 'joined_group',           'Joined literacy group'
+        LEFT_GROUP              = 'left_group',             'Left literacy group'
 
-    EVENT_TYPES = (
-        (LOVED_STORY, "loved story"),
-        (COMMENTED_ON_STORY, "commented on story"),
-        (FORKED_STORY, "forked a story"),
-        (PUBLISHED_STORY, "published story"),
-        (PUBLISHED_STORY, "unpublished story"),
-        (PUBLISHED_BOOK, "published book"),
-        (ADDED_STORY_TO_BOOK, "added story to book"),
-        (REMOVED_STORY_FROM_BOOK, "removed story from book"),
-        (FOLLOWED, "followed"),
-        (UNFOLLOWED, "unfollowed"),
-        (SIGNED_UP, "signed up"),
-        (CREATED_PROMPT, "created prompt"),
-        (SUBMITTED_TO_PROMPT, "submitted to prompt"),
-        (UNSUBMITTED_FROM_PROMPT, "unsubmitted from prompt"),
-        (STORY_READING, "story knot read"),
-        (PUBLISHED_PROMPT_AS_BOOK, "published prompt as book"),
-        (UNPUBLISHED_PROMPT_AS_BOOK, "unpublished prompt as book"),
-        (TAGGED_STORY_VERSION, 'tagged a story version'),
-        (JOINED_LITERACY_GROUP, 'joined literacy group'),
-        (LEFT_LITERACY_GROUP, 'left literacy group'),
-    )
-    
+    # Legacy single-char constants kept for any code still referencing them directly.
+    # Migrate call sites to LiteracyEvent.EventType.LOVED_STORY etc.
+    LOVED_STORY             = EventType.LOVED_STORY
+    COMMENTED_ON_STORY      = EventType.COMMENTED
+    FORKED_STORY            = EventType.FORKED
+    PUBLISHED_STORY         = EventType.PUBLISHED_STORY
+    UNPUBLISHED_STORY       = EventType.UNPUBLISHED_STORY
+    PUBLISHED_BOOK          = EventType.PUBLISHED_BOOK
+    ADDED_STORY_TO_BOOK     = EventType.ADDED_TO_BOOK
+    REMOVED_STORY_FROM_BOOK = EventType.REMOVED_FROM_BOOK
+    FOLLOWED                = EventType.FOLLOWED
+    UNFOLLOWED              = EventType.UNFOLLOWED
+    SIGNED_UP               = EventType.SIGNED_UP
+    CREATED_PROMPT          = EventType.CREATED_PROMPT
+    SUBMITTED_TO_PROMPT     = EventType.SUBMITTED_TO_PROMPT
+    UNSUBMITTED_FROM_PROMPT = EventType.REMOVED_FROM_PROMPT
+    STORY_READING           = EventType.READ_STORY
+    PUBLISHED_PROMPT_AS_BOOK    = EventType.PUBLISHED_AS_BOOK
+    UNPUBLISHED_PROMPT_AS_BOOK  = EventType.UNPUBLISHED_BOOK
+    TAGGED_STORY_VERSION    = EventType.TAGGED_VERSION
+    JOINED_LITERACY_GROUP   = EventType.JOINED_GROUP
+    LEFT_LITERACY_GROUP     = EventType.LEFT_GROUP
+
     timestamp = models.DateTimeField(default=timezone.now)
-    event_type = models.CharField(max_length=1, choices=EVENT_TYPES)
-    subject = models.ForeignKey('auth.User', on_delete=models.CASCADE, related_name='literacy_events')
-    book = models.ForeignKey('unfold_studio.Book', null=True, blank=True, on_delete=models.CASCADE, 
+    event_type = models.CharField(max_length=20, choices=EventType.choices)
+    # subject is nullable so User records can be deleted (SET_NULL) while preserving
+    # event history for research integrity.
+    subject = models.ForeignKey('auth.User', null=True, blank=True,
+            on_delete=models.SET_NULL, related_name='literacy_events')
+    book = models.ForeignKey('unfold_studio.Book', null=True, blank=True, on_delete=models.CASCADE,
             related_name='literacy_events')
-    story = models.ForeignKey('unfold_studio.Story', null=True, blank=True, on_delete=models.CASCADE, 
+    story = models.ForeignKey('unfold_studio.Story', null=True, blank=True, on_delete=models.CASCADE,
             related_name='literacy_events')
     prompt = models.ForeignKey('prompts.Prompt', null=True, blank=True, on_delete=models.CASCADE,
             related_name='literacy_events')
     literacy_group = models.ForeignKey('literacy_groups.LiteracyGroup', null=True, blank=True,
             on_delete=models.CASCADE, related_name='literacy_events')
-    object_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.CASCADE, 
+    object_user = models.ForeignKey('auth.User', null=True, blank=True, on_delete=models.SET_NULL,
             related_name='literacy_events_as_object')
     extra = models.TextField(blank=True, null=True)
 

@@ -158,6 +158,10 @@ EMAIL_SUBJECT_PREFIX = '[UNFOLD STUDIO] '
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 DEFAULT_AI_SEED = 45
+
+# Public (anonymous) stories older than this many days are deleted by
+# the delete_old_public_stories management command.
+PUBLIC_STORY_MAX_AGE_DAYS = 30
 TEXT_GENERATION = {
     "backend": "OpenAI",
     "api_key": os.environ.get("OPENAI_API_KEY", ""),

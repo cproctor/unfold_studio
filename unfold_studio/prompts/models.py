@@ -4,22 +4,21 @@ from unfold_studio.models import Book
 from reversion.models import Version
 from django.utils import timezone
 from django.contrib.sites.models import Site
+from commons.base.models import SoftDeleteMixin, SoftDeleteManager
 
-class PromptManager(models.Manager):
+
+class PromptManager(SoftDeleteManager):
     """
-    Extends the default Manager for Prompts, adding additional queries
+    Extends SoftDeleteManager with prompt-specific queries.
     """
     def unsubmitted_for_user(self, user):
-        results = self.get_queryset().filter(deleted=False)
-        results = results.filter(literacy_group__members=user)
-        results = results.exclude(submissions__author=user)
-        return results
+        return self.filter(literacy_group__members=user).exclude(submissions__author=user)
 
-class Prompt(models.Model):
+
+class Prompt(SoftDeleteMixin):
     name = models.CharField(max_length=400)
     author = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
     creation_date = models.DateTimeField(default=timezone.now)
-    deleted = models.BooleanField(default=False)
     due_date = models.DateTimeField(null=True, blank=True)
     literacy_group = models.ForeignKey("literacy_groups.LiteracyGroup", 
             related_name="prompts", on_delete=models.CASCADE, null=True)

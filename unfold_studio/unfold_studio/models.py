@@ -1,4 +1,4 @@
-from django.db import models 
+from django.db import models
 from django.db.models import Q, OuterRef, Subquery, Exists, Case, When, Value, CharField
 from django.contrib.auth.models import User
 from django.contrib.sites.models import Site
@@ -17,18 +17,19 @@ import subprocess
 import math
 from django.utils import timezone
 from django.contrib.sites.shortcuts import get_current_site
-from django.http import Http404                         
+from django.http import Http404
 from django.contrib.postgres.search import SearchVectorField
 from django.contrib.postgres.indexes import GinIndex
 import uuid
 from .choices import StoryPlayInstanceState, StoryPlayRecordDataType
 from django.core.serializers.json import DjangoJSONEncoder
+from commons.base.models import SoftDeleteMixin, SoftDeleteManager
 
 log = structlog.get_logger(__name__)
 
-class StoryManager(models.Manager):
+class StoryManager(SoftDeleteManager):
     """
-    Extends the default manager with custom queries. Note that "for request"
+    Extends SoftDeleteManager with story-specific queries. Note that "for request"
     methods will check for user authentication as a convenience, even though
     it's not really the model's business.
 
@@ -46,14 +47,11 @@ class StoryManager(models.Manager):
             return self.for_site_anonymous_user(site)
 
     def for_site_user(self, site, user):
-        literacy_groups = LiteracyGroup.objects.filter(
-            leaders=user
-            )
+        literacy_groups = LiteracyGroup.objects.filter(leaders=user)
         return self.filter(
             Q(sites=site),
-            Q(deleted=False),
             Q(author=user) |
-            Q(shared=True) | 
+            Q(shared=True) |
             Q(public=True) |
             Q(prompts_submitted__literacy_group=Subquery(literacy_groups.values('id')))
         ).distinct()
@@ -61,12 +59,12 @@ class StoryManager(models.Manager):
     def for_site_anonymous_user(self, site):
         return self.filter(
             Q(sites=site),
-            Q(public=True) | 
+            Q(public=True) |
             Q(shared=True)
         )
 
     def editable_for_request(self, request):
-        "Returns stories which are visible to the current request"
+        "Returns stories which are editable by the current request"
         user = request.user
         site = get_current_site(request)
         if user.is_authenticated:
@@ -77,14 +75,12 @@ class StoryManager(models.Manager):
     def editable_for_site_user(self, site, user):
         return self.filter(
             Q(sites=site),
-            Q(deleted=False),
             Q(author=user)
         )
 
     def editable_for_site_anonymous_user(self, site):
         return self.filter(
             Q(sites=site),
-            Q(deleted=False),
             Q(public=True)
         )
 
@@ -101,10 +97,9 @@ class StoryManager(models.Manager):
             raise Http404
 
 @reversion.register()
-class Story(models.Model):
+class Story(SoftDeleteMixin):
     """
     Stories can be saved even if invalid.
-
     """
     title = models.CharField(max_length=400)
     author = models.ForeignKey(User, related_name='stories', blank=True, null=True, on_delete=models.SET_NULL)
@@ -112,14 +107,13 @@ class Story(models.Model):
     edit_date = models.DateTimeField('date changed')
     ink = models.TextField(blank=True)
     json = models.TextField(null=True, blank=True)
-    shared=models.BooleanField(default=False)
-    public=models.BooleanField(default=False)
-    featured=models.BooleanField(default=False)
+    shared = models.BooleanField(default=False)
+    public = models.BooleanField(default=False)
+    featured = models.BooleanField(default=False)
     loves = models.ManyToManyField(Profile, related_name="loved_stories", blank=True)
-    parent = models.ForeignKey("unfold_studio.Story", related_name="children", 
+    parent = models.ForeignKey("unfold_studio.Story", related_name="children",
             null=True, blank=True, on_delete=models.SET_NULL)
     includes = models.ManyToManyField("unfold_studio.Story", related_name="included_by", blank=True)
-    deleted = models.BooleanField(default=False)
     priority = models.FloatField(default=0)
     sites = models.ManyToManyField(Site)
     search = SearchVectorField(null=True)
@@ -474,30 +468,23 @@ class Story(models.Model):
         ]
     
 
-class BookManager(models.Manager):
-    def valid(self):
-        "Returns non-deleted objects"
-        return self.get_queryset().filter(deleted=False)
-
+class BookManager(SoftDeleteManager):
     def for_site(self, site):
-        """
-        Returns only books in the current scope--that is, those associated with a site and not deleted.
-        """
-        return self.valid().filter(sites=site)
+        "Returns books in the current scope — associated with a site and not deleted."
+        return self.filter(sites=site)
 
     def for_request(self, request):
-        "Returns books which are visible to the current request"
+        "Returns books visible to the current request"
         site = get_current_site(request)
         return self.for_site(site)
 
-class Book(models.Model):
+class Book(SoftDeleteMixin):
     title = models.CharField(max_length=400)
     description = models.TextField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='books')
     stories = models.ManyToManyField(Story, related_name='books')
     sites = models.ManyToManyField(Site)
     priority = models.FloatField(default=0)
-    deleted = models.BooleanField(default=False)
 
     objects = BookManager()
 
