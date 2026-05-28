@@ -1,4 +1,5 @@
 import json
+import structlog
 from text_generation.backends import get_llm_backend
 from django.conf import settings
 from django.http import JsonResponse
@@ -6,6 +7,8 @@ from commons.base.views import BaseView
 from .models import StoryTransitionRecord
 from .services.unfold_studio import UnfoldStudioService
 from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE)
+
+log = structlog.get_logger("text_generation")
 
 class GenerateTextView(BaseView):
 
@@ -83,14 +86,14 @@ class GetNextDirectionView(BaseView):
 
             return parsed_data
             
-        except json.JSONDecodeError as e:
-            print(f"JSON decode error in data: {str(e)}")
+        except json.JSONDecodeError:
+            log.exception("JSON decode error in AI response data")
             raise
-        except ValueError as e:
-            print(f"Data validation failed: {str(e)}")
+        except ValueError:
+            log.exception("AI response data validation failed")
             raise
         except Exception:
-            print(f"Unexpected error occured in parsing data: {str(e)}")
+            log.exception("Unexpected error parsing AI response data")
             raise
 
     def determine_next_direction_details_from_ai_response(self, data):
@@ -101,11 +104,6 @@ class GetNextDirectionView(BaseView):
             if prob == max_prob
         )
 
-        # SET THE BELOW DIRECTION TO TEST DIFFERENT CASES
-        # selected_direction = "NEEDS_INPUT"
-        # selected_direction = "DIRECT_CONTINUE"
-        # selected_direction = "BRIDGE_AND_CONTINUE"
-        # selected_direction = "INVALID_USER_INPUT"
         if selected_direction not in StoryContinueDirections.values():
             raise ValueError("Invalid direction received")
 
@@ -115,10 +113,6 @@ class GetNextDirectionView(BaseView):
 
 
     def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input, seed):
-        #print("target_knot_data", target_knot_data)
-        #print("story_history", story_history)
-        #print("user_input", user_input)
-        #print("seed", seed)
         default_direction = StoryContinueDirections.NEEDS_INPUT
         default_content = {
             "guidance_text": "What would you like to do next?",
@@ -130,15 +124,13 @@ class GetNextDirectionView(BaseView):
 
             system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
             response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt, seed, hit_cache=True)
-            #print(response)
-
             parsed_response = self.parse_and_validate_ai_response(response)
             direction, content = self.determine_next_direction_details_from_ai_response(parsed_response)
 
             return direction, content
             
-        except Exception as e:
-            print(f"Exception occoured in get_next_direction_details_for_story: {str(e)}")
+        except Exception:
+            log.exception("Exception in get_next_direction_details_for_story")
             return default_direction, default_content
 
     def save_story_transition_record(self, story_play_instance_uuid, previous_story_timeline, target_knot_data, user_input, ai_decision):
@@ -158,10 +150,8 @@ class GetNextDirectionView(BaseView):
             user_input = request_body.get('user_input')
             target_knot_name = request_body.get('target_knot_name')
             story_play_instance_uuid = request_body.get('story_play_instance_uuid')
-            print("target_knot_name", target_knot_name)
-            print("story_play_instance_uuid", story_play_instance_uuid)
-            print("user_input", user_input)
-            print("seed", seed)
+            log.debug("GetNextDirectionView.post", target_knot_name=target_knot_name,
+                      story_play_instance_uuid=story_play_instance_uuid, seed=seed)
 
             result = {}
 
@@ -191,5 +181,5 @@ class GetNextDirectionView(BaseView):
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
         except Exception as e:
-            print(str(e))
+            log.exception("Unexpected error in GetNextDirectionView")
             return JsonResponse({"error": str(e)}, status=500)

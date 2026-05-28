@@ -55,25 +55,25 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 5 — Backend New Features (Proposal)
 
-- [ ] Remove unused inklecate versions (`inklecate_0.8.2/`, `inklecate_1.1.1/`) from repo (§1.13)
-- [ ] Add `scripts/install_inklecate.sh` download script (§1.13)
-- [ ] Add `is_researcher` field to `Profile`; wire up researcher admin (§0.4)
-- [ ] Implement `APIKey` model, `require_api_key` decorator, and `ResearcherAPIKeyView` (§0.4)
-- [ ] Replace `@csrf_exempt` with `@require_api_key` on all research endpoints (§0.4)
-- [ ] Implement `LLMBackend` abstract class, `OpenAIBackend`, `AnthropicBackend`, and `get_llm_backend()` factory (§11.1)
-- [ ] Update `text_generation/views.py` to use `get_llm_backend()` instead of direct OpenAI client (§11.1)
-- [ ] Update `TEXT_GENERATION` settings dict to support multi-backend format (§11.1)
-- [ ] Implement Celery async compilation: `stories/tasks.py`, update compile endpoint, add status polling endpoint (§1.12)
-- [ ] Add `CELERY_TASK_ALWAYS_EAGER = True` to local `settings.py` example (§1.12)
+- [x] Remove unused inklecate versions (`inklecate_0.8.2/`, `inklecate_1.1.1/`) from repo (§1.13)
+- [x] Add `scripts/install_inklecate.sh` download script (§1.13)
+- [x] Add `is_researcher` field to `Profile`; wire up researcher admin (§0.4)
+- [x] Implement `APIKey` model, `require_api_key` decorator, and `ResearcherAPIKeyView` (§0.4)
+- [x] Replace `@csrf_exempt` with `@require_api_key` on all research endpoints (§0.4)
+- [x] Implement `LLMBackend` abstract class, `OpenAIBackend`, `AnthropicBackend`, and `get_llm_backend()` factory (§11.1)
+- [x] Update `text_generation/views.py` to use `get_llm_backend()` instead of direct OpenAI client (§11.1)
+- [x] Update `TEXT_GENERATION` settings dict to support multi-backend format (§11.1)
+- [x] Implement Celery async compilation: `stories/tasks.py`, compile_async endpoint, status polling (§1.12)
+- [x] Add `CELERY_TASK_ALWAYS_EAGER = True` to local `settings.py` example (§1.12)
 
 ---
 
 ## Phase 6 — Backend Code Quality (P2)
 
-- [ ] Add `LOGGING` dict to `base_settings.py` for structlog (§8.2)
-- [ ] Replace all `print()` calls in `text_generation/views.py` and `flows/` with structlog calls (§8.1 / §8.2)
-- [ ] Replace bare `except:` in `research/views.py` with `except Exception:` + `log.exception()` (§8.2)
-- [ ] Delete commented-out code: `messages.success()` calls in `views.py`, `logPath` in `player.js`, `ChoosePathString` calls, `"memoize"` in `base_settings.py` (§8.3)
+- [x] Add `LOGGING` dict to `base_settings.py` for structlog (§8.2)
+- [x] Replace all `print()` calls in `text_generation/views.py` and `flows/` with structlog calls (§8.1 / §8.2)
+- [x] Replace bare `except:` in `research/views.py` with `except Exception:` + `log.exception()` (§8.2)
+- [x] Delete commented-out code: `messages.success()` calls in `views.py`, `logPath` in `player.js`, `ChoosePathString` calls, `"memoize"` in `base_settings.py` (§8.3)
 
 ---
 

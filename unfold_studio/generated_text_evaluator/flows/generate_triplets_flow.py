@@ -1,9 +1,12 @@
 import os
 import random
+import structlog
 from generated_text_evaluator.constants import TripletType
 from generated_text_evaluator.services.unfold_studio import UnfoldStudioService
 from sentence_transformers import SentenceTransformer
 import numpy as np
+
+log = structlog.get_logger("generated_text_evaluator")
 
 class GenerateTripletsFlow:
     
@@ -43,8 +46,8 @@ class GenerateTripletsFlow:
                 invalid_user_input_triplets = self.get_invalid_user_input_triplets(records)
                 triplets.extend(invalid_user_input_triplets)
 
-            except Exception as e:
-                print(str(e))
+            except Exception:
+                log.exception("Error generating triplets for story play instance")
                 continue
 
         return triplets

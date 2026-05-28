@@ -176,31 +176,10 @@ InkPlayer.prototype = {
             }, this);
             this.events.renderDidEnd.bind(this)();
         }
-        else {
-            this.logPath();
-        }
     },
-    stop: function() { 
+    stop: function() {
         this.timeouts.forEach(clearTimeout);
         this.running = false;
-    },
-    logPath: function() {
-        /*
-        if (window.LOG_READING_URL) {
-            const path = Array.from(this.story.state.turnIndices.keys()).join(';');
-            console.log(path);
-            return $.ajax(window.LOG_READING_URL, {
-                beforeSend: function(xhr) { 
-                    xhr.setRequestHeader("X-CSRFToken", CSRF);
-                },
-                method: 'POST',
-                data: {
-                    'story': parseInt(STORY_ID),
-                    'path': path
-                }
-            })
-        }
-        */
     },
     createStoryPlayRecord: function(storyPlayInstanceUUID, data_type, data){
         if (
@@ -318,7 +297,6 @@ InkPlayer.prototype = {
                 break;
     
             case 'DIRECT_CONTINUE':
-                // this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
 
@@ -335,7 +313,6 @@ InkPlayer.prototype = {
                     nextDirectionJson.content.bridge_text
                 );
                 
-                // this.story.ChoosePathString(this.currentTargetKnot);
                 this.continueStory();
                 break;
 

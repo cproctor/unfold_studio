@@ -1,22 +1,22 @@
 from django.conf import settings
-from datetime import datetime
 import json
+import structlog
 from ..models import StoryTransitionRecord
-from ..backends import TextGenerationFactory
+from ..backends import get_llm_backend
 from ..constants import (
     EVALUATION_SYSTEM_PROMPT,
     EVALUATION_USER_PROMPT_TEMPLATE
 )
 
+log = structlog.get_logger("text_generation")
+
 
 class StoryTransitionEvaluator:
 
     def __init__(self):
-        backend_config = settings.TEXT_GENERATION
-        self.backend = TextGenerationFactory.create(backend_config)
+        self.backend = get_llm_backend()
 
     def execute_flow(self, story_play_instance_uuids):
-        print("hi")
         records = self._get_records(story_play_instance_uuids)
         results = {
             "total_processed": 0,
@@ -28,7 +28,7 @@ class StoryTransitionEvaluator:
         for record in records:
             try:
                 evaluation = self._generate_evaluation(record)
-                print(evaluation)
+                log.debug("story_evaluation", record_id=record.id, evaluation=evaluation)
                 record.ai_evaluation = {
                     "smoothness_score": evaluation['score'],
                     "analysis": evaluation['reason'],
@@ -64,15 +64,12 @@ class StoryTransitionEvaluator:
     def _generate_evaluation(self, record):
         prompt_params = self._get_prompt_parameters(record)
         system_prompt, user_prompt = self._build_system_and_user_prompt(prompt_params)
-        print("==================================================================================================================================================================")
-        print(system_prompt)
-        print(user_prompt)
-        
+        log.debug("story_evaluation_prompts", system_prompt=system_prompt, user_prompt=user_prompt)
         response = self.backend.get_ai_response_by_system_and_user_prompt(
             system_prompt=EVALUATION_SYSTEM_PROMPT,
             user_prompt=user_prompt
         )
-        print(response)
+        log.debug("story_evaluation_response", response=response)
 
         return self._parse_response(response)
 

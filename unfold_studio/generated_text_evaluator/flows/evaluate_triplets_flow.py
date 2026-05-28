@@ -1,8 +1,11 @@
 import json
+import structlog
 from typing import List, Dict, Any
 from text_generation.views import GetNextDirectionView
 from collections import defaultdict
 from generated_text_evaluator.constants import TripletType
+
+log = structlog.get_logger("generated_text_evaluator")
 
 class EvaluateGeneratedTriplets:
     def __init__(self):
@@ -85,19 +88,7 @@ class EvaluateGeneratedTriplets:
         # Calculate metrics after all evaluations
         metrics = self.calculate_metrics(triplets)
         
-        # Print metrics
-        print("\nMetrics by Triplet Type:")
-        print("-" * 50)
-        
         for triplet_type, type_metrics in metrics.items():
-            print(f"\n{triplet_type}:")
-            print(f"Precision: {type_metrics['precision']:.3f}")
-            print(f"Recall: {type_metrics['recall']:.3f}")
-            print(f"F1 Score: {type_metrics['f1']:.3f}")
-            print(f"True Positives: {type_metrics['true_positives']}")
-            print(f"False Positives: {type_metrics['false_positives']}")
-            print(f"False Negatives: {type_metrics['false_negatives']}")
-        
-        print("-" * 50)
-        
+            log.info("triplet_metrics", triplet_type=triplet_type, **type_metrics)
+
         return triplets 
