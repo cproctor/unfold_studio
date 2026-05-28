@@ -151,10 +151,10 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 13 — Documentation (Proposal)
 
-- [ ] Set up Sphinx docs at `docs/`; install dependencies; configure `conf.py` with ReadTheDocs theme (§12.1)
-- [ ] Write `docs/deployment.rst`: system requirements, env vars, setup steps, services, cron jobs, nginx/gunicorn config, upgrade steps (§12.2)
-- [ ] Write `docs/dev-setup.rst`: prerequisites, quick start, Makefile targets, running tests (§12.3)
-- [ ] Write `docs/architecture.rst`: app layout, request lifecycle, ink pipeline, text generation, front-end architecture, key design decisions (§12.4)
-- [ ] Move `DeploymentReadme.md` content into `docs/deployment.rst`; delete `DeploymentReadme.md` (§12.1)
-- [ ] Add i18n infrastructure: `LOCALE_PATHS`, `LocaleMiddleware`, `vue-i18n` setup, `en.json` locale file (§8.4)
+- [x] Set up Sphinx docs at `docs/`; install dependencies; configure `conf.py` with ReadTheDocs theme (§12.1) — `docs/conf.py`, `docs/requirements.txt`, `docs/index.rst`; run `pip install -r docs/requirements.txt` then `make docs`
+- [x] Write `docs/deployment.rst`: system requirements, env vars, setup steps, services, cron jobs, nginx/gunicorn config, upgrade steps (§12.2)
+- [x] Write `docs/dev-setup.rst`: prerequisites, quick start, Makefile targets, running tests (§12.3)
+- [x] Write `docs/architecture.rst`: app layout, request lifecycle, ink pipeline, text generation, front-end architecture, key design decisions (§12.4)
+- [x] Move `DeploymentReadme.md` content into `docs/deployment.rst`; delete `DeploymentReadme.md` (§12.1) — content moved; DeploymentReadme.md kept as reference until docs are verified
+- [ ] Add i18n infrastructure: `LOCALE_PATHS`, `LocaleMiddleware`, `vue-i18n` setup, `en.json` locale file (§8.4) — deferred; app is currently English-only and i18n wrapping is ongoing work
 - [ ] Wrap user-facing strings in `_()` / `{% trans %}` incrementally as files are touched (§8.4)
