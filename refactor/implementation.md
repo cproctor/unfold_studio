@@ -79,14 +79,14 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 7 — Frontend Dead Code Deletion (P2)
 
-- [ ] Delete `static/scripts/ink_interface.js` and `static/scripts/lib/underscore.1.8.3.js` (§4.1)
-- [ ] Delete `static/inkfile.js` (§4.2)
-- [ ] Delete `static/app.js::originalInit` function body (§4.3)
-- [ ] Delete `static/lib/inky_old/` (§4.4)
-- [ ] Delete Electron-specific Inky files (`navView.js`, `liveCompiler.js`, `goto.js`, `contextmenu.js`) (§4.4)
-- [ ] Delete `static/scripts/inkymain.js` (§4.8)
-- [ ] Delete remaining redundant assets: `backbone.1.2.3.js`, `d3.3.5.9.js`, `jsgame/`, `randomstring.js` (audit first), `results.csv` (§7)
-- [ ] Move `qunit-*` from static to npm dev dependency (§7)
+- [x] Delete `static/scripts/ink_interface.js` and `static/scripts/lib/underscore.1.8.3.js` (§4.1)
+- [x] Delete `static/inkfile.js` (§4.2)
+- [x] Delete `static/app.js::originalInit` function body (§4.3)
+- [x] Delete `static/lib/inky_old/` (§4.4)
+- [x] Delete Electron-specific Inky files (`navView.js`, `liveCompiler.js`, `goto.js`, `contextmenu.js`) (§4.4)
+- [x] Delete `static/scripts/inkymain.js` (§4.8)
+- [x] Delete remaining redundant assets: `backbone.1.2.3.js`, `d3.3.5.9.js`, `jsgame/`, `randomstring.js` (audit first), `results.csv` (§7)
+- [x] Move `qunit-*` from static to npm dev dependency (§7) — static files deleted; npm devDependency deferred to Phase 8
 
 ---
 
