@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from unfold_studio.models import StoryPlayInstance
+from story_play.models import StoryPlayInstance
 from tabulate import tabulate
 
 class Command(BaseCommand):

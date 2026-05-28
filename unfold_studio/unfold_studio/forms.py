@@ -1,18 +1,7 @@
-from django.forms import ModelForm, Form
+from django.forms import Form
 from django import forms
-from .models import Story, Book
-from django.core.exceptions import ValidationError
 from django.utils.http import urlencode
 
-class StoryForm(ModelForm):
-    class Meta:
-        model = Story
-        fields = ['title', 'description']
-
-class SharedStoryBookForm(ModelForm):
-    class Meta:
-        model = Book
-        fields = ['title', 'stories']
 
 class SearchForm(Form):
     query = forms.CharField(max_length=100, label="Query")
@@ -23,6 +12,3 @@ class SearchForm(Form):
             return urlencode(self.cleaned_data)
         else:
             return ""
-
-class StoryVersionForm(Form):
-    comment = forms.CharField(widget=forms.Textarea())

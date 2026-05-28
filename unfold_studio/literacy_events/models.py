@@ -2,7 +2,8 @@ from django.db import models
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 from django.db.models import Q, Exists, OuterRef, Subquery
-from unfold_studio.models import Story, Book
+from stories.models import Story
+from books.models import Book
 from django.contrib.sites.shortcuts import get_current_site
 import arrow
 

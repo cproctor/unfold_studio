@@ -4,7 +4,7 @@ from literacy_events.models import LiteracyEvent
 from literacy_events.forms import ReadingEventForm
 from django.http import HttpResponse, Http404
 from django.contrib.auth.mixins import LoginRequiredMixin
-from unfold_studio.models import Story
+from stories.models import Story
 import structlog
 log = structlog.get_logger("unfold_studio")    
 

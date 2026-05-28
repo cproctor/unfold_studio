@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from unfold_studio.models import Book
+from books.models import Book
 
 class Command(BaseCommand):
     help = "Update the priority of all books."

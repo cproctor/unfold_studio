@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from unfold_studio.models import Story
+from stories.models import Story
 from django.db.models import Q
 from django.utils import timezone
 

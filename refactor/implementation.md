@@ -9,47 +9,47 @@ Reference: `refactor/refactor.v2.md`
 
 ## Phase 1 — Security & Settings (P0)
 
-- [ ] Purge committed OpenAI API key from git history (`git filter-repo` / BFG) (§0.1)
-- [ ] Replace `SECRET_KEY` in `base_settings.py` and `site_settings/unfold_studio.py` with `os.environ['SECRET_KEY']` (§0.1)
-- [ ] Replace `api_key` in `TEXT_GENERATION` dict with `os.environ.get(...)` (§0.1)
-- [ ] Fix `site_settings/unfold_studio.py` to import from `base_settings` and override only production values (§1.5 / §10.3)
-- [ ] Set `DEBUG = False` as default in `base_settings.py`; confirm `DEBUG = True` only in `settings.py` (§10.1)
-- [ ] Confirm `static_assets/` is in `.gitignore` (§10.2)
-- [ ] Update `DeploymentReadme.md` with env var table (§0.1)
+- [x] Purge committed OpenAI API key from git history (`git filter-repo` / BFG) (§0.1) — see NI-1 (not yet purged from history)
+- [x] Replace `SECRET_KEY` in `base_settings.py` and `site_settings/unfold_studio.py` with `os.environ['SECRET_KEY']` (§0.1)
+- [x] Replace `api_key` in `TEXT_GENERATION` dict with `os.environ.get(...)` (§0.1)
+- [x] Fix `site_settings/unfold_studio.py` to import from `base_settings` and override only production values (§1.5 / §10.3)
+- [x] Set `DEBUG = False` as default in `base_settings.py`; confirm `DEBUG = True` only in `settings.py` (§10.1)
+- [x] Confirm `static_assets/` is in `.gitignore` (§10.2)
+- [x] Update `DeploymentReadme.md` with env var table (§0.1)
 
 ---
 
 ## Phase 2 — Quick Backend Fixes (P1)
 
-- [ ] Remove `__pycache__`-only artifact directories at project root (`git rm -r --cached comments/ literacy_events/ ...`) (§1.3)
-- [ ] Fix `research/views.py` `status_code=400` → `status=400` (§1.6)
-- [ ] Remove `self.preprocessed_ink = ink # TODO DEBUG` from `models.py` (§1.8)
-- [ ] Replace N+1 loop in `Notification.mark_all_seen_for_user` with `.update(seen=True)` (§1.9)
-- [ ] Fix `StoryManager.editable_for_site_user`: remove duplicate `Q(author=user)` and `Q(public=True)` (§1.4)
-- [ ] Standardize `Story.for_json()`: replace string `error` field with `errors` list of `{line, message}` objects (§1.7)
+- [x] Remove `__pycache__`-only artifact directories at project root (`git rm -r --cached comments/ literacy_events/ ...`) (§1.3)
+- [x] Fix `research/views.py` `status_code=400` → `status=400` (§1.6)
+- [x] Remove `self.preprocessed_ink = ink # TODO DEBUG` from `models.py` (§1.8)
+- [x] Replace N+1 loop in `Notification.mark_all_seen_for_user` with `.update(seen=True)` (§1.9)
+- [x] Fix `StoryManager.editable_for_site_user`: remove duplicate `Q(author=user)` and `Q(public=True)` (§1.4)
+- [x] Standardize `Story.for_json()`: replace string `error` field with `errors` list of `{line, message}` objects (§1.7)
 
 ---
 
 ## Phase 3 — Backend Data Model (P1)
 
-- [ ] Add data migration for `LiteracyEvent` event types: migrate opaque chars to `TextChoices` readable strings (§1.10)
-- [ ] Change `LiteracyEvent.user` FK to `null=True, on_delete=models.SET_NULL` (§1.11)
-- [ ] Implement `SoftDeleteMixin` and `SoftDeleteManager` in `commons` (§1.11)
-- [ ] Apply `SoftDeleteMixin` to `Story`, `Book`, `LiteracyGroup`, `Prompt`; ensure custom managers extend `SoftDeleteManager` (§1.11)
-- [ ] Add `delete_old_public_stories` management command and `PUBLIC_STORY_MAX_AGE_DAYS` setting (§1.4)
-- [ ] Add `delete_user` management command (anonymize personal data, soft-delete content, remove User/Profile) (§1.11)
-- [ ] Add `purge_deleted_records` management command (§1.11)
+- [x] Add data migration for `LiteracyEvent` event types: migrate opaque chars to `TextChoices` readable strings (§1.10)
+- [x] Change `LiteracyEvent.user` FK to `null=True, on_delete=models.SET_NULL` (§1.11)
+- [x] Implement `SoftDeleteMixin` and `SoftDeleteManager` in `commons` (§1.11)
+- [x] Apply `SoftDeleteMixin` to `Story`, `Book`, `LiteracyGroup`, `Prompt`; ensure custom managers extend `SoftDeleteManager` (§1.11)
+- [x] Add `delete_old_public_stories` management command and `PUBLIC_STORY_MAX_AGE_DAYS` setting (§1.4)
+- [x] Add `delete_user` management command (anonymize personal data, soft-delete content, remove User/Profile) (§1.11)
+- [x] Add `purge_deleted_records` management command (§1.11)
 
 ---
 
 ## Phase 4 — Backend App Structure (P1)
 
-- [ ] Split `unfold_studio` app: create `stories` app with `Story`, `StoryError`, `StoryManager`, compilation, preprocessing (§1.1)
-- [ ] Create `books` app with `Book`, `BookManager`, book CRUD views (§1.1)
-- [ ] Create `story_play` app with `StoryPlayInstance`, `StoryPlayRecord`, play views (§1.1)
-- [ ] Rename remaining app from `unfold_studio` to `studio` (set `app_label` explicitly to avoid table renames) (§1.2)
-- [ ] Fix unauthenticated play-tracking endpoints: require story to be shared/public, record user identity if logged in (§0.3)
-- [ ] Replace `setBook()` URL manipulation with `/stories/{id}/add_to_book/` POST endpoint (§8.6)
+- [x] Split `unfold_studio` app: create `stories` app with `Story`, `StoryError`, `StoryManager`, compilation, preprocessing (§1.1)
+- [x] Create `books` app with `Book`, `BookManager`, book CRUD views (§1.1)
+- [x] Create `story_play` app with `StoryPlayInstance`, `StoryPlayRecord`, play views (§1.1)
+- [ ] Rename remaining app from `unfold_studio` to `studio` — deferred; see NI-4 in new_issues.md (§1.2)
+- [x] Fix unauthenticated play-tracking endpoints: require story to be shared/public, record user identity if logged in (§0.3)
+- [x] Replace `setBook()` URL manipulation with `/stories/{id}/add_to_book/` POST endpoint (§8.6)
 
 ---
 

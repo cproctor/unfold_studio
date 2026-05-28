@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from unfold_studio.models import Story
+from stories.models import Story
 from django.contrib.sites.models import Site
 
 class Command(BaseCommand):

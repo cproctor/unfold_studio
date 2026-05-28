@@ -1,5 +1,6 @@
 from django import template
-from unfold_studio.models import Story, Book
+from stories.models import Story
+from books.models import Book
 from prompts.models import Prompt
 from django.contrib.auth.models import User
 from django.utils.safestring import mark_safe
@@ -9,14 +10,17 @@ import re
 
 register = template.Library()
 
+
 def ref_token(entity, pk):
     return "@{}:{}".format(entity, pk)
 
+
 def ref_pattern(entity):
     if entity == 'user':
-        return "@{}:(\w+)".format(entity)
+        return r"@{}:(\w+)".format(entity)
     else:
-        return "@{}:(\d+)".format(entity)
+        return r"@{}:(\d+)".format(entity)
+
 
 def prompt_replacement(promptId, user, autoescape=True):
     esc = conditional_escape if autoescape else lambda x: x
@@ -33,7 +37,7 @@ def prompt_replacement(promptId, user, autoescape=True):
             return 'a prompt'
     except Prompt.DoesNotExist:
         return 'a missing prompt'
-    
+
 
 def story_replacement(storyId, user, autoescape=True):
     esc = conditional_escape if autoescape else lambda x: x
@@ -49,6 +53,7 @@ def story_replacement(storyId, user, autoescape=True):
     except Story.DoesNotExist:
         return "a missing story"
 
+
 def book_replacement(bookId, user, autoescape=True):
     esc = conditional_escape if autoescape else lambda x: x
     try:
@@ -57,15 +62,16 @@ def book_replacement(bookId, user, autoescape=True):
             reverse('show_book', args=[bookId]),
             esc(book.title)
         )
-    except Book.DoesNotExist: 
+    except Book.DoesNotExist:
         return "a missing book"
+
 
 def user_replacement(username, user, autoescape=True):
     esc = conditional_escape if autoescape else lambda x: x
     try:
         if username == user.username:
             return "you"
-        else: 
+        else:
             subjectUser = User.objects.get(username=username, is_active=True)
             return '<a href="{}">{}</a>'.format(
                 reverse('show_user', args=[subjectUser.username]),
@@ -74,24 +80,29 @@ def user_replacement(username, user, autoescape=True):
     except User.DoesNotExist:
         return "a missing user"
 
+
 @register.filter(needs_autoescape=True)
 def linkstory(storyId, user, autoescape=True):
     return mark_safe(story_replacement(storyId, user))
+
 
 @register.filter(needs_autoescape=True)
 def linkuser(username, user, autoescape=True):
     return mark_safe(user_replacement(username, user))
 
+
 @register.filter(needs_autoescape=True)
 def linkbook(bookId, user, autoescape=True):
     return mark_safe(book_replacement(bookId, user))
+
 
 @register.filter(needs_autoescape=True)
 def linkprompt(promptId, user, autoescape=True):
     return mark_safe(prompt_replacement(promptId, user))
 
+
 @register.filter(needs_autoescape=True)
-def linkrefs(text, user, autoescape=True):  
+def linkrefs(text, user, autoescape=True):
     "Converts references into HTML links suitable for the user"
     replacements = []
     for storyref in re.findall(ref_pattern('story'), text):

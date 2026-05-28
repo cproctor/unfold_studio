@@ -1,4 +1,5 @@
-from unfold_studio.models import StoryPlayInstance, Story
+from story_play.models import StoryPlayInstance
+from stories.models import Story
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Case, When, Value, CharField
 import json

@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 import pytz
-from unfold_studio.models import Story
+from stories.models import Story
 from literacy_events.models import LiteracyEvent
 
 class Command(BaseCommand):

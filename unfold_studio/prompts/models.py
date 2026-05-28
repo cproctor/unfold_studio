@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
-from unfold_studio.models import Book
+from books.models import Book
 from reversion.models import Version
 from django.utils import timezone
 from django.contrib.sites.models import Site

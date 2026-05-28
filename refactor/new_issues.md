@@ -40,3 +40,27 @@ The old (now replaced) `site_settings/unfold_studio.py` did not include `text_ge
 `generated_text_evaluator` in `INSTALLED_APPS`, suggesting these apps were never active in
 production. The new settings file inherits them from `base_settings`. Verify this is correct
 when next deploying.
+
+## NI-4 — "Rename unfold_studio to studio" is deferred
+
+The refactor plan (§1.2) calls for renaming the `unfold_studio` Django app to `studio`. This is
+blocked by the dual role of the `unfold_studio/` directory: it is simultaneously the Python
+project package (containing `base_settings.py`, `site_settings/`, `urls/`, `wsgi.py`) AND the
+Django app. Since all moved models retain `app_label = 'unfold_studio'`, the `unfold_studio` app
+must remain in `INSTALLED_APPS` as the migration home.
+
+Full rename would require:
+1. Creating a `studio/` directory with site-level views, forms, admin, templatetags
+2. Updating `INSTALLED_APPS` to add `'studio'` (while keeping `'unfold_studio'` for migrations)
+3. Updating `ROOT_URLCONF` imports and all remaining `from unfold_studio import views` usage
+4. Moving template tag registration to `studio/`
+
+This is low-risk to defer — the functionality split (stories/books/story_play) provides the main
+organizational benefit. Rename as a dedicated PR when the frontend rewrite lands.
+
+## NI-5 — search vector signal was never connected (now fixed)
+
+The original `unfold_studio/apps.py` had no `ready()` method, so the `@receiver` decorator in
+`unfold_studio/signals.py` was never triggered (signals.py was never imported). Search vectors
+were likely stale. The split to `stories/apps.py` adds `ready()` → `import stories.signals`,
+fixing the signal connection going forward. Run `manage.py update_search_vectors` to backfill.

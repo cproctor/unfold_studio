@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand, CommandError
-from unfold_studio.models import Story
+from stories.models import Story
 import structlog
 import reversion
 

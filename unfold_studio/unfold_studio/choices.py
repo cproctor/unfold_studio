@@ -1,15 +1,4 @@
-from commons.base.choices import BaseChoice
+# Choices moved to story_play/choices.py. Re-exported here for backward compatibility.
+from story_play.choices import StoryPlayInstanceState, StoryPlayRecordDataType
 
-class StoryPlayInstanceState(BaseChoice):
-    IN_PROGRESS = 'IN_PROGRESS'
-    TERMINATED = 'TERMINATED'
-
-
-
-class StoryPlayRecordDataType(BaseChoice):
-    AI_GENERATED_TEXT = 'AI_GENERATED_TEXT'
-    AUTHORS_TEXT = 'AUTHORS_TEXT'
-    AUTHORS_CHOICE_LIST = 'AUTHORS_CHOICE_LIST'
-    AUTHORS_INPUT_BOX = 'AUTHORS_INPUT_BOX'
-    READERS_ENTERED_TEXT = 'READERS_ENTERED_TEXT'
-    READERS_CHOSEN_CHOICE = 'READERS_CHOSEN_CHOICE'
+__all__ = ['StoryPlayInstanceState', 'StoryPlayRecordDataType']

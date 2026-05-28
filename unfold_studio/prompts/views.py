@@ -11,7 +11,8 @@ from django.db.models import Exists, OuterRef, Subquery
 from prompts.models import Prompt, PromptStory
 from prompts.forms import PromptSubmissionForm
 from prompts.mixins import CSVResponseMixin
-from unfold_studio.models import Story, Book
+from stories.models import Story
+from books.models import Book
 from reversion.models import Version
 import structlog
 from literacy_events.models import LiteracyEvent

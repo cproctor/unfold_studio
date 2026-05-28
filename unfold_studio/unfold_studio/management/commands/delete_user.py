@@ -29,7 +29,8 @@ class Command(BaseCommand):
             raise CommandError(f"User with id={user_id} not found.")
 
         # Import here to avoid circular imports at module load
-        from unfold_studio.models import Story, Book
+        from stories.models import Story
+        from books.models import Book
         from literacy_groups.models import LiteracyGroup
         from prompts.models import Prompt
 

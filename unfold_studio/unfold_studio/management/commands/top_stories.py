@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand, CommandError
 from django.db.models import Q
-from unfold_studio.models import Story
+from stories.models import Story
 from tabulate import tabulate
 import csv
 

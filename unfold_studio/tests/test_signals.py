@@ -1,6 +1,7 @@
 from django.test import TestCase
 from django.utils.timezone import now
-from unfold_studio.models import Story, Book
+from stories.models import Story
+from books.models import Book
 from profiles.models import Profile
 from literacy_events.models import LiteracyEvent
 from django.contrib.auth.models import User

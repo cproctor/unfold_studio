@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from django.conf import settings
 from datetime import timedelta
-from unfold_studio.models import Story
+from stories.models import Story
 
 
 class Command(BaseCommand):

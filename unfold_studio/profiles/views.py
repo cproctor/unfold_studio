@@ -6,7 +6,8 @@ from django.contrib.auth.models import User
 from profiles.models import Profile
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from unfold_studio.models import Story, Book
+from stories.models import Story
+from books.models import Book
 from prompts.models import Prompt
 from django.conf import settings as s                                 
 from django.db.models import Q, OuterRef, Subquery

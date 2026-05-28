@@ -1,5 +1,6 @@
 from django.test import TestCase
-from unfold_studio.models import Story, Book
+from stories.models import Story
+from books.models import Book
 from profiles.models import Profile
 from django.contrib.auth.models import User
 

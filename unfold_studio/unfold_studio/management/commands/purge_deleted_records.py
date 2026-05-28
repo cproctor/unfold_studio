@@ -23,7 +23,8 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
-        from unfold_studio.models import Story, Book
+        from stories.models import Story
+        from books.models import Book
         from literacy_groups.models import LiteracyGroup
         from prompts.models import Prompt
 

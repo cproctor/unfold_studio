@@ -6,7 +6,8 @@ from random import sample, shuffle, choice, randrange
 from django.db.models import Count, Exists, OuterRef
 from tqdm import tqdm
 from tabulate import tabulate
-from unfold_studio.models import Story, StoryPlayRecord, StoryPlayInstance
+from stories.models import Story
+from story_play.models import StoryPlayRecord, StoryPlayInstance
 from threading import Thread, Semaphore
 import numpy as np
 

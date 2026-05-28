@@ -1,5 +1,5 @@
-from unfold_studio.models import StoryPlayInstance
-from unfold_studio.choices import StoryPlayRecordDataType
+from story_play.models import StoryPlayInstance
+from story_play.choices import StoryPlayRecordDataType
 
 class UnfoldStudioService:
     @staticmethod
