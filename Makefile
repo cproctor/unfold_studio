@@ -1,7 +1,23 @@
 PYTHON = .venv/bin/python
+MANAGE = $(PYTHON) unfold_studio/manage.py
 SPHINX = .venv/bin/sphinx-build
 
-.PHONY: docs
+.PHONY: dev build test lint docs
+
+dev:
+	$(MANAGE) runserver & npm --prefix unfold_studio run dev
+
+build:
+	npm --prefix unfold_studio run build
+	$(MANAGE) collectstatic --noinput
+
+test:
+	$(PYTHON) -m pytest unfold_studio
+	npm --prefix unfold_studio run test
+
+lint:
+	$(PYTHON) -m ruff check unfold_studio
+	npm --prefix unfold_studio run lint
 
 docs:
 	uv sync --group docs
