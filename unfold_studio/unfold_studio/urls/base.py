@@ -18,6 +18,7 @@ urlpatterns = [
 
     path('admin/', admin.site.urls),
     path('signup', views.signup, name='signup'),
+    path('join-student/', views.join_student, name='join_student'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('', views.home, name="home"),
     path('', include('django.contrib.auth.urls')),
@@ -34,6 +35,8 @@ urlpatterns = [
     path('groups/<int:pk>/change_invite', literacy_group_views.ChangeGroupInviteView.as_view(), name="change_group_invite"),
     path('groups/<int:pk>/join', literacy_group_views.JoinGroupView.as_view(), name="join_group"),
     path('groups/<int:pk>/leave', literacy_group_views.LeaveGroupView.as_view(), name="leave_group"),
+    path('groups/<int:pk>/codes/generate/', literacy_group_views.GenerateCodesView.as_view(), name="generate_join_codes"),
+    path('groups/<int:pk>/codes/<int:code_id>/delete/', literacy_group_views.DeleteJoinCodeView.as_view(), name="delete_join_code"),
     path('groups/<int:pk>/prompts/new/', prompt_views.CreatePromptView.as_view(),
             name="create_prompt"),
     path('groups/<int:group_pk>/prompts/<int:pk>/', prompt_views.ShowPromptView.as_view(),

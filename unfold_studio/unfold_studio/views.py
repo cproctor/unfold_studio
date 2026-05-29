@@ -5,13 +5,14 @@ from django.contrib.auth import login
 from django.contrib import messages
 from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q, F
-from django.db import OperationalError
+from django.db import OperationalError, transaction
 from django.core.paginator import Paginator
 import structlog
 
 from stories.models import Story
-from profiles.forms import SignUpForm
+from profiles.forms import SignUpForm, StudentSignUpForm
 from unfold_studio.forms import SearchForm
+from literacy_groups.models import JoinCode
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
 log = structlog.get_logger("unfold_studio")
@@ -90,4 +91,29 @@ def signup(request):
 
     return render(request, 'registration/signup.html', {'form': form})
 
+
+def join_student(request):
+    if request.method == 'POST':
+        form = StudentSignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    code_str = request.POST.get('join_code')
+                    try:
+                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                        user.literacy_groups.add(join_code.group)
+                        join_code.assigned_user = user
+                        join_code.save()
+                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+                    except JoinCode.DoesNotExist:
+                        raise ValueError("Invalid or expired join code.")
+            except ValueError as e:
+                messages.error(request, str(e))
+                return render(request, 'registration/join_student.html', {'form': form})
+    else:
+        form = StudentSignUpForm()
+    return render(request, 'registration/join_student.html', {'form': form})
 

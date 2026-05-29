@@ -1,16 +1,112 @@
 {% extends 'base/base.html' %}
-{% load qr_code %}
 
-{% block content %}
-<h1>Join {{group.name}}</h1>
-    [<a href="{% url 'show_group' group.id %}">&lt; Group</a>]
-    {% if not group.anyone_can_join and leader %}
-        [<form class="link" action="{% url 'change_group_invite' group.id %}" method="post">{% csrf_token %}<input type="submit" value="Change invite link"></form>]
-    {% endif %}
-<p>Unfold Studio users may use the following URL to join this group:</p>
-<a href="{{join_url}}">{{join_url}}</a>
+{% block style %}
+<style>
+    .join-code-actions {
+        margin: 16px 0;
+    }
 
-<div>{% qr_from_text join_url %}</div>
+    .join-code-actions form {
+        display: inline-block;
+        margin-right: 8px;
+    }
 
+    .join-code-actions input[type="number"] {
+        width: 70px;
+    }
+
+    .join-code-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 16px;
+    }
+
+    .join-code-table th,
+    .join-code-table td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+    }
+
+    .join-code-table code {
+        font-size: 1em;
+    }
+
+    .join-code-empty {
+        margin-top: 16px;
+    }
+
+    .link-button {
+        background: none;
+        border: none;
+        padding: 0;
+        color: #c0392b;
+        cursor: pointer;
+    }
+</style>
 {% endblock %}
 
+{% block content %}
+<h1>Join Codes for {{ group.name }}</h1>
+<p>[<a href="{% url 'show_group' group.id %}">&lt; Group</a>]</p>
+<p>Generate course access codes here, then share one code with each student. Students can create their account at <a href="{% url 'join_student' %}">{% url 'join_student' %}</a> and enter the code there.</p>
+
+{% if messages %}
+    {% for message in messages %}
+    <div class="alert alert-info">
+        <strong>{{ message }}</strong>
+    </div>
+    {% endfor %}
+{% endif %}
+
+<div class="join-code-actions">
+    <form method="post" action="{% url 'generate_join_codes' group.id %}">
+        {% csrf_token %}
+        <label for="id_quantity">How many codes?</label>
+        <input type="number" id="id_quantity" name="quantity" min="1" max="50" value="1">
+        <input type="submit" value="Generate codes">
+    </form>
+</div>
+
+{% if join_codes %}
+<table class="join-code-table">
+    <thead>
+        <tr>
+            <th>Code</th>
+            <th>Status</th>
+            <th>Student</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for join_code in join_codes %}
+        <tr>
+            <td><code>{{ join_code.code }}</code></td>
+            <td>
+                {% if join_code.assigned_user %}
+                    Used
+                {% else %}
+                    Unused
+                {% endif %}
+            </td>
+            <td>
+                {% if join_code.assigned_user %}
+                    {{ join_code.assigned_user.username }}
+                {% else %}
+                    -
+                {% endif %}
+            </td>
+            <td>
+                <form method="post" action="{% url 'delete_join_code' group.id join_code.id %}">
+                    {% csrf_token %}
+                    <button type="submit" class="link-button">Delete</button>
+                </form>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% else %}
+<p class="join-code-empty">No join codes yet. Generate one to get started.</p>
+{% endif %}
+{% endblock %}
