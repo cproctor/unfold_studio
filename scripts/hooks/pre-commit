@@ -1,0 +1,17 @@
+#!/bin/bash
+# Verify version strings are in sync across pyproject.toml, package.json, and docs/conf.py.
+# Install with: make install-hooks
+
+PYPROJECT=$(grep '^version = ' pyproject.toml | sed 's/version = "\(.*\)"/\1/')
+PACKAGE=$(python3 -c "import json; print(json.load(open('unfold_studio/package.json'))['version'])")
+DOCS=$(grep "^release = " docs/conf.py | sed "s/release = '\\(.*\\)'/\\1/")
+
+if [ "$PYPROJECT" != "$PACKAGE" ] || [ "$PYPROJECT" != "$DOCS" ]; then
+    echo "Version mismatch — commit blocked:"
+    echo "  pyproject.toml:          $PYPROJECT"
+    echo "  unfold_studio/package.json: $PACKAGE"
+    echo "  docs/conf.py:            $DOCS"
+    echo ""
+    echo "Use 'make bump-major', 'make bump-minor', or 'make bump-patch' to bump all files together."
+    exit 1
+fi

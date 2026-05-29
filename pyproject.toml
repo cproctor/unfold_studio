@@ -51,6 +51,7 @@ docs = [
     "sphinx-rtd-theme>=2.0",
 ]
 dev = [
+    "bump-my-version>=0.28.0",
     "django-debug-toolbar>=4.4.2",
     "pytest>=8.0.0",
     "pytest-django>=4.8.0",
@@ -60,6 +61,27 @@ dev = [
     "numpy>= 1.26.0",
     "django-silk>= 5.3.2",
 ]
+
+[tool.bumpversion]
+current_version = "2.0.0"
+commit = true
+tag = true
+tag_name = "v{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "unfold_studio/package.json"
+search = '"version": "{current_version}"'
+replace = '"version": "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = "docs/conf.py"
+search = "release = '{current_version}'"
+replace = "release = '{new_version}'"
 
 [tool.uv]
 package = false

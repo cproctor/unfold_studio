@@ -28,6 +28,7 @@ and ``docs/``).
     git clone git@github.com:cproctor/unfold_studio.git
     cd unfold_studio
     uv sync
+    make install-hooks
 
 **2. Install the Ink compiler**
 
@@ -183,6 +184,14 @@ All targets run from the **project root**:
      - Run ruff (Python) and ESLint (TypeScript/Vue)
    * - ``make docs``
      - Build these docs (output goes to ``docs/_build/html/``)
+   * - ``make install-hooks``
+     - Install git pre-commit hook (checks version strings are in sync)
+   * - ``make bump-major``
+     - Bump major version in all files and create a git tag
+   * - ``make bump-minor``
+     - Bump minor version in all files and create a git tag
+   * - ``make bump-patch``
+     - Bump patch version in all files (no tag)
 
 Running Tests
 -------------
