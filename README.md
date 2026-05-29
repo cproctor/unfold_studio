@@ -18,10 +18,8 @@ Technical documentation (architecture, development setup, deployment) lives in
 
 ```
 make docs
+open docs/_build/html/index.html
 ```
-
-Output goes to `docs/_build/html/`. The docs are not currently deployed online —
-build them locally.
 
 Quick orientation:
 

@@ -11,7 +11,6 @@ System Requirements
 * PostgreSQL 14+
 * Redis (for Celery task queue)
 * Nginx
-* Supervisor
 
 Environment Variables
 ---------------------
@@ -28,15 +27,12 @@ All secrets are passed via environment variables. Never commit secrets to versio
    * - ``SECRET_KEY``
      - Django secret key (rotate on each deployment)
      - Yes
-   * - ``OPENAI_API_KEY``
-     - OpenAI API key (if using OpenAI backend)
-     - No
-   * - ``ANTHROPIC_API_KEY``
-     - Anthropic API key (if using Anthropic backend)
+   * - ``LLM_API_KEY``
+     - API key for the configured LLM backend
      - No
    * - ``DATABASE_URL``
      - PostgreSQL connection string
-     - Yes (production)
+     - Yes
    * - ``CELERY_BROKER_URL``
      - Redis connection string (default: ``redis://localhost:6379/0``)
      - No
@@ -59,7 +55,7 @@ Setup Steps
 **2. Install system packages**::
 
     sudo apt update -y && sudo apt upgrade -y
-    sudo apt install python3 python3-pip python3-venv nginx git supervisor -y
+    sudo apt install python3 python3-pip python3-venv nginx git -y
     sudo apt install build-essential libpq-dev -y
     sudo apt install certbot python3-certbot-nginx unzip -y
     sudo apt install redis-server fail2ban -y
@@ -67,7 +63,7 @@ Setup Steps
 **3. Prepare directories**::
 
     sudo mkdir -p /opt/unfold_studio
-    sudo chown -R $USER:$USER /opt/unfold_studio
+    sudo chown -R unfold_studio:unfold_studio /opt/unfold_studio
 
 **4. Clone repository**::
 
@@ -82,49 +78,93 @@ Setup Steps
 
 **6. Install Inklecate (Ink compiler)**::
 
-    cd /opt/unfold_studio
     bash scripts/install_inklecate.sh
 
 **7. Build frontend assets**::
 
-    cd /opt/unfold_studio/unfold_studio
-    npm install
-    npm run build
+    npm --prefix unfold_studio install
+    npm --prefix unfold_studio run build
 
 **8. Run migrations and collect static files**::
 
-    cd /opt/unfold_studio/unfold_studio
     DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio \
-        ../.venv/bin/python manage.py migrate
+        .venv/bin/python unfold_studio/manage.py migrate
     DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio \
-        ../.venv/bin/python manage.py collectstatic --noinput
+        .venv/bin/python unfold_studio/manage.py collectstatic --noinput
 
-Gunicorn / Supervisor Configuration
-------------------------------------
+Gunicorn / systemd
+------------------
 
-Create ``/etc/supervisor/conf.d/unfold_studio.conf``::
+Create an environment file at ``/etc/unfold_studio.env`` (readable only by root and
+the service)::
 
-    [program:unfold_studio]
-    directory=/opt/unfold_studio/unfold_studio
-    command=/opt/unfold_studio/.venv/bin/gunicorn unfold_studio.wsgi:application \
+    sudo touch /etc/unfold_studio.env
+    sudo chmod 600 /etc/unfold_studio.env
+    sudo nano /etc/unfold_studio.env
+
+Paste your secrets::
+
+    DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio
+    SECRET_KEY=your-secret-key-here
+    LLM_API_KEY=your-llm-api-key-here
+
+Create ``/etc/systemd/system/unfold_studio.service``::
+
+    [Unit]
+    Description=Unfold Studio (Gunicorn)
+    After=network.target
+
+    [Service]
+    User=unfold_studio
+    Group=unfold_studio
+    WorkingDirectory=/opt/unfold_studio/unfold_studio
+    EnvironmentFile=/etc/unfold_studio.env
+    Environment=PYTHONPATH=/opt/unfold_studio:/opt/unfold_studio/unfold_studio
+    ExecStart=/opt/unfold_studio/.venv/bin/gunicorn unfold_studio.wsgi:application \
         --bind unix:/opt/unfold_studio/unfold_studio.sock \
         --workers 3 --threads 2 --log-level info
-    autostart=true
-    autorestart=true
-    stderr_logfile=/var/log/unfold_studio.err.log
-    stdout_logfile=/var/log/unfold_studio.out.log
-    user=unfold_studio
-    environment=
-        PYTHONPATH="/opt/unfold_studio:/opt/unfold_studio/unfold_studio",
-        DJANGO_SETTINGS_MODULE="unfold_studio.site_settings.unfold_studio",
-        SECRET_KEY="%(ENV_SECRET_KEY)s",
-        OPENAI_API_KEY="%(ENV_OPENAI_API_KEY)s"
-    redirect_stderr=true
+    Restart=on-failure
 
-Reload Supervisor::
+    [Install]
+    WantedBy=multi-user.target
 
-    sudo supervisorctl reread && sudo supervisorctl update
-    sudo supervisorctl start unfold_studio
+Enable and start::
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable unfold_studio
+    sudo systemctl start unfold_studio
+
+Check status and logs::
+
+    sudo systemctl status unfold_studio
+    sudo journalctl -u unfold_studio -f
+
+Celery Worker
+-------------
+
+Create ``/etc/systemd/system/unfold_studio_celery.service``::
+
+    [Unit]
+    Description=Unfold Studio Celery Worker
+    After=network.target redis.service
+
+    [Service]
+    User=unfold_studio
+    Group=unfold_studio
+    WorkingDirectory=/opt/unfold_studio/unfold_studio
+    EnvironmentFile=/etc/unfold_studio.env
+    Environment=PYTHONPATH=/opt/unfold_studio:/opt/unfold_studio/unfold_studio
+    ExecStart=/opt/unfold_studio/.venv/bin/celery -A unfold_studio worker --loglevel=info
+    Restart=on-failure
+
+    [Install]
+    WantedBy=multi-user.target
+
+Enable and start::
+
+    sudo systemctl daemon-reload
+    sudo systemctl enable unfold_studio_celery
+    sudo systemctl start unfold_studio_celery
 
 Nginx Configuration
 -------------------
@@ -157,36 +197,20 @@ Enable and configure SSL::
     sudo certbot --nginx -d app.unfoldstudio.net
     sudo nginx -t && sudo systemctl reload nginx
 
-Celery Workers
---------------
-
-Add a Celery worker to Supervisor for async story compilation::
-
-    [program:unfold_studio_celery]
-    directory=/opt/unfold_studio/unfold_studio
-    command=/opt/unfold_studio/.venv/bin/celery -A unfold_studio worker --loglevel=info
-    autostart=true
-    autorestart=true
-    user=unfold_studio
-    environment=
-        PYTHONPATH="/opt/unfold_studio:/opt/unfold_studio/unfold_studio",
-        DJANGO_SETTINGS_MODULE="unfold_studio.site_settings.unfold_studio",
-        SECRET_KEY="%(ENV_SECRET_KEY)s"
-
 Cron Jobs
 ---------
 
-Add to crontab for the ``unfold_studio`` user::
+Add to crontab for the ``unfold_studio`` user (``sudo crontab -u unfold_studio -e``)::
 
     # Delete old public stories (older than PUBLIC_STORY_MAX_AGE_DAYS)
-    0 3 * * * cd /opt/unfold_studio/unfold_studio && \
-        DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio \
-        ../.venv/bin/python manage.py delete_old_public_stories
+    0 3 * * * DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio \
+        /opt/unfold_studio/.venv/bin/python /opt/unfold_studio/unfold_studio/manage.py \
+        delete_old_public_stories
 
     # Purge soft-deleted records older than 90 days
-    0 4 * * 0 cd /opt/unfold_studio/unfold_studio && \
-        DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio \
-        ../.venv/bin/python manage.py purge_deleted_records
+    0 4 * * 0 DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio \
+        /opt/unfold_studio/.venv/bin/python /opt/unfold_studio/unfold_studio/manage.py \
+        purge_deleted_records
 
 Upgrade Steps
 -------------
@@ -196,10 +220,10 @@ Upgrade Steps
     cd /opt/unfold_studio
     git pull
     .venv/bin/uv sync
-    cd unfold_studio
-    npm install && npm run build
+    npm --prefix unfold_studio install
+    npm --prefix unfold_studio run build
     DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio \
-        ../.venv/bin/python manage.py migrate
+        .venv/bin/python unfold_studio/manage.py migrate
     DJANGO_SETTINGS_MODULE=unfold_studio.site_settings.unfold_studio \
-        ../.venv/bin/python manage.py collectstatic --noinput
-    sudo supervisorctl restart unfold_studio unfold_studio_celery
+        .venv/bin/python unfold_studio/manage.py collectstatic --noinput
+    sudo systemctl restart unfold_studio unfold_studio_celery
