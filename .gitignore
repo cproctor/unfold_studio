@@ -3,7 +3,8 @@
 *.swp
 *.swo
 unfold_studio/unfold_studio/settings.py
-documentation/_build/*
+documentation/_build/
+docs/_build/
 static_assets/
 inklecate*
 ink/
