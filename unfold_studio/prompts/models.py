@@ -39,6 +39,7 @@ class PromptStory(models.Model):
     story = models.ForeignKey('unfold_studio.Story', on_delete=models.CASCADE)
     submitted_story_version = models.ForeignKey(Version, on_delete=models.SET_NULL, null=True, blank=True)
 
+
     @property
     def submitted_story_snapshot(self):
         if self.submitted_story_version:

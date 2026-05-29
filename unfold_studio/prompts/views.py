@@ -21,6 +21,7 @@ from literacy_groups.mixins import LiteracyGroupContextMixin
 from collections import defaultdict
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
+import reversion
 
 log = structlog.get_logger("unfold_studio")    
 

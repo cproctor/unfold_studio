@@ -104,16 +104,72 @@ pre {
     margin: 0 30px;
 }
 
-form > input[value='login'], input[value='sign up'] {
+.registration-shell {
+    align-items: stretch;
+    gap: 0;
+}
+
+.registration-form-panel {
+    min-width: 520px;
+}
+
+.registration-side-panel {
+    min-width: 320px;
+}
+
+.registration-divider {
+    flex-shrink: 0;
+}
+
+.registration-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.registration-form .form-group {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 8px;
+}
+
+.registration-form .form-group label {
+    min-width: 245px;
+}
+
+.registration-form input[type="text"],
+.registration-form input[type="email"],
+.registration-form input[type="password"],
+.registration-form select {
+    width: 252px;
+    box-sizing: border-box;
+    font: inherit;
+    padding: 4px 6px;
+}
+
+.registration-form select {
+    height: 34px;
+}
+
+.registration-or {
+    align-self: center;
+    margin: 18px 0;
+}
+
+.registration-google-button {
+    width: 100%;
+}
+
+.registration-link-top {
+    margin-bottom: 10px;
+}
+
+form > input[value='login'],
+input[value='sign up'] {
     width: 100%;
     margin-top: 10px;
     padding: 3px;
-}
-
-.form-group {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 5px;
 }
 
 p.description {
@@ -264,16 +320,16 @@ table.story-history th {
     width: auto;
     /* max-width: 400px; */
     min-width: min-content;
-  }
-  
-  .gsi-material-button .gsi-material-button-icon {
+}
+
+.gsi-material-button .gsi-material-button-icon {
     height: 20px;
     margin-right: 12px;
     min-width: 20px;
     width: 20px;
-  }
-  
-  .gsi-material-button .gsi-material-button-content-wrapper {
+}
+
+.gsi-material-button .gsi-material-button-content-wrapper {
     -webkit-align-items: center;
     align-items: center;
     display: flex;
@@ -285,9 +341,9 @@ table.story-history th {
     justify-content: space-between;
     position: relative;
     width: 100%;
-  }
-  
-  .gsi-material-button .gsi-material-button-contents {
+}
+
+.gsi-material-button .gsi-material-button-contents {
     -webkit-flex-grow: 1;
     flex-grow: 1;
     font-family: 'Roboto', arial, sans-serif;
@@ -295,9 +351,9 @@ table.story-history th {
     overflow: hidden;
     text-overflow: ellipsis;
     vertical-align: top;
-  }
-  
-  .gsi-material-button .gsi-material-button-state {
+}
+
+.gsi-material-button .gsi-material-button-state {
     -webkit-transition: opacity .218s;
     transition: opacity .218s;
     bottom: 0;
@@ -306,40 +362,40 @@ table.story-history th {
     position: absolute;
     right: 0;
     top: 0;
-  }
-  
-  .gsi-material-button:disabled {
+}
+
+.gsi-material-button:disabled {
     cursor: default;
     background-color: #ffffff61;
-  }
-  
-  .gsi-material-button:disabled .gsi-material-button-state {
+}
+
+.gsi-material-button:disabled .gsi-material-button-state {
     background-color: #1f1f1f1f;
-  }
-  
-  .gsi-material-button:disabled .gsi-material-button-contents {
+}
+
+.gsi-material-button:disabled .gsi-material-button-contents {
     opacity: 38%;
-  }
-  
-  .gsi-material-button:disabled .gsi-material-button-icon {
+}
+
+.gsi-material-button:disabled .gsi-material-button-icon {
     opacity: 38%;
-  }
-  
-  .gsi-material-button:not(:disabled):active .gsi-material-button-state, 
-  .gsi-material-button:not(:disabled):focus .gsi-material-button-state {
+}
+
+.gsi-material-button:not(:disabled):active .gsi-material-button-state,
+.gsi-material-button:not(:disabled):focus .gsi-material-button-state {
     background-color: #001d35;
     opacity: 12%;
-  }
-  
-  .gsi-material-button:not(:disabled):hover {
+}
+
+.gsi-material-button:not(:disabled):hover {
     -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
     box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
-  }
-  
-  .gsi-material-button:not(:disabled):hover .gsi-material-button-state {
+}
+
+.gsi-material-button:not(:disabled):hover .gsi-material-button-state {
     background-color: #001d35;
     opacity: 8%;
-  }
+}
 
 /* NEW STORY */
 form.new_story_form {

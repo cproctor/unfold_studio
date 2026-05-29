@@ -14,6 +14,9 @@ import structlog
 from django.contrib import messages
 from literacy_groups.mixins import LiteracyGroupContextMixin
 
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+
 log = structlog.get_logger("unfold_studio")    
 
 # Create your views here.
@@ -104,6 +107,7 @@ class InviteToGroupView(LiteracyGroupContextMixin, DetailView):
         context['join_codes'] = self.group.codes.all().select_related('assigned_user')
         return context
 
+
     def get_queryset(self):
         return LiteracyGroup.objects.filter(deleted=False)
 
@@ -158,10 +162,14 @@ class LeaveGroupView(LiteracyGroupContextMixin, View):
             messages.warning(request, "You're not a member of {}".format(self.group.name))
             log.warning(name = "Literacy Groups Alert", event= "Failed Leaving Group", msg="User not a member",
                          args={"user": request.user, "group_name": self.group.name, "group_id": self.group.id})
+            return redirect('home')
+
         elif self.group in request.user.literacy_groups_leading.all():
             messages.warning(request, "You can't leave groups you lead".format(self.group.name))
             log.warning(name = "Literacy Groups Alert", event= "Failed Leaving Group", msg= "User is Leader", args={
                 "user": request.user, "group_name": self.group.name, "group_id": self.group.id})
+            return redirect('show_group', pk=self.group.id)
+
         else:
             JoinCode.objects.filter(group=self.group, assigned_user=request.user).update(assigned_user=None)
             self.group.members.remove(request.user)
@@ -219,4 +227,3 @@ class GenerateCodesView(LiteracyGroupContextMixin, View):
 
         messages.success(request, f"Generated {quantity} new codes.")
         return redirect('invite_to_group', self.group.id)
-

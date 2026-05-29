@@ -1,16 +1,23 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse
+from django.shortcuts import render, redirect, get_object_or_404
+from django.http import HttpResponse, HttpResponseForbidden
 from django.conf import settings as s
 from django.contrib.auth import login
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
-from django.db.models import Q, F
+from django.db.models import Q, F, Value, FloatField
+from django.db.models.functions import Coalesce
 from django.db import OperationalError, transaction
 from django.core.paginator import Paginator
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.views import View
 import structlog
 
 from stories.models import Story
+from comments.models import Comment
 from profiles.forms import SignUpForm, StudentSignUpForm
 from unfold_studio.forms import SearchForm
+from unfold_studio.anonymous_session import get_anonymous_owned_story_ids, remove_anonymous_owned_story
 from literacy_groups.models import JoinCode
 from django.contrib.postgres.search import SearchVector, SearchQuery, SearchRank
 
@@ -46,11 +53,35 @@ def browse(request):
     if request.GET.get('query'):
         form = SearchForm(request.GET)
         if form.is_valid():
-            query = SearchQuery(form.cleaned_data['query'])
+            raw_q = (form.cleaned_data.get('query') or '').strip()
+            if not raw_q:
+                messages.warning(request, "Please enter a valid search query")
+                return redirect('list_stories')
+
+            # websearch: friendlier multi-word matching than plainto_tsquery.
+            query = SearchQuery(raw_q, search_type='websearch')
+
+            # Substring fallback: FTS misses many title/ink cases; also match each word (len>=3).
+            text_q = Q(title__icontains=raw_q) | Q(ink__icontains=raw_q)
+            for w in raw_q.split():
+                w = w.strip('.,!?\"\'()[]')
+                if len(w) >= 3:
+                    text_q |= Q(title__icontains=w) | Q(ink__icontains=w)
+
             stories = stories.annotate(
                 rank=SearchRank(F('search'), query),
-                score=F('rank') * F('priority') / (F('rank') + F('priority'))
-            ).filter(Q(rank__gte=s.SEARCH_RANK_CUTOFF) | Q(author__username__icontains=form.cleaned_data['query'])).order_by('-score')
+                score=Coalesce(
+                    F('rank') * F('priority') / (F('rank') + F('priority')),
+                    Value(0.0),
+                    output_field=FloatField(),
+                ),
+            ).filter(
+                Q(rank__gte=s.SEARCH_RANK_CUTOFF)
+                | Q(author__username__icontains=raw_q)
+                | text_q
+            ).exclude(
+                author__isnull=True, public=False, shared=False
+            ).order_by('-score', '-priority')
         else:
             messages.warning(request, "Please enter a valid search query")
             return redirect('list_stories')
@@ -73,20 +104,160 @@ def browse(request):
         return redirect('list_stories')
 
 
+class ClaimAwareLoginView(LoginView):
+    """
+    After username/password login, attach an anonymous session-owned story to the user
+    when claim_story is present (same rules as signup).
+    """
+
+    template_name = "registration/login.html"
+
+    def get(self, request, *args, **kwargs):
+        raw = request.GET.get("claim_story")
+        if raw is not None and str(raw).strip().isdigit():
+            request.session["pending_claim_story"] = int(str(raw).strip())
+        return super().get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        ctx = super().get_context_data(**kwargs)
+        raw = self.request.GET.get("claim_story")
+        if raw is not None and str(raw).strip().isdigit():
+            ctx["claim_story_id"] = int(str(raw).strip())
+        return ctx
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        claim_id = None
+        raw = self.request.POST.get("claim_story")
+        if raw is not None and str(raw).strip().isdigit():
+            claim_id = int(str(raw).strip())
+        if claim_id is None:
+            claim_id = self.request.session.pop("pending_claim_story", None)
+        if claim_id is None:
+            return response
+        if claim_id not in get_anonymous_owned_story_ids(self.request):
+            return response
+        story = Story.objects.filter(pk=claim_id, author__isnull=True).first()
+        if not story:
+            return response
+        story.author = self.request.user
+        story.save()
+        remove_anonymous_owned_story(self.request, claim_id)
+        return redirect("show_story", claim_id)
+
+
 def signup(request):
+    claim_story_raw = request.POST.get('claim_story') if request.method == 'POST' else request.GET.get('claim_story')
+    claim_story_id = None
+    if claim_story_raw is not None and str(claim_story_raw).strip().isdigit():
+        claim_story_id = int(str(claim_story_raw).strip())
+
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-            messages.success(request,
-                "Welcome to Unfold Studio! Have fun, and please be a good community member.")
-            log.info(name="Application Alert", event="New User Sign Up", arg={"user": u(request)})
-            return redirect('home')
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    role = form.cleaned_data.get('user_type')
+
+                    if role == 'student':
+                        code_str = request.POST.get('join_code')
+                        try:
+                            join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                            user.literacy_groups.add(join_code.group)
+                            join_code.assigned_user = user
+                            join_code.save()
+                            log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                            return redirect('home')
+                        except JoinCode.DoesNotExist:
+                            raise ValueError("Invalid or expired join code.")
+
+                    elif role == 'teacher':
+                        messages.info(request,
+                            "Account created! To request instructor access, please contact us "
+                            "with your username, name, institution, and how you plan to use Unfold Studio. "
+                            "Until then, your account is a regular user.")
+                        log.info(event="Teacher Sign Up (Pending)", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+
+                    else:
+                        log.info(event="New User Sign Up", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+
+            except ValueError as e:
+                messages.error(request, str(e))
+                return render(request, 'registration/signup.html', {'form': form})
     else:
         form = SignUpForm()
 
-    return render(request, 'registration/signup.html', {'form': form})
+    raw_next = request.POST.get('next') if request.method == 'POST' else request.GET.get('next')
+    raw_next = raw_next or ''
+    next_url = ''
+    if raw_next and url_has_allowed_host_and_scheme(
+        raw_next,
+        allowed_hosts={request.get_host()},
+        require_https=request.is_secure(),
+    ):
+        next_url = raw_next
+
+    return render(request, 'registration/signup.html', {
+        'form': form,
+        'claim_story_id': claim_story_id,
+        'next_url': next_url,
+    })
+
+def join_student(request):
+    if request.method == 'POST':
+        form = SignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    code_str = request.POST.get('join_code')
+                    try:
+                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                        user.literacy_groups.add(join_code.group)
+                        join_code.assigned_user = user
+                        join_code.save()
+                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+                    except JoinCode.DoesNotExist:
+                        raise ValueError("Invalid or expired join code.")
+            except ValueError as e:
+                messages.error(request, str(e))
+                return render(request, 'registration/join_student.html', {'form': form})
+    else:
+        form = SignUpForm()
+    return render(request, 'registration/join_student.html', {'form': form})
+
+def join_student(request):
+    if request.method == 'POST':
+        form = StudentSignUpForm(request.POST)
+        if form.is_valid():
+            try:
+                with transaction.atomic():
+                    user = form.save()
+                    code_str = request.POST.get('join_code')
+                    try:
+                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                        user.literacy_groups.add(join_code.group)
+                        join_code.assigned_user = user
+                        join_code.save()
+                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                        return redirect('home')
+                    except JoinCode.DoesNotExist:
+                        raise ValueError("Invalid or expired join code.")
+            except ValueError as e:
+                messages.error(request, str(e))
+                return render(request, 'registration/join_student.html', {'form': form})
+    else:
+        form = StudentSignUpForm()
+    return render(request, 'registration/join_student.html', {'form': form})
 
 
 def join_student(request):
@@ -136,3 +307,54 @@ def join_student(request):
             form = StudentSignUpForm()
         return render(request, 'registration/join_student.html', {'form': form, 'prefill_code': prefill_code})
 
+
+class SendFeedbackView(LoginRequiredMixin, View):
+    """Teacher sends feedback or saves it as a draft on a student's story using the terminal tab"""
+
+    def post(self, request, story_id):
+        story = get_object_or_404(Story, pk=story_id)
+
+        action = request.POST.get('action')
+        message = request.POST.get('comment', '').strip()
+
+        teacher_has_feedback_access = False
+        if request.user.profile.is_teacher:
+            teacher_has_feedback_access = story.prompts_submitted.filter(
+                literacy_group__leaders=request.user,
+                deleted=False
+            ).exists()
+
+        #only the teacher can send feedback
+        if action == 'send':
+            if not teacher_has_feedback_access:
+                return HttpResponseForbidden("You do not have permission to send feedback on this story.")
+
+            if message:
+                Comment.objects.create(
+                    author=request.user,
+                    story=story,
+                    message=message,
+                )
+
+            request.session.pop(f'draft_{story.id}', None)
+
+        # draft only saved in session and not db
+        elif action == 'draft':
+            if not teacher_has_feedback_access:
+                return HttpResponseForbidden("You do not have permission to save a draft on this story.")
+
+            request.session[f'draft_{story.id}'] = message
+
+        # student reply
+        elif action == 'reply':
+            if request.user != story.author:
+                return HttpResponseForbidden("Only the story author can reply.")
+
+            if message:
+                Comment.objects.create(
+                    author=request.user,
+                    story=story,
+                    message=message,
+                )
+
+        return redirect('show_story', story.id)

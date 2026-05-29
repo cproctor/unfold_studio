@@ -3,10 +3,11 @@
 {% load linkrefs %}
 {% load vite %}
 
+{% block page_title %}{{ story.title }} | {{ SITE.name }}{% endblock %}
+
 {% block head %}
 
     <meta charset="utf-8">
-    <title>{{story.title}} | unfold.studio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'style/inkystyle.css' %}">
     <link rel="stylesheet" href="{% static 'style/sms.css' %}">
@@ -30,9 +31,14 @@
 
 {% block content %}
 <h2 class="story-title">{{story.title}}</h2>
+{% if owns_anonymous_story %}
+<p class="anonymous-claim-hint"><a href="{% url 'signup' %}?claim_story={{ story.id }}">Sign up</a> or <a href="{% url 'login' %}?claim_story={{ story.id }}">Log in</a> to keep this story on your account.</p>
+{% endif %}
 <div class="description">
 {% if story.author %}
     by {{story.author.username | linkuser:user}}
+{% else %}
+    Private draft (not shown in browse or search)
 {% endif %}
 {% if story.parent %}
     (Forked from {{story.parent.id | linkstory:user}}{% if story.parent.author %} by {{story.parent.author.username | linkuser:user}}{% endif %})
@@ -65,6 +71,8 @@
     {% if addableBooks %}
         [<a href="{% url 'choose_book' story.id %}">Add to book</a>]
     {% endif %}
+{% elif can_fork_anonymously %}
+    [<form action="{% url 'fork_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Fork"></form>]
 {% endif %}
 {% if story.author %}
 [<a href="{% url 'show_story_versions' story.id %}">History{% if commentable %}/Comment{% endif %}</a>]
@@ -73,7 +81,7 @@
 
 <div id="main"></div>
 
-<script src="{% static 'scripts/ink.js' %}"></script>
+<script src="{% static ‘scripts/ink.js’ %}"></script>
 <script>
 window.__UNFOLD__ = {
     storyId: {{ story.id }},
@@ -82,20 +90,20 @@ window.__UNFOLD__ = {
     shared: {{ story.shared|lower }},
     debugMode: {{ request.user.is_staff|lower }},
     urls: {
-        json:         "{% url 'show_json' story.id %}",
+        json:         "{% url ‘show_json’ story.id %}",
         {% if editable %}
-        compile:      "{% url 'compile_story' story.id %}",
-        generate:     "{% url 'generate' %}",
-        getNextDir:   "{% url 'get_next_direction' %}",
-        fork:         "{% url 'fork_story' story.id %}",
-        share:        "{% url 'share_story' story.id %}",
-        unshare:      "{% url 'unshare_story' story.id %}",
+        compile:      "{% url ‘compile_story’ story.id %}",
+        generate:     "{% url ‘generate’ %}",
+        getNextDir:   "{% url ‘get_next_direction’ %}",
+        fork:         "{% url ‘fork_story’ story.id %}",
+        share:        "{% url ‘share_story’ story.id %}",
+        unshare:      "{% url ‘unshare_story’ story.id %}",
         {% endif %}
-        playInstance: "{% url 'new_story_play_instance' %}",
-        playRecord:   "{% url 'new_story_play_record' %}",
+        playInstance: "{% url ‘new_story_play_instance’ %}",
+        playRecord:   "{% url ‘new_story_play_record’ %}",
     }
 };
 </script>
-{% vite_asset 'src/main.ts' %}
+{% vite_asset ‘src/main.ts’ %}
 
 {% endblock %}

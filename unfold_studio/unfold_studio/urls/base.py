@@ -1,6 +1,7 @@
 from django.urls import path, include
 from django.conf import settings
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from unfold_studio import views
 from stories import views as story_views
 from books import views as book_views
@@ -21,7 +22,14 @@ urlpatterns = [
     path('join-student/', views.join_student, name='join_student'),
     path('auth/', include('social_django.urls', namespace='social')),
     path('', views.home, name="home"),
-    path('', include('django.contrib.auth.urls')),
+    path('login/', views.ClaimAwareLoginView.as_view(), name='login'),
+    path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('password_change/', auth_views.PasswordChangeView.as_view(), name='password_change'),
+    path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(), name='password_change_done'),
+    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
     path('users/<slug:slug>/', profile_views.UserDetailView.as_view(), name="show_user"),
     path('users/<slug:slug>/feed/', profile_views.FeedView.as_view(), name="show_feed"),
     path('users/<slug:slug>/follow/', profile_views.FollowUserView.as_view(), name="follow_user"),
@@ -33,8 +41,9 @@ urlpatterns = [
     path('profile/story/set/', profile_views.SetProfileStoryView.as_view(), name="set_profile_story"),
     path('profile/story/clear/', profile_views.ClearProfileStoryView.as_view(), name="clear_profile_story"),
 
+    #Teacher Endpoints
     path('groups/', literacy_group_views.ListGroupsView.as_view(), name="list_groups"),
-    path('groups/new', literacy_group_views.CreateGroupView.as_view(), name="create_group"),
+    path('groups/new/', literacy_group_views.CreateGroupView.as_view(), name="create_group"),
     path('groups/<int:pk>/', literacy_group_views.ShowGroupView.as_view(), name="show_group"),
     path('groups/<int:pk>/edit', literacy_group_views.UpdateGroupView.as_view(), name="update_group"),
     path('groups/<int:pk>/invite', literacy_group_views.InviteToGroupView.as_view(), name="invite_to_group"),
@@ -81,6 +90,7 @@ urlpatterns = [
     path('stories/<int:pk>/version/', story_views.NewStoryVersionView.as_view(), name="new_story_version"),
     path('stories/<int:pk>/delete/', story_views.DeleteStoryView.as_view(), name="delete_story"),
     path('stories/<int:story_id>/add_to_book/', story_views.AddStoryToBookView.as_view(), name="choose_book"),
+    path('stories/<int:story_id>/feedback/', views.SendFeedbackView.as_view(), name="send_feedback"),
 
     path('books/', book_views.BookListView.as_view(), name='list_books'),
     path('books/new/', book_views.CreateBookView.as_view(), name='create_book'),

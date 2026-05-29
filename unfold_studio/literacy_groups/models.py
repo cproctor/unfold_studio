@@ -31,3 +31,4 @@ class JoinCode(models.Model):
 
     def __str__(self):
         return f"{self.code} ({'used' if self.assigned_user_id else 'unused'})"
+

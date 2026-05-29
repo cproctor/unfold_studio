@@ -104,6 +104,7 @@ class OpenAIBackend(TextGenerationBackendInterface):
             return result
         except APIError as err:
             log.error("Error calling OpenAI", error=str(err))
+            print("OPENAI APIError:", repr(err))
             return "...error generating text..."
 
     def is_generate_cached(self, prompt, context_array, seed):
@@ -141,6 +142,7 @@ class OpenAIBackend(TextGenerationBackendInterface):
         }
         if force_json:
             kwargs["response_format"] = {"type": "json_object"}
+
         return self._create_chat_completion(**kwargs)
         
 

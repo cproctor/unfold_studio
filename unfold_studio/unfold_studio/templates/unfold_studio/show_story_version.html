@@ -3,10 +3,11 @@
 {% load linkrefs %}
 {% load vite %}
 
+{% block page_title %}{{ story.title }} | {{ SITE.name }}{% endblock %}
+
 {% block head %}
 
     <meta charset="utf-8">
-    <title>{{story.title}} | unfold.studio</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{% static 'style/inkystyle.css' %}">
     <link rel="stylesheet" href="{% static 'style/sms.css' %}">
@@ -23,7 +24,7 @@
 {% endif %}
 {{comment|linkrefs:user}}
 <br/>
-[{% if previousVersion is not None %}<a href="{% url 'show_story_version' pk=story.id version=previousVersion %}">&lt;</a>{% endif %}
+[{% if previousVersion is not None %}<a href="{% url 'show_story_version' pk=story_id version=previousVersion %}">&lt;</a>{% endif %}
 Version {{version}}
 {% if nextVersion is not None %}<a href="{% url 'show_story_version' pk=story.id version=nextVersion %}">&gt;</a>{% endif %}
 <a href="{% url 'show_story' story.id %}">&gt;&gt;</a>]

@@ -1,11 +1,50 @@
 {% extends 'base/base.html' %}
+{% load static %}
 
-{% block content %}
-<h1>{{title}}</h1>
-
-<form method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Save">
-</form>
+{% block head %}
+<link rel="stylesheet" href="{% static 'style/prompt_form.css' %}">
 {% endblock %}
 
+{% block content %}
+<div class="prompt-form-shell">
+    <h1>{{ title }}</h1>
+
+    <form method="post" class="prompt-form">
+        {% csrf_token %}
+
+        {% if form.non_field_errors %}
+            <div class="prompt-form-errors">
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <div class="prompt-form-row">
+            <label for="{{ form.name.id_for_label }}">Name:</label>
+            <div class="prompt-form-field">
+                {{ form.name }}
+                {{ form.name.errors }}
+            </div>
+        </div>
+
+        <div class="prompt-form-row prompt-form-row-textarea">
+            <label for="{{ form.description.id_for_label }}">Description:</label>
+            <div class="prompt-form-field">
+                {{ form.description }}
+                {{ form.description.errors }}
+            </div>
+        </div>
+
+        <div class="prompt-form-row">
+            <label for="{{ form.due_date.id_for_label }}">Due date:</label>
+            <div class="prompt-form-field">
+                {{ form.due_date }}
+                {{ form.due_date.errors }}
+            </div>
+        </div>
+
+        <div class="prompt-form-actions">
+            <input type="submit" value="Save">
+        </div>
+    </form>
+</div>
+{% endblock %}
