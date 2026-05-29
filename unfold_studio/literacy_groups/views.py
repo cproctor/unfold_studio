@@ -77,6 +77,8 @@ class ShowGroupView(LiteracyGroupContextMixin, DetailView):
         context = super().get_context_data(**kwargs)
         context['leader'] = self.user_is_leader
         context['prompts'] = self.group.prompts.filter(deleted=False).all()
+        context['member_total'] = self.group.members.count()
+        context['prompt_total'] = context['prompts'].count()
         return context
 
     def get_queryset(self):
