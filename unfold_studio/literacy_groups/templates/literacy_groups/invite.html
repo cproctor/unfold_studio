@@ -73,7 +73,6 @@
     <thead>
         <tr>
             <th>Code</th>
-            <th>Status</th>
             <th>Student</th>
             <th>Action</th>
         </tr>
@@ -90,16 +89,9 @@
             </td>
             <td>
                 {% if join_code.assigned_user %}
-                    Used
+                    <a href="{% url 'show_user' join_code.assigned_user.username %}">{{ join_code.assigned_user.username }}</a>
                 {% else %}
-                    Unused
-                {% endif %}
-            </td>
-            <td>
-                {% if join_code.assigned_user %}
-                    {{ join_code.assigned_user.username }}
-                {% else %}
-                    -
+                    <span style="color: #aaa;">Unused</span>
                 {% endif %}
             </td>
             <td>
