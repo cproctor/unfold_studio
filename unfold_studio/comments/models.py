@@ -6,23 +6,34 @@ from django.utils import timezone
 
 class CommentManager(models.Manager):
 
-    def for_story(self, story):
+    def for_story(self, story, viewer):
         """
         Gets all comments pertaining to a story which are:
-            - not deleted, and 
+            - not deleted, and
             - authored by:
                 - the story author OR
                 - someone the story author follows OR
                 - someone who leads a literacy group with a prompt where this story was submitted
+        Only shown if the viewer is the author, follows the author, or leads a group
+        where the story was submitted.
         """
         if not story.author:
             return self.get_queryset().none()
-        else:
-            return self.get_queryset().filter(deleted=False, story=story).filter(
-                Q(author=story.author) | 
-                Q(author__profile__followers=story.author.profile) | 
-                Q(author__literacy_groups_leading__prompts__submissions=story)
-            ).distinct()
+
+        viewer_permitted = (
+            viewer == story.author or
+            (viewer.is_authenticated and story.author.profile.following.filter(user=viewer).exists()) or
+            (viewer.is_authenticated and viewer.literacy_groups_leading.filter(prompts__submissions=story).exists())
+        )
+
+        if not viewer_permitted:
+            return self.get_queryset().none()
+
+        return self.get_queryset().filter(deleted=False, story=story).filter(
+            Q(author=story.author) |
+            Q(author__profile__followers=story.author.profile) |
+            Q(author__literacy_groups_leading__prompts__submissions=story)
+        ).distinct()
 
 # Create your models here.
 class Comment(models.Model):
