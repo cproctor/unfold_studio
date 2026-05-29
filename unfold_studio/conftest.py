@@ -27,6 +27,7 @@ settings.configure(
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
+        'django.contrib.sites',
         'reversion',
         'unfold_studio',
         'stories',
@@ -42,6 +43,7 @@ settings.configure(
         'research',
     ],
     SITE_NAME='Unfold Studio',
+    SITE_ID=1,
     SECRET_KEY='test-key-not-for-production',
     MIDDLEWARE=[
         'django.middleware.security.SecurityMiddleware',

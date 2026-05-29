@@ -16,6 +16,7 @@ from unfold_studio.logger import *
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_URL = 'http://local.unfoldstudio.net:8000'
 SITE_NAME = 'Unfold Studio'
+SITE_ID = 1
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # In production, set the SECRET_KEY environment variable. The fallback is for
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.sites',
     'storages',
     'debug_toolbar',
     'django_extensions',
