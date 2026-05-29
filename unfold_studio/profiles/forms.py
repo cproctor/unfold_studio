@@ -14,7 +14,7 @@ class ProfileForm(forms.ModelForm):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         if user is not None:
-            from unfold_studio.models import Story
+            from stories.models import Story
             self.fields['profile_story'].queryset = Story.objects.filter(author=user)
             self.fields['profile_story'].required = False
             self.fields['profile_story'].empty_label = '(none)'
