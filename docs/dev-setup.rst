@@ -12,8 +12,7 @@ Install these before starting:
 * **Python 3.11+** — ``python3 --version`` to check
 * **Node.js 20+** — install via `nvm <https://github.com/nvm-sh/nvm>`_ (recommended)
   or from `nodejs.org <https://nodejs.org/>`_
-* **PostgreSQL 14+** — only needed if you want to match production; SQLite works fine
-  for most dev work
+* **PostgreSQL 14+** — required (see `Database`_ below; SQLite will not work)
 * **uv** — a fast Python package manager (we use this instead of pip directly)::
 
       pip install uv
@@ -39,7 +38,11 @@ browser can run::
 
 This downloads the right binary for your OS and places it at ``ink/inklecate``.
 
-**3. Create a local settings file**
+**3. Set up a database**
+
+See `Database`_ below — you need a working PostgreSQL connection before continuing.
+
+**4. Create a local settings file**
 
 Django looks for ``unfold_studio/settings.py`` (gitignored, so it never gets
 committed). Create one::
@@ -52,8 +55,13 @@ committed). Create one::
 
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
+            # Fill in your connection details — see "Database" section in the docs
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': 'unfold_studio',
+            'USER': 'your-db-user',
+            'PASSWORD': 'your-db-password',
+            'HOST': 'localhost',
+            'PORT': '5432',
         }
     }
 
@@ -69,25 +77,69 @@ committed). Create one::
 
 See `Getting an OpenAI API key`_ below for the ``api_key`` value.
 
-**4. Run database migrations**::
+**5. Run database migrations**::
 
     .venv/bin/python unfold_studio/manage.py migrate
 
-**5. Create an admin account**::
+**6. Create an admin account**::
 
     .venv/bin/python unfold_studio/manage.py createsuperuser
 
-**6. Install Node.js dependencies and build the frontend**::
+**7. Install Node.js dependencies and build the frontend**::
 
     npm --prefix unfold_studio install
     npm --prefix unfold_studio run build
 
-**7. Start the development server**::
+**8. Start the development server**::
 
     make dev
 
 This runs Django's dev server and Vite's watch mode in parallel. Both stop cleanly
 when you press Control+C. Open http://localhost:8000 in your browser.
+
+Database
+--------
+
+The app uses `Django's PostgreSQL full-text search
+<https://docs.djangoproject.com/en/stable/ref/contrib/postgres/search/>`_, which
+requires PostgreSQL. SQLite will not work — migrations will fail at the first
+``SearchVectorField``.
+
+You have two options:
+
+**Option A — local PostgreSQL (self-contained)**
+   Install PostgreSQL on your machine, then create a user and database::
+
+       # macOS with Homebrew
+       brew install postgresql@16
+       brew services start postgresql@16
+
+       # Create a user and database
+       createuser unfold_studio_dev
+       createdb unfold_studio_dev -O unfold_studio_dev
+       psql -c "ALTER USER unfold_studio_dev WITH PASSWORD 'devpassword';"
+
+   Then in ``settings.py`` use::
+
+       DATABASES = {
+           'default': {
+               'ENGINE': 'django.db.backends.postgresql',
+               'NAME': 'unfold_studio_dev',
+               'USER': 'unfold_studio_dev',
+               'PASSWORD': 'devpassword',
+               'HOST': 'localhost',
+               'PORT': '5432',
+           }
+       }
+
+**Option B — connect to staging (quicker start)**
+   Ask Chris for the staging database connection parameters. You can point your
+   local Django instance at the staging database without installing PostgreSQL
+   locally. Be careful not to run destructive management commands (``flush``,
+   ``migrate`` with schema changes, etc.) against staging data.
+
+   Once you have the params, fill them into the ``DATABASES`` block in
+   ``settings.py``.
 
 Getting an OpenAI API key
 --------------------------
