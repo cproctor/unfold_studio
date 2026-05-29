@@ -4,8 +4,9 @@
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, watch } from 'vue'
-import { EditorView, basicSetup, Decoration } from 'codemirror'
+import { EditorView, basicSetup } from 'codemirror'
 import { EditorState, StateEffect, StateField } from '@codemirror/state'
+import { Decoration } from '@codemirror/view'
 import type { DecorationSet } from '@codemirror/view'
 import { inkLanguage } from './ink-language'
 
