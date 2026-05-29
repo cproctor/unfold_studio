@@ -68,14 +68,14 @@ committed). Create one::
     CELERY_TASK_ALWAYS_EAGER = True
 
     TEXT_GENERATION = {
-        'backend': 'OpenAI',
-        'api_key': 'your-openai-api-key-here',
-        'model': 'gpt-4o-mini',
+        'backend': 'OpenAI',        # or 'Anthropic'
+        'api_key': 'your-api-key',
+        'model': 'gpt-4o-mini',     # adjust to match your chosen backend
         'temperature': 0.7,
     }
     EOF
 
-See `Getting an OpenAI API key`_ below for the ``api_key`` value.
+See `LLM API key`_ below for the ``api_key`` value.
 
 **5. Run database migrations**::
 
@@ -141,27 +141,29 @@ You have two options:
    Once you have the params, fill them into the ``DATABASES`` block in
    ``settings.py``.
 
-Getting an OpenAI API key
---------------------------
+LLM API key
+-----------
 
 AI text generation (the ``generate()`` and ``continue_function()`` Ink calls) requires
-an OpenAI API key. Without one, those features will error but everything else works.
+an API key for a supported LLM provider. Without one, those features will error but
+everything else works. The active backend is set by ``TEXT_GENERATION['backend']`` in
+``settings.py`` — currently either ``'OpenAI'`` or ``'Anthropic'``.
 
 **Option A — use the project key (recommended for contributors)**
-   Ask the project lead for a dev API key. This charges to the project account and
-   has usage limits appropriate for development.
+   Ask Chris for the dev API key and which backend is currently in use. This charges
+   to the project account and has usage limits appropriate for development.
 
 **Option B — use your own key**
-   Create an account at `platform.openai.com <https://platform.openai.com/>`_, add a
-   payment method, and generate a key under API Keys. Be careful not to commit the
-   key — ``settings.py`` is gitignored, so as long as you put it there you are safe.
+   Create an account with whichever provider the project is using and generate a key.
+   Be careful not to commit it — ``settings.py`` is gitignored, so as long as you put
+   it there you are safe.
 
-Once you have a key, put it in ``unfold_studio/settings.py``::
+Once you have a key, set it in ``unfold_studio/settings.py``::
 
     TEXT_GENERATION = {
-        'backend': 'OpenAI',
-        'api_key': 'sk-...',
-        'model': 'gpt-4o-mini',
+        'backend': 'OpenAI',        # or 'Anthropic' — ask Chris which is current
+        'api_key': 'your-key-here',
+        'model': 'gpt-4o-mini',     # adjust to match the backend
         'temperature': 0.7,
     }
 

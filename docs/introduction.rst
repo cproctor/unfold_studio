@@ -73,10 +73,11 @@ to a starting point if the technology is new to you.
    We have a custom Ink syntax highlighting mode. You rarely need to touch this unless
    you are working on the editor experience.
 
-**OpenAI API**
-   The text generation features send requests to OpenAI's API. The ``text_generation``
-   app wraps the API and caches responses so the same prompt does not get called twice.
-   You will need an API key for dev (see :doc:`dev-setup`).
+**LLM API (OpenAI or Anthropic)**
+   The text generation features send requests to a configurable LLM provider.
+   The ``text_generation`` app abstracts over multiple backends and caches responses
+   so the same prompt is never called twice. You will need an API key for dev
+   (see :doc:`dev-setup`).
 
 How the Pieces Fit Together
 ---------------------------
@@ -94,8 +95,8 @@ Here is a simplified walk-through of what happens when a user plays a story:
    text paragraphs and choice buttons as the story progresses.
 
 4. When the story hits a ``generate()`` external function call, the player POSTs
-   to ``/generate/``. Django calls the OpenAI API (or returns a cached response)
-   and sends back the generated text.
+   to ``/generate/``. Django calls the configured LLM backend (or returns a cached
+   response) and sends back the generated text.
 
 5. When the author saves changes, the browser POSTs the new Ink source to
    ``/stories/<id>/compile/``. Django calls ``inklecate``, stores the compiled JSON,
