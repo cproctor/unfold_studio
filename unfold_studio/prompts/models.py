@@ -38,7 +38,13 @@ class Prompt(SoftDeleteMixin):
 class PromptStory(models.Model):
     prompt = models.ForeignKey(Prompt, on_delete=models.CASCADE)
     story = models.ForeignKey('unfold_studio.Story', on_delete=models.CASCADE)
-    submitted_story_version = models.ForeignKey(Version, on_delete=models.CASCADE)
+    submitted_story_version = models.ForeignKey(Version, on_delete=models.SET_NULL, null=True, blank=True)
+
+    @property
+    def submitted_story_snapshot(self):
+        if self.submitted_story_version:
+            return self.submitted_story_version._object_version.object
+        return self.story
 
     class Meta:
         unique_together = [('prompt', 'story')]

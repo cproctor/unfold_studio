@@ -114,17 +114,19 @@ class OpenAIBackend(TextGenerationBackendInterface):
             hit_cache=hit_cache
         )
 
-    def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed, hit_cache=True):
+    def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed, hit_cache=True, force_json=False):
         messages = [
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_prompt}
         ]
-        return self._create_chat_completion(
-            messages=messages,
-            seed=seed,
-            hit_cache=hit_cache,
-            response_format={"type": "json_object"}
-        )
+        kwargs = {
+            "messages": messages,
+            "seed": seed,
+            "hit_cache": hit_cache,
+        }
+        if force_json:
+            kwargs["response_format"] = {"type": "json_object"}
+        return self._create_chat_completion(**kwargs)
         
 
 
@@ -147,7 +149,7 @@ class AnthropicBackend(TextGenerationBackendInterface):
         )
         return message.content[0].text
 
-    def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed=None, hit_cache=True):
+    def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed=None, hit_cache=True, force_json=False):
         message = self.api_client.messages.create(
             model=self.model,
             max_tokens=1024,
