@@ -105,6 +105,11 @@ Here is a simplified walk-through of what happens when a user plays a story:
 Where Things Live
 -----------------
 
+**This repository powers** `app.unfoldstudio.net <https://app.unfoldstudio.net>`_ —
+the web application where users write and play stories. The marketing and landing site
+at `unfoldstudio.net <https://unfoldstudio.net>`_ is a separate static site in its own
+repository; it is not part of this codebase.
+
 The repository has two top-level directories:
 
 ``unfold_studio/``
