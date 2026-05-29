@@ -60,7 +60,6 @@ INSTALLED_APPS = [
     'prompts',
     'comments',
     'text_generation',
-    'generated_text_evaluator',
 ]
 
 try:

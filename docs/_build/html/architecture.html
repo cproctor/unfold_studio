@@ -1,0 +1,277 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Architecture &mdash; Unfold Studio 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Development Setup" href="dev-setup.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Unfold Studio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="deployment.html">Deployment</a></li>
+<li class="toctree-l1"><a class="reference internal" href="dev-setup.html">Development Setup</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Architecture</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#app-layout">App Layout</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#request-lifecycle-story-play">Request Lifecycle (Story Play)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ink-pipeline">Ink Pipeline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#text-generation">Text Generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#front-end-architecture">Front-End Architecture</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#key-design-decisions">Key Design Decisions</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Unfold Studio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Architecture</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/architecture.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="architecture">
+<h1>Architecture<a class="headerlink" href="#architecture" title="Link to this heading"></a></h1>
+<section id="app-layout">
+<h2>App Layout<a class="headerlink" href="#app-layout" title="Link to this heading"></a></h2>
+<p>The project is a Django monorepo with the main application at <code class="docutils literal notranslate"><span class="pre">unfold_studio/</span></code>.
+Django apps are co-located in the same directory:</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 31.2%" />
+<col style="width: 68.8%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>App</p></th>
+<th class="head"><p>Responsibility</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">unfold_studio</span></code></p></td>
+<td><p>Core app: URL routing, base settings, template tags, management commands</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">stories</span></code></p></td>
+<td><p>Story model, Ink preprocessing and compilation, CRUD views, versioning</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">books</span></code></p></td>
+<td><p>Book model (curated collections of stories), CRUD views</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">story_play</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">StoryPlayInstance</span></code> and <code class="docutils literal notranslate"><span class="pre">StoryPlayRecord</span></code> models; play tracking API</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">profiles</span></code></p></td>
+<td><p>User profile model (bio, avatar, follow relationships, researcher flag)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">literacy_events</span></code></p></td>
+<td><p>Event log for literacy research (story read, choice made, etc.)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">literacy_groups</span></code></p></td>
+<td><p>Group model for classroom/cohort management</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">comments</span></code></p></td>
+<td><p>Story comments</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">prompts</span></code></p></td>
+<td><p>Prompt templates for text generation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">text_generation</span></code></p></td>
+<td><p>LLM backend abstraction, generate/get-next-direction views, caching</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">generated_text_evaluator</span></code></p></td>
+<td><p>Quality evaluation pipeline for AI-generated story text</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">research</span></code></p></td>
+<td><p>API endpoints for research data export (API-key protected)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">commons</span></code></p></td>
+<td><p>Shared utilities: <code class="docutils literal notranslate"><span class="pre">SoftDeleteMixin</span></code>, <code class="docutils literal notranslate"><span class="pre">SoftDeleteManager</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</section>
+<section id="request-lifecycle-story-play">
+<h2>Request Lifecycle (Story Play)<a class="headerlink" href="#request-lifecycle-story-play" title="Link to this heading"></a></h2>
+<p>A user plays a story with these request flows:</p>
+<ol class="arabic simple">
+<li><p><strong>Page load</strong> — Django renders <code class="docutils literal notranslate"><span class="pre">show_story.html</span></code>, injecting a
+<code class="docutils literal notranslate"><span class="pre">window.__UNFOLD__</span></code> config block with the story ID, CSRF token, API URLs,
+and optional pre-fetched JSON. The Vite bundle (<code class="docutils literal notranslate"><span class="pre">main.ts</span></code>) is loaded via
+the <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">vite_asset</span> <span class="pre">%}</span></code> template tag.</p></li>
+<li><p><strong>Vue mount</strong> — <code class="docutils literal notranslate"><span class="pre">main.ts</span></code> calls <code class="docutils literal notranslate"><span class="pre">createApp(StoryPage).mount('#main')</span></code>.
+<code class="docutils literal notranslate"><span class="pre">StoryPage.vue</span></code> fetches story JSON (or uses the pre-fetched data), creates
+an <code class="docutils literal notranslate"><span class="pre">InkPlayer</span></code>, and calls <code class="docutils literal notranslate"><span class="pre">player.play(story)</span></code>.</p></li>
+<li><p><strong>Play</strong> — <code class="docutils literal notranslate"><span class="pre">InkPlayer</span></code> calls <code class="docutils literal notranslate"><span class="pre">inkjs.Story.Continue()</span></code> in a loop, building
+DOM nodes for text, choices, and input forms. External functions bound to
+the Ink runtime trigger AI generation and text input.</p></li>
+<li><p><strong>AI generation</strong> — When the story calls the <code class="docutils literal notranslate"><span class="pre">generate()</span></code> external function,
+<code class="docutils literal notranslate"><span class="pre">InkPlayer</span></code> POSTs to <code class="docutils literal notranslate"><span class="pre">/generate/</span></code>. The <code class="docutils literal notranslate"><span class="pre">GenerateTextView</span></code> calls the
+configured LLM backend and returns generated text.</p></li>
+<li><p><strong>Continue function</strong> — When the story calls <code class="docutils literal notranslate"><span class="pre">continue_function()</span></code>, the
+player shows a free-text input box. The user’s input is sent to
+<code class="docutils literal notranslate"><span class="pre">/get-next-direction/</span></code> which uses an LLM to decide whether to pass the
+input directly to the story, request clarification, or generate a bridge
+passage.</p></li>
+</ol>
+</section>
+<section id="ink-pipeline">
+<h2>Ink Pipeline<a class="headerlink" href="#ink-pipeline" title="Link to this heading"></a></h2>
+<p>Ink sources are preprocessed before compilation:</p>
+<ol class="arabic simple">
+<li><p><strong>Preprocessing</strong> (<code class="docutils literal notranslate"><span class="pre">stories/models.py::preprocess_ink</span></code>) — Resolves
+<code class="docutils literal notranslate"><span class="pre">INCLUDE</span></code> directives, extracts <code class="docutils literal notranslate"><span class="pre">VAR</span></code> declarations, builds a knot map.
+Prevents circular includes and reports missing stories.</p></li>
+<li><p><strong>Compilation</strong> (subprocess call to <code class="docutils literal notranslate"><span class="pre">inklecate</span></code>) — The preprocessed Ink
+source is compiled to JSON. Errors are parsed and stored as <code class="docutils literal notranslate"><span class="pre">StoryError</span></code>
+records.</p></li>
+<li><p><strong>Serving</strong> — The compiled JSON is stored on the <code class="docutils literal notranslate"><span class="pre">Story</span></code> model and served
+via <code class="docutils literal notranslate"><span class="pre">/stories/&lt;id&gt;/json/</span></code> for the runtime.</p></li>
+</ol>
+<p>Async compilation (<code class="docutils literal notranslate"><span class="pre">/stories/&lt;id&gt;/compile_async/</span></code>) queues a Celery task and
+returns a task ID for polling. This prevents timeouts for large stories.</p>
+</section>
+<section id="text-generation">
+<h2>Text Generation<a class="headerlink" href="#text-generation" title="Link to this heading"></a></h2>
+<p>The <code class="docutils literal notranslate"><span class="pre">text_generation</span></code> app abstracts over multiple LLM providers:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">OpenAIBackend</span></code> — wraps the OpenAI Python client</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">AnthropicBackend</span></code> — wraps the Anthropic Python client</p></li>
+</ul>
+<p>Both backends implement <code class="docutils literal notranslate"><span class="pre">TextGenerationBackendInterface</span></code>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">generate(prompt,</span> <span class="pre">context_array,</span> <span class="pre">seed)</span></code> — generate story text</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">get_ai_response_by_system_and_user_prompt(system,</span> <span class="pre">user,</span> <span class="pre">seed)</span></code> — structured
+JSON response for direction decisions</p></li>
+</ul>
+<p>The active backend is selected by <code class="docutils literal notranslate"><span class="pre">TEXT_GENERATION['backend']</span></code> in settings.
+Results are cached in <code class="docutils literal notranslate"><span class="pre">TextGenerationRecord</span></code> (keyed by prompt hash + backend
+config hash + seed) to avoid redundant API calls.</p>
+</section>
+<section id="front-end-architecture">
+<h2>Front-End Architecture<a class="headerlink" href="#front-end-architecture" title="Link to this heading"></a></h2>
+<p>The frontend is built with <strong>Vite 6</strong> + <strong>Vue 3</strong> + <strong>TypeScript 5</strong>:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">src/main.ts</span></code> — entry point for the story editor/player page; mounts
+<code class="docutils literal notranslate"><span class="pre">StoryPage.vue</span></code> on <code class="docutils literal notranslate"><span class="pre">#main</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/embed.ts</span></code> — entry point for the embed player; mounts <code class="docutils literal notranslate"><span class="pre">EmbedPlayer.vue</span></code>
+on <code class="docutils literal notranslate"><span class="pre">#embed-app</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/StoryPage.vue</span></code> — top-level component; composes toolbar, editor, player</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/StoryEditor.vue</span></code> — CodeMirror 6 editor with Ink syntax highlighting</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/StoryToolbar.vue</span></code> — save, fork, share, replay, show/hide code</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/EmbedPlayer.vue</span></code> — minimal embed player with logo header</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/player.ts</span></code> — <code class="docutils literal notranslate"><span class="pre">InkPlayer</span></code> class; imperative DOM-based story playback</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/api.ts</span></code> — <code class="docutils literal notranslate"><span class="pre">StoryAPI</span></code> class; fetch-based API calls to Django</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/sanitize.ts</span></code> — DOMPurify wrapper for safe innerHTML assignment</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/types.ts</span></code> — TypeScript interfaces (<code class="docutils literal notranslate"><span class="pre">StoryContent</span></code>, <code class="docutils literal notranslate"><span class="pre">UnfoldConfig</span></code>)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">src/globals.d.ts</span></code> — ambient declarations for <code class="docutils literal notranslate"><span class="pre">inkjs</span></code> global and
+<code class="docutils literal notranslate"><span class="pre">window.__UNFOLD__</span></code></p></li>
+</ul>
+<p>The <code class="docutils literal notranslate"><span class="pre">inkjs</span></code> runtime is loaded as a <code class="docutils literal notranslate"><span class="pre">&lt;script&gt;</span></code> tag (not npm) because it is a
+large UMD bundle designed for browser globals. TypeScript sees it via the ambient
+<code class="docutils literal notranslate"><span class="pre">declare</span> <span class="pre">namespace</span> <span class="pre">inkjs</span></code> declaration in <code class="docutils literal notranslate"><span class="pre">globals.d.ts</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">{%</span> <span class="pre">vite_asset</span> <span class="pre">'src/main.ts'</span> <span class="pre">%}</span></code> template tag reads
+<code class="docutils literal notranslate"><span class="pre">static/dist/.vite/manifest.json</span></code> at runtime to resolve hashed filenames.
+In development, rebuild on file change with <code class="docutils literal notranslate"><span class="pre">npm</span> <span class="pre">run</span> <span class="pre">dev</span></code> (Vite watch mode).</p>
+</section>
+<section id="key-design-decisions">
+<h2>Key Design Decisions<a class="headerlink" href="#key-design-decisions" title="Link to this heading"></a></h2>
+<p><strong>``window.__UNFOLD__`` config block</strong> — Server-rendered JavaScript variables
+replace the old RequireJS entry-point pattern. The config block injects story
+ID, CSRF token, API URLs, and optional pre-fetched JSON. This decouples the
+Django template from the frontend module system.</p>
+<p><strong>inkjs as a global</strong> — Loading inkjs via a <code class="docutils literal notranslate"><span class="pre">&lt;script&gt;</span></code> tag rather than npm
+avoids bundling the large runtime with the Vite bundle. It is declared as an
+ambient global in TypeScript.</p>
+<p><strong>DOMPurify sanitization</strong> — All story text is passed through DOMPurify before
+being assigned to <code class="docutils literal notranslate"><span class="pre">innerHTML</span></code>. The Ink runtime can include author-written HTML
+for formatting; DOMPurify allows only a safe subset of tags.</p>
+<p><strong>Soft deletes</strong> — Stories, books, groups, and prompts use <code class="docutils literal notranslate"><span class="pre">SoftDeleteMixin</span></code>
+which adds a <code class="docutils literal notranslate"><span class="pre">deleted_at</span></code> timestamp. <code class="docutils literal notranslate"><span class="pre">SoftDeleteManager</span></code> excludes deleted
+records by default. The <code class="docutils literal notranslate"><span class="pre">purge_deleted_records</span></code> management command physically
+removes records older than a configurable threshold.</p>
+<p><strong>API key auth for research endpoints</strong> — Research data export endpoints use a
+custom <code class="docutils literal notranslate"><span class="pre">&#64;require_api_key</span></code> decorator rather than session authentication. API
+keys are stored hashed in the <code class="docutils literal notranslate"><span class="pre">APIKey</span></code> model.</p>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="dev-setup.html" class="btn btn-neutral float-left" title="Development Setup" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Chris Proctor.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

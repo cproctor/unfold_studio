@@ -34,7 +34,6 @@ settings.configure(
         'books',
         'story_play',
         'text_generation',
-        'generated_text_evaluator',
         'profiles',
         'literacy_groups',
         'literacy_events',

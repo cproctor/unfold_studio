@@ -32,7 +32,9 @@ Django apps are co-located in the same directory:
    * - ``prompts``
      - Prompt templates for text generation
    * - ``text_generation``
-     - LLM backend abstraction, generate/get-next-direction views, caching, evaluation
+     - LLM backend abstraction, generate/get-next-direction views, caching
+   * - ``generated_text_evaluator``
+     - Quality evaluation pipeline for AI-generated story text
    * - ``research``
      - API endpoints for research data export (API-key protected)
    * - ``commons``

@@ -1,0 +1,335 @@
+
+
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" data-content_root="./">
+<head>
+  <meta charset="utf-8" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Deployment &mdash; Unfold Studio 1.0 documentation</title>
+      <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=b86133f3" />
+      <link rel="stylesheet" type="text/css" href="_static/css/theme.css?v=9edc463e" />
+
+  
+      <script src="_static/jquery.js?v=5d32c60e"></script>
+      <script src="_static/_sphinx_javascript_frameworks_compat.js?v=2cd50e6c"></script>
+      <script src="_static/documentation_options.js?v=f2a433a1"></script>
+      <script src="_static/doctools.js?v=fd6eb6e6"></script>
+      <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/js/theme.js"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Development Setup" href="dev-setup.html" />
+    <link rel="prev" title="Unfold Studio" href="index.html" /> 
+</head>
+
+<body class="wy-body-for-nav"> 
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search" >
+
+          
+          
+          <a href="index.html" class="icon icon-home">
+            Unfold Studio
+          </a>
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+        </div><div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Deployment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#system-requirements">System Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#environment-variables">Environment Variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#setup-steps">Setup Steps</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#gunicorn-supervisor-configuration">Gunicorn / Supervisor Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#nginx-configuration">Nginx Configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#celery-workers">Celery Workers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cron-jobs">Cron Jobs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#upgrade-steps">Upgrade Steps</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="dev-setup.html">Development Setup</a></li>
+<li class="toctree-l1"><a class="reference internal" href="architecture.html">Architecture</a></li>
+</ul>
+
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap"><nav class="wy-nav-top" aria-label="Mobile navigation menu" >
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="index.html">Unfold Studio</a>
+      </nav>
+
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="Page navigation">
+  <ul class="wy-breadcrumbs">
+      <li><a href="index.html" class="icon icon-home" aria-label="Home"></a></li>
+      <li class="breadcrumb-item active">Deployment</li>
+      <li class="wy-breadcrumbs-aside">
+            <a href="_sources/deployment.rst.txt" rel="nofollow"> View page source</a>
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+             
+  <section id="deployment">
+<h1>Deployment<a class="headerlink" href="#deployment" title="Link to this heading"></a></h1>
+<p>This guide covers deploying Unfold Studio on a fresh Ubuntu server.</p>
+<section id="system-requirements">
+<h2>System Requirements<a class="headerlink" href="#system-requirements" title="Link to this heading"></a></h2>
+<ul class="simple">
+<li><p>Ubuntu 22.04 LTS or newer</p></li>
+<li><p>Python 3.11+</p></li>
+<li><p>PostgreSQL 14+</p></li>
+<li><p>Redis (for Celery task queue)</p></li>
+<li><p>Nginx</p></li>
+<li><p>Supervisor</p></li>
+</ul>
+</section>
+<section id="environment-variables">
+<h2>Environment Variables<a class="headerlink" href="#environment-variables" title="Link to this heading"></a></h2>
+<p>All secrets are passed via environment variables. Never commit secrets to version control.</p>
+<table class="docutils align-default">
+<colgroup>
+<col style="width: 30.0%" />
+<col style="width: 50.0%" />
+<col style="width: 20.0%" />
+</colgroup>
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Description</p></th>
+<th class="head"><p>Required</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SECRET_KEY</span></code></p></td>
+<td><p>Django secret key (rotate on each deployment)</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">OPENAI_API_KEY</span></code></p></td>
+<td><p>OpenAI API key (if using OpenAI backend)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ANTHROPIC_API_KEY</span></code></p></td>
+<td><p>Anthropic API key (if using Anthropic backend)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DATABASE_URL</span></code></p></td>
+<td><p>PostgreSQL connection string</p></td>
+<td><p>Yes (production)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">CELERY_BROKER_URL</span></code></p></td>
+<td><p>Redis connection string (default: <code class="docutils literal notranslate"><span class="pre">redis://localhost:6379/0</span></code>)</p></td>
+<td><p>No</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DJANGO_SETTINGS_MODULE</span></code></p></td>
+<td><p>Set to <code class="docutils literal notranslate"><span class="pre">unfold_studio.site_settings.unfold_studio</span></code> for production</p></td>
+<td><p>Yes</p></td>
+</tr>
+</tbody>
+</table>
+<p>Generate a fresh <code class="docutils literal notranslate"><span class="pre">SECRET_KEY</span></code> with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">python</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="setup-steps">
+<h2>Setup Steps<a class="headerlink" href="#setup-steps" title="Link to this heading"></a></h2>
+<p><strong>1. Create a dedicated user</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">adduser</span> <span class="n">unfold_studio</span>
+<span class="n">su</span> <span class="o">-</span> <span class="n">unfold_studio</span>
+</pre></div>
+</div>
+<p><strong>2. Install system packages</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">apt</span> <span class="n">update</span> <span class="o">-</span><span class="n">y</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">apt</span> <span class="n">upgrade</span> <span class="o">-</span><span class="n">y</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">python3</span> <span class="n">python3</span><span class="o">-</span><span class="n">pip</span> <span class="n">python3</span><span class="o">-</span><span class="n">venv</span> <span class="n">nginx</span> <span class="n">git</span> <span class="n">supervisor</span> <span class="o">-</span><span class="n">y</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">build</span><span class="o">-</span><span class="n">essential</span> <span class="n">libpq</span><span class="o">-</span><span class="n">dev</span> <span class="o">-</span><span class="n">y</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">certbot</span> <span class="n">python3</span><span class="o">-</span><span class="n">certbot</span><span class="o">-</span><span class="n">nginx</span> <span class="n">unzip</span> <span class="o">-</span><span class="n">y</span>
+<span class="n">sudo</span> <span class="n">apt</span> <span class="n">install</span> <span class="n">redis</span><span class="o">-</span><span class="n">server</span> <span class="n">fail2ban</span> <span class="o">-</span><span class="n">y</span>
+</pre></div>
+</div>
+<p><strong>3. Prepare directories</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>sudo mkdir -p /opt/unfold_studio
+sudo chown -R $USER:$USER /opt/unfold_studio
+</pre></div>
+</div>
+<p><strong>4. Clone repository</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">git</span> <span class="n">clone</span> <span class="o">--</span><span class="n">branch</span> <span class="n">master</span> <span class="n">git</span><span class="nd">@github</span><span class="o">.</span><span class="n">com</span><span class="p">:</span><span class="n">cproctor</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">git</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span>
+</pre></div>
+</div>
+<p><strong>5. Install Python dependencies</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span>
+<span class="n">python3</span> <span class="o">-</span><span class="n">m</span> <span class="n">venv</span> <span class="o">.</span><span class="n">venv</span>
+<span class="o">.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">pip</span> <span class="n">install</span> <span class="n">uv</span>
+<span class="o">.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">uv</span> <span class="n">sync</span>
+</pre></div>
+</div>
+<p><strong>6. Install Inklecate (Ink compiler)</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span>
+<span class="n">bash</span> <span class="n">scripts</span><span class="o">/</span><span class="n">install_inklecate</span><span class="o">.</span><span class="n">sh</span>
+</pre></div>
+</div>
+<p><strong>7. Build frontend assets</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/</span><span class="n">unfold_studio</span>
+<span class="n">npm</span> <span class="n">install</span>
+<span class="n">npm</span> <span class="n">run</span> <span class="n">build</span>
+</pre></div>
+</div>
+<p><strong>8. Run migrations and collect static files</strong>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/</span><span class="n">unfold_studio</span>
+<span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">site_settings</span><span class="o">.</span><span class="n">unfold_studio</span> \
+    <span class="o">../.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">migrate</span>
+<span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">site_settings</span><span class="o">.</span><span class="n">unfold_studio</span> \
+    <span class="o">../.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">collectstatic</span> <span class="o">--</span><span class="n">noinput</span>
+</pre></div>
+</div>
+</section>
+<section id="gunicorn-supervisor-configuration">
+<h2>Gunicorn / Supervisor Configuration<a class="headerlink" href="#gunicorn-supervisor-configuration" title="Link to this heading"></a></h2>
+<p>Create <code class="docutils literal notranslate"><span class="pre">/etc/supervisor/conf.d/unfold_studio.conf</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">program</span><span class="p">:</span><span class="n">unfold_studio</span><span class="p">]</span>
+<span class="n">directory</span><span class="o">=/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/</span><span class="n">unfold_studio</span>
+<span class="n">command</span><span class="o">=/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">gunicorn</span> <span class="n">unfold_studio</span><span class="o">.</span><span class="n">wsgi</span><span class="p">:</span><span class="n">application</span> \
+    <span class="o">--</span><span class="n">bind</span> <span class="n">unix</span><span class="p">:</span><span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">sock</span> \
+    <span class="o">--</span><span class="n">workers</span> <span class="mi">3</span> <span class="o">--</span><span class="n">threads</span> <span class="mi">2</span> <span class="o">--</span><span class="n">log</span><span class="o">-</span><span class="n">level</span> <span class="n">info</span>
+<span class="n">autostart</span><span class="o">=</span><span class="n">true</span>
+<span class="n">autorestart</span><span class="o">=</span><span class="n">true</span>
+<span class="n">stderr_logfile</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">err</span><span class="o">.</span><span class="n">log</span>
+<span class="n">stdout_logfile</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">log</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">log</span>
+<span class="n">user</span><span class="o">=</span><span class="n">unfold_studio</span>
+<span class="n">environment</span><span class="o">=</span>
+    <span class="n">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/opt/unfold_studio:/opt/unfold_studio/unfold_studio&quot;</span><span class="p">,</span>
+    <span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="s2">&quot;unfold_studio.site_settings.unfold_studio&quot;</span><span class="p">,</span>
+    <span class="n">SECRET_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(ENV_SECRET_KEY)s</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="n">OPENAI_API_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(ENV_OPENAI_API_KEY)s</span><span class="s2">&quot;</span>
+<span class="n">redirect_stderr</span><span class="o">=</span><span class="n">true</span>
+</pre></div>
+</div>
+<p>Reload Supervisor:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">supervisorctl</span> <span class="n">reread</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">supervisorctl</span> <span class="n">update</span>
+<span class="n">sudo</span> <span class="n">supervisorctl</span> <span class="n">start</span> <span class="n">unfold_studio</span>
+</pre></div>
+</div>
+</section>
+<section id="nginx-configuration">
+<h2>Nginx Configuration<a class="headerlink" href="#nginx-configuration" title="Link to this heading"></a></h2>
+<p>Create <code class="docutils literal notranslate"><span class="pre">/etc/nginx/sites-available/unfold_studio</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>server {
+    listen 80;
+    server_name app.unfoldstudio.net;
+
+    location /static/ {
+        alias /opt/unfold_studio/static_assets/;
+        expires 30d;
+        add_header Cache-Control &quot;public, no-transform&quot;;
+    }
+
+    location / {
+        proxy_pass http://unix:/opt/unfold_studio/unfold_studio.sock;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header Host $host;
+        proxy_connect_timeout 300s;
+        proxy_read_timeout 300s;
+    }
+}
+</pre></div>
+</div>
+<p>Enable and configure SSL:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">sudo</span> <span class="n">ln</span> <span class="o">-</span><span class="n">sf</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">sites</span><span class="o">-</span><span class="n">available</span><span class="o">/</span><span class="n">unfold_studio</span> <span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">sites</span><span class="o">-</span><span class="n">enabled</span><span class="o">/</span>
+<span class="n">sudo</span> <span class="n">certbot</span> <span class="o">--</span><span class="n">nginx</span> <span class="o">-</span><span class="n">d</span> <span class="n">app</span><span class="o">.</span><span class="n">unfoldstudio</span><span class="o">.</span><span class="n">net</span>
+<span class="n">sudo</span> <span class="n">nginx</span> <span class="o">-</span><span class="n">t</span> <span class="o">&amp;&amp;</span> <span class="n">sudo</span> <span class="n">systemctl</span> <span class="n">reload</span> <span class="n">nginx</span>
+</pre></div>
+</div>
+</section>
+<section id="celery-workers">
+<h2>Celery Workers<a class="headerlink" href="#celery-workers" title="Link to this heading"></a></h2>
+<p>Add a Celery worker to Supervisor for async story compilation:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">program</span><span class="p">:</span><span class="n">unfold_studio_celery</span><span class="p">]</span>
+<span class="n">directory</span><span class="o">=/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/</span><span class="n">unfold_studio</span>
+<span class="n">command</span><span class="o">=/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">celery</span> <span class="o">-</span><span class="n">A</span> <span class="n">unfold_studio</span> <span class="n">worker</span> <span class="o">--</span><span class="n">loglevel</span><span class="o">=</span><span class="n">info</span>
+<span class="n">autostart</span><span class="o">=</span><span class="n">true</span>
+<span class="n">autorestart</span><span class="o">=</span><span class="n">true</span>
+<span class="n">user</span><span class="o">=</span><span class="n">unfold_studio</span>
+<span class="n">environment</span><span class="o">=</span>
+    <span class="n">PYTHONPATH</span><span class="o">=</span><span class="s2">&quot;/opt/unfold_studio:/opt/unfold_studio/unfold_studio&quot;</span><span class="p">,</span>
+    <span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="s2">&quot;unfold_studio.site_settings.unfold_studio&quot;</span><span class="p">,</span>
+    <span class="n">SECRET_KEY</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(ENV_SECRET_KEY)s</span><span class="s2">&quot;</span>
+</pre></div>
+</div>
+</section>
+<section id="cron-jobs">
+<h2>Cron Jobs<a class="headerlink" href="#cron-jobs" title="Link to this heading"></a></h2>
+<p>Add to crontab for the <code class="docutils literal notranslate"><span class="pre">unfold_studio</span></code> user:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Delete old public stories (older than PUBLIC_STORY_MAX_AGE_DAYS)</span>
+<span class="mi">0</span> <span class="mi">3</span> <span class="o">*</span> <span class="o">*</span> <span class="o">*</span> <span class="n">cd</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/</span><span class="n">unfold_studio</span> <span class="o">&amp;&amp;</span> \
+    <span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">site_settings</span><span class="o">.</span><span class="n">unfold_studio</span> \
+    <span class="o">../.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">delete_old_public_stories</span>
+
+<span class="c1"># Purge soft-deleted records older than 90 days</span>
+<span class="mi">0</span> <span class="mi">4</span> <span class="o">*</span> <span class="o">*</span> <span class="mi">0</span> <span class="n">cd</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span><span class="o">/</span><span class="n">unfold_studio</span> <span class="o">&amp;&amp;</span> \
+    <span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">site_settings</span><span class="o">.</span><span class="n">unfold_studio</span> \
+    <span class="o">../.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">purge_deleted_records</span>
+</pre></div>
+</div>
+</section>
+<section id="upgrade-steps">
+<h2>Upgrade Steps<a class="headerlink" href="#upgrade-steps" title="Link to this heading"></a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">cd</span> <span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">unfold_studio</span>
+<span class="n">git</span> <span class="n">pull</span>
+<span class="o">.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">uv</span> <span class="n">sync</span>
+<span class="n">cd</span> <span class="n">unfold_studio</span>
+<span class="n">npm</span> <span class="n">install</span> <span class="o">&amp;&amp;</span> <span class="n">npm</span> <span class="n">run</span> <span class="n">build</span>
+<span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">site_settings</span><span class="o">.</span><span class="n">unfold_studio</span> \
+    <span class="o">../.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">migrate</span>
+<span class="n">DJANGO_SETTINGS_MODULE</span><span class="o">=</span><span class="n">unfold_studio</span><span class="o">.</span><span class="n">site_settings</span><span class="o">.</span><span class="n">unfold_studio</span> \
+    <span class="o">../.</span><span class="n">venv</span><span class="o">/</span><span class="nb">bin</span><span class="o">/</span><span class="n">python</span> <span class="n">manage</span><span class="o">.</span><span class="n">py</span> <span class="n">collectstatic</span> <span class="o">--</span><span class="n">noinput</span>
+<span class="n">sudo</span> <span class="n">supervisorctl</span> <span class="n">restart</span> <span class="n">unfold_studio</span> <span class="n">unfold_studio_celery</span>
+</pre></div>
+</div>
+</section>
+</section>
+
+
+           </div>
+          </div>
+          <footer><div class="rst-footer-buttons" role="navigation" aria-label="Footer">
+        <a href="index.html" class="btn btn-neutral float-left" title="Unfold Studio" accesskey="p" rel="prev"><span class="fa fa-arrow-circle-left" aria-hidden="true"></span> Previous</a>
+        <a href="dev-setup.html" class="btn btn-neutral float-right" title="Development Setup" accesskey="n" rel="next">Next <span class="fa fa-arrow-circle-right" aria-hidden="true"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>&#169; Copyright 2025, Chris Proctor.</p>
+  </div>
+
+  Built with <a href="https://www.sphinx-doc.org/">Sphinx</a> using a
+    <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a>
+    provided by <a href="https://readthedocs.org">Read the Docs</a>.
+   
+
+</footer>
+        </div>
+      </div>
+    </section>
+  </div>
+  <script>
+      jQuery(function () {
+          SphinxRtdTheme.Navigation.enable(true);
+      });
+  </script> 
+
+</body>
+</html>

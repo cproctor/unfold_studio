@@ -1,0 +1,20 @@
+Unfold Studio
+=============
+
+Unfold Studio is a web application for writing and playing interactive stories using the
+`Ink scripting language <https://www.inklestudios.com/ink/>`_ by Inkle Studios.
+
+.. note::
+
+   **These docs are for developers, administrators, and technical contributors.**
+   If you're looking for the app itself, go to `app.unfoldstudio.net <https://app.unfoldstudio.net>`_.
+   User guides, tutorials, and Ink language documentation are also linked there.
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Contents:
+
+   introduction
+   dev-setup
+   architecture
+   deployment
