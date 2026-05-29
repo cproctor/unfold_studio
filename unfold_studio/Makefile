@@ -20,4 +20,5 @@ lint:
 	npm run lint
 
 docs:
-	cd ../docs && ../.venv/bin/sphinx-build -b html . _build/html
+	uv sync --group docs
+	../.venv/bin/sphinx-build -b html ../docs ../docs/_build/html
