@@ -1,93 +1,32 @@
 # Unfold Studio
 
-[Unfold Studio](https://unfoldstudio.net) is an online community for interactive 
-storytelling powered by a programming language called Ink. Interactive storytelling 
-brings together the power of programming with the ability of stories to represent 
-and explore our lived realities. Unfold Studio is free and open-source.
+[Unfold Studio](https://unfoldstudio.net) is a free, open-source platform for writing
+and playing interactive stories using [Ink](https://www.inklestudios.com/ink/), a
+scripting language designed for branching narratives. It is used in schools, writing
+clubs, and by individual authors. Stories can incorporate AI-generated text and respond
+to free-text input from readers.
 
-Unfold Studio is used in schools, clubs, and by many individual writers. 
-Interactive storytelling can be a way to integrate Computer Science into English, 
-Social Studies, or other subjects. It can also be an excellent way to introduce 
-Computer Science as a subject relevant to questions of identity, culture, and 
-social justice. (We are currently doing research with a school which uses Unfold 
-Studio for several months as part of its core CS curriculum.)
+**If you want to write or read stories, go to [unfoldstudio.net](https://unfoldstudio.net).**
 
-Unfold Studio's main documentation is at 
-[unfoldstudio.net](https://unfoldstudio.net/about).
+---
 
-## Development
+## For developers and contributors
 
-### Setup
+This repository contains the source code for the Unfold Studio web application.
+Technical documentation (architecture, development setup, deployment) lives in
+`docs/` and can be built with:
 
-These steps should get a development instance running on MacOS. The process should be similar on Linux or Unix systems.
+```
+make docs
+```
 
-0. Prerequisites
+Output goes to `docs/_build/html/`. The docs are not currently deployed online —
+build them locally.
 
-- Install [uv](https://docs.astral.sh/uv/)
-- Install [Homebrew](https://brew.sh/). 
-- Install [Postgresql](https://www.postgresql.org/download/) (`brew install postgresql@16`)
-  
-    Set up default postgres user
-  
-        sudo passwd postgres
+Quick orientation:
 
-1. Route `local.unfoldstudio.net` to localhost. Add the following line to the bottom of `/etc/hosts` 
-   (requires admin permissions). Unfold Studio uses Django's Sites framework, which depends on the 
-   domain name of incoming requests.
+- `unfold_studio/` — Django project (Python backend + Vue/TypeScript frontend)
+- `docs/` — Sphinx documentation source
 
-        127.0.0.1	local.unfoldstudio.net
-
-2. Prepare the database.
-
-        createuser unfold_studio_user; createdb unfold_studio -O unfold_studio_user
-
-    Set password for `unfold_studio_user`
-
-        sudo -u postgres psql
-        alter user unfold_studio_user with password '<password>';
-
-
-3. Get the code.
-
-        cd /opt # (Or wherever you want to install)
-        git clone https://github.com/cproctor/unfold_studio.git
-        cd unfold_studio
-        cp unfold_studio/unfold_studio/base_settings.py unfold_studio/unfold_studio/settings.py
-        uv sync
-
-    You will need to ensure the `PASSWORD`, `HOST`, and `PORT` fields are set correctly in `settings.py[DATABASES.default]` based on your postgres configuration
-
-4. Inklecate. To save (and compile) stories, you'll also need an Inklecate executable, which you can 
-   get from https://github.com/inkle/ink/releases. Ensure that the backend Inklecate version, the frontend
-   inkjs version, and `INK_VERSION` in `settings.py` are synchronized. 
-
-   For the default installation, download ink 1.2.0 and unpack it into the `inklecate_1.2.0` directory in 
-   the Unfold Studio repository's root. Additionally, create an `ink` directory in the repository root; 
-   ink stories will be saved here during compilation.
-
-   You may also need to give the inklecate file executable permissions
-
-        chmod +x inklecate_1.2.0/inklecate
-
-5. Last steps.
-
-        uv run manage.py migrate
-        uv run manage.py collectstatic
-        uv run manage.py dev_init
-        uv run manage.py runserver
-
-   This should be enough to get a local server running; you can test it by navigating to
-   http://local.unfoldstudio.net:8000.
-
-6. (Optional) Cron jobs
-
-   Stories and books are weighted according to priority, which depends on factors defined in settings.
-   Content is subject to 'gravity,' causing older content to fall and make room for newer content.  
-   Therefore, stories need to be re-weighted from time to time. At the same time, when there's a lot of 
-   content, it becomes burdensome to re-weight it all every few minutes. The cron jobs below achieve a 
-   good compromise, updating the weights of top stories every ten minutes, and then updating all the content
-   once a day. 
-
-        0 3 * * * python3 /opt/unfold_studio/manage.py update_story_priority
-        */10 * * * * python3 /opt/unfold_studio/manage.py update_story_priority -n 100
-        0 * * * * python3 /opt/unfold_studio/manage.py update_book_priority
+See `docs/introduction.rst` for a developer overview, or `docs/dev-setup.rst`
+to get a local instance running.
