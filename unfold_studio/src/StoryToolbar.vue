@@ -10,11 +10,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
-
-defineProps<{
+const props = defineProps<{
   editable: boolean
   shared?: boolean
+  showCode?: boolean
 }>()
 
 const emit = defineEmits<{
@@ -26,10 +25,7 @@ const emit = defineEmits<{
   'toggle-code': [visible: boolean]
 }>()
 
-const showCode = ref(true)
-
 function toggleCode(): void {
-  showCode.value = !showCode.value
-  emit('toggle-code', showCode.value)
+  emit('toggle-code', !props.showCode)
 }
 </script>

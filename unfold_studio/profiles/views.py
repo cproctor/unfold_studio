@@ -1,19 +1,20 @@
 from django.shortcuts import render, redirect
-from django.views.generic import DetailView
+from django.views.generic import DetailView, UpdateView
 from django.views.generic.detail import SingleObjectMixin
 from django.views import View
 from django.contrib.auth.models import User
 from profiles.models import Profile
+from profiles.forms import ProfileForm
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from stories.models import Story
 from books.models import Book
 from prompts.models import Prompt
-from django.conf import settings as s                                 
+from django.conf import settings as s
 from django.db.models import Q, OuterRef, Subquery
 from django.core.paginator import Paginator, PageNotAnInteger
-from django.http import HttpResponse, Http404                         
-from django.contrib.sites.shortcuts import get_current_site
+from django.http import HttpResponse, Http404
+from django.urls import reverse_lazy
 import structlog
 
 from literacy_events.models import Notification, LiteracyEvent
@@ -158,7 +159,26 @@ class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
                 subject=self.request.user,
                 object_user=u
             )
-            log.info(name="Profile Alert", event="Unfollow Request", 
+            log.info(name="Profile Alert", event="Unfollow Request",
                      args={"follower": un(self.request), "following": u.username})
         return redirect('show_user', u)
-        
+
+
+class SelfRedirectView(LoginRequiredMixin, View):
+    def get(self, request):
+        return redirect('show_user', request.user.username)
+
+
+class EditProfileView(LoginRequiredMixin, View):
+    def get(self, request):
+        form = ProfileForm(instance=request.user.profile, user=request.user)
+        return render(request, 'profiles/edit_profile.html', {'form': form})
+
+    def post(self, request):
+        form = ProfileForm(request.POST, instance=request.user.profile, user=request.user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Profile updated.')
+            return redirect('show_self')
+        return render(request, 'profiles/edit_profile.html', {'form': form})
+

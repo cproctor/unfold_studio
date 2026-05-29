@@ -3,7 +3,6 @@ from django.contrib.auth.models import User, Group
 from books.models import Book
 from reversion.models import Version
 from django.utils import timezone
-from django.contrib.sites.models import Site
 from commons.base.models import SoftDeleteMixin, SoftDeleteManager
 
 

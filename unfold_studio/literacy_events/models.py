@@ -4,7 +4,6 @@ from django.core.exceptions import ValidationError
 from django.db.models import Q, Exists, OuterRef, Subquery
 from stories.models import Story
 from books.models import Book
-from django.contrib.sites.shortcuts import get_current_site
 import arrow
 
 class LiteracyEventManager(models.Manager):
@@ -146,9 +145,8 @@ class LiteracyEvent(models.Model):
 
 class NotificationManager(models.Manager):
     def for_request(self, request):
-        site = get_current_site(request)
-        storyVisible = Exists(Story.objects.for_site_user(site, request.user).filter(pk=OuterRef('event__story_id')))
-        parentStoryVisible = Exists(Story.objects.for_site_user(site, request.user).filter(pk=OuterRef('event__story__parent__id')))
+        storyVisible = Exists(Story.objects.for_user(request.user).filter(pk=OuterRef('event__story_id')))
+        parentStoryVisible = Exists(Story.objects.for_user(request.user).filter(pk=OuterRef('event__story__parent__id')))
         stories = Story.objects.filter(pk=OuterRef('story_id')).filter(
             Q(deleted=False) & Q(author__is_active=True)
         )

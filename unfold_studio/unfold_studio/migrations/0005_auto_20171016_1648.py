@@ -3,24 +3,25 @@
 from __future__ import unicode_literals
 
 from django.conf import settings
-from django.db import migrations, models
+from django.db import migrations, models, transaction
 import django.db.models.deletion
 from django.contrib.auth.models import User
 
 def update_authors(apps, schema_editor):
-    u = User.objects.first()
-    if not u:
-        u = User(username="default", first_name="Various", last_name="Authors")
-        u.save()
-        
-    for story in apps.get_model("unfold_studio", "Story").objects.all():
-        story.author_id = u.id
-        story.save()
+    with transaction.atomic():
+        u = User.objects.first()
+        if not u:
+            u = User(username="default", first_name="Various", last_name="Authors")
+            u.save()
+        for story in apps.get_model("unfold_studio", "Story").objects.all():
+            story.author_id = u.id
+            story.save()
 
 def revert_authors(apps, schema_editor):
-    for story in apps.get_model("unfold_studio", "Story").objects.all():
-        story.author = "Anonymous"
-        story.save()
+    with transaction.atomic():
+        for story in apps.get_model("unfold_studio", "Story").objects.all():
+            story.author = "Anonymous"
+            story.save()
 
 class Migration(migrations.Migration):
 

@@ -1,21 +1,13 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
-from django.contrib.sites.shortcuts import get_current_site
 import math
 from django.conf import settings
 from commons.base.models import SoftDeleteMixin, SoftDeleteManager
 
 
 class BookManager(SoftDeleteManager):
-    def for_site(self, site):
-        "Returns books in the current scope — associated with a site and not deleted."
-        return self.filter(sites=site)
-
     def for_request(self, request):
-        "Returns books visible to the current request"
-        site = get_current_site(request)
-        return self.for_site(site)
+        return self.all()
 
 
 class Book(SoftDeleteMixin):
@@ -23,7 +15,6 @@ class Book(SoftDeleteMixin):
     description = models.TextField(blank=True, null=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='books')
     stories = models.ManyToManyField('unfold_studio.Story', related_name='books')
-    sites = models.ManyToManyField(Site)
     priority = models.FloatField(default=0)
     genres = models.JSONField(default=list, blank=True)
 

@@ -69,10 +69,9 @@ Thank you for participating!
 -> END
 """
 
-def create_input_generate_story2(user, site):
+def create_input_generate_story2(user):
     story_id = create_story(
         user=user,
-        site=site,
         story_id=STORY_ID,
         title=STORY_TITLE,
         ink_content=STORY_TEMPLATE,

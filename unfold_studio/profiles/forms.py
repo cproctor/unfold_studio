@@ -3,17 +3,35 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
 from django.forms import ValidationError
 import re
+from .models import Profile, DeprecatedUsername
+
+
+class ProfileForm(forms.ModelForm):
+    class Meta:
+        model = Profile
+        fields = ['profile_story']
+
+    def __init__(self, *args, user=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if user is not None:
+            from unfold_studio.models import Story
+            self.fields['profile_story'].queryset = Story.objects.filter(author=user)
+            self.fields['profile_story'].required = False
+            self.fields['profile_story'].empty_label = '(none)'
 
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
 
     def clean_username(self):
-        if not re.match(r'^[0-9a-zA-Z_]+$', self.cleaned_data['username']):
+        username = self.cleaned_data['username']
+        if not re.match(r'^[0-9a-zA-Z_]+$', username):
             raise ValidationError("Only letters, numbers, and _ are allowed in usernames")
-        if not re.match(r'^[a-zA-Z][0-9a-zA-Z_]+$', self.cleaned_data['username']):
+        if not re.match(r'^[a-zA-Z][0-9a-zA-Z_]+$', username):
             raise ValidationError("Usernames must start with a letter")
-        return self.cleaned_data['username']
+        if DeprecatedUsername.objects.filter(old_username=username).exists():
+            raise ValidationError("This username is not available.")
+        return username
 
     def clean_email(self):
         if User.objects.filter(email=self.cleaned_data['email']).exists():

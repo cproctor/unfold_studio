@@ -8,7 +8,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.timezone import now
-from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q, F, Window
 from django.db.models.functions import RowNumber
 from django.core.paginator import Paginator
@@ -46,14 +45,13 @@ def new_story(request):
                 author=None,
                 creation_date=now(),
                 edit_date=now(),
-                public=True
             )
         form = StoryForm(request.POST, instance=story)
         if form.is_valid():
             story = form.save()
             story.compile()
             story.update_priority()
-            story.sites.add(get_current_site(request))
+
             with reversion.create_revision():
                 story.save()
                 reversion.set_user(story.author)
@@ -101,14 +99,16 @@ def compile_story(request, story_id):
 def show_story(request, story_id):
     "Shows a story, using the same view regardless of whether it can be edited by the user"
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
-    editable = bool(story.author == request.user or story.public)
+    editable = bool(story.author == request.user)
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
-    return render(request, 'unfold_studio/show_story.html', {
+    response = render(request, 'unfold_studio/show_story.html', {
         'story': story,
         'editable': editable,
         'commentable': story.user_may_comment(request.user),
         'addableBooks': addableBooks}
     )
+    response['Cache-Control'] = 'no-store'
+    return response
 
 
 def show_json(request, story_id):
@@ -118,7 +118,7 @@ def show_json(request, story_id):
 
 def embed_story(request, story_id):
     try:
-        story = Story.objects.get(Q(shared=True) | Q(public=True), pk=story_id)
+        story = Story.objects.get(shared=True, pk=story_id)
     except Story.DoesNotExist:
         return render(request, 'unfold_studio/embed_error.html', {'reason': 'not_found'}, status=404)
     return render(request, 'unfold_studio/embed_story.html', {'story': story})
@@ -231,7 +231,6 @@ class ForkStoryView(StoryMethodView):
             else:
                 reversion.set_comment("{} forked from @story:{}".format(story.title, parent.id))
         story.compile()
-        story.sites.add(get_current_site(self.request))
         LiteracyEvent.objects.create(
             event_type=LiteracyEvent.FORKED_STORY,
             subject=request.user,

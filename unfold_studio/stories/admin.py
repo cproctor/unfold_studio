@@ -19,8 +19,7 @@ class StoryAdmin(NoCommentVersionAdmin):
         'title',
         'author',
         'edit_date',
-        'shared',
-        'public'
+        'shared'
     ]
     list_display_links = [
         'title'

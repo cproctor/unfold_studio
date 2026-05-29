@@ -8,13 +8,14 @@
       @fork="handleFork"
       @share="handleShare"
       @unshare="handleUnshare"
+      :show-code="showCode"
       @toggle-code="handleToggleCode"
     />
-    <div class="twopane" :class="{ solo: !showCode }">
-      <div v-if="config.editable" v-show="showCode" id="editor">
-        <StoryEditor v-model="inkContent" />
+    <div class="twopane">
+      <div v-if="showCode" id="editor">
+        <StoryEditor ref="editorRef" v-model="inkContent" :readonly="!config.editable" />
       </div>
-      <div v-if="config.editable && showCode" class="split"></div>
+      <div v-if="showCode" class="split"></div>
       <div id="player">
         <div class="scrollContainer">
           <div ref="playerContainer" class="innerText active"></div>
@@ -33,7 +34,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
+import { ref, onMounted, onUnmounted, watch, defineAsyncComponent } from 'vue'
 import { InkPlayer } from './player'
 import { StoryAPI } from './api'
 import StoryToolbar from './StoryToolbar.vue'
@@ -45,9 +46,10 @@ const config: UnfoldConfig = window.__UNFOLD__
 
 const inkContent = ref('')
 const shared = ref(config.shared ?? false)
-const showCode = ref(config.editable)
+const showCode = ref(false)
 const errors = ref<Array<{ lineNumber: number | null; message: string }>>([])
 const playerContainer = ref<HTMLElement | null>(null)
+const editorRef = ref<{ setErrors: (e: Array<{ lineNumber: number | null; message: string }>) => void } | null>(null)
 
 let player: InkPlayer | null = null
 let currentStory: StoryContent | null = null
@@ -60,7 +62,7 @@ onMounted(async () => {
   const story = config.storyJson ?? await fetchStory()
   currentStory = story
   inkContent.value = story.ink ?? ''
-  if (story.status === 'error') showCode.value = true
+  if (story.status === 'error' || window.location.hash === '#code') showCode.value = true
   void player.play(story)
 })
 
@@ -78,6 +80,7 @@ async function handleSave(): Promise<void> {
   const result = await api.compileStory(inkContent.value) as StoryContent
   currentStory = result
   errors.value = (result.errors ?? []).map((e) => ({ lineNumber: e.line ?? null, message: e.message }))
+  editorRef.value?.setErrors(errors.value)
   if (result.status === 'ok') {
     player?.stop()
     void player?.play(result)
@@ -112,6 +115,14 @@ async function handleUnshare(): Promise<void> {
 function handleToggleCode(visible: boolean): void {
   showCode.value = visible
 }
+
+watch(showCode, (val) => {
+  if (val) {
+    history.replaceState(null, '', window.location.pathname + '#code')
+  } else {
+    history.replaceState(null, '', window.location.pathname)
+  }
+})
 </script>
 
 <style scoped>
@@ -125,14 +136,6 @@ function handleToggleCode(visible: boolean): void {
   display: flex;
   flex: 1;
   overflow: hidden;
-}
-
-.twopane.solo #editor {
-  display: none;
-}
-
-.twopane.solo .split {
-  display: none;
 }
 
 #editor {

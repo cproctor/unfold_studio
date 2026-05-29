@@ -27,7 +27,6 @@ settings.configure(
         'django.contrib.sessions',
         'django.contrib.messages',
         'django.contrib.staticfiles',
-        'django.contrib.sites',
         'reversion',
         'unfold_studio',
         'stories',
@@ -42,6 +41,7 @@ settings.configure(
         'prompts',
         'research',
     ],
+    SITE_NAME='Unfold Studio',
     SECRET_KEY='test-key-not-for-production',
     MIDDLEWARE=[
         'django.middleware.security.SecurityMiddleware',
@@ -53,7 +53,6 @@ settings.configure(
         'django.middleware.clickjacking.XFrameOptionsMiddleware',
     ],
     ROOT_URLCONF='unfold_studio.urls',
-    SITE_ID=1,
     TEXT_GENERATION={
         'backend': 'OpenAI',
         'api_key': 'test-key',

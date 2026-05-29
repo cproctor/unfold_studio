@@ -1,4 +1,4 @@
-import { StoryAPI } from './api'
+import { StoryAPI, AuthRequiredError } from './api'
 import { sanitizeStoryText } from './sanitize'
 import type { StoryContent, UnfoldConfig } from './types'
 
@@ -18,6 +18,8 @@ export class InkPlayer {
   private generatePrompt = ''
   private continueFunctionCalled = false
   private inputFunctionCalled = false
+  private pendingInputValue: string | null = null
+  private inputIsAssignmentForm = false
   private currentTargetKnot = ''
   private inputBoxToInsert: HTMLElement | null = null
   private storyPlayInstanceUUID = ''
@@ -57,9 +59,24 @@ export class InkPlayer {
       this.scheduleInputBoxForContinue()
       return ''
     })
-    story.BindExternalFunction('input', (placeholder: unknown = 'Enter text...', variableName: unknown) => {
+    story.BindExternalFunction('input', (placeholder: unknown = 'Enter text...', variableName: unknown = null) => {
+      // Legacy two-arg form: ~ input("prompt", "varName") — set variable directly.
+      if (variableName !== null && variableName !== undefined) {
+        this.inputFunctionCalled = true
+        this.inputIsAssignmentForm = false
+        this.scheduleInputBox(placeholder as string, variableName as string)
+        return ''
+      }
+      // New assignment form: ~ varName = input("prompt")
+      // If we have a pending value, return it so inkjs assigns it to the variable.
+      if (this.pendingInputValue !== null) {
+        const val = this.pendingInputValue
+        this.pendingInputValue = null
+        return val
+      }
       this.inputFunctionCalled = true
-      this.scheduleInputBox(placeholder as string, variableName as string)
+      this.inputIsAssignmentForm = true
+      this.scheduleInputBox(placeholder as string, null)
       return ''
     })
     story.BindExternalFunction('generate', (promptText: unknown) => {
@@ -88,7 +105,19 @@ export class InkPlayer {
     const loadingSpan = `<span id="${nonce}" data-loaded="false">Loading...</span>`
     this.addContent({ text: loadingSpan, tags: [] })
 
-    const data = await this.api.generate(promptText, [], this.aiSeed)
+    let data: { result: string }
+    try {
+      data = await this.api.generate(promptText, [], this.aiSeed)
+    } catch (err) {
+      const el = document.getElementById(nonce)
+      if (el) el.remove()
+      if (err instanceof AuthRequiredError) {
+        this.reportError('Sign in to use AI features in this story.')
+      } else {
+        this.reportError(err instanceof Error ? err.message : String(err))
+      }
+      return
+    }
 
     const el = document.getElementById(nonce)
     if (el) {
@@ -101,18 +130,31 @@ export class InkPlayer {
     this.generateInProgress = false
   }
 
+  private static readonly MAX_STEPS = 5000
+
   async continueStory(): Promise<void> {
     const storyPlayInstanceUUID = this.getStoryPlayInstanceUUID()
     this.renderWillStart()
     if (!this.running || !this.story) return
 
     this.story.state.context = []
+    let steps = 0
     while (this.story.canContinue) {
+      if (++steps > InkPlayer.MAX_STEPS) {
+        this.reportError('Possible infinite loop: the story ran more than 5000 steps without reaching a choice or end.')
+        return
+      }
       try {
+        const stateBefore = this.story.state.ToJson()
         const text = this.story.Continue()
         const tags = this.story.currentTags.slice()
         const content = { text, tags }
         if (this.inputFunctionCalled) {
+          // Assignment form: roll back story state so the next continueStory() call
+          // re-executes input() and receives pendingInputValue as the return value.
+          if (this.inputIsAssignmentForm) {
+            this.story.state.LoadJson(stateBefore)
+          }
           this.renderScheduledInputBox()
           return
         }
@@ -131,6 +173,7 @@ export class InkPlayer {
         this.createStoryPlayRecord(storyPlayInstanceUUID, 'AUTHORS_TEXT', content)
       } catch (err) {
         this.reportError(err instanceof Error ? err.message : String(err))
+        return
       }
     }
     if (!this.running) return
@@ -165,10 +208,16 @@ export class InkPlayer {
     await this.continueStory()
   }
 
-  private scheduleInputBox(placeholder: string, variableName: string): void {
+  private scheduleInputBox(placeholder: string, variableName: string | null): void {
     const eventHandler = (userInput: string) => {
       this.inputFunctionCalled = false
-      if (this.story) this.story.variablesState[variableName] = userInput
+      if (variableName !== null && this.story) {
+        // Legacy form: set variable directly before continuing
+        this.story.variablesState[variableName] = userInput
+      } else {
+        // Assignment form: store value; next Continue() will return it from input()
+        this.pendingInputValue = userInput
+      }
       this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), 'READERS_ENTERED_TEXT', userInput)
       this.running = true
       void this.continueStory()
@@ -185,6 +234,7 @@ export class InkPlayer {
   }
 
   private createInputForm(formType: string, eventHandler: (input: string) => void, placeholder: string, variableName: string | null = null): HTMLElement {
+    // variableName is informational only (recorded in play log); null for assignment form
     const formContainer = document.createElement('div')
     formContainer.classList.add('input-container')
 
@@ -221,7 +271,23 @@ export class InkPlayer {
 
   private async handleUserInputForContinue(userInput: string): Promise<void> {
     const targetKnotName = this.currentTargetKnot
-    const response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotName, this.aiSeed)
+    const loadingEl = document.createElement('p')
+    loadingEl.classList.add('continue-loading', 'story-content')
+    loadingEl.textContent = 'Continuing…'
+    this.container.appendChild(loadingEl)
+    let response: Awaited<ReturnType<StoryAPI['getNextDirection']>>
+    try {
+      response = await this.api.getNextDirection(userInput, this.getStoryPlayInstanceUUID(), targetKnotName, this.aiSeed)
+    } catch (err) {
+      loadingEl.remove()
+      if (err instanceof AuthRequiredError) {
+        this.reportError('Sign in to use AI features in this story.')
+      } else {
+        this.reportError(err instanceof Error ? err.message : String(err))
+      }
+      return
+    }
+    loadingEl.remove()
     const nextDirectionJson = response.result
 
     switch (nextDirectionJson.direction) {

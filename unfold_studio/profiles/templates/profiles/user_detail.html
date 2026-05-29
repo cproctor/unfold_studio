@@ -3,6 +3,13 @@
 
 {% block content %}
     <h1>{{profile_user.username}}</h1>
+    {% if profile_user.profile.profile_story %}
+    <div class="profile-story">
+        <h2>{{ profile_user.profile.profile_story.title }}</h2>
+        <p><em>{{ profile_user.profile.profile_story.description }}</em></p>
+        <p><a href="{% url 'show_story' profile_user.profile.profile_story.id %}">Read this story &rarr;</a></p>
+    </div>
+    {% endif %}
     {% if user.is_authenticated %}
         {% if profile_user.profile in user.profile.following.all %}
             You follow {{profile_user.username}}. 

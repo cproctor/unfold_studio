@@ -47,10 +47,9 @@ This is the final knot text.
 -> DONE
 '''
 
-def create_continue_story(user, site):
+def create_continue_story(user):
     story_id = create_story(
         user=user,
-        site=site,
         story_id=STORY_ID,
         title=STORY_TITLE,
         ink_content=STORY_TEMPLATE,

@@ -106,6 +106,12 @@ class OpenAIBackend(TextGenerationBackendInterface):
             log.error("Error calling OpenAI", error=str(err))
             return "...error generating text..."
 
+    def is_generate_cached(self, prompt, context_array, seed):
+        messages = self._get_messages_for_generate(prompt, context_array)
+        messages_hash = self._get_messages_hash(messages)
+        backend_config_hash = self._get_backend_config_hash()
+        return bool(self._get_cached_response(seed, messages_hash, backend_config_hash))
+
     def generate(self, prompt, context_array, seed, hit_cache=True):
         messages = self._get_messages_for_generate(prompt, context_array)
         return self._create_chat_completion(
@@ -113,6 +119,15 @@ class OpenAIBackend(TextGenerationBackendInterface):
             seed=seed,
             hit_cache=hit_cache
         )
+
+    def is_direction_cached(self, system_prompt, user_prompt, seed):
+        messages = [
+            {"role": "system", "content": system_prompt},
+            {"role": "user", "content": user_prompt}
+        ]
+        messages_hash = self._get_messages_hash(messages)
+        backend_config_hash = self._get_backend_config_hash()
+        return bool(self._get_cached_response(seed, messages_hash, backend_config_hash))
 
     def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed, hit_cache=True, force_json=False):
         messages = [

@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.sites.models import Site
 from django.contrib.auth.models import User
 from django.utils.crypto import get_random_string
 from commons.base.models import SoftDeleteMixin
@@ -12,7 +11,6 @@ class LiteracyGroup(SoftDeleteMixin):
     name = models.TextField()
     members = models.ManyToManyField(User, related_name="literacy_groups")
     leaders = models.ManyToManyField(User, related_name="literacy_groups_leading")
-    site = models.ForeignKey(Site, on_delete=models.CASCADE)
     join_code = models.TextField()
 
     def __str__(self):

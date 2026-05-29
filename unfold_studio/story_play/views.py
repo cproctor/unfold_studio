@@ -15,7 +15,7 @@ class CreateStoryPlayInstanceView(CreateView):
 
         # Story must be publicly playable; record authenticated user if present.
         story = get_object_or_404(Story, pk=story_id)
-        if not story.public and not story.shared:
+        if not story.shared:
             return JsonResponse({"error": "Story is not available for play"}, status=403)
 
         user = request.user if request.user.is_authenticated else None

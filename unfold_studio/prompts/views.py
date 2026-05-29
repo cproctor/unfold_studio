@@ -228,7 +228,6 @@ class PublishAsBookView(LiteracyGroupContextMixin, SingleObjectMixin, View):
             title="Submissions to {}".format(prompt.name),
             description=book_desc
         )
-        book.sites.add(prompt.literacy_group.site)
         prompt.book = book
         prompt.save()
         for story in prompt.submissions.all():

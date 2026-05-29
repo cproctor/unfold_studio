@@ -12,11 +12,10 @@ import os
 from pathlib import Path
 from unfold_studio.logger import *
 
-SITE_ID = 1
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_URL = 'http://local.unfoldstudio.net:8000'
+SITE_NAME = 'Unfold Studio'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 # In production, set the SECRET_KEY environment variable. The fallback is for
@@ -41,7 +40,6 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.sites',
     'storages',
     'debug_toolbar',
     'django_extensions',
@@ -138,6 +136,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
+USE_TZ = True
 USE_I18N = True
 USE_L10N = True
 
@@ -164,6 +163,10 @@ PASSWORD_TOKEN_MAX_AGE = 60 * 60 * 24
 EMAIL_SENDER = 'unfold@chrisproctor.net'
 EMAIL_SUBJECT_PREFIX = '[UNFOLD STUDIO] '
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Admins receive error emails in production. Set ADMIN_EMAIL env var on the server.
+_admin_email = os.environ.get('ADMIN_EMAIL', '')
+ADMINS = [('Unfold Studio Admin', _admin_email)] if _admin_email else []
 
 DEFAULT_AI_SEED = 45
 
@@ -210,9 +213,22 @@ ENABLE_ANALYTICS = True
 ANALYTICS_URL = "//analytics.unfoldstudio.net/"
 ANALYTICS_SITE_ID = "2"
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY =''
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = ''
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = ''
 SOCIAL_AUTH_POSTGRES_JSONFIELD = True
+
+SOCIAL_AUTH_PIPELINE = (
+    'social_core.pipeline.social_auth.social_details',
+    'social_core.pipeline.social_auth.social_uid',
+    'social_core.pipeline.social_auth.auth_allowed',
+    'social_core.pipeline.social_auth.social_user',
+    'social_core.pipeline.user.get_username',
+    'profiles.pipeline.sanitize_username',
+    'social_core.pipeline.user.create_user',
+    'social_core.pipeline.social_auth.associate_user',
+    'social_core.pipeline.social_auth.load_extra_data',
+    'social_core.pipeline.user.user_details',
+)
 
 SEARCH_RANK_CUTOFF = 0.01
 

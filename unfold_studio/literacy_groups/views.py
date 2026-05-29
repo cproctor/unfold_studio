@@ -4,7 +4,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView, UpdateView
-from django.contrib.sites.shortcuts import get_current_site
 from literacy_groups.models import LiteracyGroup, JoinCode
 from literacy_groups.forms import LiteracyGroupForm
 from literacy_events.models import LiteracyEvent
@@ -24,7 +23,7 @@ class ListGroupsView(LoginRequiredMixin, ListView):
     template_name = 'literacy_groups/list_groups.html'
 
     def get_queryset(self):
-        qs = self.request.user.literacy_groups.filter(site=get_current_site(self.request))
+        qs = self.request.user.literacy_groups.all()
         qs = qs.order_by('name')
         return qs
 
@@ -42,7 +41,7 @@ class CreateGroupView(LoginRequiredMixin, CreateView):
             messages.warning(request, "Only teachers can create groups. Please contact chris@unfoldstudio.net if you would like to be upgraded to teacher role.")
             return redirect('list_groups')
             
-        group = LiteracyGroup(site=get_current_site(request))
+        group = LiteracyGroup()
         form = self.get_form_class()(request.POST, instance=group)
         if form.is_valid():
             group = form.save()
@@ -64,7 +63,7 @@ class UpdateGroupView(LiteracyGroupContextMixin, UpdateView):
         return context
 
     def get_queryset(self):
-        return LiteracyGroup.objects.filter(site=get_current_site(self.request))
+        return LiteracyGroup.objects.filter(deleted=False)
 
     def get_success_url(self):
         return reverse('show_group', args=(self.group.id,))
@@ -81,7 +80,7 @@ class ShowGroupView(LiteracyGroupContextMixin, DetailView):
         return context
 
     def get_queryset(self):
-        return LiteracyGroup.objects.filter(site=get_current_site(self.request))
+        return LiteracyGroup.objects.filter(deleted=False)
 
     def get_template_names(self):
         if self.user_is_member:
@@ -104,7 +103,7 @@ class InviteToGroupView(LiteracyGroupContextMixin, DetailView):
         return context
 
     def get_queryset(self):
-        return LiteracyGroup.objects.filter(site=get_current_site(self.request))
+        return LiteracyGroup.objects.filter(deleted=False)
 
 class ChangeGroupInviteView(LiteracyGroupContextMixin, View):
     url_group_key = "pk"

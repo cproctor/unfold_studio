@@ -86,10 +86,15 @@ LOGGING = {
             "backupCount": 30,
             "formatter": "json_formatter"
         },
+        "mail_admins": {
+            "level": "ERROR",
+            "class": "django.utils.log.AdminEmailHandler",
+            "include_html": True,
+        },
     },
     "loggers": {
         "django": {
-            "handlers": ["django_logs", "console", "error_logs"],
+            "handlers": ["django_logs", "console", "error_logs", "mail_admins"],
             "level": "DEBUG",
             "propagate": False
         },

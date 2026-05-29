@@ -1,0 +1,18 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<h1>Edit Profile</h1>
+<form method="post">
+    {% csrf_token %}
+    <div>
+        <label for="{{ form.profile_story.id_for_label }}">Profile story:</label>
+        {{ form.profile_story }}
+        <p style="font-size: 0.9em; color: #666;">This story will appear on your profile page for visitors to read.</p>
+        {% if form.profile_story.errors %}
+        <ul class="errorlist">{% for e in form.profile_story.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+        {% endif %}
+    </div>
+    <input type="submit" value="Save">
+    <a href="{% url 'show_self' %}">Cancel</a>
+</form>
+{% endblock %}

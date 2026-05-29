@@ -1,32 +1,216 @@
 {% extends 'base/base.html' %}
 
-{% block content %}
-    <form action="{% url 'list_stories' %}" method="get">
-        {{form}}
-        <input type="submit" value="Search">
-    </form>
-    {% if stories %}
-        {% if form.is_bound %}
-            <h2>Search results</h2>
-        {% else %}
-            <h2>All stories</h2>
-        {% endif %}
+{% block style %}
+<style>
+.page-browse-title { margin-top: 0; }
+.page-browse-layout {
+    display: grid;
+    grid-template-columns: 210px 1fr;
+    gap: 20px;
+    align-items: start;
+}
+@media (max-width: 820px) {
+    .page-browse-layout { grid-template-columns: 1fr; }
+}
+.page-browse-sidebar {
+    border: 1px solid #d9d9d9;
+    border-radius: 12px;
+    padding: 14px;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+}
+.page-browse-sidebar h3 {
+    font-size: 0.8rem;
+    margin: 0 0 12px;
+    font-weight: 700;
+}
+.page-browse-sidebar .page-browse-sort {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #d9d9d9;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-bottom: 14px;
+}
+.page-browse-sidebar .page-browse-sort a {
+    padding: 8px 12px;
+    text-decoration: none;
+    color: #111;
+    font-weight: 600;
+    font-size: 0.85rem;
+    background: #fff;
+    border-bottom: 1px solid #d9d9d9;
+}
+.page-browse-sidebar .page-browse-sort a:last-child { border-bottom: 0; }
+.page-browse-sidebar .page-browse-sort a.is-active { background: #444; color: #fff; }
+.page-browse-genres-label {
+    display: block;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: #666;
+    margin-bottom: 6px;
+}
+.page-browse-genre-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.page-browse-genre-chips a {
+    font-size: 0.76rem;
+    padding: 5px 10px;
+    border-radius: 999px;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    text-decoration: none;
+    color: #111;
+}
+.page-browse-genre-chips a.is-active { background: #e7f0ff; border-color: #74b0ff; color: #003d82; }
+.page-browse-main { min-width: 0; }
+.page-browse-search-note { margin-bottom: 12px; font-size: 0.9rem; color: #666; }
+.page-browse-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 16px;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.page-browse-pagination { margin-bottom: 14px; font-size: 0.85rem; }
+.page-browse-topbar {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin: 10px 0 14px;
+}
+.page-browse-topbar__search {
+    flex: 1;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    min-width: 0;
+}
+.page-browse-topbar__search input[type="text"] {
+    flex: 1;
+    min-width: 0;
+    padding: 10px 12px;
+    border: 1px solid #d9d9d9;
+    border-radius: 10px;
+    font-size: 0.95rem;
+}
+.page-browse-topbar__search button {
+    padding: 10px 12px;
+    border: 1px solid #d9d9d9;
+    background: #fff;
+    border-radius: 10px;
+    font-weight: 700;
+}
+.page-browse-topbar__tabs {
+    display: inline-flex;
+    border: 1px solid #d9d9d9;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #fff;
+}
+.page-browse-topbar__tabs a {
+    padding: 10px 14px;
+    text-decoration: none;
+    color: #111;
+    font-weight: 800;
+    border-right: 1px solid #d9d9d9;
+    background: #fff;
+}
+.page-browse-topbar__tabs a:last-child { border-right: 0; }
+.page-browse-topbar__tabs a.is-active { background: #111; color: #fff; }
+@media (max-width: 820px) {
+    .page-browse-topbar { flex-direction: column; align-items: stretch; }
+}
+</style>
+{% endblock %}
 
-        <div class="description">
-            Page {{stories.number}} of {{stories.paginator.num_pages}}
-            {% if stories.has_previous %}
-                [<a href="?{{form.querystring}}&page={{stories.previous_page_number}}">Previous</a>]
+{% block content %}
+    <div class="page-browse">
+    {% if form.is_bound %}
+        <h1 class="page-browse-title">Search results</h1>
+    {% else %}
+        <h1 class="page-browse-title">Browse stories</h1>
+    {% endif %}
+
+    <div class="page-browse-topbar" aria-label="Search and quick filters">
+        <form class="page-browse-topbar__search" method="get" action="{% url 'list_stories' %}">
+            {% if current_genre and current_genre != 'all' %}
+                <input type="hidden" name="genre" value="{{ current_genre }}" />
             {% endif %}
-            {% if stories.has_next %}
-                [<a href="?{{form.querystring}}&page={{stories.next_page_number}}">Next</a>]
+            {% if current_sort and current_sort != 'all' %}
+                <input type="hidden" name="sort" value="{{ current_sort }}" />
+            {% endif %}
+            <input
+                type="text"
+                name="query"
+                value="{{ search_value|default_if_none:'' }}"
+                placeholder="Search stories by title, author, or keywords…"
+                aria-label="Search stories"
+            />
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if has_search_query %}
+    <p class="page-browse-search-note">Sorted by search relevance.</p>
+    {% endif %}
+
+    <div class="page-browse-layout">
+        <aside class="page-browse-sidebar" aria-label="Refine list">
+            <h3>Refine</h3>
+            <div>
+                <span class="page-browse-genres-label" id="browse-genre-label">Genre</span>
+                <div class="page-browse-genre-chips" aria-labelledby="browse-genre-label">
+                    {% for g in genre_links %}
+                    <a href="{% url 'list_stories' %}?{{ g.qs }}" class="{% if current_genre == g.slug %}is-active{% endif %}">{{ g.label }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+        </aside>
+
+        <div class="page-browse-main">
+            {% if stories.paginator.count %}
+            <section aria-label="Story list">
+                <div class="description page-browse-pagination">
+                    Page {{ stories.number }} of {{ stories.paginator.num_pages }}
+                    {% if stories.has_previous %}
+                        [<a href="{% url 'list_stories' %}?{% if browse_querystring %}{{ browse_querystring }}&amp;{% endif %}page={{ stories.previous_page_number }}">Previous</a>]
+                    {% endif %}
+                    {% if stories.has_next %}
+                        [<a href="{% url 'list_stories' %}?{% if browse_querystring %}{{ browse_querystring }}&amp;{% endif %}page={{ stories.next_page_number }}">Next</a>]
+                    {% endif %}
+                </div>
+                <ul class="page-browse-grid">
+                {% for story in stories %}
+                    <li>
+                        <a class="story-card" href="{% url 'show_story' story.id %}">
+                            <div class="story-card__body">
+                                <div class="story-card__body-main">
+                                    {% if browse_mode_badge %}
+                                    <span class="story-card__badge">{{ browse_mode_badge }}</span>
+                                    {% endif %}
+                                    <p class="story-card__title">{{ story.title }}</p>
+                                    <p class="story-card__desc">{{ story.description }}</p>
+                                    {% if story.author %}
+                                    <div class="story-card__meta">
+                                        <span class="story-card__author"><strong>By</strong> {{ story.author.username }}</span>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="story-card__reveal" aria-hidden="true">
+                                <p class="story-card__preview">{{ story.hover_preview }}</p>
+                                <p class="story-card__hint">Public story</p>
+                            </div>
+                        </a>
+                    </li>
+                {% endfor %}
+                </ul>
+            </section>
+            {% else %}
+            <h2>Sorry, no stories were found.</h2>
             {% endif %}
         </div>
-        <ul>
-        {% for story in stories %}
-            <li>{% include 'unfold_studio/story.html'%}</li>
-        {% endfor %}
-        </ul>
-    {% else %}
-        <h2>Sorry, no stories were found.</h2>
-    {% endif %}
+    </div>
+</div>
 {% endblock %}

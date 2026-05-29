@@ -1,5 +1,12 @@
 import type { UnfoldConfig } from './types'
 
+export class AuthRequiredError extends Error {
+  constructor(message: string) {
+    super(message)
+    this.name = 'AuthRequiredError'
+  }
+}
+
 export class StoryAPI {
   private csrfToken: string
   private urls: UnfoldConfig['urls']
@@ -46,6 +53,7 @@ export class StoryAPI {
       headers: this.headers(),
       body: JSON.stringify({ prompt: promptText, context_array: contextArray, ai_seed: aiSeed }),
     })
+    if (res.status === 401) throw new AuthRequiredError('Sign in to use AI features.')
     if (!res.ok) throw new Error(`Generate failed: ${res.status}`)
     return res.json()
   }
@@ -56,6 +64,7 @@ export class StoryAPI {
       headers: this.headers(),
       body: JSON.stringify({ user_input: userInput, story_play_instance_uuid: storyPlayInstanceUUID, target_knot_name: targetKnotName, ai_seed: aiSeed }),
     })
+    if (res.status === 401) throw new AuthRequiredError('Sign in to use AI features.')
     if (!res.ok) throw new Error(`GetNextDirection failed: ${res.status}`)
     return res.json()
   }

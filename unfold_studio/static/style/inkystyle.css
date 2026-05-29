@@ -39,3 +39,17 @@ a:hover {
 #player p.error {
     opacity: 1;
 }
+
+.scrollContainer {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.innerText {
+    padding: 10px 20px 50px 20px;
+}
+
+.continue-loading {
+    color: #888;
+    font-style: italic;
+}

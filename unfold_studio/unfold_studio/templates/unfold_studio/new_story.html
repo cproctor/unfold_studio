@@ -36,14 +36,22 @@
     <form action="{% url 'new_story' %}" method="POST" class="new_story_form">
         {% csrf_token %}
 
+        {% if form.non_field_errors %}
+        <ul class="errorlist">
+            {% for error in form.non_field_errors %}<li>{{ error }}</li>{% endfor %}
+        </ul>
+        {% endif %}
+
         <div>
             <label for="{{ form.title.id_for_label }}">Title:</label>
-            <input type="text" name="title" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default_if_none:'' }}">
+            <input type="text" name="title" id="{{ form.title.id_for_label }}" value="{{ form.title.value|default_if_none:'' }}" required>
+            {% if form.title.errors %}<ul class="errorlist">{% for e in form.title.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
         </div>
 
         <div>
             <label for="{{ form.description.id_for_label }}">Description:</label>
             <textarea name="description" id="{{ form.description.id_for_label }}" rows="4" cols="40" style="resize: vertical;">{{ form.description.value|default_if_none:'' }}</textarea>
+            {% if form.description.errors %}<ul class="errorlist">{% for e in form.description.errors %}<li>{{ e }}</li>{% endfor %}</ul>{% endif %}
         </div>
 
         <div>

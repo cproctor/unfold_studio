@@ -15,7 +15,7 @@ class StoryMixin:
         storyId = story_id or self.kwargs.get(self.story_url_kwarg)
         queryset = queryset or Story.objects
 
-        access_allowed = Q(public=True)
+        access_allowed = Q(pk__isnull=True)
         if self.request.user.is_authenticated:
             access_allowed |= Q(author=self.request.user)
         if not to_edit:

@@ -407,3 +407,149 @@ form button[type="submit"]:hover {
     width: auto;
     margin-top: 0;
 }
+
+/* Story cards (featured home + browse): full-card hover overlay */
+.story-card {
+    position: relative;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid #d9d9d9;
+    border-radius: 12px;
+    background: #fff;
+    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+    min-height: 220px;
+    box-sizing: border-box;
+}
+
+.story-card:hover,
+.story-card:focus-visible {
+    text-decoration: none;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.1);
+}
+
+.story-card__body {
+    position: relative;
+    z-index: 1;
+    min-height: 220px;
+    padding: 14px 16px 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+}
+
+.story-card__badge {
+    display: inline-block;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: #111;
+    background: #f4f4f4;
+    border: 1px solid #d9d9d9;
+    padding: 4px 8px;
+    border-radius: 4px;
+    margin-bottom: 8px;
+    align-self: flex-start;
+}
+
+.story-card__body-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.story-card:hover .story-card__body-main,
+.story-card:focus-within .story-card__body-main {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.story-card__title {
+    margin: 0 0 10px;
+    font-size: 1.22rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.story-card__desc {
+    margin: 0 0 12px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    color: #444;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.story-card__meta {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid #d9d9d9;
+    font-size: 0.78rem;
+    color: #666;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 10px;
+}
+
+.story-card__author {
+    margin-left: auto;
+    text-align: right;
+}
+
+.story-card__meta strong {
+    color: #111;
+    font-weight: 600;
+}
+
+.story-card__reveal {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+    padding: 16px;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(
+        to top,
+        rgba(0, 0, 0, 0.94) 0%,
+        rgba(0, 0, 0, 0.72) 45%,
+        rgba(0, 0, 0, 0.22) 100%
+    );
+    color: #f1f3f5;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.22s ease, visibility 0.22s ease;
+    pointer-events: none;
+}
+
+.story-card:hover .story-card__reveal,
+.story-card:focus-within .story-card__reveal {
+    opacity: 1;
+    visibility: visible;
+}
+
+.story-card__preview {
+    margin: 0;
+    font-size: 0.82rem;
+    line-height: 1.55;
+    color: rgba(255, 255, 255, 0.92);
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    white-space: pre-line;
+}
+
+.story-card__hint {
+    margin: 12px 0 0;
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.5);
+}

@@ -2,7 +2,14 @@
 {% load static %}
 
 {% block content %}
-    <h1>{{user}}</h1>
+    <h1>{{user}} [<a href="{% url 'edit_profile' %}">Edit profile</a>]</h1>
+    {% if user.profile.profile_story %}
+    <div class="profile-story">
+        <h2>{{ user.profile.profile_story.title }}</h2>
+        <p><em>{{ user.profile.profile_story.description }}</em></p>
+        <p><a href="{% url 'show_story' user.profile.profile_story.id %}">Read this story &rarr;</a></p>
+    </div>
+    {% endif %}
     {% if unsubmitted_prompts > 0 %}
         <h2>To Do</h2>
         <ul>

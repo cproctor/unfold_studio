@@ -18,7 +18,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         props = lambda s: (s.id, s.title, 
             s.author.username if s.author else "", s.priority, s.score(), 
-            s.age_in_hours(), int(s.shared or s.public), s.loves.count(), s.books.count(), 
+            s.age_in_hours(), int(s.shared), s.loves.count(), s.books.count(),
             s.children.filter(~Q(author=s.author)).count(), s.includes.count(),
             s.included_by.count(), int(s.errors.exists()), int(s.featured))
         zerosToDots = lambda v: '.' if v == 0 else v

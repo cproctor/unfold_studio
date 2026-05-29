@@ -7,8 +7,8 @@ from stories.models import Story
 
 class Command(BaseCommand):
     help = (
-        "Hard-deletes public (anonymous) stories older than PUBLIC_STORY_MAX_AGE_DAYS days. "
-        "Public stories are ephemeral by design and not subject to soft-delete."
+        "Hard-deletes anonymous (author-less) stories older than PUBLIC_STORY_MAX_AGE_DAYS days. "
+        "Anonymous stories are ephemeral by design and not subject to soft-delete."
     )
 
     def add_arguments(self, parser):
@@ -29,7 +29,6 @@ class Command(BaseCommand):
         cutoff = timezone.now() - timedelta(days=max_age_days)
 
         qs = Story.all_objects.filter(
-            public=True,
             author__isnull=True,
             edit_date__lt=cutoff,
         )
@@ -37,11 +36,11 @@ class Command(BaseCommand):
 
         if options["dry_run"]:
             self.stdout.write(
-                f"Dry run: {count} public story/stories older than {max_age_days} days would be deleted."
+                f"Dry run: {count} anonymous story/stories older than {max_age_days} days would be deleted."
             )
             return
 
         qs.delete()
         self.stdout.write(
-            self.style.SUCCESS(f"Deleted {count} public story/stories older than {max_age_days} days.")
+            self.style.SUCCESS(f"Deleted {count} anonymous story/stories older than {max_age_days} days.")
         )

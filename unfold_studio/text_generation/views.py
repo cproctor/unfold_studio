@@ -31,6 +31,9 @@ class GenerateTextView(BaseView):
 
             backend = get_llm_backend()
 
+            if not backend.is_generate_cached(prompt, context_array, seed) and not request.user.is_authenticated:
+                return JsonResponse({"error": "Authentication required for uncached AI generation."}, status=401)
+
             result = backend.generate(
                 prompt=prompt,
                 context_array=context_array,
@@ -162,6 +165,11 @@ class GetNextDirectionView(BaseView):
             story_id = UnfoldStudioService.get_story_id_from_play_instance_uuid(story_play_instance_uuid)
             target_knot_data = UnfoldStudioService.get_knot_data(story_id, target_knot_name)
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
+
+            backend = get_llm_backend()
+            system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_play_history, user_input)
+            if not backend.is_direction_cached(system_prompt, user_prompt, seed) and not request.user.is_authenticated:
+                return JsonResponse({"error": "Authentication required for uncached AI generation."}, status=401)
 
             direction, content = self.get_next_direction_details_for_story(target_knot_data, story_play_history, user_input, seed)
 

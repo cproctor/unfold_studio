@@ -1,8 +1,6 @@
 from django.db import models
 from django.db.models import Q, OuterRef, Subquery
 from django.contrib.auth.models import User
-from django.contrib.sites.models import Site
-from django.contrib.sites.shortcuts import get_current_site
 from profiles.models import Profile
 from literacy_groups.models import LiteracyGroup
 import reversion
@@ -38,49 +36,32 @@ class StoryManager(SoftDeleteManager):
     def for_request(self, request):
         "Returns stories which are visible to the current request"
         user = request.user
-        site = get_current_site(request)
         if user.is_authenticated:
-            return self.for_site_user(site, user)
+            return self.for_user(user)
         else:
-            return self.for_site_anonymous_user(site)
+            return self.for_anonymous_user()
 
-    def for_site_user(self, site, user):
+    def for_user(self, user):
         literacy_groups = LiteracyGroup.objects.filter(leaders=user)
         return self.filter(
-            Q(sites=site),
             Q(author=user) |
             Q(shared=True) |
-            Q(public=True) |
             Q(prompts_submitted__literacy_group=Subquery(literacy_groups.values('id')))
         ).distinct()
 
-    def for_site_anonymous_user(self, site):
-        return self.filter(
-            Q(sites=site),
-            Q(public=True) |
-            Q(shared=True)
-        )
+    def for_anonymous_user(self):
+        return self.filter(shared=True)
 
     def editable_for_request(self, request):
         "Returns stories which are editable by the current request"
         user = request.user
-        site = get_current_site(request)
         if user.is_authenticated:
-            return self.editable_for_site_user(site, user)
+            return self.editable_for_user(user)
         else:
-            return self.editable_for_site_anonymous_user(site)
+            return self.none()
 
-    def editable_for_site_user(self, site, user):
-        return self.filter(
-            Q(sites=site),
-            Q(author=user)
-        )
-
-    def editable_for_site_anonymous_user(self, site):
-        return self.filter(
-            Q(sites=site),
-            Q(public=True)
-        )
+    def editable_for_user(self, user):
+        return self.filter(author=user)
 
     def get_for_request_or_404(self, request, **kwargs):
         try:
@@ -107,14 +88,12 @@ class Story(SoftDeleteMixin):
     ink = models.TextField(blank=True)
     json = models.TextField(null=True, blank=True)
     shared = models.BooleanField(default=False)
-    public = models.BooleanField(default=False)
     featured = models.BooleanField(default=False)
     loves = models.ManyToManyField(Profile, related_name="loved_stories", blank=True)
     parent = models.ForeignKey("unfold_studio.Story", related_name="children",
             null=True, blank=True, on_delete=models.SET_NULL)
     includes = models.ManyToManyField("unfold_studio.Story", related_name="included_by", blank=True)
     priority = models.FloatField(default=0)
-    sites = models.ManyToManyField(Site)
     search = SearchVectorField(null=True)
     description = models.CharField(max_length=512)
     genres = models.JSONField(default=list, blank=True)
@@ -123,7 +102,7 @@ class Story(SoftDeleteMixin):
 
     def visible_to_user(self, user):
         return (
-            self.public or self.shared or user == self.author or
+            self.shared or user == self.author or
             self.prompts_submitted.filter(literacy_group__leaders=user).exists()
         )
 
@@ -179,7 +158,7 @@ class Story(SoftDeleteMixin):
         "Returns a story's inclusions, variables and knots, ready to include in another story"
         try:
             pk = int(includeKey)
-            story = Story.objects.get(Q(public=True) | Q(shared=True), pk=pk)
+            story = Story.objects.get(Q(shared=True), pk=pk)
         except ValueError:
             raise Story.PreprocessingError(
                 StoryError.ErrorTypes.PREPROCESS_INCLUDE_BAD_KEY, line=line_number,

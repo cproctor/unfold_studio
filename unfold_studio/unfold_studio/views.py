@@ -3,7 +3,6 @@ from django.http import HttpResponse
 from django.conf import settings as s
 from django.contrib.auth import login
 from django.contrib import messages
-from django.contrib.sites.shortcuts import get_current_site
 from django.db.models import Q, F
 from django.db import OperationalError, transaction
 from django.core.paginator import Paginator
@@ -25,14 +24,13 @@ def u(request):
 
 def home(request):
     "The homepage shows a subset of stories with the highest priority."
-    site = get_current_site(request)
     if request.user.is_authenticated:
         for g in request.user.groups.filter(id__in=s.GROUP_HOMEPAGE_MESSAGES.keys()).all():
             messages.warning(request, s.GROUP_HOMEPAGE_MESSAGES[g.id])
-        stories = Story.objects.for_site_user(site, request.user)
+        stories = Story.objects.for_user(request.user)
         stories = stories.select_related('author').prefetch_related('loves')
     else:
-        stories = Story.objects.for_site_anonymous_user(site)
+        stories = Story.objects.for_anonymous_user()
 
     stories = stories[:s.STORIES_ON_HOMEPAGE]
     return render(request, 'unfold_studio/home.html', {'stories': stories})
@@ -40,11 +38,10 @@ def home(request):
 
 def browse(request):
     "Shows all stories, sorted by priority."
-    site = get_current_site(request)
     if request.user.is_authenticated:
-        stories = Story.objects.for_site_user(site, request.user)
+        stories = Story.objects.for_user(request.user)
     else:
-        stories = Story.objects.for_site_anonymous_user(site)
+        stories = Story.objects.for_anonymous_user()
 
     if request.GET.get('query'):
         form = SearchForm(request.GET)

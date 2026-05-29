@@ -18,9 +18,7 @@
 {% block content %}
 <h2 class="story-title">{{story.title}}</h2>
 <div class="description">
-{% if story.public %}
-    Public story.
-{% else %}
+{% if story.author %}
     by <a href="{% url 'show_user' story.author.username %}">{{story.author}}</a>.
 {% endif %}
 {{comment|linkrefs:user}}

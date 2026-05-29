@@ -11,7 +11,6 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib import messages
 from django.db.models import Q
 from django.urls import reverse
-from django.contrib.sites.shortcuts import get_current_site
 from django import forms
 from django.forms import ModelForm
 import structlog
@@ -73,7 +72,6 @@ class CreateBookView(LoginRequiredMixin, CreateView):
             book = form.save(commit=False)
             book.genres = form.cleaned_data.get('genres', [])
             book.save()
-            book.sites.add(get_current_site(request))
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.PUBLISHED_BOOK,
                 subject=request.user,
@@ -90,8 +88,7 @@ class BookListView(ListView):
     model = Book
 
     def get_queryset(self):
-        site = get_current_site(self.request)
-        qs = Book.objects.filter(sites__id=site.id).select_related('owner').prefetch_related('stories')
+        qs = Book.objects.all().select_related('owner').prefetch_related('stories')
         query = self.request.GET.get('query', '').strip()
         if query:
             qs = qs.filter(
@@ -153,7 +150,7 @@ class BookDetailView(DetailView):
     model = Book
 
     def get_queryset(self):
-        return Book.objects.filter(sites__id=get_current_site(self.request).id)
+        return Book.objects.all()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
