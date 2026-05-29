@@ -24,6 +24,11 @@ The platform has two sides:
 It also has classroom and research features: literacy groups (classes/cohorts),
 assignment prompts, reading event logs, and a research data API.
 
+Before diving into the code, spend some time using the app as a writer and reader
+at `unfoldstudio.net <https://unfoldstudio.net>`_. The user-facing documentation
+there — including the Ink language guide — will give you a much clearer picture of
+what the code is actually doing.
+
 Tech Stack Overview
 -------------------
 
