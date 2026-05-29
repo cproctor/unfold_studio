@@ -431,6 +431,7 @@ class Story(SoftDeleteMixin):
     def for_json(self):
         return {
             "id": self.id,
+            "title": self.title,
             "compiled": json.loads(self.json) if self.json else None,
             "ink": self.ink,
             "status": "error" if self.errors.exists() else "ok",

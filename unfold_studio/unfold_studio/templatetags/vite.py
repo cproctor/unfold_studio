@@ -3,7 +3,7 @@ import functools
 from pathlib import Path
 from django import template
 from django.conf import settings
-from django.utils.html import format_html, escapejs
+from django.utils.html import format_html, escapejs, mark_safe
 
 register = template.Library()
 
@@ -30,9 +30,10 @@ def vite_asset(entry: str) -> str:
     if chunk is None:
         return format_html("<!-- vite_asset: {} not in manifest -->", entry)
     file = chunk["file"]
-    tag = format_html('<script type="module" src="{}/{}"></script>', settings.STATIC_URL + "dist/", file)
+    base = settings.STATIC_URL + "dist/"
+    tag = format_html('<script type="module" src="{}{}"></script>', base, file)
     css_tags = "".join(
-        format_html('<link rel="stylesheet" href="{}/{}">',  settings.STATIC_URL + "dist/", css)
+        format_html('<link rel="stylesheet" href="{}{}">',  base, css)
         for css in chunk.get("css", [])
     )
-    return css_tags + tag
+    return mark_safe(css_tags + tag)

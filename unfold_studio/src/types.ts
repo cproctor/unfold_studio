@@ -1,5 +1,6 @@
 export interface StoryContent {
   id: number
+  title?: string
   status: 'ok' | 'error'
   compiled?: string
   errors?: Array<{ line: number | null; message: string }>

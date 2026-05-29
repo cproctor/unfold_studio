@@ -35,6 +35,7 @@ onMounted(async () => {
 
   const story = config.storyJson ?? await fetchStory()
   currentStory = story
+  title.value = story.title ?? ''
   void player.play(story)
 })
 

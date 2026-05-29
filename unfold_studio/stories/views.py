@@ -101,7 +101,7 @@ def compile_story(request, story_id):
 def show_story(request, story_id):
     "Shows a story, using the same view regardless of whether it can be edited by the user"
     story = Story.objects.get_for_request_or_404(request, pk=story_id)
-    editable = int(story.author == request.user or story.public)
+    editable = bool(story.author == request.user or story.public)
     addableBooks = request.user.books.exclude(stories=story) if request.user.is_authenticated else []
     return render(request, 'unfold_studio/show_story.html', {
         'story': story,

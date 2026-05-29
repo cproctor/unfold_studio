@@ -59,7 +59,7 @@ onMounted(async () => {
   const story = config.storyJson ?? await fetchStory()
   currentStory = story
   inkContent.value = story.ink ?? ''
-  showCode.value = config.editable && story.status === 'error'
+  if (story.status === 'error') showCode.value = true
   void player.play(story)
 })
 
