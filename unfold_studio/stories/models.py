@@ -117,6 +117,7 @@ class Story(SoftDeleteMixin):
     sites = models.ManyToManyField(Site)
     search = SearchVectorField(null=True)
     description = models.CharField(max_length=512)
+    genres = models.JSONField(default=list, blank=True)
 
     objects = StoryManager()
 
