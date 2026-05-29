@@ -100,12 +100,7 @@ when you press Control+C. Open http://localhost:8000 in your browser.
 Database
 --------
 
-The app uses `Django's PostgreSQL full-text search
-<https://docs.djangoproject.com/en/stable/ref/contrib/postgres/search/>`_, which
-requires PostgreSQL. SQLite will not work — migrations will fail at the first
-``SearchVectorField``.
-
-You have two options:
+PostgreSQL is required. You have two options:
 
 **Option A — local PostgreSQL (self-contained)**
    Install PostgreSQL on your machine, then create a user and database::
