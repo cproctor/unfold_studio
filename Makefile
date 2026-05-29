@@ -5,7 +5,7 @@ SPHINX = .venv/bin/sphinx-build
 .PHONY: dev build test lint docs
 
 dev:
-	$(MANAGE) runserver & npm --prefix unfold_studio run dev
+	trap 'kill 0' INT; $(MANAGE) runserver & npm --prefix unfold_studio run dev & wait
 
 build:
 	npm --prefix unfold_studio run build
