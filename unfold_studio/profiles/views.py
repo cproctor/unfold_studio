@@ -47,6 +47,7 @@ class UserDetailView(DetailView):
         if not self.object.is_active:
             raise Http404()
         if self.request.user == self.object:
+            context['shared_stories'] = Story.objects.filter(author=self.object, shared=True).order_by('title')
             Notification.objects.mark_all_seen_for_user(self.request.user)
             notifications_raw = Notification.objects.for_request(self.request).prefetch_related(
                 "event__subject", 
@@ -162,6 +163,48 @@ class UnfollowUserView(LoginRequiredMixin, SingleObjectMixin, View):
             log.info(name="Profile Alert", event="Unfollow Request",
                      args={"follower": un(self.request), "following": u.username})
         return redirect('show_user', u)
+
+
+class SelectProfileStoryView(LoginRequiredMixin, View):
+    def get(self, request):
+        shared_stories = Story.objects.filter(author=request.user, shared=True).order_by('title')
+        return render(request, 'profiles/select_profile_story.html', {
+            'shared_stories': shared_stories,
+            'current_story': request.user.profile.profile_story,
+        })
+
+
+class SetProfileStoryView(LoginRequiredMixin, View):
+    def post(self, request):
+        story_id = request.POST.get('story_id')
+        try:
+            story = Story.objects.get(pk=story_id, author=request.user, shared=True)
+            request.user.profile.profile_story = story
+            request.user.profile.save()
+        except Story.DoesNotExist:
+            messages.error(request, 'Story not found.')
+        return redirect('show_self')
+
+
+class ClearProfileStoryView(LoginRequiredMixin, View):
+    def post(self, request):
+        request.user.profile.profile_story = None
+        request.user.profile.save()
+        return redirect('show_self')
+
+
+class UserSettingsView(LoginRequiredMixin, View):
+    def get(self, request):
+        return render(request, 'profiles/settings.html', {
+            'tos_updates': request.user.profile.tos_updates,
+        })
+
+    def post(self, request):
+        profile = request.user.profile
+        profile.tos_updates = 'tos_updates' in request.POST
+        profile.save(update_fields=['tos_updates'])
+        messages.success(request, 'Settings saved.')
+        return redirect('user_settings')
 
 
 class SelfRedirectView(LoginRequiredMixin, View):

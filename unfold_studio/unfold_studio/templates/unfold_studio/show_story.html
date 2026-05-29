@@ -63,20 +63,7 @@
         {% endif %}
     {% endif %}
     {% if addableBooks %}
-        [<form action="{% url 'add_story_to_book' addableBooks.0.id story.id %}" id="add-book-form" method="post" class="link">{% csrf_token %}<input type="submit" value="Add to book"></form>
-         <select id="select-book" onchange="setBook(this)" autocomplete="off">
-            {% for book in addableBooks %}
-                <option value={{book.id}} {% if forloop.first %} selected="selected" {% endif %}>{{book.title}}</option>
-            {% endfor %}
-         </select>]
-        <script type="text/javascript">
-            function setBook(el) {
-                let form = document.getElementById('add-book-form');
-                let urlParts = form.action.split('/');
-                urlParts[4] = el.value;
-                form.action = urlParts.join('/');
-            }
-        </script>
+        [<a href="{% url 'choose_book' story.id %}">Add to book</a>]
     {% endif %}
 {% endif %}
 {% if story.author %}

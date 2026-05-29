@@ -16,6 +16,7 @@ from unfold_studio.logger import *
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 BASE_URL = 'http://local.unfoldstudio.net:8000'
 SITE_NAME = 'Unfold Studio'
+LANDING_PAGE_URL = 'https://unfoldstudio.net'
 SITE_ID = 1
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -210,6 +211,11 @@ BOOK_PRIORITY = {
 DOCUMENTATION_URL = 'http://docs.unfold.studio/'
 HELP_URL = DOCUMENTATION_URL + 'user_guide/index.html'
 TEACHING_URL = DOCUMENTATION_URL + 'teaching/index.html'
+
+DOCS_SITE_URL = 'https://unfoldstudio.net'
+DOCS_URLS = {
+    'student_users': DOCS_SITE_URL + '/user-guide/webapp/#student-account',
+}
 
 ENABLE_ANALYTICS = True
 ANALYTICS_URL = "//analytics.unfoldstudio.net/"

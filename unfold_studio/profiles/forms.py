@@ -15,7 +15,7 @@ class ProfileForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         if user is not None:
             from stories.models import Story
-            self.fields['profile_story'].queryset = Story.objects.filter(author=user)
+            self.fields['profile_story'].queryset = Story.objects.filter(author=user, shared=True)
             self.fields['profile_story'].required = False
             self.fields['profile_story'].empty_label = '(none)'
 

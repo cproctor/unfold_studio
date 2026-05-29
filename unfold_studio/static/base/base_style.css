@@ -29,10 +29,6 @@ body {
     flex-shrink: 0;
 }
 
-#menu.debug {
-    background-color: #8e44ad;
-}
-
 #footer {
     background-color: #444;
     display: flex;
@@ -358,8 +354,8 @@ form.new_story_form > div {
 }
 
 .input-container button,
-form button[type="submit"] {
-    background-color: #8e44ad;
+#container form button[type="submit"] {
+    background-color: #3498db;
     color: white;
     border: none;
     padding: 8px 16px;
@@ -370,7 +366,7 @@ form button[type="submit"] {
 }
 
 .input-container button:hover,
-form button[type="submit"]:hover {
+#container form button[type="submit"]:hover {
     background-color: #2980b9;
 }
 

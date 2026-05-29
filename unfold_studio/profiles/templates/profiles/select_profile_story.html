@@ -1,0 +1,21 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<h1>Select Profile Story</h1>
+<p>Choose one of your shared stories to feature on your profile.</p>
+<form method="post" action="{% url 'set_profile_story' %}">
+    {% csrf_token %}
+    {% for story in shared_stories %}
+    <div>
+        <label>
+            <input type="radio" name="story_id" value="{{ story.id }}" {% if story == current_story %}checked{% endif %}>
+            {{ story.title }}
+        </label>
+    </div>
+    {% endfor %}
+    <p>
+        <input type="submit" value="Save">
+        [<a href="{% url 'show_self' %}">Cancel</a>]
+    </p>
+</form>
+{% endblock %}

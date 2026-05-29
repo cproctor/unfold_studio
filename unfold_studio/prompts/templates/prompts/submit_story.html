@@ -1,0 +1,27 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<h1>Submit a story to "{{ prompt.name }}"</h1>
+<p>{{ prompt.description }}</p>
+<form method="post">
+    {% csrf_token %}
+    {% for story in stories %}
+    <div>
+        <label>
+            <input type="radio" name="story_id" value="{{ story.id }}" {% if forloop.first %}checked{% endif %}>
+            {{ story.title }}
+        </label>
+    </div>
+    {% empty %}
+    <p>You haven't written any stories yet. <a href="{% url 'new_story' %}">Write a story</a> and then come back here to submit it.</p>
+    {% endfor %}
+    {% if stories %}
+    <p>
+        <input type="submit" value="Submit">
+        [<a href="{% url 'show_prompt' group.id prompt.id %}">Cancel</a>]
+    </p>
+    {% else %}
+    <p>[<a href="{% url 'show_prompt' group.id prompt.id %}">Back</a>]</p>
+    {% endif %}
+</form>
+{% endblock %}

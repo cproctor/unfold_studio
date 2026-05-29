@@ -156,6 +156,35 @@ class UpdatePromptView(LiteracyGroupContextMixin, UpdateView):
     def get_success_url(self):
         return reverse('show_prompt', args=(self.group.id, self.get_object().id))
 
+class SubmitStoryView(LiteracyGroupContextMixin, View):
+    def get(self, request, *args, **kwargs):
+        prompt = get_object_or_404(Prompt, pk=kwargs['pk'], literacy_group=self.group, deleted=False)
+        stories = request.user.stories.order_by('title')
+        return render(request, 'prompts/submit_story.html', {
+            'prompt': prompt,
+            'group': self.group,
+            'stories': stories,
+        })
+
+    def post(self, request, *args, **kwargs):
+        prompt = get_object_or_404(Prompt, pk=kwargs['pk'], literacy_group=self.group, deleted=False)
+        story_id = request.POST.get('story_id')
+        story = Story.objects.get_editable_for_request_or_404(request, pk=story_id)
+        PromptStory.objects.create(prompt=prompt, story=story, submitted_story_version=None)
+        log.info(name="Prompt Alert", event="Story Submission",
+                 args={"user": u(request), "story": story, "prompt": prompt})
+        LiteracyEvent.objects.create(
+            event_type=LiteracyEvent.SUBMITTED_TO_PROMPT,
+            subject=request.user,
+            story=story,
+            prompt=prompt,
+            literacy_group=self.group,
+        )
+        if prompt.book:
+            prompt.book.stories.add(story)
+        return redirect('show_prompt', self.group.id, prompt.id)
+
+
 class DeletePromptView(LiteracyGroupContextMixin, SingleObjectMixin, View):
     require_leader = True
 

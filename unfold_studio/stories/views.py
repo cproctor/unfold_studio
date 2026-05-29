@@ -5,6 +5,7 @@ from django.views.generic.detail import SingleObjectMixin, DetailView
 from django.views.generic.list import ListView
 from django.views.generic.edit import CreateView, UpdateView
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.decorators.clickjacking import xframe_options_exempt
 from django.contrib import messages
 from django.urls import reverse
 from django.utils.timezone import now
@@ -57,7 +58,7 @@ def new_story(request):
                 reversion.set_user(story.author)
                 reversion.set_comment("Initial version of @story:{}".format(story.id))
             log.info(name="Application Alert", event="New Story Created", arg={"user": u(request), "story": story.id})
-            return redirect('show_story', story.id)
+            return HttpResponseRedirect(reverse('show_story', args=[story.id]) + '#code')
     else:
         form = StoryForm()
 
@@ -116,12 +117,17 @@ def show_json(request, story_id):
     return JsonResponse(story.for_json())
 
 
+@xframe_options_exempt
 def embed_story(request, story_id):
+    from django.conf import settings
     try:
         story = Story.objects.get(shared=True, pk=story_id)
     except Story.DoesNotExist:
         return render(request, 'unfold_studio/embed_error.html', {'reason': 'not_found'}, status=404)
-    return render(request, 'unfold_studio/embed_story.html', {'story': story})
+    return render(request, 'unfold_studio/embed_story.html', {
+        'story': story,
+        'LANDING_PAGE_URL': settings.LANDING_PAGE_URL,
+    })
 
 
 def compile_story_async(request, story_id):
@@ -400,20 +406,14 @@ class StoryVersionListView(DetailView):
 
 
 class AddStoryToBookView(LoginRequiredMixin, View):
-    """
-    POST /stories/{story_id}/add_to_book/ with body {"book_id": N}
-    Adds the story to the specified book owned by the current user.
-    """
+    def get(self, request, story_id, *args, **kwargs):
+        story = Story.objects.get_for_request_or_404(request, pk=story_id)
+        books = Book.objects.filter(owner=request.user).exclude(stories=story).order_by('title')
+        return render(request, 'unfold_studio/choose_book.html', {'story': story, 'books': books})
 
     def post(self, request, story_id, *args, **kwargs):
-        import json as _json
         story = Story.objects.get_for_request_or_404(request, pk=story_id)
-        try:
-            body = _json.loads(request.body)
-            book_id = body['book_id']
-        except (ValueError, KeyError):
-            from django.http import HttpResponseBadRequest
-            return HttpResponseBadRequest("book_id required")
+        book_id = request.POST.get('book_id')
         try:
             book = Book.objects.get(pk=book_id, owner=request.user)
         except Book.DoesNotExist:
@@ -422,7 +422,7 @@ class AddStoryToBookView(LoginRequiredMixin, View):
             messages.warning(request, "{} is already in {}".format(story.title, book.title))
         else:
             book.stories.add(story)
-            messages.success(request, "You added {}".format(story.title))
+            messages.success(request, "Added {} to {}.".format(story.title, book.title))
             LiteracyEvent.objects.create(
                 event_type=LiteracyEvent.ADDED_STORY_TO_BOOK,
                 subject=request.user,

@@ -28,6 +28,10 @@ urlpatterns = [
     path('users/<slug:slug>/unfollow/', profile_views.UnfollowUserView.as_view(), name="unfollow_user"),
     path('profile/', profile_views.SelfRedirectView.as_view(), name="show_self"),
     path('profile/edit/', profile_views.EditProfileView.as_view(), name="edit_profile"),
+    path('profile/settings/', profile_views.UserSettingsView.as_view(), name="user_settings"),
+    path('profile/story/select/', profile_views.SelectProfileStoryView.as_view(), name="select_profile_story"),
+    path('profile/story/set/', profile_views.SetProfileStoryView.as_view(), name="set_profile_story"),
+    path('profile/story/clear/', profile_views.ClearProfileStoryView.as_view(), name="clear_profile_story"),
 
     path('groups/', literacy_group_views.ListGroupsView.as_view(), name="list_groups"),
     path('groups/new', literacy_group_views.CreateGroupView.as_view(), name="create_group"),
@@ -45,6 +49,8 @@ urlpatterns = [
             name="show_prompt"),
     path('groups/<int:group_pk>/prompts/<int:pk>/edit/', prompt_views.UpdatePromptView.as_view(),
             name="update_prompt"),
+    path('groups/<int:group_pk>/prompts/<int:pk>/submit/', prompt_views.SubmitStoryView.as_view(),
+            name="submit_to_prompt"),
     path('groups/<int:group_pk>/prompts/<int:pk>/clear/', prompt_views.ClearPromptSubmissionView.as_view(),
             name="clear_prompt_submission"),
     path('groups/<int:group_pk>/prompts/<int:pk>/export/', prompt_views.ExportPromptAsCsvView.as_view(),
@@ -74,7 +80,7 @@ urlpatterns = [
     path('stories/<int:pk>/unshare/', story_views.UnshareStoryView.as_view(), name="unshare_story"),
     path('stories/<int:pk>/version/', story_views.NewStoryVersionView.as_view(), name="new_story_version"),
     path('stories/<int:pk>/delete/', story_views.DeleteStoryView.as_view(), name="delete_story"),
-    path('stories/<int:story_id>/add_to_book/', story_views.AddStoryToBookView.as_view(), name="add_story_to_book_direct"),
+    path('stories/<int:story_id>/add_to_book/', story_views.AddStoryToBookView.as_view(), name="choose_book"),
 
     path('books/', book_views.BookListView.as_view(), name='list_books'),
     path('books/new/', book_views.CreateBookView.as_view(), name='create_book'),

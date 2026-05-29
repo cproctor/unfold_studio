@@ -25,6 +25,10 @@ window.__UNFOLD__ = {
     editable: false,
     debugMode: false,
     storyJson: {{ story.for_json|to_json|safe }},
+    storyUrl: "{% url 'show_story' story.id %}",
+    logoUrl: "{% static 'favicon.png' %}",
+    siteUrl: "{{ LANDING_PAGE_URL }}",
+    {% if story.author %}authorUrl: "{% url 'show_user' story.author.username %}",{% endif %}
     urls: {
         json:         "{% url 'show_json' story.id %}",
         playInstance: "{% url 'new_story_play_instance' %}",

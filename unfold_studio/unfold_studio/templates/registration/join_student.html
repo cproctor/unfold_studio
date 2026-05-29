@@ -16,7 +16,33 @@
 {% endblock %}
 
 {% block content %}
-<h1>Join as a Student</h1>
+<h1>Join a Course</h1>
+
+{% if authenticated %}
+<p>Enter the course access code given by your teacher.</p>
+
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-danger">
+    <strong>{{ message }}</strong>
+</div>
+{% endfor %}
+{% endif %}
+
+<div class="messages" style="margin-bottom: 16px;">
+    <p><strong>Before you join:</strong> By joining a course, your teacher will be able to administer your account and see your work. The same conduct expectations that apply in your classroom also apply in Unfold Studio. If you later want to leave the course, your teacher will need to remove you.{% if DOCS_URLS.student_users %} <a href="{{ DOCS_URLS.student_users }}" target="_blank" rel="noopener">Read more about student accounts.</a>{% endif %}</p>
+</div>
+
+<form method="post" action="{% url 'join_student' %}" class="registration-form">
+    {% csrf_token %}
+    <div class="form-group">
+        <label for="id_join_code">Course Access Code:</label>
+        <input type="text" name="join_code" id="id_join_code" value="{{ prefill_code }}" required />
+    </div>
+    <input type="submit" value="Join course" />
+</form>
+
+{% else %}
 <p>Enter the course access code given by your teacher to create your account and join the class.</p>
 
 <div class="registration-container">
@@ -75,10 +101,10 @@
             </div>
             {% endfor %}
 
-            <input type="submit" value="join as student" />
+            <input type="submit" value="Join as student" />
         </form>
 
-        <p style="align-self: center;">Already have an account? <a href="{% url 'login' %}">Log in</a></p>
+        <p style="align-self: center;">Already have an account? <a href="{% url 'login' %}?next={% url 'join_student' %}">Log in</a></p>
         <p style="align-self: center;"><a href="{% url 'signup' %}">Back to sign up</a></p>
     </div>
     <hr>
@@ -90,4 +116,5 @@
         </ul>
     </div>
 </div>
+{% endif %}
 {% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<h1>Add "{{ story.title }}" to a book</h1>
+<form method="post">
+    {% csrf_token %}
+    {% for book in books %}
+    <div>
+        <label>
+            <input type="radio" name="book_id" value="{{ book.id }}" {% if forloop.first %}checked{% endif %}>
+            {{ book.title }}
+        </label>
+    </div>
+    {% empty %}
+    <p>You have no books this story can be added to.</p>
+    {% endfor %}
+    {% if books %}
+    <p>
+        <input type="submit" value="Add to book">
+        [<a href="{% url 'show_story' story.id %}">Cancel</a>]
+    </p>
+    {% else %}
+    <p>[<a href="{% url 'show_story' story.id %}">Back</a>]</p>
+    {% endif %}
+</form>
+{% endblock %}

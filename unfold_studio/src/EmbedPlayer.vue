@@ -1,8 +1,15 @@
 <template>
   <div class="embed-player">
     <header class="embed-header">
-      <a :href="siteUrl" target="_blank" class="embed-logo">unfold.studio</a>
-      <span class="embed-title">{{ title }}</span>
+      <a :href="siteUrl" target="_blank" rel="noopener" class="embed-logo">
+        <img v-if="logoUrl" :src="logoUrl" alt="Unfold Studio" class="embed-logo-img">
+        <span v-else>unfold.studio</span>
+      </a>
+      <div class="embed-meta">
+        <a v-if="storyUrl" :href="storyUrl" target="_blank" rel="noopener" class="embed-title">{{ title }}</a>
+        <span v-else class="embed-title">{{ title }}</span>
+        <span v-if="author" class="embed-byline">by <a v-if="authorUrl" :href="authorUrl" target="_blank" rel="noopener" class="embed-author">{{ author }}</a><span v-else>{{ author }}</span></span>
+      </div>
       <button class="embed-replay" @click="handleReplay">Replay</button>
     </header>
     <div class="embed-content">
@@ -22,8 +29,12 @@ import { InkPlayer } from './player'
 import type { StoryContent, UnfoldConfig } from './types'
 
 const config: UnfoldConfig = window.__UNFOLD__
-const siteUrl = window.location.origin
+const siteUrl = config.siteUrl ?? window.location.origin
+const storyUrl = config.storyUrl ?? null
+const logoUrl = config.logoUrl ?? null
+const authorUrl = config.authorUrl ?? null
 const title = ref('')
+const author = ref('')
 const playerContainer = ref<HTMLElement | null>(null)
 
 let player: InkPlayer | null = null
@@ -36,6 +47,7 @@ onMounted(async () => {
   const story = config.storyJson ?? await fetchStory()
   currentStory = story
   title.value = story.title ?? ''
+  author.value = story.author ?? ''
   void player.play(story)
 })
 
@@ -77,19 +89,55 @@ function handleReplay(): void {
   text-decoration: none;
   font-size: 0.85em;
   opacity: 0.8;
+  flex-shrink: 0;
 }
 
 .embed-logo:hover {
   opacity: 1;
 }
 
-.embed-title {
+.embed-logo-img {
+  height: 20px;
+  width: 20px;
+  display: block;
+}
+
+.embed-meta {
   flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  overflow: hidden;
+}
+
+.embed-title {
   color: white;
   font-size: 0.9em;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+
+.embed-title:hover {
+  text-decoration: underline;
+}
+
+.embed-byline {
+  color: rgba(255,255,255,0.7);
+  font-size: 0.8em;
+  white-space: nowrap;
+}
+
+.embed-author {
+  color: rgba(255,255,255,0.7);
+  text-decoration: none;
+}
+
+.embed-author:hover {
+  color: white;
+  text-decoration: underline;
 }
 
 .embed-replay {

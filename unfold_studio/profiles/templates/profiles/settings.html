@@ -1,0 +1,20 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<h1>Settings</h1>
+
+<h2>Courses</h2>
+<p>[<a href="{% url 'join_student' %}">Join a course with a join code</a>]{% if DOCS_URLS.student_users %} &mdash; <a href="{{ DOCS_URLS.student_users }}" target="_blank" rel="noopener">Read more about student accounts</a>{% endif %}</p>
+
+<h2>Notifications</h2>
+<form method="post">
+    {% csrf_token %}
+    <p>
+        <label>
+            <input type="checkbox" name="tos_updates" {% if tos_updates %}checked{% endif %}>
+            Notify me when the terms of service change
+        </label>
+    </p>
+    <p><input type="submit" value="Save"></p>
+</form>
+{% endblock %}

@@ -90,28 +90,49 @@ def signup(request):
 
 
 def join_student(request):
-    if request.method == 'POST':
-        form = StudentSignUpForm(request.POST)
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    user = form.save()
-                    code_str = request.POST.get('join_code')
-                    try:
-                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
-                        user.literacy_groups.add(join_code.group)
-                        join_code.assigned_user = user
-                        join_code.save()
-                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
-                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                        return redirect('home')
-                    except JoinCode.DoesNotExist:
-                        raise ValueError("Invalid or expired join code.")
-            except ValueError as e:
-                messages.error(request, str(e))
-                return render(request, 'registration/join_student.html', {'form': form})
-    else:
-        form = StudentSignUpForm()
     prefill_code = request.GET.get('code', '')
-    return render(request, 'registration/join_student.html', {'form': form, 'prefill_code': prefill_code})
+    if request.user.is_authenticated:
+        if request.method == 'POST':
+            code_str = request.POST.get('join_code', '').strip()
+            try:
+                join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                if request.user.literacy_groups.filter(pk=join_code.group.pk).exists():
+                    messages.warning(request, "You are already a member of that course.")
+                else:
+                    request.user.literacy_groups.add(join_code.group)
+                    join_code.assigned_user = request.user
+                    join_code.save()
+                    log.info(event="Student Joined Course", arg={"user": request.user.username})
+                    messages.success(request, "You have joined {}.".format(join_code.group.name))
+                return redirect('home')
+            except JoinCode.DoesNotExist:
+                messages.error(request, "Invalid or expired join code.")
+        return render(request, 'registration/join_student.html', {
+            'authenticated': True,
+            'prefill_code': prefill_code,
+        })
+    else:
+        if request.method == 'POST':
+            form = StudentSignUpForm(request.POST)
+            if form.is_valid():
+                try:
+                    with transaction.atomic():
+                        user = form.save()
+                        code_str = request.POST.get('join_code')
+                        try:
+                            join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
+                            user.literacy_groups.add(join_code.group)
+                            join_code.assigned_user = user
+                            join_code.save()
+                            log.info(event="Student Sign Up Successful", arg={"user": user.username})
+                            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+                            return redirect('home')
+                        except JoinCode.DoesNotExist:
+                            raise ValueError("Invalid or expired join code.")
+                except ValueError as e:
+                    messages.error(request, str(e))
+                    return render(request, 'registration/join_student.html', {'form': form, 'prefill_code': prefill_code})
+        else:
+            form = StudentSignUpForm()
+        return render(request, 'registration/join_student.html', {'form': form, 'prefill_code': prefill_code})
 

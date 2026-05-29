@@ -1,6 +1,6 @@
 {% load static %}
 
-<div id="menu" {% if DEBUG %} class="debug" {% endif %}>
+<div id="menu">
     <div class="menu-item menu-item-logo">
         <a href="{% url 'home' %}"><img class="logo" src="{% static 'favicon.png' %}" /></a>
     </div>
@@ -16,13 +16,6 @@
     <div class="menu-item">
         <a href="{% url 'new_story' %}">New Story</a>
     </div>
-    <div class="menu-item menu-item-search">
-        <form action="{% url 'list_stories' %}" method="get" class="menu-search-form">
-            <input type="text" name="query" placeholder="Search stories..." class="menu-search-input" />
-            <button type="submit" class="menu-search-button">Search</button>
-        </form>
-    </div>
-
     {% if user.is_authenticated and user.literacy_groups.count or user.profile.is_teacher %}
     <div class="menu-item">
         <a href="{% url 'list_groups' %}">Groups</a>
