@@ -112,5 +112,6 @@ def join_student(request):
                 return render(request, 'registration/join_student.html', {'form': form})
     else:
         form = StudentSignUpForm()
-    return render(request, 'registration/join_student.html', {'form': form})
+    prefill_code = request.GET.get('code', '')
+    return render(request, 'registration/join_student.html', {'form': form, 'prefill_code': prefill_code})
 

@@ -81,7 +81,13 @@
     <tbody>
         {% for join_code in join_codes %}
         <tr>
-            <td><code>{{ join_code.code }}</code></td>
+            <td>
+                {% if join_code.assigned_user %}
+                    <code>{{ join_code.code }}</code>
+                {% else %}
+                    <a href="{% url 'join_student' %}?code={{ join_code.code }}"><code>{{ join_code.code }}</code></a>
+                {% endif %}
+            </td>
             <td>
                 {% if join_code.assigned_user %}
                     Used
