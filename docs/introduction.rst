@@ -44,8 +44,8 @@ to a starting point if the technology is new to you.
    - We use **Django 5** with class-based views, the ORM, and the sites framework.
 
 **PostgreSQL**
-   The production database. For local development you can use SQLite (simpler, no
-   install required) or PostgreSQL if you want to stay close to production.
+   The database. PostgreSQL is required — the app uses features not available in
+   SQLite. See :doc:`dev-setup` for local setup options.
 
 **Redis + Celery**
    Redis is an in-memory store used as a message broker. Celery is a task queue that
