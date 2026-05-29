@@ -25,6 +25,7 @@ class Book(SoftDeleteMixin):
     stories = models.ManyToManyField('unfold_studio.Story', related_name='books')
     sites = models.ManyToManyField(Site)
     priority = models.FloatField(default=0)
+    genres = models.JSONField(default=list, blank=True)
 
     objects = BookManager()
 
