@@ -11,10 +11,10 @@
       @toggle-code="handleToggleCode"
     />
     <div class="twopane" :class="{ solo: !showCode }">
-      <div v-show="showCode && config.editable" id="editor">
+      <div v-if="config.editable" v-show="showCode" id="editor">
         <StoryEditor v-model="inkContent" />
       </div>
-      <div v-if="showCode && config.editable" class="split"></div>
+      <div v-if="config.editable && showCode" class="split"></div>
       <div id="player">
         <div class="scrollContainer">
           <div ref="playerContainer" class="innerText active"></div>
@@ -33,11 +33,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted, defineAsyncComponent } from 'vue'
 import { InkPlayer } from './player'
 import { StoryAPI } from './api'
-import StoryEditor from './StoryEditor.vue'
 import StoryToolbar from './StoryToolbar.vue'
+
+const StoryEditor = defineAsyncComponent(() => import('./StoryEditor.vue'))
 import type { StoryContent, UnfoldConfig } from './types'
 
 const config: UnfoldConfig = window.__UNFOLD__
