@@ -2,10 +2,11 @@
 
 {% block style %}
 <style>
+.page-featured { padding-top: 4px; }
 .page-featured h2 { margin-top: 0; }
 .page-featured-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
     gap: 16px;
     list-style: none;
     padding: 0;
@@ -28,21 +29,17 @@
                             <p class="story-card__desc">{{ story.description }}</p>
                             {% if story.author %}
                             <div class="story-card__meta">
-                                <span class="story-card__author"><strong>By</strong> {{ story.author.username }}</span>
+                                <span class="story-card__author"><strong>by</strong> {{ story.author.username }}</span>
                             </div>
                             {% endif %}
                         </div>
-                    </div>
-                    <div class="story-card__reveal" aria-hidden="true">
-                        <p class="story-card__preview">{{ story.hover_preview }}</p>
-                        <p class="story-card__hint">Public story</p>
                     </div>
                 </a>
             </li>
         {% endfor %}
         </ul>
     {% else %}
-        <h2>Sorry, there are no featured stories right now.</h2>
+        <p>No featured stories right now.</p>
     {% endif %}
 </div>
 {% endblock %}

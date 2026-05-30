@@ -4,7 +4,13 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="shortcut icon" href="{%  static 'favicon.png' %}">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="shortcut icon" href="{% static 'favicon.png' %}">
+        <link rel="preconnect" href="https://cdn.jsdelivr.net">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@5/400.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@5/500.css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/monaspace-neon@5/800.css">
         {% block head %}
         {% endblock %}
         <link rel="stylesheet" href="{% static 'base/base_style.css' %}">

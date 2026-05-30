@@ -14,7 +14,7 @@
         <a href="{% url 'list_books' %}">Books</a>
     </div>
     <div class="menu-item">
-        <a href="{% url 'new_story' %}">New Story</a>
+        <a href="{% url 'new_story' %}" class="menu-cta">New Story</a>
     </div>
     {% if user.is_authenticated and user.literacy_groups.count or user.profile.is_teacher %}
     <div class="menu-item">
@@ -45,4 +45,3 @@
         </div>
     {% endif %}
 </div>
-
