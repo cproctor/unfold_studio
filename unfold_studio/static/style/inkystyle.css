@@ -29,6 +29,15 @@ p.regular-text, a {
     opacity: 1.0;
 }
 
+#player .input-container {
+    opacity: 0.0;
+    transition: opacity 1.0s;
+}
+
+#player .input-container.show {
+    opacity: 1.0;
+}
+
 p.choice {
     text-align: center;
 }

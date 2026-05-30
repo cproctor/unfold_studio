@@ -256,7 +256,7 @@ class Story(SoftDeleteMixin):
             "EXTERNAL ceiling(a)",
             "EXTERNAL random_gaussian(a, b)",
             "EXTERNAL generate(a)",
-            "EXTERNAL input(a,b)",
+            "EXTERNAL input(a)",
             "EXTERNAL SEED_AI(a)",
             "EXTERNAL continue_function(a)",
         ]

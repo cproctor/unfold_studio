@@ -428,7 +428,7 @@ form.new_story_form > div {
 
 /* Style textarea for longer responses */
 .input-container textarea {
-    width: 350px;
+    width: 100%;
     min-height: 60px;
     max-height: 200px;
     padding: 8px;
@@ -455,7 +455,7 @@ form.new_story_form > div {
 }
 
 .input-container form button[type="submit"] {
-    align-self: flex-start;
+    align-self: center;
     width: auto;
     margin-top: 0;
 }

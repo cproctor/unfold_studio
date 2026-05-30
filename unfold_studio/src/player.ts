@@ -19,7 +19,6 @@ export class InkPlayer {
   private continueFunctionCalled = false
   private inputFunctionCalled = false
   private pendingInputValue: string | null = null
-  private inputIsAssignmentForm = false
   private currentTargetKnot = ''
   private inputBoxToInsert: HTMLElement | null = null
   private storyPlayInstanceUUID = ''
@@ -59,24 +58,15 @@ export class InkPlayer {
       this.scheduleInputBoxForContinue()
       return ''
     })
-    story.BindExternalFunction('input', (placeholder: unknown = 'Enter text...', variableName: unknown = null) => {
-      // Legacy two-arg form: ~ input("prompt", "varName") — set variable directly.
-      if (variableName !== null && variableName !== undefined) {
-        this.inputFunctionCalled = true
-        this.inputIsAssignmentForm = false
-        this.scheduleInputBox(placeholder as string, variableName as string)
-        return ''
-      }
-      // New assignment form: ~ varName = input("prompt")
-      // If we have a pending value, return it so inkjs assigns it to the variable.
+    story.BindExternalFunction('input', (placeholder: unknown = 'Enter text...') => {
+      // If we have a pending value (user just submitted), return it so inkjs assigns it.
       if (this.pendingInputValue !== null) {
         const val = this.pendingInputValue
         this.pendingInputValue = null
         return val
       }
       this.inputFunctionCalled = true
-      this.inputIsAssignmentForm = true
-      this.scheduleInputBox(placeholder as string, null)
+      this.scheduleInputBox(placeholder as string)
       return ''
     })
     story.BindExternalFunction('generate', (promptText: unknown) => {
@@ -100,10 +90,10 @@ export class InkPlayer {
     void this.createStoryPlayInstanceAndContinueStory(content.id)
   }
 
-  private async generateAndInsertInDOM(promptText: string): Promise<void> {
+  private async generateAndInsertInDOM(promptText: string, staggerIdx = 0): Promise<void> {
     const nonce = uuid()
     const loadingSpan = `<span id="${nonce}" data-loaded="false">Loading...</span>`
-    this.addContent({ text: loadingSpan, tags: [] })
+    this.addContent({ text: loadingSpan, tags: [] }, staggerIdx)
 
     let data: { result: string }
     try {
@@ -139,6 +129,7 @@ export class InkPlayer {
 
     this.story.state.context = []
     let steps = 0
+    let staggerIdx = 0
     while (this.story.canContinue) {
       if (++steps > InkPlayer.MAX_STEPS) {
         this.reportError('Possible infinite loop: the story ran more than 5000 steps without reaching a choice or end.')
@@ -150,26 +141,25 @@ export class InkPlayer {
         const tags = this.story.currentTags.slice()
         const content = { text, tags }
         if (this.inputFunctionCalled) {
-          // Assignment form: roll back story state so the next continueStory() call
-          // re-executes input() and receives pendingInputValue as the return value.
-          if (this.inputIsAssignmentForm) {
-            this.story.state.LoadJson(stateBefore)
-          }
-          this.renderScheduledInputBox()
+          // Roll back so the next continueStory() re-executes input() and gets pendingInputValue.
+          this.story.state.LoadJson(stateBefore)
+          this.renderScheduledInputBox(staggerIdx)
+          this.renderDidEnd()
           return
         }
         if (this.continueFunctionCalled) {
-          this.renderScheduledInputBox()
+          this.renderScheduledInputBox(staggerIdx)
           this.continueFunctionCalled = false
+          this.renderDidEnd()
           return
         }
         if (this.generateInProgress) {
-          await this.generateAndInsertInDOM(this.generatePrompt)
+          await this.generateAndInsertInDOM(this.generatePrompt, staggerIdx++)
         }
         if (tags.includes('context')) {
           this.story.state.context.push(text)
         }
-        this.addContent(content)
+        this.addContent(content, staggerIdx++)
         this.createStoryPlayRecord(storyPlayInstanceUUID, 'AUTHORS_TEXT', content)
       } catch (err) {
         this.reportError(err instanceof Error ? err.message : String(err))
@@ -181,9 +171,9 @@ export class InkPlayer {
     const choices = this.story.currentChoices.map((c) => c.text)
     this.createStoryPlayRecord(storyPlayInstanceUUID, 'AUTHORS_CHOICE_LIST', choices)
     if (this.story.currentChoices.length > 0) {
-      this.story.currentChoices.forEach((choice) => this.addChoice(choice))
-      this.renderDidEnd()
+      this.story.currentChoices.forEach((choice, i) => this.addChoice(choice, staggerIdx + i))
     }
+    this.renderDidEnd()
   }
 
   stop(): void {
@@ -208,21 +198,15 @@ export class InkPlayer {
     await this.continueStory()
   }
 
-  private scheduleInputBox(placeholder: string, variableName: string | null): void {
+  private scheduleInputBox(placeholder: string): void {
     const eventHandler = (userInput: string) => {
       this.inputFunctionCalled = false
-      if (variableName !== null && this.story) {
-        // Legacy form: set variable directly before continuing
-        this.story.variablesState[variableName] = userInput
-      } else {
-        // Assignment form: store value; next Continue() will return it from input()
-        this.pendingInputValue = userInput
-      }
+      this.pendingInputValue = userInput
       this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), 'READERS_ENTERED_TEXT', userInput)
       this.running = true
       void this.continueStory()
     }
-    this.inputBoxToInsert = this.createInputForm('AUTHORS_INPUT_BOX', eventHandler, placeholder, variableName)
+    this.inputBoxToInsert = this.createInputForm('AUTHORS_INPUT_BOX', eventHandler, placeholder, false)
   }
 
   private scheduleInputBoxForContinue(placeholder = 'what would you like to do next?'): void {
@@ -233,8 +217,7 @@ export class InkPlayer {
     this.inputBoxToInsert = this.createInputForm('AUTHORS_CONTINUE_INPUT_BOX', eventHandler, placeholder)
   }
 
-  private createInputForm(formType: string, eventHandler: (input: string) => void, placeholder: string, variableName: string | null = null): HTMLElement {
-    // variableName is informational only (recorded in play log); null for assignment form
+  private createInputForm(formType: string, eventHandler: (input: string) => void, placeholder: string, showInputAfterSubmit = true): HTMLElement {
     const formContainer = document.createElement('div')
     formContainer.classList.add('input-container')
 
@@ -248,6 +231,12 @@ export class InkPlayer {
       this.style.height = 'auto'
       this.style.height = this.scrollHeight + 'px'
     })
+    inputElement.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault()
+        formElement.requestSubmit()
+      }
+    })
 
     const buttonElement = document.createElement('button')
     buttonElement.type = 'submit'
@@ -258,13 +247,18 @@ export class InkPlayer {
     formElement.addEventListener('submit', (event) => {
       event.preventDefault()
       const userInput = inputElement.value.trim()
+      if (showInputAfterSubmit) {
+        const p = document.createElement('p')
+        p.classList.add('regular-text', 'story-content', 'show')
+        p.textContent = userInput
+        formContainer.replaceWith(p)
+      } else {
+        formContainer.remove()
+      }
       eventHandler(userInput)
-      inputElement.disabled = true
-      buttonElement.disabled = true
-      formElement.style.opacity = '0.5'
     })
 
-    this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), formType, { placeholder, variableName })
+    this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), formType, { placeholder })
     formContainer.appendChild(formElement)
     return formContainer
   }
@@ -322,9 +316,11 @@ export class InkPlayer {
   }
 
   // DOM event handlers
-  private renderScheduledInputBox(): void {
+  private renderScheduledInputBox(staggerIdx = 0): void {
     if (this.inputBoxToInsert) {
-      this.container.appendChild(this.inputBoxToInsert)
+      const el = this.inputBoxToInsert
+      this.container.appendChild(el)
+      this.timeouts.push(setTimeout(() => el.classList.add('show'), 200 * staggerIdx))
       this.inputBoxToInsert = null
     }
   }
@@ -375,12 +371,12 @@ export class InkPlayer {
     }
   }
 
-  private addChoice(choice: { text: string; index: number }): void {
+  private addChoice(choice: { text: string; index: number }, staggerIdx = 0): void {
     const p = document.createElement('p')
     p.classList.add('choice')
     p.innerHTML = `<a href='#'>${sanitizeStoryText(choice.text)}</a>`
     this.container.appendChild(p)
-    this.timeouts.push(setTimeout(() => p.classList.add('show'), 200 * (choice.index + choice.text.length)))
+    this.timeouts.push(setTimeout(() => p.classList.add('show'), 200 * staggerIdx))
     const a = p.querySelector('a')
     a?.addEventListener('click', (event) => {
       event.preventDefault()

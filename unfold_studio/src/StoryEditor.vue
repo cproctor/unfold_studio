@@ -8,7 +8,7 @@ import { EditorView, basicSetup } from 'codemirror'
 import { EditorState, StateEffect, StateField } from '@codemirror/state'
 import { Decoration } from '@codemirror/view'
 import type { DecorationSet } from '@codemirror/view'
-import { inkLanguage } from './ink-language'
+import { inkLanguage, createInkLinter } from './ink-language'
 
 const setErrorLines = StateEffect.define<number[]>()
 
@@ -55,7 +55,9 @@ onMounted(() => {
       doc: props.modelValue,
       extensions: [
         basicSetup,
+        EditorView.lineWrapping,
         inkLanguage,
+        createInkLinter(),
         errorLineField,
         EditorState.readOnly.of(props.readonly ?? false),
         EditorView.theme({

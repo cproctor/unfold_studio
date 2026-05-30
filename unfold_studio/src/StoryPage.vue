@@ -1,5 +1,5 @@
 <template>
-  <div class="story-page">
+  <Teleport to="#toolbar-slot">
     <StoryToolbar
       :editable="config.editable"
       :shared="shared"
@@ -11,11 +11,13 @@
       :show-code="showCode"
       @toggle-code="handleToggleCode"
     />
-    <div class="twopane">
-      <div v-if="showCode" id="editor">
+  </Teleport>
+  <div class="story-page">
+    <div class="twopane" :class="{ dragging }" ref="twopaneRef">
+      <div v-if="showCode" id="editor" :style="editorWidth !== null ? { flex: 'none', width: editorWidth + 'px' } : {}">
         <StoryEditor ref="editorRef" v-model="inkContent" :readonly="!config.editable" />
       </div>
-      <div v-if="showCode" class="split"></div>
+      <div v-if="showCode" class="split" @mousedown="startDrag"></div>
       <div id="player">
         <div class="scrollContainer">
           <div ref="playerContainer" class="innerText active"></div>
@@ -45,6 +47,9 @@ import type { StoryContent, UnfoldConfig } from './types'
 const config: UnfoldConfig = window.__UNFOLD__
 
 const inkContent = ref('')
+const editorWidth = ref<number | null>(null)
+const dragging = ref(false)
+const twopaneRef = ref<HTMLElement | null>(null)
 const shared = ref(config.shared ?? false)
 const showCode = ref(false)
 const errors = ref<Array<{ lineNumber: number | null; message: string }>>([])
@@ -116,6 +121,28 @@ function handleToggleCode(visible: boolean): void {
   showCode.value = visible
 }
 
+function startDrag(e: MouseEvent): void {
+  if (!twopaneRef.value) return
+  const startX = e.clientX
+  const startWidth = twopaneRef.value.querySelector<HTMLElement>('#editor')!.getBoundingClientRect().width
+  const totalWidth = twopaneRef.value.getBoundingClientRect().width - 4
+  dragging.value = true
+
+  function onMove(e: MouseEvent): void {
+    const newWidth = Math.max(100, Math.min(totalWidth - 100, startWidth + e.clientX - startX))
+    editorWidth.value = newWidth
+  }
+
+  function onUp(): void {
+    dragging.value = false
+    document.removeEventListener('mousemove', onMove)
+    document.removeEventListener('mouseup', onUp)
+  }
+
+  document.addEventListener('mousemove', onMove)
+  document.addEventListener('mouseup', onUp)
+}
+
 watch(showCode, (val) => {
   if (val) {
     history.replaceState(null, '', window.location.pathname + '#code')
@@ -146,6 +173,12 @@ watch(showCode, (val) => {
 .split {
   width: 4px;
   background: #ccc;
+  cursor: col-resize;
+  flex-shrink: 0;
+}
+
+.twopane.dragging {
+  user-select: none;
   cursor: col-resize;
 }
 

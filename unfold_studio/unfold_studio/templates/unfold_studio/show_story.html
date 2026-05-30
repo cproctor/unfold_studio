@@ -12,18 +12,30 @@
     <link rel="stylesheet" href="{% static 'style/inkystyle.css' %}">
     <link rel="stylesheet" href="{% static 'style/sms.css' %}">
     <style>
-        /* Story page: make container fill the viewport so the side-by-side layout works */
+        /* Story page: make container fill the viewport so the side-by-side layout works.
+           Override base flex: 1 0 auto (no shrink) with flex: 1 1 0 so the container
+           takes exactly the remaining height between menu and footer, never overflowing. */
         body > #container {
             display: flex;
             flex-direction: column;
             width: 100%;
             max-width: 100%;
             padding: 0;
+            flex: 1 1 0;
+            min-height: 0;
+            overflow: hidden;
         }
         #main {
             flex: 1;
             min-height: 0;
             overflow: hidden;
+        }
+        h2.story-title,
+        .description {
+            padding-left: 20px;
+        }
+        .description {
+            padding-bottom: 8px;
         }
     </style>
 
@@ -77,11 +89,12 @@
 {% if story.author %}
 [<a href="{% url 'show_story_versions' story.id %}">History{% if commentable %}/Comment{% endif %}</a>]
 {% endif %}
+<span id="toolbar-slot"></span>
 </div>
 
 <div id="main"></div>
 
-<script src="{% static ‘scripts/ink.js’ %}"></script>
+<script src="{% static 'scripts/ink.js' %}"></script>
 <script>
 window.__UNFOLD__ = {
     storyId: {{ story.id }},
@@ -90,20 +103,20 @@ window.__UNFOLD__ = {
     shared: {{ story.shared|lower }},
     debugMode: {{ request.user.is_staff|lower }},
     urls: {
-        json:         "{% url ‘show_json’ story.id %}",
+        json:         "{% url 'show_json' story.id %}",
         {% if editable %}
-        compile:      "{% url ‘compile_story’ story.id %}",
-        generate:     "{% url ‘generate’ %}",
-        getNextDir:   "{% url ‘get_next_direction’ %}",
-        fork:         "{% url ‘fork_story’ story.id %}",
-        share:        "{% url ‘share_story’ story.id %}",
-        unshare:      "{% url ‘unshare_story’ story.id %}",
+        compile:      "{% url 'compile_story' story.id %}",
+        generate:     "{% url 'generate' %}",
+        getNextDir:   "{% url 'get_next_direction' %}",
+        fork:         "{% url 'fork_story' story.id %}",
+        share:        "{% url 'share_story' story.id %}",
+        unshare:      "{% url 'unshare_story' story.id %}",
         {% endif %}
-        playInstance: "{% url ‘new_story_play_instance’ %}",
-        playRecord:   "{% url ‘new_story_play_record’ %}",
+        playInstance: "{% url 'new_story_play_instance' %}",
+        playRecord:   "{% url 'new_story_play_record' %}",
     }
 };
 </script>
-{% vite_asset ‘src/main.ts’ %}
+{% vite_asset 'src/main.ts' %}
 
 {% endblock %}
