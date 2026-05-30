@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Unfold Studio Icon Design</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap');
+:root { --K: #231F20; --Y: #ffe564; --P: #9494ff; }
+body { font-family: 'Space Mono', 'Courier New', monospace; font-size: 13px; background: #fff; color: var(--K); padding: 32px; max-width: 960px; margin: 0 auto; line-height: 1.6; }
+h1 { font-size: 1.4em; border-bottom: 2px solid var(--K); padding-bottom: 8px; margin-bottom: 24px; }
+h2 { font-size: 0.8em; text-transform: uppercase; letter-spacing: .1em; background: var(--K); color: #fff; display: inline-block; padding: 4px 10px; margin: 32px 0 12px; }
+h3 { font-size: 0.85em; font-weight: 700; border-bottom: 1px solid var(--K); margin: 24px 0 8px; padding-bottom: 3px; }
+p { margin: 0 0 10px; }
+.ref-grid { display: flex; gap: 20px; flex-wrap: wrap; margin: 12px 0 20px; }
+.ref-item { border: 2px solid var(--K); padding: 8px; width: 150px; }
+.ref-item img { display: block; image-rendering: pixelated; image-rendering: crisp-edges; width: 134px; height: auto; }
+.ref-item .caption { margin: 6px 0 0; font-size: 0.72em; line-height: 1.4; }
+.icon-row { display: flex; align-items: flex-start; gap: 20px; margin: 12px 0; padding: 12px; border: 1px dashed rgba(35,31,32,0.25); }
+.icon-sizes { display: flex; gap: 12px; align-items: flex-end; flex-shrink: 0; }
+.icon-item { text-align: center; }
+.icon-item svg { display: block; image-rendering: pixelated; image-rendering: crisp-edges; }
+.icon-item p { margin: 4px 0 0; font-size: 0.7em; color: rgba(35,31,32,0.5); }
+.icon-note { font-size: 0.8em; padding-top: 4px; }
+.old-set { display: flex; gap: 12px; flex-wrap: wrap; font-size: 1.8em; opacity: 0.45; margin: 8px 0 4px; }
+.note { border-left: 3px solid var(--Y); padding: 8px 12px; background: rgba(255,229,100,0.12); margin: 8px 0 16px; font-size: 0.82em; }
+.lesson { border: 1px solid rgba(35,31,32,0.2); padding: 10px 14px; margin: 10px 0; font-size: 0.82em; }
+.lesson strong { display: block; margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<h1>Unfold Studio Icon Design</h1>
+
+<h2>Precedents</h2>
+<div class="ref-grid">
+  <div class="ref-item">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPoAAAFECAMAAAA5hdO+AAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAByFBMVEUAAAAAAAAAAAAZGRkmJiYPDw8AAAAfHx92dnYdHR0AAAAAAAAAAAAAAAAAAADMzMydnZ2ampqtra1JSUlERER5eXmRkZFmZmaoqMOpqcXMzNny8vLV1dV9fX3GxvXMzP/g4PP////Y2NjJyftubomensaGhqizs+DKyvyUlLnExPVoaII1NUKVlbrGxvhSUmfGxvcZGR91dZLHx/liYnqsrNdqaoQbGyKJiavDw/TKyv20tOGcnMPLy/6xsd2bm8K1teJmZn9ZWW9paYO4uOakpM0sLDcnJzF2dpO5uecFBQZyco85OUc0NEGKiqyzs7OhoaHt7fLv7/Tl5erc3NzQ0ND9/f3r6+v6+vr8/Pzp6enCy8K3yrfBy8HDw8PCwsLGxsZmw2YAuwBWwlYNDQ00NDSykHSxUzKwhWe3t7e4uLi0tLTUZmbdAADVVlbUdnbbHR3UaGj39/fu7u43NzdUVFQ5OTlDQ0MiIiIYGBhVVVU6Ojo2NjZTU1NCQkI4ODghISFNTU13d3dpaWk/Pz89PT1KSkpwcHBlZWVSUlJAQEAfHx9ZWVmIiIh4eHhoaGhRUVFvb29ubm5gYGBOTk4zMzMcHBwWFhYOcU5iAAAADnRSTlMAPWFyxNFvdMF6LRZ/Hu1NUNkAAAABYktHRCHEbA0WAAAAB3RJTUUH6QsaCQU05vldfwAAAy9JREFUeNrt3WdvFEcAgOEzDoRqQu+E3kMvoYfea+gQIHRIqDGYTuidAKH8XYTk8Z3wslrjwbC3z/v1ZqR7VvNhdk6jK5Uaq6krSDWlT0NHR0dHR0dHR88jvV1jtT8UpNogLoWH0b57QWofxOjo6Ojo6Ojo6Ojo6Ojo6Og5pP/UIzf1jEzv1Ts39UFHR0dHR0dHRy84vW+/cv0H5KaBg8oN/kL6kIpHOfTn3DRseLkR6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6PmkjxwVGp0+cEwYNzZ12LhR5cZ/3/QJTbdmJ6YPnBTG/ZI6bHLFPdwp6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6J9t6rTQ9Cj0GdPKzaySw+iM9Go8h0dHR0dHR0dHR0dHR0dHR0dHR/8G9FmzQ3OKRv+1+X+RoKOjo6Ojo6PnjT5ubrPmFW4P/xVDR0dHR0dHj02fvyC0MPOcRYsb+y3X9CVNW9XJmecsDVOWoaOjo6Ojo6Ojo38j+vIVoZWrsrY6TFlTJW9ua+uytq7aXlrR0dHR0dGrjr5+Q9Y2OoxGR0dHR0dHR0dHR0dHR0dHR69o0+ZyW7bmpt+3ldv+hfTKdgzPTTvTJejo6Ojo6OjoRaTv2p2b9kSmV0/o6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6OjoqfS9+xL6I/I32X8gdgcj0P88lNDhyPQjdbE7io6Ojo6Ojo5e0bHjCZ2ITD95KnZ/RaD/fTqhM5Hpu6PffRmEjo6Ojo6Ojo7+sbPnEjofmX5hV+z+cRiNjo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojo6Ojt429A6N/dixIHUK4lKoc11Bqil9Gjo6Ojo6Ojp6FdLrL7aiSw0tq/7y1+tKy+lXW9G13i0LHR0dHR29LejXb7SiS81wDTeTCp/e+je9tqXfvhO1u4mr4162RXEfHR0dHR0dvVX0Bw+j9uhxUoHe8CSpph3P/aepxaY/ex61F6lr4r/ENVGfcRv8FB0dHR0dHR0dHb2pl0Oi9up1Wv+/SertvWy9S93hv/cjMzo6Ojo6Ojp6VdO7dC1I3YL4A50ibiTzfNGHAAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDI1LTExLTI2VDA5OjA1OjUyKzAwOjAwzP4N7gAAACV0RVh0ZGF0ZTptb2RpZnkAMjAyNS0xMS0yNlQwOTowNTo1MiswMDowML2jtVIAAAAASUVORK5CYII=" alt="Happy Mac">
+    <p class="caption"><strong>Happy Mac</strong> — Susan Kare, 1984. Personality from ~8 pixels: two dot eyes, four-dot smile arc. The Mac body is secondary.</p>
+  </div>
+  <div class="ref-item">
+    <img src="data:image/png;base64,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" alt="Mac OS Bomb">
+    <p class="caption"><strong>Mac OS Bomb</strong> — Susan Kare, 1984. One circle + 6-pixel fuse + 4 spark pixels. Works entirely as silhouette.</p>
+  </div>
+  <div class="ref-item">
+    <img src="data:image/png;base64,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" alt="Legend of Zelda NES">
+    <p class="caption"><strong>Zelda NES HUD</strong> — 1986. Hearts at ~8×8px. Items in B/A slots read at &lt;12px because the silhouette is culturally pre-loaded.</p>
+  </div>
+</div>
+<div class="lesson">
+  <strong>Design lessons</strong>
+  1. <strong>Silhouette first</strong> — if the filled outline doesn't read, added detail won't fix it.<br>
+  2. <strong>Personality from very few pixels</strong> — eyes + smile = 8 pixels = a face.<br>
+  3. <strong>Use pre-loaded shapes</strong> — heart, triangle, book. Don't invent from scratch.<br>
+  4. <strong>Negative space is part of the design</strong> — the bomb is mostly empty circle.
+</div>
+
+<h2>Previous proposal (not working)</h2>
+<div class="old-set">
+  <span>✎</span><span>◈</span><span>▶</span><span>⟳</span><span>♦</span><span>◆</span><span>✉</span><span>✦</span>
+</div>
+<div class="note">
+  Unicode characters, not designed icons. Inconsistent weights and styles, no visual coherence, no personality, no connection to Unfold Studio's world. At display sizes they look arbitrary.
+</div>
+
+<h2>New icons — 16×16 pixel grid</h2>
+<p>All icons designed on a 16×16 grid. Shown at 4×, 2×, and 1× scale. The 1× column (16×16) is the true test.</p>
+
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- body: yellow wood, 3px wide diagonal band -->
+  <polygon points="12,0 15,0 15,3 3,15 0,15 0,12" fill="#e8c040"/>
+  <!-- eraser: pink end cap -->
+  <polygon points="14,0 15,0 15,1" fill="#d08080"/>
+  <!-- ferrule: dark divider between eraser and body -->
+  <line x1="13" y1="0" x2="15" y2="2" stroke="#231F20" stroke-width="1"/>
+  <!-- shadow/shade on left face of pencil -->
+  <polygon points="12,0 13,0 0,13 0,12" fill="#c8a030"/>
+  <!-- outline -->
+  <polygon points="12,0 15,0 15,3 3,15 0,15 0,12" fill="none" stroke="#231F20" stroke-width="1"/>
+  <!-- graphite tip -->
+  <polygon points="0,14 2,15 0,15" fill="#555"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- body: yellow wood, 3px wide diagonal band -->
+  <polygon points="12,0 15,0 15,3 3,15 0,15 0,12" fill="#e8c040"/>
+  <!-- eraser: pink end cap -->
+  <polygon points="14,0 15,0 15,1" fill="#d08080"/>
+  <!-- ferrule: dark divider between eraser and body -->
+  <line x1="13" y1="0" x2="15" y2="2" stroke="#231F20" stroke-width="1"/>
+  <!-- shadow/shade on left face of pencil -->
+  <polygon points="12,0 13,0 0,13 0,12" fill="#c8a030"/>
+  <!-- outline -->
+  <polygon points="12,0 15,0 15,3 3,15 0,15 0,12" fill="none" stroke="#231F20" stroke-width="1"/>
+  <!-- graphite tip -->
+  <polygon points="0,14 2,15 0,15" fill="#555"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- body: yellow wood, 3px wide diagonal band -->
+  <polygon points="12,0 15,0 15,3 3,15 0,15 0,12" fill="#e8c040"/>
+  <!-- eraser: pink end cap -->
+  <polygon points="14,0 15,0 15,1" fill="#d08080"/>
+  <!-- ferrule: dark divider between eraser and body -->
+  <line x1="13" y1="0" x2="15" y2="2" stroke="#231F20" stroke-width="1"/>
+  <!-- shadow/shade on left face of pencil -->
+  <polygon points="12,0 13,0 0,13 0,12" fill="#c8a030"/>
+  <!-- outline -->
+  <polygon points="12,0 15,0 15,3 3,15 0,15 0,12" fill="none" stroke="#231F20" stroke-width="1"/>
+  <!-- graphite tip -->
+  <polygon points="0,14 2,15 0,15" fill="#555"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Write</strong>
+    <br>Diagonal pencil: yellow body reads as pencil even without labels. Pink eraser and pointed tip complete the silhouette. Connects writing to the physical act of making marks.
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- left page -->
+  <polygon points="0,3 7,2 7,14 0,14" fill="white" stroke="#231F20" stroke-width="1"/>
+  <!-- right page -->
+  <polygon points="9,2 16,3 16,14 9,14" fill="white" stroke="#231F20" stroke-width="1"/>
+  <!-- spine -->
+  <rect x="7" y="1" width="2" height="14" fill="#231F20"/>
+  <!-- left text lines (3) -->
+  <line x1="1" y1="5"  x2="6" y2="5"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="7"  x2="6" y2="7"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="9"  x2="5" y2="9"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="11" x2="6" y2="11" stroke="#231F20" stroke-width="1"/>
+  <!-- right text lines (3) -->
+  <line x1="10" y1="5"  x2="15" y2="5"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="7"  x2="15" y2="7"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="9"  x2="14" y2="9"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="11" x2="15" y2="11" stroke="#231F20" stroke-width="1"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- left page -->
+  <polygon points="0,3 7,2 7,14 0,14" fill="white" stroke="#231F20" stroke-width="1"/>
+  <!-- right page -->
+  <polygon points="9,2 16,3 16,14 9,14" fill="white" stroke="#231F20" stroke-width="1"/>
+  <!-- spine -->
+  <rect x="7" y="1" width="2" height="14" fill="#231F20"/>
+  <!-- left text lines (3) -->
+  <line x1="1" y1="5"  x2="6" y2="5"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="7"  x2="6" y2="7"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="9"  x2="5" y2="9"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="11" x2="6" y2="11" stroke="#231F20" stroke-width="1"/>
+  <!-- right text lines (3) -->
+  <line x1="10" y1="5"  x2="15" y2="5"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="7"  x2="15" y2="7"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="9"  x2="14" y2="9"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="11" x2="15" y2="11" stroke="#231F20" stroke-width="1"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- left page -->
+  <polygon points="0,3 7,2 7,14 0,14" fill="white" stroke="#231F20" stroke-width="1"/>
+  <!-- right page -->
+  <polygon points="9,2 16,3 16,14 9,14" fill="white" stroke="#231F20" stroke-width="1"/>
+  <!-- spine -->
+  <rect x="7" y="1" width="2" height="14" fill="#231F20"/>
+  <!-- left text lines (3) -->
+  <line x1="1" y1="5"  x2="6" y2="5"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="7"  x2="6" y2="7"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="9"  x2="5" y2="9"  stroke="#231F20" stroke-width="1"/>
+  <line x1="1" y1="11" x2="6" y2="11" stroke="#231F20" stroke-width="1"/>
+  <!-- right text lines (3) -->
+  <line x1="10" y1="5"  x2="15" y2="5"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="7"  x2="15" y2="7"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="9"  x2="14" y2="9"  stroke="#231F20" stroke-width="1"/>
+  <line x1="10" y1="11" x2="15" y2="11" stroke="#231F20" stroke-width="1"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Read</strong>
+    <br>Open book from above. The two-page spread + spine is culturally pre-loaded. Text lines suggest content without depicting it.
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="2,1 2,15 14,8" fill="#231F20"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="2,1 2,15 14,8" fill="#231F20"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="2,1 2,15 14,8" fill="#231F20"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Play</strong>
+    <br>Right-pointing triangle: the universal "run" symbol. The same symbol in a story context says "execute this." Connects to play buttons everywhere AND to running code.
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- stem (enters from bottom-center) -->
+  <rect x="6" y="9" width="4" height="7" fill="#231F20"/>
+  <!-- left arm -->
+  <rect x="1" y="3" width="4" height="4" fill="#231F20"/>
+  <polygon points="2,7 6,10 5,10 2,7" fill="#231F20"/>
+  <rect x="2" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- right arm -->
+  <rect x="11" y="3" width="4" height="4" fill="#231F20"/>
+  <rect x="10" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- connectors -->
+  <polygon points="6,9 10,9 8,6" fill="#231F20"/>
+  <!-- junction dot -->
+  <rect x="6" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- arm tip dots -->
+  <rect x="1" y="1" width="4" height="4" fill="#231F20"/>
+  <rect x="11" y="1" width="4" height="4" fill="#231F20"/>
+  <!-- outline dots in white -->
+  <rect x="2" y="2" width="2" height="2" fill="white"/>
+  <rect x="12" y="2" width="2" height="2" fill="white"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- stem (enters from bottom-center) -->
+  <rect x="6" y="9" width="4" height="7" fill="#231F20"/>
+  <!-- left arm -->
+  <rect x="1" y="3" width="4" height="4" fill="#231F20"/>
+  <polygon points="2,7 6,10 5,10 2,7" fill="#231F20"/>
+  <rect x="2" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- right arm -->
+  <rect x="11" y="3" width="4" height="4" fill="#231F20"/>
+  <rect x="10" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- connectors -->
+  <polygon points="6,9 10,9 8,6" fill="#231F20"/>
+  <!-- junction dot -->
+  <rect x="6" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- arm tip dots -->
+  <rect x="1" y="1" width="4" height="4" fill="#231F20"/>
+  <rect x="11" y="1" width="4" height="4" fill="#231F20"/>
+  <!-- outline dots in white -->
+  <rect x="2" y="2" width="2" height="2" fill="white"/>
+  <rect x="12" y="2" width="2" height="2" fill="white"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- stem (enters from bottom-center) -->
+  <rect x="6" y="9" width="4" height="7" fill="#231F20"/>
+  <!-- left arm -->
+  <rect x="1" y="3" width="4" height="4" fill="#231F20"/>
+  <polygon points="2,7 6,10 5,10 2,7" fill="#231F20"/>
+  <rect x="2" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- right arm -->
+  <rect x="11" y="3" width="4" height="4" fill="#231F20"/>
+  <rect x="10" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- connectors -->
+  <polygon points="6,9 10,9 8,6" fill="#231F20"/>
+  <!-- junction dot -->
+  <rect x="6" y="6" width="4" height="4" fill="#231F20"/>
+  <!-- arm tip dots -->
+  <rect x="1" y="1" width="4" height="4" fill="#231F20"/>
+  <rect x="11" y="1" width="4" height="4" fill="#231F20"/>
+  <!-- outline dots in white -->
+  <rect x="2" y="2" width="2" height="2" fill="white"/>
+  <rect x="12" y="2" width="2" height="2" fill="white"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Branch</strong>
+    <br>Y-shape with hollow dots at branch tips. The hollow dots say "these are possible destinations, not yet visited." Directly represents the Ink branching structure.
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- pixel art heart, row by row -->
+  <!-- row 3: two bumps start -->
+  <rect x="1" y="3" width="4" height="1" fill="#c04040"/>
+  <rect x="7" y="2" width="1" height="1" fill="#c04040"/>
+  <rect x="5" y="2" width="1" height="1" fill="#c04040"/>
+  <rect x="11" y="3" width="4" height="1" fill="#c04040"/>
+  <!-- row 2: tops of bumps -->
+  <rect x="2" y="2" width="3" height="1" fill="#c04040"/>
+  <rect x="11" y="2" width="3" height="1" fill="#c04040"/>
+  <!-- row 1: very top of bumps -->
+  <rect x="2" y="1" width="4" height="2" fill="#c04040"/>
+  <rect x="10" y="1" width="4" height="2" fill="#c04040"/>
+  <!-- rows 3-4: full wide body -->
+  <rect x="1" y="3" width="14" height="3" fill="#c04040"/>
+  <!-- rows 6-9: tapering to point -->
+  <rect x="2" y="6" width="12" height="2" fill="#c04040"/>
+  <rect x="3" y="8" width="10" height="2" fill="#c04040"/>
+  <rect x="4" y="10" width="8" height="2" fill="#c04040"/>
+  <rect x="5" y="12" width="6" height="1" fill="#c04040"/>
+  <rect x="6" y="13" width="4" height="1" fill="#c04040"/>
+  <rect x="7" y="14" width="2" height="1" fill="#c04040"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- pixel art heart, row by row -->
+  <!-- row 3: two bumps start -->
+  <rect x="1" y="3" width="4" height="1" fill="#c04040"/>
+  <rect x="7" y="2" width="1" height="1" fill="#c04040"/>
+  <rect x="5" y="2" width="1" height="1" fill="#c04040"/>
+  <rect x="11" y="3" width="4" height="1" fill="#c04040"/>
+  <!-- row 2: tops of bumps -->
+  <rect x="2" y="2" width="3" height="1" fill="#c04040"/>
+  <rect x="11" y="2" width="3" height="1" fill="#c04040"/>
+  <!-- row 1: very top of bumps -->
+  <rect x="2" y="1" width="4" height="2" fill="#c04040"/>
+  <rect x="10" y="1" width="4" height="2" fill="#c04040"/>
+  <!-- rows 3-4: full wide body -->
+  <rect x="1" y="3" width="14" height="3" fill="#c04040"/>
+  <!-- rows 6-9: tapering to point -->
+  <rect x="2" y="6" width="12" height="2" fill="#c04040"/>
+  <rect x="3" y="8" width="10" height="2" fill="#c04040"/>
+  <rect x="4" y="10" width="8" height="2" fill="#c04040"/>
+  <rect x="5" y="12" width="6" height="1" fill="#c04040"/>
+  <rect x="6" y="13" width="4" height="1" fill="#c04040"/>
+  <rect x="7" y="14" width="2" height="1" fill="#c04040"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- pixel art heart, row by row -->
+  <!-- row 3: two bumps start -->
+  <rect x="1" y="3" width="4" height="1" fill="#c04040"/>
+  <rect x="7" y="2" width="1" height="1" fill="#c04040"/>
+  <rect x="5" y="2" width="1" height="1" fill="#c04040"/>
+  <rect x="11" y="3" width="4" height="1" fill="#c04040"/>
+  <!-- row 2: tops of bumps -->
+  <rect x="2" y="2" width="3" height="1" fill="#c04040"/>
+  <rect x="11" y="2" width="3" height="1" fill="#c04040"/>
+  <!-- row 1: very top of bumps -->
+  <rect x="2" y="1" width="4" height="2" fill="#c04040"/>
+  <rect x="10" y="1" width="4" height="2" fill="#c04040"/>
+  <!-- rows 3-4: full wide body -->
+  <rect x="1" y="3" width="14" height="3" fill="#c04040"/>
+  <!-- rows 6-9: tapering to point -->
+  <rect x="2" y="6" width="12" height="2" fill="#c04040"/>
+  <rect x="3" y="8" width="10" height="2" fill="#c04040"/>
+  <rect x="4" y="10" width="8" height="2" fill="#c04040"/>
+  <rect x="5" y="12" width="6" height="1" fill="#c04040"/>
+  <rect x="6" y="13" width="4" height="1" fill="#c04040"/>
+  <rect x="7" y="14" width="2" height="1" fill="#c04040"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Love</strong>
+    <br>"Love" (not "like") — already in the app. The heart is the one concession to social affordances; softer than a thumbs-up, not countable at a glance.
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- top-left origin node -->
+  <rect x="0" y="0" width="5" height="5" fill="#231F20"/>
+  <rect x="1" y="1" width="3" height="3" fill="white"/>
+  <!-- top-right fork node (filled = new) -->
+  <rect x="11" y="0" width="5" height="5" fill="#231F20"/>
+  <!-- bottom-center merge point -->
+  <rect x="5" y="11" width="6" height="5" fill="#231F20"/>
+  <rect x="6" y="12" width="4" height="3" fill="white"/>
+  <!-- left branch line -->
+  <line x1="2" y1="5" x2="7" y2="11" stroke="#231F20" stroke-width="2"/>
+  <!-- right branch line -->
+  <line x1="13" y1="5" x2="9" y2="11" stroke="#231F20" stroke-width="2"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- top-left origin node -->
+  <rect x="0" y="0" width="5" height="5" fill="#231F20"/>
+  <rect x="1" y="1" width="3" height="3" fill="white"/>
+  <!-- top-right fork node (filled = new) -->
+  <rect x="11" y="0" width="5" height="5" fill="#231F20"/>
+  <!-- bottom-center merge point -->
+  <rect x="5" y="11" width="6" height="5" fill="#231F20"/>
+  <rect x="6" y="12" width="4" height="3" fill="white"/>
+  <!-- left branch line -->
+  <line x1="2" y1="5" x2="7" y2="11" stroke="#231F20" stroke-width="2"/>
+  <!-- right branch line -->
+  <line x1="13" y1="5" x2="9" y2="11" stroke="#231F20" stroke-width="2"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- top-left origin node -->
+  <rect x="0" y="0" width="5" height="5" fill="#231F20"/>
+  <rect x="1" y="1" width="3" height="3" fill="white"/>
+  <!-- top-right fork node (filled = new) -->
+  <rect x="11" y="0" width="5" height="5" fill="#231F20"/>
+  <!-- bottom-center merge point -->
+  <rect x="5" y="11" width="6" height="5" fill="#231F20"/>
+  <rect x="6" y="12" width="4" height="3" fill="white"/>
+  <!-- left branch line -->
+  <line x1="2" y1="5" x2="7" y2="11" stroke="#231F20" stroke-width="2"/>
+  <!-- right branch line -->
+  <line x1="13" y1="5" x2="9" y2="11" stroke="#231F20" stroke-width="2"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Fork</strong>
+    <br>Three nodes: hollow origin (transparent, open-source), filled fork (your copy, yours to own), hollow destination (the lineage continues). Matches git fork semantics exactly.
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- soil -->
+  <rect x="0" y="12" width="16" height="4" fill="#7a5520"/>
+  <rect x="0" y="11" width="16" height="1" fill="#5a3d15"/>
+  <!-- stem -->
+  <rect x="7" y="4" width="2" height="7" fill="#3a8a3a"/>
+  <!-- left leaf -->
+  <polygon points="7,8 0,5 1,9 7,9" fill="#3a8a3a"/>
+  <!-- right leaf -->
+  <polygon points="9,6 16,3 15,7 9,8" fill="#3a8a3a"/>
+  <!-- leaf veins (lighter) -->
+  <line x1="7" y1="8" x2="2" y2="6" stroke="#5ab85a" stroke-width="1"/>
+  <line x1="9" y1="7" x2="14" y2="4" stroke="#5ab85a" stroke-width="1"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- soil -->
+  <rect x="0" y="12" width="16" height="4" fill="#7a5520"/>
+  <rect x="0" y="11" width="16" height="1" fill="#5a3d15"/>
+  <!-- stem -->
+  <rect x="7" y="4" width="2" height="7" fill="#3a8a3a"/>
+  <!-- left leaf -->
+  <polygon points="7,8 0,5 1,9 7,9" fill="#3a8a3a"/>
+  <!-- right leaf -->
+  <polygon points="9,6 16,3 15,7 9,8" fill="#3a8a3a"/>
+  <!-- leaf veins (lighter) -->
+  <line x1="7" y1="8" x2="2" y2="6" stroke="#5ab85a" stroke-width="1"/>
+  <line x1="9" y1="7" x2="14" y2="4" stroke="#5ab85a" stroke-width="1"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- soil -->
+  <rect x="0" y="12" width="16" height="4" fill="#7a5520"/>
+  <rect x="0" y="11" width="16" height="1" fill="#5a3d15"/>
+  <!-- stem -->
+  <rect x="7" y="4" width="2" height="7" fill="#3a8a3a"/>
+  <!-- left leaf -->
+  <polygon points="7,8 0,5 1,9 7,9" fill="#3a8a3a"/>
+  <!-- right leaf -->
+  <polygon points="9,6 16,3 15,7 9,8" fill="#3a8a3a"/>
+  <!-- leaf veins (lighter) -->
+  <line x1="7" y1="8" x2="2" y2="6" stroke="#5ab85a" stroke-width="1"/>
+  <line x1="9" y1="7" x2="14" y2="4" stroke="#5ab85a" stroke-width="1"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Sprout</strong>
+    <br>The permeable media emblem. A seedling breaking through soil, with two leaves catching light. Site-specific: this metaphor appears in the theoretical framework (Proctor, Paljor, & Bhatt 2025: "potting soil in which seedlings can germinate").
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- bowl outer (P shape facing right) -->
+  <rect x="3" y="1" width="8" height="2" fill="#231F20"/>
+  <rect x="3" y="7" width="8" height="2" fill="#231F20"/>
+  <rect x="9" y="1" width="2" height="8" fill="#231F20"/>
+  <rect x="11" y="2" width="2" height="1" fill="#231F20"/>
+  <rect x="11" y="6" width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="3" width="1" height="3" fill="#231F20"/>
+  <!-- bowl hollow -->
+  <rect x="4" y="3" width="5" height="4" fill="white"/>
+  <!-- two descending stems -->
+  <rect x="3" y="9" width="2" height="6" fill="#231F20"/>
+  <rect x="7" y="9" width="2" height="6" fill="#231F20"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- bowl outer (P shape facing right) -->
+  <rect x="3" y="1" width="8" height="2" fill="#231F20"/>
+  <rect x="3" y="7" width="8" height="2" fill="#231F20"/>
+  <rect x="9" y="1" width="2" height="8" fill="#231F20"/>
+  <rect x="11" y="2" width="2" height="1" fill="#231F20"/>
+  <rect x="11" y="6" width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="3" width="1" height="3" fill="#231F20"/>
+  <!-- bowl hollow -->
+  <rect x="4" y="3" width="5" height="4" fill="white"/>
+  <!-- two descending stems -->
+  <rect x="3" y="9" width="2" height="6" fill="#231F20"/>
+  <rect x="7" y="9" width="2" height="6" fill="#231F20"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- bowl outer (P shape facing right) -->
+  <rect x="3" y="1" width="8" height="2" fill="#231F20"/>
+  <rect x="3" y="7" width="8" height="2" fill="#231F20"/>
+  <rect x="9" y="1" width="2" height="8" fill="#231F20"/>
+  <rect x="11" y="2" width="2" height="1" fill="#231F20"/>
+  <rect x="11" y="6" width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="3" width="1" height="3" fill="#231F20"/>
+  <!-- bowl hollow -->
+  <rect x="4" y="3" width="5" height="4" fill="white"/>
+  <!-- two descending stems -->
+  <rect x="3" y="9" width="2" height="6" fill="#231F20"/>
+  <rect x="7" y="9" width="2" height="6" fill="#231F20"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Pilcrow</strong>
+    <br>The ¶ mark: a typographic pilgrim from manuscript culture. Appears in Unfold Studio as a section marker — part of the site's worldbuilding vocabulary. Connects literary and coding cultures.
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- body: rounded square (pixel art circle) -->
+  <rect x="3" y="4"  width="10" height="9"  fill="#231F20"/>
+  <rect x="2" y="5"  width="12" height="7"  fill="#231F20"/>
+  <rect x="4" y="3"  width="8"  height="10" fill="#231F20"/>
+  <!-- eyes (white squares with dark pupils) -->
+  <rect x="5" y="7"  width="2" height="3" fill="white"/>
+  <rect x="9" y="7"  width="2" height="3" fill="white"/>
+  <!-- pupils looking up (confused) -->
+  <rect x="5" y="7"  width="2" height="1" fill="#231F20"/>
+  <rect x="9" y="7"  width="2" height="1" fill="#231F20"/>
+  <!-- mouth: small flat line -->
+  <rect x="6" y="11" width="4" height="1" fill="white"/>
+  <!-- question mark on top of head -->
+  <rect x="7" y="0"  width="2" height="1" fill="#231F20"/>
+  <rect x="8" y="1"  width="1" height="1" fill="#231F20"/>
+  <rect x="7" y="2"  width="1" height="1" fill="#231F20"/>
+  <rect x="7" y="3"  width="1" height="1" fill="#231F20"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- body: rounded square (pixel art circle) -->
+  <rect x="3" y="4"  width="10" height="9"  fill="#231F20"/>
+  <rect x="2" y="5"  width="12" height="7"  fill="#231F20"/>
+  <rect x="4" y="3"  width="8"  height="10" fill="#231F20"/>
+  <!-- eyes (white squares with dark pupils) -->
+  <rect x="5" y="7"  width="2" height="3" fill="white"/>
+  <rect x="9" y="7"  width="2" height="3" fill="white"/>
+  <!-- pupils looking up (confused) -->
+  <rect x="5" y="7"  width="2" height="1" fill="#231F20"/>
+  <rect x="9" y="7"  width="2" height="1" fill="#231F20"/>
+  <!-- mouth: small flat line -->
+  <rect x="6" y="11" width="4" height="1" fill="white"/>
+  <!-- question mark on top of head -->
+  <rect x="7" y="0"  width="2" height="1" fill="#231F20"/>
+  <rect x="8" y="1"  width="1" height="1" fill="#231F20"/>
+  <rect x="7" y="2"  width="1" height="1" fill="#231F20"/>
+  <rect x="7" y="3"  width="1" height="1" fill="#231F20"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- body: rounded square (pixel art circle) -->
+  <rect x="3" y="4"  width="10" height="9"  fill="#231F20"/>
+  <rect x="2" y="5"  width="12" height="7"  fill="#231F20"/>
+  <rect x="4" y="3"  width="8"  height="10" fill="#231F20"/>
+  <!-- eyes (white squares with dark pupils) -->
+  <rect x="5" y="7"  width="2" height="3" fill="white"/>
+  <rect x="9" y="7"  width="2" height="3" fill="white"/>
+  <!-- pupils looking up (confused) -->
+  <rect x="5" y="7"  width="2" height="1" fill="#231F20"/>
+  <rect x="9" y="7"  width="2" height="1" fill="#231F20"/>
+  <!-- mouth: small flat line -->
+  <rect x="6" y="11" width="4" height="1" fill="white"/>
+  <!-- question mark on top of head -->
+  <rect x="7" y="0"  width="2" height="1" fill="#231F20"/>
+  <rect x="8" y="1"  width="1" height="1" fill="#231F20"/>
+  <rect x="7" y="2"  width="1" height="1" fill="#231F20"/>
+  <rect x="7" y="3"  width="1" height="1" fill="#231F20"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>Error</strong>
+    <br>The warm error blob. Inspired by Mac Bomb (confident silhouette + personality pixels) but expressly not alarming. The ? on the head and upward-looking eyes convey confusion, not danger. This is the character that speaks when Ink compilation fails.
+  </div>
+</div>
+<div class="icon-row">
+  <div class="icon-sizes"><div class="icon-item"><svg viewBox="0 0 64 64" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- clock face (pixel art circle) -->
+  <rect x="4"  y="1"  width="8" height="1" fill="#231F20"/>
+  <rect x="2"  y="2"  width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="2"  width="2" height="1" fill="#231F20"/>
+  <rect x="1"  y="3"  width="1" height="10" fill="#231F20"/>
+  <rect x="14" y="3"  width="1" height="10" fill="#231F20"/>
+  <rect x="2"  y="13" width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="13" width="2" height="1" fill="#231F20"/>
+  <rect x="4"  y="14" width="8" height="1" fill="#231F20"/>
+  <!-- clock face fill -->
+  <rect x="2"  y="3"  width="12" height="10" fill="white"/>
+  <rect x="3"  y="2"  width="10" height="12" fill="white"/>
+  <!-- hour hand (pointing up to ~11) -->
+  <rect x="7" y="4" width="2" height="5" fill="#231F20"/>
+  <!-- minute hand (pointing right to ~3) -->
+  <rect x="8" y="7" width="4" height="2" fill="#231F20"/>
+  <!-- center dot -->
+  <rect x="7" y="7" width="2" height="2" fill="#231F20"/>
+</svg><p>4×</p></div><div class="icon-item"><svg viewBox="0 0 32 32" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- clock face (pixel art circle) -->
+  <rect x="4"  y="1"  width="8" height="1" fill="#231F20"/>
+  <rect x="2"  y="2"  width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="2"  width="2" height="1" fill="#231F20"/>
+  <rect x="1"  y="3"  width="1" height="10" fill="#231F20"/>
+  <rect x="14" y="3"  width="1" height="10" fill="#231F20"/>
+  <rect x="2"  y="13" width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="13" width="2" height="1" fill="#231F20"/>
+  <rect x="4"  y="14" width="8" height="1" fill="#231F20"/>
+  <!-- clock face fill -->
+  <rect x="2"  y="3"  width="12" height="10" fill="white"/>
+  <rect x="3"  y="2"  width="10" height="12" fill="white"/>
+  <!-- hour hand (pointing up to ~11) -->
+  <rect x="7" y="4" width="2" height="5" fill="#231F20"/>
+  <!-- minute hand (pointing right to ~3) -->
+  <rect x="8" y="7" width="4" height="2" fill="#231F20"/>
+  <!-- center dot -->
+  <rect x="7" y="7" width="2" height="2" fill="#231F20"/>
+</svg><p>2×</p></div><div class="icon-item"><svg viewBox="0 0 16 16" shape-rendering="crispEdges" xmlns="http://www.w3.org/2000/svg">
+  <!-- clock face (pixel art circle) -->
+  <rect x="4"  y="1"  width="8" height="1" fill="#231F20"/>
+  <rect x="2"  y="2"  width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="2"  width="2" height="1" fill="#231F20"/>
+  <rect x="1"  y="3"  width="1" height="10" fill="#231F20"/>
+  <rect x="14" y="3"  width="1" height="10" fill="#231F20"/>
+  <rect x="2"  y="13" width="2" height="1" fill="#231F20"/>
+  <rect x="12" y="13" width="2" height="1" fill="#231F20"/>
+  <rect x="4"  y="14" width="8" height="1" fill="#231F20"/>
+  <!-- clock face fill -->
+  <rect x="2"  y="3"  width="12" height="10" fill="white"/>
+  <rect x="3"  y="2"  width="10" height="12" fill="white"/>
+  <!-- hour hand (pointing up to ~11) -->
+  <rect x="7" y="4" width="2" height="5" fill="#231F20"/>
+  <!-- minute hand (pointing right to ~3) -->
+  <rect x="8" y="7" width="4" height="2" fill="#231F20"/>
+  <!-- center dot -->
+  <rect x="7" y="7" width="2" height="2" fill="#231F20"/>
+</svg><p>1×</p></div></div>
+  <div class="icon-note">
+    <strong>History</strong>
+    <br>Clock face (pixel art): hands pointing to ~11:00 and ~3:00 suggest "time has passed, here is where we are." Used for version history / edit timeline.
+  </div>
+</div>
+<h2>Design notes</h2>
+<div class="lesson">
+  <strong>Coherence across the set</strong>
+  All icons share the same near-black (#231F20), the same pixel weight (1–2px lines), and the same 16×16 grid discipline. Accent colour is used only when semantically loaded: red for Love (emotion), green for Sprout (growth/nature), yellow (#ffe564) reserved for interactive/active states in CSS.
+</div>
+<div class="lesson">
+  <strong>The Sprout as site identity icon</strong>
+  The sprout is the one site-specific icon with no generic equivalent. It should appear in places that signal growth and learning — new stories, first-time user onboarding, the permeable media progression. It embodies the theoretical framework directly.
+</div>
+<div class="lesson">
+  <strong>Implementation: CSS over SVG files</strong>
+  These icons should be implemented as inline SVGs or a sprite sheet, not as image files — this allows CSS colour variables to retheme them instantly. The pixel-art button aesthetic from the staging site (stepped shadow, chamfered corners) should be applied as a CSS system, not per-element SVG.
+</div>
+</body>
+</html>

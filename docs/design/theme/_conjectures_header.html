@@ -1,0 +1,202 @@
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap');
+
+:root {
+  --near-black: #231F20;
+  --yellow: #ffe564;
+  --purple: #9494ff;
+  --white: #ffffff;
+  --grid-color: rgba(0,0,0,0.07);
+  --border: 2px solid var(--near-black);
+}
+
+body {
+  font-family: 'Space Mono', 'Monaspace Neon', 'Courier New', Courier, monospace;
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--near-black);
+  background-color: var(--white);
+  background-image:
+    linear-gradient(var(--grid-color) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-color) 1px, transparent 1px);
+  background-size: 28px 28px;
+  margin: 0 !important;
+  padding: 0 !important;
+  max-width: none !important;
+}
+
+#main-wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 40px 32px 80px;
+  background: rgba(255,255,255,0.93);
+  min-height: 100vh;
+}
+
+header#title-block-header {
+  border-bottom: var(--border);
+  padding-bottom: 12px;
+  margin-bottom: 32px;
+}
+
+h1.title {
+  font-size: 2.4em;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  margin: 0 0 4px 0;
+}
+
+p.date {
+  margin: 0;
+  opacity: 0.5;
+  font-size: 0.85em;
+}
+
+h2 {
+  font-size: 0.85em;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  margin: 48px 0 16px 0;
+  padding: 5px 12px;
+  background: var(--near-black);
+  color: var(--white);
+  display: inline-block;
+}
+
+h3 {
+  font-size: 1em;
+  font-weight: 700;
+  margin: 36px 0 8px 0;
+  padding-bottom: 4px;
+  border-bottom: var(--border);
+}
+
+h4 {
+  font-size: 0.9em;
+  font-weight: 700;
+  margin: 20px 0 4px 0;
+  font-style: italic;
+}
+
+p { margin: 0 0 14px 0; }
+
+a {
+  color: var(--near-black);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+a:hover { background: var(--yellow); }
+
+blockquote {
+  border-left: 4px solid var(--near-black);
+  margin: 16px 0 20px;
+  padding: 10px 16px;
+  background: rgba(255,229,100,0.15);
+}
+blockquote p { margin: 0; }
+
+code {
+  font-family: inherit;
+  background: rgba(0,0,0,0.06);
+  padding: 1px 4px;
+}
+
+pre {
+  background: rgba(0,0,0,0.04);
+  border: 1px solid rgba(0,0,0,0.14);
+  padding: 16px;
+  overflow-x: auto;
+  font-size: 0.85em;
+  line-height: 1.5;
+  white-space: pre;
+}
+
+/* mermaid-filter outputs <p><img src="data:..."></p> */
+p:has(> img[src^="data:"]) {
+  border: var(--border);
+  padding: 16px;
+  margin: 24px 0;
+  background: white;
+  overflow-x: auto;
+}
+p > img[src^="data:"] {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+hr {
+  border: none;
+  border-top: var(--border);
+  margin: 40px 0;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 0.9em;
+}
+th {
+  background: var(--near-black);
+  color: var(--white);
+  padding: 6px 12px;
+  text-align: left;
+}
+td {
+  padding: 6px 12px;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+tr:nth-child(even) td { background: rgba(0,0,0,0.03); }
+
+ul, ol { margin: 0 0 14px 1.5em; }
+li { margin-bottom: 4px; }
+
+/* conjecture map */
+.conjecture-map {
+  margin: 24px 0;
+  border: var(--border);
+  padding: 16px;
+  background: white;
+  overflow-x: auto;
+}
+.conjecture-map svg { max-width: 100%; }
+
+/* design feature sections */
+.example-box {
+  border: 1px dashed var(--near-black);
+  padding: 16px;
+  margin: 16px 0;
+  background: rgba(148,148,255,0.05);
+}
+.example-box-label {
+  font-size: 0.72em;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  color: rgba(35,31,32,0.5);
+}
+
+.precedent-box {
+  border: 1px solid var(--near-black);
+  padding: 12px 16px;
+  margin: 16px 0;
+  background: rgba(255,229,100,0.08);
+}
+
+.tag {
+  display: inline-block;
+  background: var(--yellow);
+  color: var(--near-black);
+  padding: 2px 8px;
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  margin: 0 2px 4px 0;
+  border: 1px solid var(--near-black);
+}
+.tag-purple { background: var(--purple); color: white; }
+</style>
