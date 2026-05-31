@@ -14,11 +14,16 @@
 .book-detail-meta a { color: #3498db; text-decoration: none; }
 .detail-stories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
   list-style: none;
   padding: 0;
   margin: 0;
+  background: #e2e2e2;
+  border: 1px solid #e2e2e2;
+}
+.detail-stories-grid > li {
+  background: #fff;
 }
 .remove-form { margin-top: 6px; }
 .remove-btn {
@@ -53,21 +58,11 @@
       {% for story, snippet in stories_with_snippets %}
         <li>
           <a class="story-card" href="{% url 'show_story' story.id %}">
-            <div class="story-card__body">
-              <div class="story-card__body-main">
-                <p class="story-card__title">{{ story.title }}</p>
-                <p class="story-card__desc">{{ story.description }}</p>
-                {% if story.author %}
-                <div class="story-card__meta">
-                  <span class="story-card__author"><strong>By</strong> {{ story.author.username }}</span>
-                </div>
-                {% endif %}
-              </div>
-            </div>
-            <div class="story-card__reveal" aria-hidden="true">
-              <p class="story-card__preview">{% if snippet %}{{ snippet }}{% else %}No preview available.{% endif %}</p>
-              <p class="story-card__hint">Public story</p>
-            </div>
+            <p class="story-card__title">{{ story.title }}</p>
+            <p class="story-card__desc">{{ story.description }}</p>
+            {% if story.author %}
+            <div class="story-card__meta">By {{ story.author.username }}</div>
+            {% endif %}
           </a>
           {% if book.owner == request.user %}
             <form action="{% url 'remove_story_from_book' book.id story.id %}" method="post" class="remove-form">

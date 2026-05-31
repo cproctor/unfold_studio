@@ -2,14 +2,38 @@
 
 {% block style %}
 <style>
-.page-featured h2 { margin-top: 0; }
+.page-featured {
+    max-width: 760px;
+    padding: 22px 0 40px;
+}
+.page-featured-section {
+    border-top: 1px solid #d8d8d8;
+    margin-bottom: 28px;
+}
+.page-featured-section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 0 10px;
+}
+.page-featured-section-header h2 {
+    margin: 0;
+    font-size: 0.92em;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
 .page-featured-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 1px;
     list-style: none;
     padding: 0;
     margin: 0;
+    background: #e2e2e2;
+    border: 1px solid #e2e2e2;
+}
+.page-featured-grid > li {
+    background: #fff;
 }
 </style>
 {% endblock %}
@@ -17,32 +41,31 @@
 {% block content %}
 <div class="page-featured">
     {% if stories %}
-        <h2>Featured stories</h2>
-        <ul class="page-featured-grid">
-        {% for story in stories %}
-            <li>
-                <a class="story-card" href="{% url 'show_story' story.id %}">
-                    <div class="story-card__body">
-                        <div class="story-card__body-main">
-                            <p class="story-card__title">{{ story.title }}</p>
-                            <p class="story-card__desc">{{ story.description }}</p>
-                            {% if story.author %}
-                            <div class="story-card__meta">
-                                <span class="story-card__author"><strong>By</strong> {{ story.author.username }}</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="story-card__reveal" aria-hidden="true">
-                        <p class="story-card__preview">{{ story.hover_preview }}</p>
-                        <p class="story-card__hint">Public story</p>
-                    </div>
-                </a>
-            </li>
-        {% endfor %}
-        </ul>
+        <div class="page-featured-section">
+            <div class="page-featured-section-header">
+                <h2>Featured stories</h2>
+            </div>
+            <ul class="page-featured-grid">
+            {% for story in stories %}
+                <li>
+                    <a class="story-card" href="{% url 'show_story' story.id %}">
+                        <p class="story-card__title">{{ story.title }}</p>
+                        <p class="story-card__desc">{{ story.description }}</p>
+                        {% if story.author %}
+                        <div class="story-card__meta">By {{ story.author.username }}</div>
+                        {% endif %}
+                    </a>
+                </li>
+            {% endfor %}
+            </ul>
+        </div>
     {% else %}
-        <h2>Sorry, there are no featured stories right now.</h2>
+        <div class="page-featured-section">
+            <div class="page-featured-section-header">
+                <h2>Featured stories</h2>
+            </div>
+            <p style="color: #8a8a8a; padding: 14px 0;">No featured stories right now.</p>
+        </div>
     {% endif %}
 </div>
 {% endblock %}
