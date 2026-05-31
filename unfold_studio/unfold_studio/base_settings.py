@@ -206,6 +206,8 @@ STORY_PRIORITY = {
 STORIES_ON_HOMEPAGE = 20
 
 STORIES_PER_PAGE = 20
+
+GENRE_BROWSE_TAG_COUNT = 12  # Number of most-common genre tags shown in browse filters
 FEED_ITEMS_ON_PROFILE = 20
 FEED_ITEMS_PER_PAGE = 40
 

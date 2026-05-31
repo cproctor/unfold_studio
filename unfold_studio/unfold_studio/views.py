@@ -14,6 +14,7 @@ from django.views import View
 import structlog
 
 from stories.models import Story
+from stories.genres import get_top_genres, genre_label
 from comments.models import Comment
 from profiles.forms import SignUpForm, StudentSignUpForm
 from unfold_studio.forms import SearchForm
@@ -46,9 +47,23 @@ def home(request):
 def browse(request):
     "Shows all stories, sorted by priority."
     if request.user.is_authenticated:
-        stories = Story.objects.for_user(request.user)
+        base_stories = Story.objects.for_user(request.user)
     else:
-        stories = Story.objects.for_anonymous_user()
+        base_stories = Story.objects.for_anonymous_user()
+
+    # Genre filter
+    current_genre = request.GET.get('genre', '')
+    if current_genre:
+        stories = base_stories.filter(genres__contains=[current_genre])
+    else:
+        stories = base_stories
+
+    # Build sidebar genre links from top tags across all visible stories
+    top_genres = get_top_genres(base_stories, s.GENRE_BROWSE_TAG_COUNT)
+    genre_links = [{'slug': '', 'label': 'All', 'qs': ''}] + [
+        {'slug': g, 'label': genre_label(g), 'qs': f'genre={g}'}
+        for g in top_genres
+    ]
 
     if request.GET.get('query'):
         form = SearchForm(request.GET)
@@ -97,7 +112,9 @@ def browse(request):
         story_page = paginator.page(page)
         return render(request, 'unfold_studio/list_stories.html', {
             'stories': story_page,
-            'form': form
+            'form': form,
+            'genre_links': genre_links,
+            'current_genre': current_genre,
         })
     except OperationalError:
         messages.warning(request, "Search is not supported using the current database.")

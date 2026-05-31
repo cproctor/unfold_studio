@@ -13,34 +13,20 @@ from django.db.models import Q
 from django.urls import reverse
 from django import forms
 from django.forms import ModelForm
+from django.conf import settings as s
 import structlog
 
 from books.models import Book
 from stories.mixins import StoryMixin
+from stories.forms import GenreTagField
+from stories.genres import get_top_genres, genre_label
 from literacy_events.models import LiteracyEvent
 
 log = structlog.get_logger("books")
 
-GENRE_CHOICES = [
-    ('fantasy', 'Fantasy'),
-    ('mystery', 'Mystery'),
-    ('sci_fi', 'Science Fiction'),
-    ('romance', 'Romance'),
-    ('horror', 'Horror'),
-    ('adventure', 'Adventure'),
-    ('historical', 'Historical Fiction'),
-    ('thriller', 'Thriller'),
-    ('comedy', 'Comedy'),
-    ('drama', 'Drama'),
-]
-
 
 class BookForm(ModelForm):
-    genres = forms.MultipleChoiceField(
-        choices=GENRE_CHOICES,
-        widget=forms.CheckboxSelectMultiple,
-        required=False,
-    )
+    genres = GenreTagField()
 
     class Meta:
         model = Book
@@ -102,6 +88,9 @@ class BookListView(ListView):
         query = self.request.GET.get('query', '').strip()
         all_books = list(context['object_list'])
 
+        top_genres = get_top_genres(Book.objects.all(), s.GENRE_BROWSE_TAG_COUNT)
+        genre_choices = [(g, genre_label(g)) for g in top_genres]
+
         if query:
             if genre_filter == 'other':
                 search_results = [b for b in all_books if not b.genres]
@@ -112,7 +101,7 @@ class BookListView(ListView):
             context['genre_groups'] = {}
             context['ungenred_books'] = []
             context['search_results'] = search_results
-            context['genre_choices'] = GENRE_CHOICES
+            context['genre_choices'] = genre_choices
             context['active_genre'] = genre_filter
             context['query'] = query
             context['is_search'] = True
@@ -123,7 +112,6 @@ class BookListView(ListView):
         elif genre_filter:
             all_books = [b for b in all_books if genre_filter in (b.genres or [])]
 
-        genre_label_map = dict(GENRE_CHOICES)
         genre_groups = {}
         ungenred = []
         for book in all_books:
@@ -131,15 +119,14 @@ class BookListView(ListView):
                 for g in book.genres:
                     if genre_filter and genre_filter != 'other' and g != genre_filter:
                         continue
-                    label = genre_label_map.get(g, g.title())
-                    genre_groups.setdefault(label, []).append(book)
+                    genre_groups.setdefault(genre_label(g), []).append(book)
             else:
                 ungenred.append(book)
 
         context['genre_groups'] = genre_groups
         context['ungenred_books'] = ungenred
         context['search_results'] = []
-        context['genre_choices'] = GENRE_CHOICES
+        context['genre_choices'] = genre_choices
         context['active_genre'] = genre_filter
         context['query'] = query
         context['is_search'] = False

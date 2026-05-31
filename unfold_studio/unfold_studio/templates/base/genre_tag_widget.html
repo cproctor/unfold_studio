@@ -1,0 +1,73 @@
+<input type="hidden" name="{{ field.html_name }}" id="{{ field.id_for_label }}" value="{{ field.value }}">
+<div class="tag-input-container" id="{{ field.id_for_label }}_widget"></div>
+
+<script>
+(function () {
+    const hidden = document.getElementById('{{ field.id_for_label }}');
+    const container = document.getElementById('{{ field.id_for_label }}_widget');
+    if (!hidden || !container) return;
+
+    let tags = [];
+    try { tags = JSON.parse(hidden.value || '[]'); } catch (e) {}
+
+    const textInput = document.createElement('input');
+    textInput.type = 'text';
+    textInput.className = 'tag-input-field';
+    textInput.placeholder = 'Add a genre and press Enter…';
+    container.appendChild(textInput);
+
+    container.addEventListener('click', () => textInput.focus());
+
+    function sync() {
+        hidden.value = JSON.stringify(tags);
+    }
+
+    function renderTags() {
+        container.querySelectorAll('.tag-pill').forEach(el => el.remove());
+        tags.forEach(function (tag, i) {
+            const pill = document.createElement('span');
+            pill.className = 'tag-pill';
+            pill.appendChild(document.createTextNode(tag));
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'tag-pill__remove';
+            btn.setAttribute('aria-label', 'Remove ' + tag);
+            btn.textContent = '\xd7';
+            btn.addEventListener('click', function () {
+                tags.splice(i, 1);
+                renderTags();
+                sync();
+            });
+            pill.appendChild(btn);
+            container.insertBefore(pill, textInput);
+        });
+    }
+
+    function addTag(raw) {
+        const normalized = raw.trim().toLowerCase();
+        if (normalized && !tags.includes(normalized)) {
+            tags.push(normalized);
+            renderTags();
+            sync();
+        }
+        textInput.value = '';
+    }
+
+    textInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' || e.key === ',') {
+            e.preventDefault();
+            addTag(textInput.value);
+        } else if (e.key === 'Backspace' && !textInput.value && tags.length) {
+            tags.pop();
+            renderTags();
+            sync();
+        }
+    });
+
+    textInput.addEventListener('blur', function () {
+        if (textInput.value.trim()) addTag(textInput.value);
+    });
+
+    renderTags();
+}());
+</script>
