@@ -1,11 +1,11 @@
 <template>
   <div class="story-toolbar">
-    <template v-if="editable">[<button @click="$emit('save')">Save</button>]</template>
-    <template v-if="!editable">[<button @click="$emit('replay')">Replay</button>]</template>
-    <template v-if="editable">[<button @click="$emit('fork')">Fork</button>]</template>
-    <template v-if="editable && !shared">[<button @click="$emit('share')">Share</button>]</template>
-    <template v-if="editable && shared">[<button @click="$emit('unshare')">Unshare</button>]</template>
-    [<button @click="toggleCode">{{ showCode ? 'Hide code' : 'Show code' }}</button>]
+    <span v-if="editable">[<button @click="$emit('save')">Save</button>]</span>
+    <span v-if="!editable">[<button @click="$emit('replay')">Replay</button>]</span>
+    <span v-if="editable">[<button @click="$emit('fork')">Fork</button>]</span>
+    <span v-if="editable && !shared">[<button @click="$emit('share')">Share</button>]</span>
+    <span v-if="editable && shared">[<button @click="$emit('unshare')">Unshare</button>]</span>
+    <span>[<button @click="toggleCode">{{ showCode ? 'Hide code' : 'Show code' }}</button>]</span>
   </div>
 </template>
 
@@ -32,7 +32,7 @@ function toggleCode(): void {
 
 <style scoped>
 .story-toolbar {
-  padding: 4px 0;
+  display: contents;
 }
 
 .story-toolbar button {

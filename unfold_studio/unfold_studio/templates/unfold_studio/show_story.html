@@ -36,6 +36,10 @@
         }
         .description {
             padding-bottom: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 0 0.5em;
         }
     </style>
 
@@ -47,47 +51,37 @@
 <p class="anonymous-claim-hint"><a href="{% url 'signup' %}?claim_story={{ story.id }}">Sign up</a> or <a href="{% url 'login' %}?claim_story={{ story.id }}">Log in</a> to keep this story on your account.</p>
 {% endif %}
 <div class="description">
-{% if story.author %}
-    by {{story.author.username | linkuser:user}}
-{% else %}
-    Private draft (not shown in browse or search)
-{% endif %}
-{% if story.parent %}
-    (Forked from {{story.parent.id | linkstory:user}}{% if story.parent.author %} by {{story.parent.author.username | linkuser:user}}{% endif %})
-{% endif %}
+<span>{% if story.author %}by {{story.author.username | linkuser:user}}{% else %}Private draft (not shown in browse or search){% endif %}{% if story.parent %} (Forked from {{story.parent.id | linkstory:user}}{% if story.parent.author %} by {{story.parent.author.username | linkuser:user}}{% endif %}){% endif %}</span>
 {% if request.user.is_authenticated and request.user.profile in story.loves.all %}
-    {% if story.loves.count > 1 %}
-        <span class="love">&lt;3 {{story.loves.count}}</span>
-    {% else %}
-        <span class="love">&lt;3</span>
-    {% endif %}
+    {% if story.loves.count > 1 %}<span class="love">&lt;3 {{story.loves.count}}</span>
+    {% else %}<span class="love">&lt;3</span>{% endif %}
 {% elif not request.user.is_authenticated and story.loves.count > 0 %}
     <span class="love">&lt;3 {{story.loves.count}}</span>
 {% elif request.user == story.author and story.loves.count > 0 %}
     <span class="love">&lt;3 {{story.loves.count}}</span>
 {% endif %}
 {% if story.author == request.user %}
-    [<a href="{% url 'edit_story' story.id %}">Edit details</a>]
-    [<a href="{% url 'new_story_version' story.id %}">Save this version</a>]
+    <span>[<a href="{% url 'edit_story' story.id %}">Edit details</a>]</span>
+    <span>[<a href="{% url 'new_story_version' story.id %}">Save this version</a>]</span>
 {% endif %}
 {% if request.user.is_authenticated %}
     {% if story.author != request.user %}
         {% if request.user.profile not in story.loves.all %}
             {% if story.loves.count > 0 %}
-                [<form action="{% url 'love_story' story.id %}" method="post" class="link"><input type="submit" value="&lt;3 (loved by {{story.loves.count}})">{% csrf_token %}</form>]
+                <span>[<form action="{% url 'love_story' story.id %}" method="post" class="link"><input type="submit" value="&lt;3 (loved by {{story.loves.count}})">{% csrf_token %}</form>]</span>
             {% else %}
-                [<form action="{% url 'love_story' story.id %}" method="post" class="link"><input type="submit" value="&lt;3">{% csrf_token %}</form>]
+                <span>[<form action="{% url 'love_story' story.id %}" method="post" class="link"><input type="submit" value="&lt;3">{% csrf_token %}</form>]</span>
             {% endif %}
         {% endif %}
     {% endif %}
     {% if addableBooks %}
-        [<a href="{% url 'choose_book' story.id %}">Add to book</a>]
+        <span>[<a href="{% url 'choose_book' story.id %}">Add to book</a>]</span>
     {% endif %}
 {% elif can_fork_anonymously %}
-    [<form action="{% url 'fork_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Fork"></form>]
+    <span>[<form action="{% url 'fork_story' story.id %}" method="post" class="link">{% csrf_token %}<input type="submit" value="Fork"></form>]</span>
 {% endif %}
 {% if story.author %}
-[<a href="{% url 'show_story_versions' story.id %}">History{% if commentable %}/Comment{% endif %}</a>]
+    <span>[<a href="{% url 'show_story_versions' story.id %}">History{% if commentable %}/Comment{% endif %}</a>]</span>
 {% endif %}
 <span id="toolbar-slot"></span>
 </div>
