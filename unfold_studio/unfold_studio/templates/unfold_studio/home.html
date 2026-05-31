@@ -2,9 +2,25 @@
 
 {% block style %}
 <style>
-.page-featured {
+.page-home {
     max-width: 760px;
     padding: 22px 0 40px;
+}
+.page-home-hero {
+    padding: 14px 0 24px;
+}
+.page-home-hero h1 {
+    margin: 0 0 8px;
+    font-size: 2.2em;
+}
+.page-home-hero p {
+    margin: 0;
+    color: #8a8a8a;
+    font-size: 0.95em;
+}
+.page-home-hero a {
+    color: #3498db;
+    text-decoration: none;
 }
 .page-featured-section {
     border-top: 1px solid #d8d8d8;
@@ -21,6 +37,11 @@
     font-size: 0.92em;
     letter-spacing: 0.08em;
     text-transform: uppercase;
+}
+.page-featured-section-header a {
+    font-size: 0.85em;
+    color: #3498db;
+    text-decoration: none;
 }
 .page-featured-grid {
     display: grid;
@@ -39,12 +60,18 @@
 {% endblock %}
 
 {% block content %}
-<div class="page-featured">
-    {% if stories %}
-        <div class="page-featured-section">
-            <div class="page-featured-section-header">
-                <h2>Featured stories</h2>
-            </div>
+<div class="page-home">
+    <div class="page-home-hero">
+        <h1>{{ SITE_NAME }}</h1>
+        <p>Write and share interactive stories. <a href="{{ LANDING_PAGE_URL }}">Learn more →</a></p>
+    </div>
+
+    <div class="page-featured-section">
+        <div class="page-featured-section-header">
+            <h2>Stories</h2>
+            <a href="{% url 'list_stories' %}">Browse all →</a>
+        </div>
+        {% if stories %}
             <ul class="page-featured-grid">
             {% for story in stories %}
                 <li>
@@ -58,14 +85,9 @@
                 </li>
             {% endfor %}
             </ul>
-        </div>
-    {% else %}
-        <div class="page-featured-section">
-            <div class="page-featured-section-header">
-                <h2>Featured stories</h2>
-            </div>
+        {% else %}
             <p style="color: #8a8a8a; padding: 14px 0;">No featured stories right now.</p>
-        </div>
-    {% endif %}
+        {% endif %}
+    </div>
 </div>
 {% endblock %}

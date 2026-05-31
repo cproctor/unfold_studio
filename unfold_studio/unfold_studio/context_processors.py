@@ -9,4 +9,5 @@ def documentation_urls(request):
         'DEBUG': settings.DEBUG,
         'STATIC_URL': settings.STATIC_URL,
         'SITE_NAME': settings.SITE_NAME,
+        'LANDING_PAGE_URL': settings.LANDING_PAGE_URL,
     }
