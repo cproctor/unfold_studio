@@ -65,6 +65,7 @@ def browse(request):
         for g in top_genres
     ]
 
+    raw_q = ''
     if request.GET.get('query'):
         form = SearchForm(request.GET)
         if form.is_valid():
@@ -110,11 +111,19 @@ def browse(request):
     page = request.GET.get('page', 1)
     try:
         story_page = paginator.page(page)
+        qs_parts = []
+        if current_genre:
+            qs_parts.append(f'genre={current_genre}')
+        if raw_q:
+            qs_parts.append(f'query={raw_q}')
         return render(request, 'unfold_studio/list_stories.html', {
             'stories': story_page,
             'form': form,
             'genre_links': genre_links,
             'current_genre': current_genre,
+            'search_value': raw_q,
+            'has_search_query': form.is_bound,
+            'browse_querystring': '&'.join(qs_parts),
         })
     except OperationalError:
         messages.warning(request, "Search is not supported using the current database.")
@@ -225,56 +234,6 @@ def signup(request):
         'claim_story_id': claim_story_id,
         'next_url': next_url,
     })
-
-def join_student(request):
-    if request.method == 'POST':
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    user = form.save()
-                    code_str = request.POST.get('join_code')
-                    try:
-                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
-                        user.literacy_groups.add(join_code.group)
-                        join_code.assigned_user = user
-                        join_code.save()
-                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
-                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                        return redirect('home')
-                    except JoinCode.DoesNotExist:
-                        raise ValueError("Invalid or expired join code.")
-            except ValueError as e:
-                messages.error(request, str(e))
-                return render(request, 'registration/join_student.html', {'form': form})
-    else:
-        form = SignUpForm()
-    return render(request, 'registration/join_student.html', {'form': form})
-
-def join_student(request):
-    if request.method == 'POST':
-        form = StudentSignUpForm(request.POST)
-        if form.is_valid():
-            try:
-                with transaction.atomic():
-                    user = form.save()
-                    code_str = request.POST.get('join_code')
-                    try:
-                        join_code = JoinCode.objects.get(code=code_str, assigned_user__isnull=True)
-                        user.literacy_groups.add(join_code.group)
-                        join_code.assigned_user = user
-                        join_code.save()
-                        log.info(event="Student Sign Up Successful", arg={"user": user.username})
-                        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-                        return redirect('home')
-                    except JoinCode.DoesNotExist:
-                        raise ValueError("Invalid or expired join code.")
-            except ValueError as e:
-                messages.error(request, str(e))
-                return render(request, 'registration/join_student.html', {'form': form})
-    else:
-        form = StudentSignUpForm()
-    return render(request, 'registration/join_student.html', {'form': form})
 
 
 def join_student(request):
