@@ -213,19 +213,34 @@ class Story(SoftDeleteMixin):
         inkText = self.inject_input_call_indicators(inkText)
         inkText = self.inject_generate_call_indicators(inkText)
         inkText = self.inject_static_continue_knot(inkText)
+        inkText = self.inject_static_agent_knot(inkText)
 
         offset = ((len(variables) - initialVarLength) + len(directInclusions) -
                 len(self.external_function_declarations()))
         return inkText, inclusions, variables, knots, offset
 
     def inject_static_continue_knot(self, inkText):
-        continue_knot = """
-        === continue(->target_knot) ===
-        ~ continue_function(target_knot)
-        Continue was called above
-        -> target_knot
-        """
+        continue_knot = (
+            "\n"
+            "=== continue(->target_knot) ===\n"
+            "~ continue_function(target_knot)\n"
+            "Continue was called above\n"
+            "-> target_knot\n"
+        )
         return inkText + continue_knot
+
+    def inject_static_agent_knot(self, inkText):
+        """
+        Injects static agent knot text into the ink text.
+        """
+        agent_knot = (
+            "\n"
+            "=== agent(->character_knot, ->target_knot) ===\n"
+            "~ agent_call(character_knot, target_knot)\n"
+            "Agent was called above\n"
+            "-> target_knot\n"
+        )
+        return inkText + agent_knot
 
     def inject_input_call_indicators(self, inkText):
         input_pattern = re.compile(r'^\s*~\s*.*\binput\s*\(.*\)')
@@ -259,6 +274,7 @@ class Story(SoftDeleteMixin):
             "EXTERNAL input(a)",
             "EXTERNAL SEED_AI(a)",
             "EXTERNAL continue_function(a)",
+            "EXTERNAL agent_call(a,b)",
         ]
 
     def ink_to_json(self, ink, offset=0):
@@ -391,6 +407,27 @@ class Story(SoftDeleteMixin):
             'knotContents': knot_contents,
             'knotChoices': knot_choices
         }
+
+    def run_from_knot(self, knot_name: str) -> str:
+        #only extrafccts text from self.ink
+        if not knot_name or not isinstance(knot_name,str):
+            raise ValueError("knot_name must be a non-empty string")
+        knots = self.get_knots()  # OrderedDict(name -> (lineNum, knotText))
+        name = knot_name.strip()
+
+        if name not in knots:
+           raise KeyError(f"Knot '{knot_name}' not found")
+
+        _, knot_text = knots[name]
+
+        # knot_text includes the knot header line itself (e.g. "=== intro ===")
+        # We want everything AFTER that header.
+        if "\n" in knot_text:
+            _, content = knot_text.split("\n", 1)
+        else:
+            content = ""
+        return content.strip("\n")
+        #Does not handle choices, includes, or update StoryPlayRecords. Only returns raw ink source
 
     def update_priority(self):
         self.priority = self.score() / pow(self.age_in_hours() + 2, settings.STORY_PRIORITY['GRAVITY'])

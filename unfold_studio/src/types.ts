@@ -25,10 +25,21 @@ export interface UnfoldConfig {
     compile?: string
     generate?: string
     getNextDir?: string
+    agent?: string
     playInstance: string
     playRecord: string
     fork?: string
     share?: string
     unshare?: string
+  }
+}
+
+export interface AgentResponse {
+  result: {
+    character_text?: string | null
+    continue_decision: {
+      direction: string
+      content?: { bridge_text?: string }
+    }
   }
 }

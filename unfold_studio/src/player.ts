@@ -1,6 +1,6 @@
 import { StoryAPI, AuthRequiredError } from './api'
 import { sanitizeStoryText } from './sanitize'
-import type { StoryContent, UnfoldConfig } from './types'
+import type { AgentResponse, StoryContent, UnfoldConfig } from './types'
 
 function uuid(): string {
   return '10000000-1000-4000-8000-100000000000'.replace(/[018]/g, (c) => {
@@ -27,6 +27,11 @@ export class InkPlayer {
   private content: StoryContent | null = null
   private api: StoryAPI
   private config: UnfoldConfig
+  private agentFunctionCalled = false
+  private currentAgentCharacter: string | null = null
+  private currentAgentTarget: string | null = null
+  private isAgentLoading = false
+  private agentLoading: HTMLElement | null = null
 
   constructor(container: HTMLElement | string, config: UnfoldConfig) {
     const el = typeof container === 'string'
@@ -58,6 +63,14 @@ export class InkPlayer {
       this.scheduleInputBoxForContinue()
       return ''
     })
+
+    story.BindExternalFunction('agent_call', (characterKnot: unknown, targetKnot: unknown) => {
+      this.agentFunctionCalled = true
+      this.currentAgentCharacter = (characterKnot as { _componentsString: string })._componentsString
+      this.currentAgentTarget = (targetKnot as { _componentsString: string })._componentsString
+      this.scheduleAgentInputBox(`Talk to ${this.currentAgentCharacter}`)
+      return ''
+    })
     story.BindExternalFunction('input', (placeholder: unknown = 'Enter text...') => {
       // If we have a pending value (user just submitted), return it so inkjs assigns it.
       if (this.pendingInputValue !== null) {
@@ -74,6 +87,47 @@ export class InkPlayer {
       this.generatePrompt = promptText as string
       return ''
     })
+  }
+
+  private resetAgent(): void {
+    this.agentFunctionCalled = false
+    this.currentAgentCharacter = null
+    this.currentAgentTarget = null
+    this.isAgentLoading = false
+    this.hideAgentLoading()
+  }
+
+  private showAgentLoading(message = 'Thinking...'): void {
+    this.hideAgentLoading()
+    const p = document.createElement('p')
+    p.classList.add('regular-text', 'story-content', 'agent-loading', 'show')
+    p.textContent = message
+    this.container.appendChild(p)
+    this.agentLoading = p
+    this.renderDidEnd()
+  }
+
+  private hideAgentLoading(): void {
+    this.agentLoading?.remove()
+    this.agentLoading = null
+  }
+
+  private safeAddContent(content: { text: string; tags: string[] }): void {
+    this.addContent(content)
+    this.renderDidEnd()
+  }
+
+  private isValidAgentResponse(resp: unknown): resp is AgentResponse {
+    if (!resp || typeof resp !== 'object') return false
+    const result = (resp as { result?: unknown }).result
+    if (!result || typeof result !== 'object') return false
+    const r = result as { character_text?: unknown; continue_decision?: unknown }
+    if (r.character_text != null && typeof r.character_text !== 'string') return false
+    if (!r.continue_decision || typeof r.continue_decision !== 'object') return false
+    const decision = r.continue_decision as { direction?: unknown; content?: unknown }
+    if (typeof decision.direction !== 'string') return false
+    if (decision.content !== undefined && typeof decision.content !== 'object') return false
+    return true
   }
 
   play(content: StoryContent): void {
@@ -153,6 +207,12 @@ export class InkPlayer {
           this.renderDidEnd()
           return
         }
+        if (this.agentFunctionCalled) {
+          this.agentFunctionCalled = false
+          this.renderScheduledInputBox(staggerIdx)
+          this.renderDidEnd()
+          return
+        }
         if (this.generateInProgress) {
           await this.generateAndInsertInDOM(this.generatePrompt, staggerIdx++)
         }
@@ -179,6 +239,7 @@ export class InkPlayer {
   stop(): void {
     this.timeouts.forEach(clearTimeout)
     this.running = false
+    this.resetAgent()
   }
 
   private createStoryPlayRecord(storyPlayInstanceUUID: string, dataType: string, data: unknown): void {
@@ -215,6 +276,17 @@ export class InkPlayer {
       void this.handleUserInputForContinue(userInput)
     }
     this.inputBoxToInsert = this.createInputForm('AUTHORS_CONTINUE_INPUT_BOX', eventHandler, placeholder)
+  }
+
+  private scheduleAgentInputBox(placeholder = 'Enter text....'): void {
+    const eventHandler = (userInput: string) => {
+      if (this.isAgentLoading) return
+      this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), 'READERS_AGENT_ENTERED_TEXT', userInput)
+      void this.handleUserInputForAgent(userInput)
+    }
+    this.inputBoxToInsert = this.createInputForm('AUTHORS_AGENT_INPUT_BOX', eventHandler, placeholder)
+    this.renderScheduledInputBox()
+    this.renderDidEnd()
   }
 
   private createInputForm(formType: string, eventHandler: (input: string) => void, placeholder: string, showInputAfterSubmit = true): HTMLElement {
@@ -308,6 +380,86 @@ export class InkPlayer {
         break
       default:
         console.error('Unexpected direction:', nextDirectionJson)
+    }
+  }
+
+  private async handleUserInputForAgent(userInput: string): Promise<void> {
+    if (this.isAgentLoading) return
+
+    this.isAgentLoading = true
+    const who = this.currentAgentCharacter ?? 'The character'
+    this.showAgentLoading(`${who} is thinking...`)
+
+    let response: AgentResponse
+    try {
+      response = await this.api.agentCall(
+        userInput,
+        this.getStoryPlayInstanceUUID(),
+        this.currentAgentCharacter,
+        this.currentAgentTarget,
+        this.aiSeed,
+      )
+    } catch (err) {
+      this.hideAgentLoading()
+      this.isAgentLoading = false
+      console.error('Agent request failed:', err)
+      this.safeAddContent({ text: 'Connection issue talking to the character. Please try again.', tags: ['agent'] })
+      this.scheduleAgentInputBox('Try again...')
+      return
+    }
+
+    this.hideAgentLoading()
+    this.isAgentLoading = false
+
+    if (!this.isValidAgentResponse(response)) {
+      this.safeAddContent({ text: 'Hmm—something went wrong getting a reply. Please try again.', tags: ['agent'] })
+      this.scheduleAgentInputBox('Try again...')
+      return
+    }
+
+    const agentResult = response.result
+    const characterText = typeof agentResult.character_text === 'string' ? agentResult.character_text.trim() : ''
+    const decision = agentResult.continue_decision
+    const direction = decision.direction || 'NEEDS_INPUT'
+    const content = decision.content ?? {}
+
+    if (direction === 'DIRECT_CONTINUE') {
+      void this.continueStory()
+      return
+    }
+
+    if (characterText) {
+      this.safeAddContent({ text: characterText, tags: ['agent'] })
+      this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), 'AI_GENERATED_TEXT', characterText)
+    } else {
+      this.safeAddContent({ text: '…No reply came back :( Please try again', tags: ['agent'] })
+    }
+
+    switch (direction) {
+      case 'NEEDS_INPUT':
+        this.scheduleAgentInputBox()
+        break
+      case 'INVALID_USER_INPUT':
+        this.scheduleAgentInputBox('Input was not valid... Try again')
+        break
+      case 'BRIDGE_AND_CONTINUE': {
+        const bridgeText = content.bridge_text
+        if (typeof bridgeText === 'string' && bridgeText.trim()) {
+          this.safeAddContent({ text: bridgeText, tags: ['bridge'] })
+          this.createStoryPlayRecord(this.getStoryPlayInstanceUUID(), 'AI_GENERATED_TEXT', bridgeText)
+        } else {
+          this.safeAddContent({ text: "Okay — let's continue.", tags: ['bridge'] })
+        }
+        void this.continueStory()
+        break
+      }
+      case 'DIRECT_CONTINUE':
+        void this.continueStory()
+        break
+      default:
+        this.safeAddContent({ text: "I didn't understand what to do next — try again.", tags: ['agent'] })
+        this.scheduleAgentInputBox('Try again...')
+        break
     }
   }
 

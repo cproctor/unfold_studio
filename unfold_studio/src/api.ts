@@ -1,4 +1,4 @@
-import type { UnfoldConfig } from './types'
+import type { AgentResponse, UnfoldConfig } from './types'
 
 export class AuthRequiredError extends Error {
   constructor(message: string) {
@@ -66,6 +66,17 @@ export class StoryAPI {
     })
     if (res.status === 401) throw new AuthRequiredError('Sign in to use AI features.')
     if (!res.ok) throw new Error(`GetNextDirection failed: ${res.status}`)
+    return res.json()
+  }
+
+  async agentCall(userInput: string, storyPlayInstanceUUID: string, characterKnotName: string | null, targetKnotName: string | null, aiSeed: number | null): Promise<AgentResponse> {
+    const res = await fetch(this.urls.agent!, {
+      method: 'POST',
+      headers: this.headers(),
+      body: JSON.stringify({ user_input: userInput, story_play_instance_uuid: storyPlayInstanceUUID, character_knot_name: characterKnotName, target_knot_name: targetKnotName, ai_seed: aiSeed }),
+    })
+    if (res.status === 401) throw new AuthRequiredError('Sign in to use AI features.')
+    if (!res.ok) throw new Error(`AgentCall failed: ${res.status}`)
     return res.json()
   }
 
