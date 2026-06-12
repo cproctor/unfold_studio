@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from commons.base.views import BaseView, AuthenticatedView
 from .models import StoryTransitionRecord
 from .services.unfold_studio import UnfoldStudioService
-from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE, AGENT_SYSTEM_PROMPT, AGENT_USER_PROMPT_TEMPLATE)
+from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE, AGENT_CHARACTER_SYSTEM_PROMPT, AGENT_CHARACTER_USER_PROMPT_TEMPLATE)
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -213,7 +213,7 @@ class AgentView(BaseView):
         timeline = story_history.get("timeline", [])
         truncated_history = {"timeline": timeline[-10:]}
 
-        user_prompt = AGENT_USER_PROMPT_TEMPLATE % {
+        user_prompt = AGENT_CHARACTER_USER_PROMPT_TEMPLATE % {
             "character_knot": voice_block,
             "history": json.dumps(truncated_history, indent=2),
             "user_input": user_input,
@@ -222,7 +222,7 @@ class AgentView(BaseView):
 
         try:
             return backend.get_ai_response_by_system_and_user_prompt(
-                AGENT_SYSTEM_PROMPT, user_prompt, seed, hit_cache=True
+                AGENT_CHARACTER_SYSTEM_PROMPT, user_prompt, seed, hit_cache=True
             )
         except Exception as e:
             print("ERROR in generate_character_text:", repr(e))

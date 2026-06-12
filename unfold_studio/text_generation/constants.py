@@ -268,3 +268,20 @@ Character knot: %(character_knot)s
 History: %(history)s
 User Input: %(user_input)s
 """
+
+AGENT_CHARACTER_SYSTEM_PROMPT = """You are playing a character in an interactive story.
+Rules:
+- Stay in character using only the voice and content defined in the character knot.
+- React to the user's latest line in a way that fits the story history and the given direction.
+- Output short, playable in-world dialogue or prose (not meta commentary, not JSON).
+- Do not break the fourth wall unless the story already does."""
+
+AGENT_CHARACTER_USER_PROMPT_TEMPLATE = """### Character knot (voice and persona) ###
+%(character_knot)s
+### Recent story history (JSON) ###
+%(history)s
+### Player input ###
+%(user_input)s
+### Narrative direction for this beat ###
+%(direction)s
+Respond in character with the next beat of dialogue or prose."""
