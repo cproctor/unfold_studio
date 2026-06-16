@@ -24,10 +24,11 @@ BRIDGE_AND_CONTINUE:
 - The bridge can be written WITHOUT guessing the user’s goals, motivations, missing actions, or preferences.
 
 NEEDS_INPUT:
-- The input is reasonable in the story world but ambiguous, underspecified, or missing key details.
+- The input is reasonable in the story world and moves the story towards the target.
+- The input is ambiguous, underspecified, or missing key details.
 - There are multiple possible ways the story could continue.
 - You cannot write a bridge without guessing what the user truly meant.
-- A clarifying question or prompt is required.
+- The user needs to be guided towards the target.
 
 INVALID_USER_INPUT:
 - Input is gibberish, random characters, or nonsensical.
@@ -37,35 +38,38 @@ INVALID_USER_INPUT:
 
 If input is just unclear use NEEDS_INPUT
 
-
 Consider temporal relationships: user input must precede target node events.
 
 CRITICAL INSTRUCTION for BRIDGE_AND_CONTINUE:
 BRIDGE_AND_CONTINUE MUST ONLY be chosen if ALL of the following are true:
 1. The user’s intent is fully clear.
 2. There is ONLY ONE reasonable way to reach the target knot.
-3. No missing user intention needs to be inferred.
-4. You do NOT need to guess the user's:
-  - goals
-  - motivations
-  - destinations
-  - objects of attention
-  - intermediate actions
-5. The bridge can be written using ONLY clear logical consequences.
+3. The bridge can be written using ONLY clear logical consequences.
 
 If you need to guess, NEEDS_INPUT is more likely to be the direction.
 
-BRIDGE TEXT RULES:
+The following rules apply to bridge_text for BRIDGE_AND_CONTINUE, and for the guidance_text for NEEDS_INPUT.
 
 RULE 1 — NO SPOILERS:
-The bridge_text MUST NOT contain ANY content, details, or information from the target knot.
+The text MUST NOT contain ANY content, details, or information from the target knot.
 This includes but is not limited to:
 - No direct references to target knot events
 - No paraphrasing of target knot content
 - No hints or foreshadowing of target knot details
-- No inclusion of target knot characters, locations, or actions
 
-RULE 2 — STOPPING POINT:
+RULE 2 — TONE AND VOICE MATCHING:
+The text MUST match the narrative voice, tone, and style established in the
+story history. Before writing, identify:
+- Narrative perspective (first person / second person / third person)
+- Register: is the story humorous, poetic, tense, whimsical, formal?
+- Sentence rhythm and pacing (short punchy beats vs. flowing prose)
+- Any recurring stylistic devices (metaphor, irony, sensory detail)
+- The text must feel like it was written by the same author as the story history.
+A tonally flat or mismatched bridge is a failure even if it is logically correct.
+
+The following rules apply to the bridge_text for BRIDGE_AND_CONTINUE
+
+RULE 3 — STOPPING POINT:
 The bridge must end at a neutral story beat — a moment that is clearly "about to enter"
 the target knot, but contains ZERO information about what happens in it.
 Think of the bridge as ending on a closed door, not inside the next room.
@@ -73,22 +77,17 @@ The character should arrive at the threshold of the next scene and stop there.
 If you find yourself writing anything that could only be known *after* the target knot
 begins, stop and cut it.
 
-RULE 3 — TONE AND VOICE MATCHING:
-The bridge_text MUST match the narrative voice, tone, and style established in the
-story history. Before writing, identify:
-- Narrative perspective (first person / second person / third person)
-- Register: is the story humorous, poetic, tense, whimsical, formal?
-- Sentence rhythm and pacing (short punchy beats vs. flowing prose)
-- Any recurring stylistic devices (metaphor, irony, sensory detail)
-
-The bridge must feel like it was written by the same author as the story history.
-A tonally flat or mismatched bridge is a failure even if it is logically correct.
-
 RULE 4 — NARRATIVE ECONOMY:
 The bridge should be only as long as necessary to close the gap.
 Do not pad with unnecessary detail. Do not slow momentum right before the target knot.
 The final sentence of the bridge should carry the character to the edge of the next
 scene — no further.
+
+The following rules apply to the NEEDS_INPUT guidance text:
+- The user sees the prompt "What would you like to do next?" in the front end UI.
+- The guidance text will appear before it, and should lead into the above question.
+- The text should subtly push the user towards the target while following the rules above.
+- Do not include a question.
 
 Classification instruction:
 1. First decide internally which direction is the best match
@@ -113,15 +112,9 @@ For NEEDS_INPUT:
 [Current Story] "You walk down the hallway"
 [User Input] "I look"
 [Target Node] "You enter the library"
-This is because you look for what? look at what? more clarification from user is required so give a guidance text
+The user still needs to be guided to the library.
 Good Guidance text:
-"Can you specify what are you looking at?"
-
-For NEEDS_INPUT:
-[Current Story] "You sit on your bed"
-[User Input] "I get ready"
-[Target Node] "You wake up at 7AM tired"
-
+"You see a short hallway with three doors on the right"
 
 For BRIDGE_AND_CONTINUE:
 Example Flow:
@@ -274,10 +267,15 @@ Rules:
 - Stay in character using only the voice and content defined in the character knot.
 - React to the user's latest line in a way that fits the story history and the given direction.
 - Output short, playable in-world dialogue or prose (not meta commentary, not JSON).
-- Do not break the fourth wall unless the story already does."""
+- Do not break the fourth wall unless the story already does.
+- The target knot is where the story is heading next. Use it only to steer the player
+  toward that beat. NEVER reveal, paraphrase, hint at, or foreshadow its content — no
+  spoilers. The target knot informs your direction, it is not something you disclose."""
 
 AGENT_CHARACTER_USER_PROMPT_TEMPLATE = """### Character knot (voice and persona) ###
 %(character_knot)s
+### Target knot (where the story is heading — DO NOT spoil) ###
+%(target_knot)s
 ### Recent story history (JSON) ###
 %(history)s
 ### Player input ###

@@ -204,17 +204,22 @@ class AgentView(BaseView):
                 return False, f"Missing required field: {field}"
         return True, None
 
-    def generate_character_text(self, character_knot_data, story_history, user_input, direction, seed):
+    def generate_character_text(self, character_knot_data, target_knot_data, story_history, user_input, direction, seed):
         backend = TextGenerationFactory.create(settings.TEXT_GENERATION)
 
         character_voice = [ln.strip() for ln in character_knot_data.get("knotContents", []) if ln.strip()]
         voice_block = "\n".join(character_voice)
+
+        target_knot = "\n".join(
+            ln.strip() for ln in target_knot_data.get("knotContents", []) if ln.strip()
+        )
 
         timeline = story_history.get("timeline", [])
         truncated_history = {"timeline": timeline[-10:]}
 
         user_prompt = AGENT_CHARACTER_USER_PROMPT_TEMPLATE % {
             "character_knot": voice_block,
+            "target_knot": target_knot,
             "history": json.dumps(truncated_history, indent=2),
             "user_input": user_input,
             "direction": direction
@@ -224,8 +229,8 @@ class AgentView(BaseView):
             return backend.get_ai_response_by_system_and_user_prompt(
                 AGENT_CHARACTER_SYSTEM_PROMPT, user_prompt, seed, hit_cache=True
             )
-        except Exception as e:
-            print("ERROR in generate_character_text:", repr(e))
+        except Exception:
+            log.exception("Error in generate_character_text")
             voice_lines = [ln.strip() for ln in character_knot_data.get("knotContents", []) if ln.strip()]
             voice_hint = voice_lines[0] if voice_lines else "…"
             return f"{voice_hint}\n\nWhat do you want?"
@@ -239,11 +244,9 @@ class AgentView(BaseView):
             character_knot_name = request_body.get("character_knot_name")
             target_knot_name = request_body.get("target_knot_name")
             user_input = request_body.get("user_input")
-            print("character_knot_name", character_knot_name)
-            print("target_knot_name", target_knot_name)
-            print("story_play_instance_uuid", story_play_instance_uuid)
-            print("user_input", user_input)
-            print("seed", seed)
+            log.debug("AgentView.post", character_knot_name=character_knot_name,
+                      target_knot_name=target_knot_name,
+                      story_play_instance_uuid=story_play_instance_uuid, seed=seed)
 
             validation_successful, failure_reason = self.validate_request(request_body)
             if not validation_successful:
@@ -279,9 +282,10 @@ class AgentView(BaseView):
                 }}, status=200)
 
 
-            # Call 2 — character voice (target knot blind)
+            # Call 2 — character voice (target knot aware, steers without spoiling)
             character_text = self.generate_character_text(
                 character_knot_data=character_knot_data,
+                target_knot_data=target_knot_data,
                 story_history=story_play_history,
                 user_input=user_input,
                 direction=direction,
@@ -299,7 +303,7 @@ class AgentView(BaseView):
 
             elif direction == StoryContinueDirections.BRIDGE_AND_CONTINUE:
                 if not content.get("bridge_text"):
-                    print("BRIDGE_AND_CONTINUE selected but bridge_text missing, falling back to NEEDS_INPUT")
+                    log.warning("BRIDGE_AND_CONTINUE selected but bridge_text missing, falling back to NEEDS_INPUT")
                     direction = StoryContinueDirections.NEEDS_INPUT
                     content = {
                         "guidance_text": "What would you like to do next?",
@@ -334,7 +338,7 @@ class AgentView(BaseView):
         except json.JSONDecodeError:
             return JsonResponse({"error": "Invalid JSON in request body."}, status=400)
         except Exception as e:
-            print(str(e))
+            log.exception("Unexpected error in AgentView")
             return JsonResponse({"error": str(e)}, status=500)
 
     def get(self, request):
