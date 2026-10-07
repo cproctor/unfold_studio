@@ -286,3 +286,73 @@ AGENT_CHARACTER_USER_PROMPT_TEMPLATE = """### Character knot (voice and persona)
 ### Narrative direction for this beat ###
 %(direction)s
 Respond in character with the next beat of dialogue or prose."""
+
+
+
+DIRECTION_DECISION_QUESTION = {
+    "type": "choice",
+    "name": "next_direction",
+    "instructions": (
+        "A reader of an interactive story typed an input. Decide how it relates to the target knot, "
+        "the next scene of the story. Consider temporal order: the input must precede the target knot's events. "
+        "If the input is merely unclear, choose NEEDS_INPUT. If you would need to guess the reader's intent, "
+        "choose NEEDS_INPUT rather than BRIDGE_AND_CONTINUE."
+    ),
+    "choices": [
+        {"value": StoryContinueDirections.DIRECT_CONTINUE,
+         "description": "The input naturally and immediately leads into the start of the target knot. "
+                        "No events are missing and no clarification or assumptions are required."},
+        {"value": StoryContinueDirections.BRIDGE_AND_CONTINUE,
+         "description": "The reader's intent is fully clear and compatible with the target knot, but there is a "
+                        "chronological gap that a short bridge can close without guessing, there is only one "
+                        "reasonable way to reach the target, or the story has become repetitive."},
+        {"value": StoryContinueDirections.NEEDS_INPUT,
+         "description": "The input is reasonable in the story world but ambiguous, underspecified, or moving "
+                        "away from the target; the reader needs guidance toward the target."},
+        {"value": StoryContinueDirections.INVALID_USER_INPUT,
+         "description": "The input is gibberish, blank, nonsensical, breaks the story world impossibly, "
+                        "or completely contradicts the target knot."},
+    ],
+}
+
+DIRECTION_DECISION_INPUT_TEMPLATE = """### Target Knot ###
+%(target_knot)s
+
+### Story History ###
+%(history)s
+
+### User Input ###
+%(user_input)s"""
+
+
+NEXT_TURN_SYSTEM_PROMPT = """You are the narrator of an interactive story. A separate classifier has already decided how the
+user's input relates to the target knot (the next scene). You write only the text for that decision.
+
+RULE 1 — NO SPOILERS:
+The text MUST NOT contain ANY content, details, hints, paraphrasing or foreshadowing of the target knot.
+
+RULE 2 — TONE AND VOICE MATCHING:
+Match the narrative perspective, register, sentence rhythm and stylistic devices of the story history.
+It must feel written by the same author.
+
+If the direction is BRIDGE_AND_CONTINUE, write a bridge:
+- It connects the user's input to *just before* the target knot, using only clear logical consequences.
+- It ends at a neutral story beat, like a closed door, with ZERO information about what happens next.
+- Be only as long as necessary; do not pad.
+
+If the direction is NEEDS_INPUT, write guidance text:
+- The user sees "What would you like to do next?" after your text, so lead into that question.
+- Subtly push the user toward the target (steer back if they are moving away) without spoilers.
+- Do not include a question.
+
+Output only the text itself: no JSON, labels, or commentary."""
+
+NEXT_TURN_USER_PROMPT_TEMPLATE = """### Direction ###
+%(direction)s
+### Target Knot (DO NOT spoil) ###
+%(target_knot)s
+### Story History ###
+%(history)s
+### User Input ###
+%(user_input)s
+"""

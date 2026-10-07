@@ -33,30 +33,15 @@ def mock_knot_data():
     }
 
 @pytest.fixture
-def mock_ai_response():
-    return {
-        'probabilities': {
-            'DIRECT_CONTINUE': 0.6,
-            'BRIDGE_AND_CONTINUE': 0.2,
-            'NEEDS_INPUT': 0.1,
-            'INVALID_USER_INPUT': 0.1
-        },
-        'direct_continue': {
-            'next_knot': 'next_knot_1'
-        },
-        'bridge_and_continue': {
-            'bridge_text': 'Bridge text',
-            'next_knot': 'next_knot_2'
-        },
-        'needs_input': {
-            'guidance_text': 'What would you like to do next?',
-            'reason': 'User input needed'
-        },
-        'invalid_user_input': {
-            'guidance_text': 'Invalid input, please try again',
-            'reason': 'Invalid user input'
-        }
-    }
+def mock_decision():
+    return {'choice': 'DIRECT_CONTINUE', 'confidence': 0.9, 'probabilities': []}
+
+def make_backend(decision_choice='DIRECT_CONTINUE', text='Generated text'):
+    backend = Mock()
+    backend.get_choice_decision.return_value = {'choice': decision_choice, 'confidence': 0.9, 'probabilities': []}
+    backend.is_decision_cached.return_value = True
+    backend.get_ai_response_by_system_and_user_prompt.return_value = text
+    return backend
 
 class TestGetNextDirectionView:
     def test_validate_request_with_valid_data(self, valid_request_data):
@@ -72,104 +57,73 @@ class TestGetNextDirectionView:
         assert not is_valid
         assert 'Missing required field' in error
 
-    def test_build_system_and_user_prompt(self, valid_request_data, mock_story_history, mock_knot_data):
+    def test_build_decision_input(self, valid_request_data, mock_story_history, mock_knot_data):
         view = GetNextDirectionView()
-        system_prompt, user_prompt = view.build_system_and_user_prompt(
-            mock_knot_data,
-            mock_story_history,
-            valid_request_data['user_input']
+        decision_input = view.build_decision_input(
+            mock_knot_data, mock_story_history, valid_request_data['user_input']
         )
-        assert system_prompt is not None
-        assert user_prompt is not None
-        assert valid_request_data['user_input'] in user_prompt
-        assert json.dumps(mock_story_history, indent=2) in user_prompt
+        assert valid_request_data['user_input'] in decision_input
+        assert json.dumps(mock_story_history, indent=2) in decision_input
 
-    def test_parse_and_validate_ai_response_with_valid_data(self, mock_ai_response):
-        view = GetNextDirectionView()
-        response = json.dumps(mock_ai_response)
-        parsed_data = view.parse_and_validate_ai_response(response)
-        assert parsed_data == mock_ai_response
-
-    def test_parse_and_validate_ai_response_with_invalid_json(self):
-        view = GetNextDirectionView()
-        with pytest.raises(json.JSONDecodeError):
-            view.parse_and_validate_ai_response('invalid json')
-
-    def test_parse_and_validate_ai_response_with_missing_probabilities(self):
-        view = GetNextDirectionView()
-        invalid_response = {
-            'probabilities': {
-                'DIRECT_CONTINUE': 0.6,
-                'BRIDGE_AND_CONTINUE': 0.2
-                # Missing other required directions
-            }
-        }
-        with pytest.raises(ValueError, match='Missing probability for'):
-            view.parse_and_validate_ai_response(json.dumps(invalid_response))
-
-    def test_parse_and_validate_ai_response_with_invalid_probability_sum(self):
-        view = GetNextDirectionView()
-        invalid_response = {
-            'probabilities': {
-                'DIRECT_CONTINUE': 1.0,
-                'BRIDGE_AND_CONTINUE': 0.5,
-                'NEEDS_INPUT': 0.3,
-                'INVALID_USER_INPUT': 0.2
-            }
-        }
-        with pytest.raises(ValueError, match='Total probability does not equal 1'):
-            view.parse_and_validate_ai_response(json.dumps(invalid_response))
-
-    def test_determine_next_direction_details_from_ai_response(self, mock_ai_response):
-        view = GetNextDirectionView()
-        direction, content = view.determine_next_direction_details_from_ai_response(mock_ai_response)
-        assert direction == 'DIRECT_CONTINUE'  # Highest probability
-        assert content == mock_ai_response['direct_continue']
-
-    @patch('text_generation.views.UnfoldStudioService')
-    @patch('text_generation.views.TextGenerationFactory')
-    def test_get_next_direction_details_for_story_success(
-        self, mock_factory, mock_unfold_service, valid_request_data, mock_story_history, mock_ai_response, mock_knot_data
-    ):
-        view = GetNextDirectionView()
-        mock_unfold_service.get_story_play_history.return_value = mock_story_history
-        
-        mock_backend = Mock()
-        mock_backend.get_ai_response_by_system_and_user_prompt.return_value = json.dumps(mock_ai_response)
-        mock_factory.create.return_value = mock_backend
-
-        direction, content = view.get_next_direction_details_for_story(
-            mock_knot_data,
-            mock_story_history,
-            valid_request_data['user_input'],
-            valid_request_data['ai_seed']
-        )
-        
+    def test_direct_continue_uses_only_decision_model(self, mock_story_history, mock_knot_data):
+        backend = make_backend('DIRECT_CONTINUE')
+        with patch('text_generation.views.get_llm_backend', return_value=backend):
+            direction, content = GetNextDirectionView().get_next_direction_details_for_story(
+                mock_knot_data, mock_story_history, 'Test input', 42
+            )
         assert direction == 'DIRECT_CONTINUE'
-        assert content == mock_ai_response['direct_continue']
-        mock_backend.get_ai_response_by_system_and_user_prompt.assert_called_once()
+        assert 'reason' in content
+        backend.get_choice_decision.assert_called_once()
+        backend.get_ai_response_by_system_and_user_prompt.assert_not_called()
 
-    @patch('text_generation.views.UnfoldStudioService')
-    @patch('text_generation.views.TextGenerationFactory')
-    def test_get_next_direction_details_for_story_error(
-        self, mock_factory, mock_unfold_service, valid_request_data, mock_story_history, mock_knot_data
-    ):
-        view = GetNextDirectionView()
-        mock_unfold_service.get_story_play_history.return_value = mock_story_history
-        
-        mock_backend = Mock()
-        mock_backend.get_ai_response_by_system_and_user_prompt.side_effect = Exception('API Error')
-        mock_factory.create.return_value = mock_backend
+    def test_invalid_input_uses_only_decision_model(self, mock_story_history, mock_knot_data):
+        backend = make_backend('INVALID_USER_INPUT')
+        with patch('text_generation.views.get_llm_backend', return_value=backend):
+            direction, content = GetNextDirectionView().get_next_direction_details_for_story(
+                mock_knot_data, mock_story_history, 'ung', 42
+            )
+        assert direction == 'INVALID_USER_INPUT'
+        backend.get_ai_response_by_system_and_user_prompt.assert_not_called()
 
-        direction, content = view.get_next_direction_details_for_story(
-            mock_knot_data,
-            mock_story_history,
-            valid_request_data['user_input'],
-            valid_request_data['ai_seed']
-        )
-        
+    def test_bridge_generates_bridge_text(self, mock_story_history, mock_knot_data):
+        backend = make_backend('BRIDGE_AND_CONTINUE', 'A bridge. ')
+        with patch('text_generation.views.get_llm_backend', return_value=backend):
+            direction, content = GetNextDirectionView().get_next_direction_details_for_story(
+                mock_knot_data, mock_story_history, 'Test input', 42
+            )
+        assert direction == 'BRIDGE_AND_CONTINUE'
+        assert content['bridge_text'] == 'A bridge.'
+        backend.get_ai_response_by_system_and_user_prompt.assert_called_once()
+        user_prompt = backend.get_ai_response_by_system_and_user_prompt.call_args[0][1]
+        assert 'BRIDGE_AND_CONTINUE' in user_prompt
+
+    def test_needs_input_generates_guidance_text(self, mock_story_history, mock_knot_data):
+        backend = make_backend('NEEDS_INPUT', 'Look around.')
+        with patch('text_generation.views.get_llm_backend', return_value=backend):
+            direction, content = GetNextDirectionView().get_next_direction_details_for_story(
+                mock_knot_data, mock_story_history, 'Test input', 42
+            )
+        assert direction == 'NEEDS_INPUT'
+        assert content['guidance_text'] == 'Look around.'
+
+    def test_decision_error_falls_back_to_needs_input(self, mock_story_history, mock_knot_data):
+        backend = make_backend()
+        backend.get_choice_decision.side_effect = Exception('API Error')
+        with patch('text_generation.views.get_llm_backend', return_value=backend):
+            direction, content = GetNextDirectionView().get_next_direction_details_for_story(
+                mock_knot_data, mock_story_history, 'Test input', 42
+            )
         assert direction == StoryContinueDirections.NEEDS_INPUT
         assert content['guidance_text'] == 'What would you like to do next?'
+        assert content['reason'] == 'System failure'
+
+    def test_unknown_choice_falls_back_to_needs_input(self, mock_story_history, mock_knot_data):
+        backend = make_backend('SOMETHING_ELSE')
+        with patch('text_generation.views.get_llm_backend', return_value=backend):
+            direction, content = GetNextDirectionView().get_next_direction_details_for_story(
+                mock_knot_data, mock_story_history, 'Test input', 42
+            )
+        assert direction == StoryContinueDirections.NEEDS_INPUT
         assert content['reason'] == 'System failure'
 
     @patch('text_generation.views.StoryTransitionRecord')
@@ -195,31 +149,27 @@ class TestGetNextDirectionView:
         )
 
     @patch('text_generation.views.UnfoldStudioService')
-    @patch('text_generation.views.TextGenerationFactory')
     @patch('text_generation.views.StoryTransitionRecord')
     def test_post_success(
-        self, mock_story_transition_record, mock_factory, mock_unfold_service,
-        valid_request_data, mock_story_history, mock_ai_response, mock_knot_data
+        self, mock_story_transition_record, mock_unfold_service,
+        valid_request_data, mock_story_history, mock_knot_data
     ):
         view = GetNextDirectionView()
         mock_unfold_service.get_story_play_history.return_value = mock_story_history
         mock_unfold_service.get_story_id_from_play_instance_uuid.return_value = 1
         mock_unfold_service.get_knot_data.return_value = mock_knot_data
         
-        mock_backend = Mock()
-        mock_backend.get_ai_response_by_system_and_user_prompt.return_value = json.dumps(mock_ai_response)
-        mock_factory.create.return_value = mock_backend
-
         request = Mock()
         request.body = json.dumps(valid_request_data).encode()
 
-        response = view.post(request)
+        with patch('text_generation.views.get_llm_backend', return_value=make_backend('DIRECT_CONTINUE')):
+            response = view.post(request)
         
         assert isinstance(response, JsonResponse)
         assert response.status_code == 200
         result = json.loads(response.content)['result']
         assert result['direction'] == 'DIRECT_CONTINUE'
-        assert result['content'] == mock_ai_response['direct_continue']
+        assert 'reason' in result['content']
 
     def test_post_invalid_json(self):
         view = GetNextDirectionView()
@@ -256,7 +206,7 @@ class TestGetNextDirectionView:
 
     @pytest.mark.django_db
     def test_dispatch_allows_authenticated_user(
-        self, valid_request_data, mock_story_history, mock_knot_data, mock_ai_response,
+        self, valid_request_data, mock_story_history, mock_knot_data,
     ):
         user = User.objects.create_user("continueuser", "c@example.com", "password123")
         factory = RequestFactory()
@@ -267,13 +217,10 @@ class TestGetNextDirectionView:
         )
         request.user = user
         with patch('text_generation.views.UnfoldStudioService') as mock_unfold_service, \
-                patch('text_generation.views.TextGenerationFactory') as mock_factory, \
+                patch('text_generation.views.get_llm_backend', return_value=make_backend()), \
                 patch('text_generation.views.StoryTransitionRecord'):
             mock_unfold_service.get_story_play_history.return_value = mock_story_history
             mock_unfold_service.get_story_id_from_play_instance_uuid.return_value = 1
             mock_unfold_service.get_knot_data.return_value = mock_knot_data
-            mock_backend = Mock()
-            mock_backend.get_ai_response_by_system_and_user_prompt.return_value = json.dumps(mock_ai_response)
-            mock_factory.create.return_value = mock_backend
             response = GetNextDirectionView.as_view()(request)
         assert response.status_code == 200

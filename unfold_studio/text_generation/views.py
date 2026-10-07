@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from commons.base.views import BaseView, AuthenticatedView
 from .models import StoryTransitionRecord
 from .services.unfold_studio import UnfoldStudioService
-from .constants import (StoryContinueDirections, CONTINUE_STORY_SYSTEM_PROMPT, CONTINUE_STORY_USER_PROMPT_TEMPLATE, AGENT_CHARACTER_SYSTEM_PROMPT, AGENT_CHARACTER_USER_PROMPT_TEMPLATE)
+from .constants import (StoryContinueDirections, DIRECTION_DECISION_QUESTION, DIRECTION_DECISION_INPUT_TEMPLATE, NEXT_TURN_SYSTEM_PROMPT, NEXT_TURN_USER_PROMPT_TEMPLATE, AGENT_CHARACTER_SYSTEM_PROMPT, AGENT_CHARACTER_USER_PROMPT_TEMPLATE)
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -60,62 +60,41 @@ class GetNextDirectionView(AuthenticatedView):
                 return False, f"Missing required field: {field}"
         return True, None
 
-    def build_system_and_user_prompt(self, target_knot_data, story_history, user_input):
-        system_prompt = CONTINUE_STORY_SYSTEM_PROMPT
-        user_prompt = CONTINUE_STORY_USER_PROMPT_TEMPLATE % {
+    def build_decision_input(self, target_knot_data, story_history, user_input):
+        return DIRECTION_DECISION_INPUT_TEMPLATE % {
             'target_knot': target_knot_data.get('knotContents', []),
             'history': json.dumps(story_history, indent=2),
             'user_input': user_input
         }
 
-        return system_prompt, user_prompt
+    def build_next_turn_prompts(self, direction, target_knot_data, story_history, user_input):
+        user_prompt = NEXT_TURN_USER_PROMPT_TEMPLATE % {
+            'direction': direction,
+            'target_knot': target_knot_data.get('knotContents', []),
+            'history': json.dumps(story_history, indent=2),
+            'user_input': user_input
+        }
+        return NEXT_TURN_SYSTEM_PROMPT, user_prompt
 
-    def parse_and_validate_ai_response(self, data):
-        try:
-            if data.startswith("```json") and data.endswith("```"):
-                data = data[7:-3].strip()
-            parsed_data = json.loads(data)
-
-            probabilities = parsed_data.get('probabilities', {})
-            if not isinstance(probabilities, dict):
-                raise ValueError("Invalid probabilities format")
-                
-            required_directions = StoryContinueDirections.values()
-            for direction in required_directions:
-                if direction not in probabilities:
-                    raise ValueError(f"Missing probability for {direction}")
-
-            total_probability = int(sum(probabilities.values()))
-            if total_probability != 1:
-                raise ValueError(f"Total probability does not equal 1")
-
-            return parsed_data
-            
-        except json.JSONDecodeError:
-            log.exception("JSON decode error in AI response data")
-            raise
-        except ValueError:
-            log.exception("AI response data validation failed")
-            raise
-        except Exception:
-            log.exception("Unexpected error parsing AI response data")
-            raise
-
-    def determine_next_direction_details_from_ai_response(self, data):
-        probabilities = data.get('probabilities', {})
-        max_prob = max(probabilities.values())
-        selected_direction = next(
-            direction for direction, prob in probabilities.items()
-            if prob == max_prob
+    def decide_direction(self, backend, target_knot_data, story_history, user_input, seed):
+        """Uses the decisions model to pick the next direction. Returns (direction, decision)."""
+        decision_input = self.build_decision_input(target_knot_data, story_history, user_input)
+        decision = backend.get_choice_decision(
+            decision_input, DIRECTION_DECISION_QUESTION, seed, hit_cache=True
         )
+        direction = decision.get('choice')
+        if direction not in StoryContinueDirections.values():
+            raise ValueError(f"Invalid direction received: {direction}")
+        return direction, decision
 
-        if selected_direction not in StoryContinueDirections.values():
-            raise ValueError("Invalid direction received")
-
-        selected_direction_content = data.get(selected_direction.lower(), {})
-
-        return selected_direction, selected_direction_content
-
+    def generate_next_turn_text(self, backend, direction, target_knot_data, story_history, user_input, seed):
+        system_prompt, user_prompt = self.build_next_turn_prompts(
+            direction, target_knot_data, story_history, user_input
+        )
+        text = backend.get_ai_response_by_system_and_user_prompt(
+            system_prompt, user_prompt, seed, hit_cache=True
+        )
+        return (text or "").strip()
 
     def get_next_direction_details_for_story(self, target_knot_data, story_history, user_input, seed):
         default_direction = StoryContinueDirections.NEEDS_INPUT
@@ -127,13 +106,24 @@ class GetNextDirectionView(AuthenticatedView):
         try:
             backend = get_llm_backend()
 
-            system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_history, user_input)
-            response = backend.get_ai_response_by_system_and_user_prompt(system_prompt, user_prompt, seed, hit_cache=True, force_json=True)
-            parsed_response = self.parse_and_validate_ai_response(response)
-            direction, content = self.determine_next_direction_details_from_ai_response(parsed_response)
+            direction, decision = self.decide_direction(
+                backend, target_knot_data, story_history, user_input, seed
+            )
+            content = {
+                "reason": f"Decision model chose {direction} (confidence: {decision.get('confidence')})"
+            }
+
+            if direction == StoryContinueDirections.BRIDGE_AND_CONTINUE:
+                content["bridge_text"] = self.generate_next_turn_text(
+                    backend, direction, target_knot_data, story_history, user_input, seed
+                )
+            elif direction == StoryContinueDirections.NEEDS_INPUT:
+                content["guidance_text"] = self.generate_next_turn_text(
+                    backend, direction, target_knot_data, story_history, user_input, seed
+                )
 
             return direction, content
-            
+
         except Exception:
             log.exception("Exception in get_next_direction_details_for_story")
             return default_direction, default_content
@@ -169,8 +159,8 @@ class GetNextDirectionView(AuthenticatedView):
             story_play_history = UnfoldStudioService.get_story_play_history(story_play_instance_uuid)
 
             backend = get_llm_backend()
-            system_prompt, user_prompt = self.build_system_and_user_prompt(target_knot_data, story_play_history, user_input)
-            if not backend.is_direction_cached(system_prompt, user_prompt, seed) and not request.user.is_authenticated:
+            decision_input = self.build_decision_input(target_knot_data, story_play_history, user_input)
+            if not backend.is_decision_cached(decision_input, [DIRECTION_DECISION_QUESTION], seed) and not request.user.is_authenticated:
                 return JsonResponse({"error": "Authentication required for uncached AI generation."}, status=401)
 
             direction, content = self.get_next_direction_details_for_story(target_knot_data, story_play_history, user_input, seed)

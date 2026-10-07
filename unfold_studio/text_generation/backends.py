@@ -10,6 +10,8 @@ from .models import TextGenerationRecord
 
 log = structlog.get_logger("unfold_studio")
 
+DEFAULT_DECISION_MODEL = "gpt-6-luna"
+
 
 class TextGenerationBackendInterface(ABC):
     """Interface to a text generation service.
@@ -129,6 +131,58 @@ class OpenAIBackend(TextGenerationBackendInterface):
         messages_hash = self._get_messages_hash(messages)
         backend_config_hash = self._get_backend_config_hash()
         return bool(self._get_cached_response(seed, messages_hash, backend_config_hash))
+
+    def _get_decision_messages(self, input_text, questions):
+        return [
+            {"role": "decision_input", "content": input_text},
+            {"role": "decision_questions", "content": questions},
+        ]
+
+    def is_decision_cached(self, input_text, questions, seed):
+        messages = self._get_decision_messages(input_text, questions)
+        return bool(self._get_cached_response(
+            seed, self._get_messages_hash(messages), self._get_backend_config_hash()
+        ))
+
+    def get_choice_decision(self, input_text, question, seed, hit_cache=True):
+        """Asks the OpenAI Decisions API a single `choice` question about input_text.
+        Returns {"choice": str, "confidence": float, "probabilities": list}.
+        """
+        messages = self._get_decision_messages(input_text, [question])
+        messages_hash = self._get_messages_hash(messages)
+        backend_config_hash = self._get_backend_config_hash()
+
+        if hit_cache:
+            cached_result = self._get_cached_response(seed, messages_hash, backend_config_hash)
+            if cached_result:
+                return json.loads(cached_result)
+
+        decision = self.api_client.decisions.create(
+            model=self.config.get('decision_model', DEFAULT_DECISION_MODEL),
+            input=input_text,
+            questions=[question],
+        )
+        answer = decision.answers[0]
+        if answer.type != "choice":
+            raise ValueError(f"Decision API returned unexpected answer type: {answer.type}")
+
+        result = {
+            "choice": answer.choice,
+            "confidence": answer.confidence,
+            "probabilities": [
+                p.model_dump() if hasattr(p, "model_dump") else p
+                for p in (answer.probabilities or [])
+            ],
+        }
+        if hit_cache:
+            self._save_to_cache(
+                seed=seed,
+                messages_hash=messages_hash,
+                messages=messages,
+                backend_config_hash=backend_config_hash,
+                result=json.dumps(result),
+            )
+        return result
 
     def get_ai_response_by_system_and_user_prompt(self, system_prompt, user_prompt, seed, hit_cache=True, force_json=False):
         messages = [
