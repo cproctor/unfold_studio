@@ -177,7 +177,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 _admin_email = os.environ.get('ADMIN_EMAIL', '')
 ADMINS = [('Unfold Studio Admin', _admin_email)] if _admin_email else []
 
-DEFAULT_AI_SEED = 45
+DEFAULT_AI_SEED = 42
 
 # Public (anonymous) stories older than this many days are deleted by
 # the delete_old_public_stories management command.

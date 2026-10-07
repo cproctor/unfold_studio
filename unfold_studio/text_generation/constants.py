@@ -22,6 +22,7 @@ BRIDGE_AND_CONTINUE:
 - The input is logically compatible with the target knot, but there is a clear chronological gap.
 - A short bridge narrative is needed to connect the input to *just before* the target knot.
 - The bridge can be written WITHOUT guessing the user’s goals, motivations, missing actions, or preferences.
+- The story has become repetitive
 
 NEEDS_INPUT:
 - The input is reasonable in the story world and moves the story towards the target.
@@ -45,6 +46,7 @@ BRIDGE_AND_CONTINUE MUST ONLY be chosen if ALL of the following are true:
 1. The user’s intent is fully clear.
 2. There is ONLY ONE reasonable way to reach the target knot.
 3. The bridge can be written using ONLY clear logical consequences.
+4. The story has become repetitive 
 
 If you need to guess, NEEDS_INPUT is more likely to be the direction.
 
@@ -87,6 +89,7 @@ The following rules apply to the NEEDS_INPUT guidance text:
 - The user sees the prompt "What would you like to do next?" in the front end UI.
 - The guidance text will appear before it, and should lead into the above question.
 - The text should subtly push the user towards the target while following the rules above.
+- Steer the user back towards the target if they are moving away from it.
 - Do not include a question.
 
 Classification instruction:
